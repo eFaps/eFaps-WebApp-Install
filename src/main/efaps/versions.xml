@@ -38,16 +38,19 @@
     </dependencies>
 
     <version number="1" compile="true" reloadCache="true" >
-        <script>
-            importClass(Packages.org.efaps.importer.DataImport);
-            importClass(Packages.java.io.File);
-            importClass(Packages.org.efaps.db.Context);
+        <script type="groovy">
+            import org.efaps.admin.runlevel.RunLevel;
+            import org.efaps.db.Context;
+            import org.efaps.esjp.admin.ui.UIUpdate;
 
-            Context.begin(EFAPS_USERNAME);
-            url = new File(EFAPS_DIR, "Data/IMPORT_AddExportCmd2Menus.xml").toURL();
-            imp = DataImport.readFile(url);
-            imp.updateInDB();
-            Context.commit();
+            // initialize the run level
+            RunLevel.init("shell");
+            RunLevel.execute();
+
+            // assign command WebApp_UI_Abstract_Export
+            // to menu Admin_UI_CommandTree_Menu_Action
+            UIUpdate update = new UIUpdate();
+            update.add2Menu("d88a1009-921f-49b5-8834-045e1e306a47", "789a8af2-c072-4130-9399-76424d25d9f2", 1);
         </script>
     </version>
 </install>
