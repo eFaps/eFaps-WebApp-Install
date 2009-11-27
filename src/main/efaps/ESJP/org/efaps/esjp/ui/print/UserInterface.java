@@ -31,9 +31,9 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * @author The eFaps Team
  * @version $Id$
  */
-@EFapsUUID("ee38492f-b6db-454d-9c44-353699fb9077")
+@EFapsUUID("5a485b93-84f7-4024-bbf1-093789480767")
 @EFapsRevision("$Rev$")
-public class Table extends Table_Base
+public class UserInterface extends UserInterface_Base
 {
 
 }
