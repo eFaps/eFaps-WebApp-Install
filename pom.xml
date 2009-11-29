@@ -43,6 +43,11 @@
         eFaps which can be easily expanded and altered.
     </description>
 
+    <properties>
+        <!-- correct encoding -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <!-- ************************************************************************
     * Project itself
     ************************************************************************* -->
@@ -56,24 +61,24 @@
         <plugins>
             <!--
                 Compiler Settings:
-                - Java 1.5 is needed!
+                - Java 1.6 is needed!
+                - encoding UTF8
             -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <configuration>
-                    <source>1.5</source>
-                    <target>1.5</target>
+                    <source>1.6</source>
+                    <target>1.6</target>
+                    <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
 
             <plugin>
                 <groupId>org.efaps.maven</groupId>
                 <artifactId>maven-efaps-plugin</artifactId>
-                <version>1.0-SNAPSHOT</version>
                 <executions>
                     <execution>
-                        <phase>generate-resources</phase>
                         <goals>
                             <goal>generate-installation</goal>
                         </goals>
@@ -103,10 +108,10 @@
     * Dependencies
     ************************************************************************* -->
     <dependencies>
-        <!-- eFaps kernel -->
+        <!-- eFaps kernel installation -->
         <dependency>
             <groupId>org.efaps</groupId>
-            <artifactId>efaps-kernel</artifactId>
+            <artifactId>efaps-kernel-install</artifactId>
             <version>${project.version}</version>
         </dependency>
 
