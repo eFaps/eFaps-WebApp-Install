@@ -90,7 +90,7 @@
                     <transactionTimeout>900</transactionTimeout>
                     <!-- used from the generateUUID goal -->
                     <count>${count}</count>
-                    <file>${esjpfile}</file>
+                    <file>${file}</file>
                 </configuration>
                 <dependencies>
                     <!-- Connection Pooling -->
