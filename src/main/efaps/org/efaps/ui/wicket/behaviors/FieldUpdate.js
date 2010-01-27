@@ -19,14 +19,14 @@
  * Last Changed By: $Author$
  */
 
-/* 
+/*
  * @eFapsPackage  org.efaps.ui.wicket.behaviors
  * @eFapsUUID     9dae1678-6945-4141-bbe9-25d916250ae3
  * @eFapsRevision $Rev$
  */
 
 function eFapsSetFieldValue(_referenceId, _fieldName, _fieldValue) {
-    // get the position in the field collection of the given reference 
+    // get the position in the field collection of the given reference
     var refField = document.getElementById(_referenceId);
     var name = refField.getAttribute('name');
     var eFapsFields = document.getElementsByName(name);
@@ -37,10 +37,10 @@ function eFapsSetFieldValue(_referenceId, _fieldName, _fieldValue) {
             break;
         }
     }
-    // get the field collection 
+    // get the field collection
     var fields = document.getElementsByName(_fieldName);
     //only if the field exist go on
-    if (fields.length > 0) { 
+    if (fields.length > 0) {
         var cp = 0;
         if (fields.length > 1) {
             var cp = pos;
@@ -67,8 +67,8 @@ function eFapsSetFieldValue(_referenceId, _fieldName, _fieldValue) {
                 sel.options[sel.length] = option;
             }
         } else {
-            // if it is an input, the value can be set directly, else the dom must be used 
-            if (fields[cp].nodeName == 'INPUT') {
+            // if it is an input, the value can be set directly, else the dom must be used
+            if (fields[cp].nodeName == 'INPUT' || fields[cp].nodeName == 'TEXTAREA') {
                 fields[cp].value = _fieldValue;
             } else {
                 if (fields[cp].hasChildNodes()) {
