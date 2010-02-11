@@ -54,6 +54,13 @@
         If true the keys for the DBProperties will be shown in the Userinterface instead if the value.
             </description>
         </attribute>
+         <attribute>
+            <key>ShowOID</key>
+            <value>false</value>
+            <description>
+        Boolean (true/false). If true the oid of the current object will be shown behind the titel.
+            </description>
+        </attribute>
     </definition>
 </common-systemconfiguration>
 
