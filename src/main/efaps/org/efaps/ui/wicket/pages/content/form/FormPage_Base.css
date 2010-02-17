@@ -19,7 +19,7 @@
  * Last Changed By: $Author$
  */
 
-/* 
+/*
  * @eFapsPackage  org.efaps.ui.wicket.pages.content.form
  * @eFapsUUID     fc702787-b573-42f5-91b5-38f70981a240
  * @eFapsRevision $Rev$
@@ -38,7 +38,7 @@
   width: 16px;
   height: 16px;
   border: 0;
-  vertical-align: bottom;
+  vertical-align: text-bottom;
 }
 
 .eFapsHeading1 {

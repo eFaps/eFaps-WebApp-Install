@@ -89,7 +89,7 @@
   padding-left: 0;
   float: left;
   height: 18px;
-  width: 14px;
+  width: 35px;
 }
 
 .eFapsTableNoData {
@@ -116,4 +116,8 @@
 
 .eFapsTableCellInvalidValue {
   background-color: yellow;
+}
+
+.eFapsTableFirstCell {
+ margin-left: 0;
 }
