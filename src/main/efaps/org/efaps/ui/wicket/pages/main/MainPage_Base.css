@@ -122,8 +122,6 @@ div.eFapsLogoVersion span {
 }
 
 #eFapsUserMsg a:visited,a:link {
-    font-weight: bold;
-    color: #00A000;
     text-decoration: none;
 }
 
