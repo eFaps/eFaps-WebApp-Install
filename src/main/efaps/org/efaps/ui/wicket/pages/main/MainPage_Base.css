@@ -125,7 +125,7 @@ div.eFapsLogoVersion span {
     text-decoration: none;
 }
 
-.unread {
+.unread, .unread a {
     font-weight: bold;
     color: red;
 }
