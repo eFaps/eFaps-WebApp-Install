@@ -75,7 +75,7 @@
   vertical-align: top;
 }
 
-.eFapsTableCell input, .eFapsTableCell textarea {
+.eFapsTableCell input, .eFapsTableCell textarea, .eFapsTableCell select {
     width: inherit;
 }
 

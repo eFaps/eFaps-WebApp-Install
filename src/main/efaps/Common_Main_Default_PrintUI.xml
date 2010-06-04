@@ -39,5 +39,6 @@
         <property name="Target">modal</property>
         <property name="TargetShowFile">true</property>
         <property name="TargetMode">edit</property>
+        <property name="NoUpdateAfterCOMMAND">true</property>
     </definition>
 </ui-command>

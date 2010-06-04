@@ -21,7 +21,6 @@
 package org.efaps.esjp.ui.print;
 
 import org.apache.wicket.RequestCycle;
-
 import org.efaps.admin.datamodel.ui.FieldValue;
 import org.efaps.admin.dbproperty.DBProperties;
 import org.efaps.admin.event.EventExecution;
@@ -83,9 +82,6 @@ public abstract class UserInterface_Base extends StandartReport implements Event
         html.append("<input type=\"radio\" checked=\"checked\" name=\"").append(fieldValue.getField().getName())
             .append("\" value=\"pdf\">").append(DBProperties.getProperty("org.efaps.esjp.ui.print.PDF")).append("<br/>")
             .append("<input type=\"radio\" name=\"").append(fieldValue.getField().getName())
-            .append("\" value=\"ods\">").append(DBProperties.getProperty("org.efaps.esjp.ui.print.ODS"))
-            .append("<br/>")
-            .append("<input type=\"radio\" name=\"").append(fieldValue.getField().getName())
             .append("\" value=\"xls\">").append(DBProperties.getProperty("org.efaps.esjp.ui.print.XLS"))
             .append("<br/>");
         ret.put(ReturnValues.SNIPLETT, html.toString());
@@ -103,7 +99,7 @@ public abstract class UserInterface_Base extends StandartReport implements Event
     {
         final UIAbstractPageObject uiObject = (UIAbstractPageObject) RequestCycle.get().getResponsePage()
                         .getDefaultModelObject();
-        Context.getThreadContext().setSessionAttribute(UserInterface.UIOBJECT_CACHEKEY, uiObject);
+        Context.getThreadContext().setSessionAttribute(UserInterface_Base.UIOBJECT_CACHEKEY, uiObject);
         final FieldValue fieldValue = (FieldValue) _parameter.get(ParameterValues.UIOBJECT);
         final Return ret = new Return();
         final StringBuilder html = new StringBuilder();

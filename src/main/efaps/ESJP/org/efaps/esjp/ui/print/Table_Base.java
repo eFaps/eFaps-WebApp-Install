@@ -24,6 +24,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -36,12 +37,20 @@ import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRField;
 import net.sf.jasperreports.engine.JasperPrint;
 
+import org.efaps.admin.datamodel.Attribute;
+import org.efaps.admin.datamodel.attributetype.BooleanType;
+import org.efaps.admin.datamodel.attributetype.DateTimeType;
+import org.efaps.admin.datamodel.attributetype.DecimalType;
+import org.efaps.admin.datamodel.attributetype.IntegerType;
+import org.efaps.admin.datamodel.attributetype.LongType;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
+import org.efaps.admin.ui.field.Field;
 import org.efaps.db.Context;
 import org.efaps.ui.wicket.models.cell.UITableCell;
 import org.efaps.ui.wicket.models.objects.UIAbstractPageObject;
@@ -49,9 +58,11 @@ import org.efaps.ui.wicket.models.objects.UIRow;
 import org.efaps.ui.wicket.models.objects.UITable;
 import org.efaps.ui.wicket.models.objects.UITableHeader;
 import org.efaps.util.EFapsException;
+import org.joda.time.DateTime;
 
 import ar.com.fdvs.dj.core.DynamicJasperHelper;
 import ar.com.fdvs.dj.core.layout.ClassicLayoutManager;
+import ar.com.fdvs.dj.core.layout.ListLayoutManager;
 import ar.com.fdvs.dj.domain.AutoText;
 import ar.com.fdvs.dj.domain.DynamicReport;
 import ar.com.fdvs.dj.domain.Style;
@@ -63,7 +74,6 @@ import ar.com.fdvs.dj.domain.constants.Font;
 import ar.com.fdvs.dj.domain.constants.Page;
 import ar.com.fdvs.dj.domain.constants.Stretching;
 import ar.com.fdvs.dj.domain.constants.Transparency;
-import ar.com.fdvs.dj.domain.entities.columns.AbstractColumn;
 
 /**
  * TODO comment!
@@ -73,7 +83,8 @@ import ar.com.fdvs.dj.domain.entities.columns.AbstractColumn;
  */
 @EFapsUUID("99ce434b-4177-4e65-99d1-0195434f628d")
 @EFapsRevision("$Rev$")
-public abstract class Table_Base extends UserInterface
+public abstract class Table_Base
+    extends UserInterface
 {
 
     /**
@@ -86,10 +97,8 @@ public abstract class Table_Base extends UserInterface
         throws EFapsException
     {
         final Return ret = new Return();
-
         final Map<?, ?> properties = (Map<?, ?>) _parameter.get(ParameterValues.PROPERTIES);
-
-        final Object object = Context.getThreadContext().getSessionAttribute(UserInterface.UIOBJECT_CACHEKEY);
+        final Object object = Context.getThreadContext().getSessionAttribute(UserInterface_Base.UIOBJECT_CACHEKEY);
         if (object instanceof UIAbstractPageObject) {
 
             final UIAbstractPageObject page = (UIAbstractPageObject) object;
@@ -99,7 +108,14 @@ public abstract class Table_Base extends UserInterface
                 if (mime == null) {
                     mime = _parameter.getParameterValue("mime");
                 }
-                final boolean spreadsheet = "ods".equalsIgnoreCase(mime) || "xls".equalsIgnoreCase(mime);
+                final boolean print = "pdf".equalsIgnoreCase(mime);
+                if (!print) {
+                    page.resetModel();
+                    page.setMode(TargetMode.PRINT);
+                    page.execute();
+                }
+
+                setFileName(page.getTitle());
 
                 final Style detailStyle = new Style();
 
@@ -118,16 +134,22 @@ public abstract class Table_Base extends UserInterface
                 columnHeaderStyle.setTextColor(Color.white);
                 columnHeaderStyle.setStreching(Stretching.NO_STRETCH);
 
-                final DynamicReportBuilder drb = new DynamicReportBuilder();
-                drb.setTitle(page.getTitle())
-                    .setDetailHeight(15)
-                    .setHeaderHeight(15)
-                    .setDefaultStyles(titleStyle, subtitleStyle, headerStyle, detailStyle)
-                    .setColumnsPerPage(1)
-                    .setPageSizeAndOrientation(Page.Page_A4_Landscape());
+                final DynamicReportBuilder drb = new DynamicReportBuilder()
+                    .setTitle(page.getTitle())
+                    .setUseFullPageWidth(true);
 
-                if (!spreadsheet) {
-                    drb.setMargins(20, 20, 20, 20); // (top, bottom, left and right)
+                if (print) {
+                    drb.setDetailHeight(15)
+                        .setHeaderHeight(15)
+                        .setDefaultStyles(titleStyle, subtitleStyle, headerStyle, detailStyle)
+                        .setColumnsPerPage(1)
+                        .setPageSizeAndOrientation(Page.Page_A4_Landscape())
+                        .setMargins(20, 20, 20, 20); // (top, bottom, left and right)
+                } else {
+                    drb.setPrintColumnNames(true)
+                        .setIgnorePagination(true)
+                        .setMargins(0, 0, 0, 0)
+                        .setReportName(page.getTitle());
                 }
 
                 try {
@@ -138,54 +160,87 @@ public abstract class Table_Base extends UserInterface
                         selCols.add(col);
                     }
                     for (final UITableHeader header : ((UITable) page).getHeaders()) {
-                        if (selCols.contains(header.getFieldName())) {
-                            final BigDecimal width = new BigDecimal(header.getWidth()).setScale(2).divide(
-                                            new BigDecimal(widthWeight), BigDecimal.ROUND_HALF_UP).multiply(
-                                            new BigDecimal(555));
-                            final AbstractColumn column = ColumnBuilder.getInstance()
-                                .setColumnProperty(header.getFieldName(), String.class.getName())
-                                .setTitle(header.getLabel())
-                                .setStyle(columnStyle)
-                                .setHeaderStyle(columnHeaderStyle)
-                                .setWidth(header.isFixedWidth() ? header.getWidth() : width.intValue()).build();
-                            drb.addColumn(column);
+                        final boolean add;
+                        if (print) {
+                            add = selCols.contains(header.getFieldName());
+                        } else {
+                            final Field field = Field.get(header.getFieldId());
+                            add = (field.isNoneDisplay(TargetMode.VIEW) && !field.isNoneDisplay(TargetMode.PRINT))
+                                || selCols.contains(header.getFieldName());
+                            if (add && !selCols.contains(header.getFieldName())) {
+                                selCols.add(header.getFieldName());
+                            }
+                        }
+                        if (add) {
+                            final BigDecimal width = new BigDecimal(header.getWidth()).setScale(2)
+                                .divide( new BigDecimal(widthWeight), BigDecimal.ROUND_HALF_UP)
+                                .multiply(new BigDecimal(555));
+
+                            final ColumnBuilder cbldr = ColumnBuilder.getInstance();
+                            String clazzname = String.class.getName();
+                            final Attribute attr = header.getAttribute();
+                            if (attr != null && !print) {
+                                if (attr.getAttributeType().getDbAttrType() instanceof LongType) {
+                                    clazzname = Long.class.getName();
+                                } else if (attr.getAttributeType().getDbAttrType() instanceof LongType) {
+                                    clazzname = Long.class.getName();
+                                } else if (attr.getAttributeType().getDbAttrType() instanceof DecimalType) {
+                                    clazzname = BigDecimal.class.getName();
+                                } else if (attr.getAttributeType().getDbAttrType() instanceof IntegerType) {
+                                    clazzname = Integer.class.getName();
+                                } else if (attr.getAttributeType().getDbAttrType() instanceof BooleanType) {
+                                    clazzname = Boolean.class.getName();
+                                } else if (attr.getAttributeType().getDbAttrType() instanceof DateTimeType) {
+                                    clazzname = Date.class.getName();
+                                }
+                            }
+                            cbldr.setColumnProperty(header.getFieldName(), clazzname)
+                                .setTitle(header.getLabel());
+                            if (print) {
+                                cbldr.setStyle(columnStyle)
+                                    .setHeaderStyle(columnHeaderStyle)
+                                    .setWidth(header.isFixedWidth() ? header.getWidth() : width.intValue());
+                            }
+                            drb.addColumn(cbldr.build());
                         }
                     }
 
-                    final List<Map <String, String>> values = new ArrayList<Map <String, String>>();
+                    final List<Map <String, Object>> values = new ArrayList<Map <String, Object>>();
                     for (final UIRow row : ((UITable) page).getValues()) {
-                        final Map<String, String> map = new HashMap<String, String>();
+                        final Map<String, Object> map = new HashMap<String, Object>();
                         for (final UITableCell cell : row.getValues()) {
                             if (selCols.contains(cell.getName())) {
-                                map.put(cell.getName(), cell.getCellTitle());
+                                Object value = print ?  cell.getCellTitle() : (cell.getCompareValue() != null
+                                                ? cell.getCompareValue() : cell.getCellTitle());
+                                if (value instanceof DateTime) {
+                                    value = ((DateTime) value).toDate();
+                                }
+                                map.put(cell.getName(), value);
                             }
                         }
                         values.add(map);
                     }
-                    drb.setUseFullPageWidth(true);
-                    if (!spreadsheet) {
+
+                    if (print) {
                         drb.addAutoText(AutoText.AUTOTEXT_PAGE_X_OF_Y, AutoText.POSITION_FOOTER,
                                         AutoText.ALIGMENT_RIGHT, 200, 40);
-                    }
-                    drb.addAutoText(AutoText.AUTOTEXT_CREATED_ON, AutoText.POSITION_HEADER, AutoText.ALIGMENT_RIGHT,
+                        drb.addAutoText(AutoText.AUTOTEXT_CREATED_ON, AutoText.POSITION_HEADER, AutoText.ALIGMENT_RIGHT,
                                     AutoText.PATTERN_DATE_DATE_TIME);
-
+                    }
                     drb.setReportLocale(Context.getThreadContext().getLocale());
                     final DynamicReport dr = drb.build(); // Finally build the
                     // report!
                     final JRDataSource ds = new TableSource(values);
-                    final JasperPrint jp = DynamicJasperHelper.generateJasperPrint(dr, new ClassicLayoutManager(), ds);
-
+                    final JasperPrint jp = DynamicJasperHelper.generateJasperPrint(dr,
+                                    print ? new  ClassicLayoutManager() : new ListLayoutManager(), ds);
                     ret.put(ReturnValues.VALUES, super.getFile(jp, mime));
                     ret.put(ReturnValues.TRUE, true);
                 } catch (final ColumnBuilderException e) {
-                    // TODO Auto-generated catch block
+                   throw new EFapsException(Table_Base.class, "ColumnBuilderException", e);
                 } catch (final JRException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    throw new EFapsException(Table_Base.class, "JRException", e);
                 } catch (final IOException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    throw new EFapsException(Table_Base.class, "IOException", e);
                 }
             } else {
                 // ??
@@ -197,22 +252,23 @@ public abstract class Table_Base extends UserInterface
     /**
      * Source for a Table.
      */
-    private class TableSource implements JRDataSource
+    private class TableSource
+        implements JRDataSource
     {
         /**
          * Values for the rows.
          */
-        private final Iterator<Map<String, String>> values;
+        private final Iterator<Map<String, Object>> values;
 
         /**
          * Value for the current row.
          */
-        private Map<String, String> current;
+        private Map<String, Object> current;
 
         /**
          * @param _values values for the rows
          */
-        public TableSource(final List<Map<String, String>> _values)
+        public TableSource(final List<Map<String, Object>> _values)
         {
             this.values = _values.iterator();
         }
