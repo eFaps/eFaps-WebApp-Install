@@ -43,6 +43,7 @@ import org.efaps.admin.datamodel.attributetype.DateTimeType;
 import org.efaps.admin.datamodel.attributetype.DecimalType;
 import org.efaps.admin.datamodel.attributetype.IntegerType;
 import org.efaps.admin.datamodel.attributetype.LongType;
+import org.efaps.admin.datamodel.attributetype.RateType;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Parameter.ParameterValues;
@@ -192,6 +193,8 @@ public abstract class Table_Base
                                     clazzname = Boolean.class.getName();
                                 } else if (attr.getAttributeType().getDbAttrType() instanceof DateTimeType) {
                                     clazzname = Date.class.getName();
+                                } else if (attr.getAttributeType().getDbAttrType() instanceof RateType) {
+                                    clazzname = BigDecimal.class.getName();
                                 }
                             }
                             cbldr.setColumnProperty(header.getFieldName(), clazzname)
