@@ -151,13 +151,10 @@ span {
  * Content iframe
  */
 #eFapsFrameContent {
-    position: absolute;
-    top: 67px;
     width: 100%;
     bottom: 0px;
     left: 0px;
     right: 0px;
-    overflow: hidden;
     padding: 0px;
     margin: 0px;
     height: 100%;
