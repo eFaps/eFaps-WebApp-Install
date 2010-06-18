@@ -157,7 +157,8 @@ span {
     right: 0px;
     padding: 0px;
     margin: 0px;
-    height: 100%;
+    /** initial height is needed to present something before a script sets the correct height */
+    height: 500px;
 }
 
 .eFapsFrameHidden {
