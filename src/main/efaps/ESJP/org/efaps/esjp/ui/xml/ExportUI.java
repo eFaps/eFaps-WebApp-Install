@@ -30,11 +30,6 @@ import java.util.List;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
-import org.apache.xerces.jaxp.DocumentBuilderFactoryImpl;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-
-import org.efaps.admin.EFapsClassNames;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.event.EventExecution;
 import org.efaps.admin.event.Parameter;
@@ -42,266 +37,273 @@ import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.ci.CIAdminUser;
+import org.efaps.ci.CIAdminUserInterface;
 import org.efaps.db.Instance;
 import org.efaps.db.SearchQuery;
 import org.efaps.ui.xml.XMLExport;
 import org.efaps.util.EFapsException;
-
-
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 
 /**
  * TODO comment!
  *
- * @author jmox
+ * @author The eFaps Team
  * @version $Id$
  */
 @EFapsUUID("04ace828-1692-46fb-8ed7-6e2c42122394")
 @EFapsRevision("$Rev$")
-public class ExportUI implements EventExecution {
+public class ExportUI
+    implements EventExecution
+{
 
-  /**
-   * Method doing the actual export.
-   *
-   * @param   _parameter parameter as from eFaps
-   * @return Return with a file
-   * @throws EFapsException on error
-   */
-  public Return execute(final Parameter _parameter) throws EFapsException {
-    final Return ret = new Return();
-    final Instance instance = _parameter.getInstance();
-    final SearchQuery query = new SearchQuery();
-    query.setObject(instance);
-    query.addSelect("UUID");
-    query.addSelect("Name");
-    query.execute();
-    String uuid = null;
-    String name = null;
-    if (query.next()) {
-      uuid = (String) query.get("UUID");
-      name = (String) query.get("Name");
-    }
+    /**
+     * Method doing the actual export.
+     *
+     * @param _parameter parameter as from eFaps
+     * @return Return with a file
+     * @throws EFapsException on error
+     */
+    public Return execute(final Parameter _parameter)
+        throws EFapsException
+    {
+        final Return ret = new Return();
+        final Instance instance = _parameter.getInstance();
+        final SearchQuery query = new SearchQuery();
+        query.setObject(instance);
+        query.addSelect("UUID");
+        query.addSelect("Name");
+        query.execute();
+        String uuid = null;
+        String name = null;
+        if (query.next()) {
+            uuid = (String) query.get("UUID");
+            name = (String) query.get("Name");
+        }
 
-    Document xmlDoc = null;
-    try {
-      // Create a XML Document
-      final DocumentBuilderFactory dbFactory
-                                    = DocumentBuilderFactoryImpl.newInstance();
-      dbFactory.setNamespaceAware(true);
+        Document xmlDoc = null;
+        try {
+            // Create a XML Document
+            final DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            dbFactory.setNamespaceAware(true);
 
-      final DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
+            final DocumentBuilder docBuilder = dbFactory.newDocumentBuilder();
 
-      xmlDoc = docBuilder.newDocument();
-    } catch (final Exception e) {
-      throw new EFapsException(this.getClass(), "execute.documentBuilder", e);
-    }
-    final Element root = xmlDoc.createElement("ui-command");
-    xmlDoc.appendChild(root);
-    root.setAttribute("xmlns", "http://www.efaps.org/xsd");
-    root.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-    root.setAttribute("xsi:schemaLocation",
-            "http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd");
+            xmlDoc = docBuilder.newDocument();
+        } catch (final Exception e) {
+            throw new EFapsException(this.getClass(), "execute.documentBuilder", e);
+        }
+        final Element root = xmlDoc.createElement("ui-command");
+        xmlDoc.appendChild(root);
+        root.setAttribute("xmlns", "http://www.efaps.org/xsd");
+        root.setAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+        root.setAttribute("xsi:schemaLocation",
+                        "http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd");
 
+        final Element uuidEl = xmlDoc.createElement("uuid");
+        uuidEl.appendChild(xmlDoc.createTextNode(uuid));
+        root.appendChild(uuidEl);
 
-    final Element uuidEl = xmlDoc.createElement("uuid");
-    uuidEl.appendChild(xmlDoc.createTextNode(uuid));
-    root.appendChild(uuidEl);
+        final Element appEl = xmlDoc.createElement("file-application");
+        appEl.appendChild(xmlDoc.createTextNode("eFaps-Kernel"));
+        root.appendChild(appEl);
 
-    final Element appEl = xmlDoc.createElement("file-application");
-    appEl.appendChild(xmlDoc.createTextNode("eFaps-Kernel"));
-    root.appendChild(appEl);
+        final Element revEl = xmlDoc.createElement("file-revision");
+        revEl.appendChild(xmlDoc.createTextNode("1"));
+        root.appendChild(revEl);
 
-    final Element revEl = xmlDoc.createElement("file-revision");
-    revEl.appendChild(xmlDoc.createTextNode("1"));
-    root.appendChild(revEl);
+        final Element definitionEl = xmlDoc.createElement("definition");
+        root.appendChild(definitionEl);
 
-    final Element definitionEl = xmlDoc.createElement("definition");
-    root.appendChild(definitionEl);
+        final Element versionEl = xmlDoc.createElement("version-expression");
+        versionEl.appendChild(xmlDoc.createTextNode("(version==latest)"));
+        definitionEl.appendChild(versionEl);
 
-    final Element versionEl = xmlDoc.createElement("version-expression");
-    versionEl.appendChild(xmlDoc.createTextNode("(version==latest)"));
-    definitionEl.appendChild(versionEl);
+        final Element nameEl = xmlDoc.createElement("name");
+        nameEl.appendChild(xmlDoc.createTextNode(name));
+        definitionEl.appendChild(nameEl);
 
-    final Element nameEl = xmlDoc.createElement("name");
-    nameEl.appendChild(xmlDoc.createTextNode(name));
-    definitionEl.appendChild(nameEl);
+        final Element targetEl = xmlDoc.createElement("target");
 
-    final Element targetEl = xmlDoc.createElement("target");
+        final List<Element> targets = evaluateLinks(instance, xmlDoc);
+        for (final Element propEl : targets) {
+            if ("image".equals(propEl.getTagName())) {
+                definitionEl.appendChild(propEl);
+            } else {
+                targetEl.appendChild(propEl);
+            }
+        }
 
-    final List<Element> targets = evaluateLinks(instance, xmlDoc);
-    for (final Element propEl : targets) {
-      if ("image".equals(propEl.getTagName())) {
-        definitionEl.appendChild(propEl);
-      } else {
-        targetEl.appendChild(propEl);
-      }
-    }
+        addAccessElement(instance, xmlDoc, definitionEl);
+        definitionEl.appendChild(targetEl);
 
-    addAccessElement(instance, xmlDoc, definitionEl);
-    definitionEl.appendChild(targetEl);
+        final List<Element> events = evaluateEvents(instance, xmlDoc);
+        for (final Element propEl : events) {
+            targetEl.appendChild(propEl);
+        }
 
-    final List<Element> events = evaluateEvents(instance, xmlDoc);
-    for (final Element propEl : events) {
-      targetEl.appendChild(propEl);
-    }
+        addPropertyElements(instance, xmlDoc, definitionEl);
 
-    addPropertyElements(instance, xmlDoc, definitionEl);
+        xmlDoc.normalizeDocument();
 
-    xmlDoc.normalizeDocument();
+        final String xml = XMLExport.generateXMLString(xmlDoc);
 
-    final String xml = XMLExport.generateXMLString(xmlDoc);
-
-    final File sessionFolder
-            = XMLExport.getSessionFolder(XMLExport.getDefaultFileStoreFolder(),
+        final File sessionFolder = XMLExport.getSessionFolder(XMLExport.getDefaultFileStoreFolder(),
                                          "-export");
-    final File file = new File(sessionFolder, name + ".xml");
+        final File file = new File(sessionFolder, name + ".xml");
 
-    try {
-      final BufferedWriter output = new BufferedWriter(new FileWriter(file));
-      output.write(xml);
-      output.close();
+        try {
+            final BufferedWriter output = new BufferedWriter(new FileWriter(file));
+            output.write(xml);
+            output.close();
 
-    } catch (final IOException e) {
-      throw new EFapsException(this.getClass(), "execute.writter", e);
+        } catch (final IOException e) {
+            throw new EFapsException(this.getClass(), "execute.writter", e);
+        }
+
+        ret.put(ReturnValues.VALUES, file);
+        return ret;
     }
 
-    ret.put(ReturnValues.VALUES, file);
-    return ret;
-  }
-
-  /**
-   * @param _instance   Instance that will be expanded
-   * @param _xmlDoc     xml document used for creation of the new elements
-   * @param _parent     parent element the new elements will be added to
-   * @throws EFapsException on error
-   */
-  private void addPropertyElements(final Instance _instance,
-                                   final Document _xmlDoc,
-                                   final Element _parent)
-      throws EFapsException {
-    final SearchQuery query = new SearchQuery();
-    query.setExpand(_instance, "Admin_Common_Property\\Abstract");
-    query.addSelect("Name");
-    query.addSelect("Value");
-    query.execute();
-    while (query.next()) {
-      final Element propEl = _xmlDoc.createElement("property");
-      propEl.setAttribute("name", (String) query.get("Name"));
-      propEl.appendChild(_xmlDoc.createTextNode((String) query.get("Value")));
-      _parent.appendChild(propEl);
-    }
-  }
-
-  /**
-   * @param _instance   Instance that will be expanded
-   * @param _xmlDoc     xml document used for creation of the new elements
-   * @param _parent     parent element the new elements will be added to
-   * @throws EFapsException on error
-   */
-  private void addAccessElement(final Instance _instance,
-                                final Document _xmlDoc,
-                                final Element _parent)
-      throws EFapsException {
-    final Element element = _xmlDoc.createElement("access");
-    boolean add = false;
-    final SearchQuery query = new SearchQuery();
-    query.setExpand(_instance, "Admin_UI_Access\\UILink.UserLink");
-    query.addSelect("Name");
-    query.addSelect("Type");
-    query.execute();
-    while (query.next()) {
-      String elementType = "";
-      final Type type = (Type) query.get("Type");
-      if (type.equals(Type.get(EFapsClassNames.USER_ROLE))) {
-        elementType = "role";
-      } else if (type.equals(Type.get(EFapsClassNames.USER_PERSON))) {
-        elementType = "person";
-      } else if (type.equals(Type.get(EFapsClassNames.USER_GROUP))) {
-        elementType = "group";
-      }
-
-      final Element propEl = _xmlDoc.createElement(elementType);
-      propEl.appendChild(_xmlDoc.createTextNode((String) query.get("Name")));
-      element.appendChild(propEl);
-      add = true;
-    }
-    if (add) {
-      _parent.appendChild(element);
-    }
-  }
-
-  /**
-   * @param _instance   Instance that will be expanded
-   * @param _xmlDoc     xml document used for creation of the new elements
-   * @return list with elements
-   * @throws EFapsException on error
-   */
-  private List<Element> evaluateLinks(final Instance _instance,
-                                      final Document _xmlDoc)
-      throws EFapsException {
-    final List<Element> ret = new ArrayList<Element>();
-    final SearchQuery query = new SearchQuery();
-    query.setExpand(_instance, "Admin_UI_Link\\From");
-    query.addSelect("To.Type");
-    query.addSelect("To.Name");
-    query.execute();
-    while (query.next()) {
-      String element = "";
-      final Type type = (Type) query.get("To.Type");
-      if (type.equals(Type.get(EFapsClassNames.FORM))) {
-        element = "form";
-      } else if (type.equals(Type.get(EFapsClassNames.MENU))) {
-        element = "menu";
-      } else if (type.equals(Type.get(EFapsClassNames.TABLE))) {
-        element = "table";
-      } else if (type.equals(Type.get(EFapsClassNames.IMAGE))) {
-        element = "image";
-      } else if (type.equals(Type.get(EFapsClassNames.SEARCH))) {
-        element = "search";
-      }
-
-      final Element propEl = _xmlDoc.createElement(element);
-      propEl.appendChild(_xmlDoc.createTextNode((String) query.get("To.Name")));
-      ret.add(propEl);
+    /**
+     * @param _instance Instance that will be expanded
+     * @param _xmlDoc xml document used for creation of the new elements
+     * @param _parent parent element the new elements will be added to
+     * @throws EFapsException on error
+     */
+    private void addPropertyElements(final Instance _instance,
+                                     final Document _xmlDoc,
+                                     final Element _parent)
+        throws EFapsException
+    {
+        final SearchQuery query = new SearchQuery();
+        query.setExpand(_instance, "Admin_Common_Property\\Abstract");
+        query.addSelect("Name");
+        query.addSelect("Value");
+        query.execute();
+        while (query.next()) {
+            final Element propEl = _xmlDoc.createElement("property");
+            propEl.setAttribute("name", (String) query.get("Name"));
+            propEl.appendChild(_xmlDoc.createTextNode((String) query.get("Value")));
+            _parent.appendChild(propEl);
+        }
     }
 
-    return ret;
-  }
+    /**
+     * @param _instance Instance that will be expanded
+     * @param _xmlDoc xml document used for creation of the new elements
+     * @param _parent parent element the new elements will be added to
+     * @throws EFapsException on error
+     */
+    private void addAccessElement(final Instance _instance,
+                                  final Document _xmlDoc,
+                                  final Element _parent)
+        throws EFapsException
+    {
+        final Element element = _xmlDoc.createElement("access");
+        boolean add = false;
+        final SearchQuery query = new SearchQuery();
+        query.setExpand(_instance, "Admin_UI_Access\\UILink.UserLink");
+        query.addSelect("Name");
+        query.addSelect("Type");
+        query.execute();
+        while (query.next()) {
+            String elementType = "";
+            final Type type = (Type) query.get("Type");
+            if (type.equals(Type.get("Admin_User_Role"))) {
+                elementType = "role";
+            } else if (type.equals(CIAdminUser.Person)) {
+                elementType = "person";
+            } else if (type.equals(Type.get("Admin_User_Group"))) {
+                elementType = "group";
+            }
 
-  /**
-   * @param _instance   Instance that will be expanded
-   * @param _xmlDoc     xml document used for creation of the new elements
-   * @return list with elements
-   * @throws EFapsException on error
-   */
-  private List<Element> evaluateEvents(final Instance _instance,
-                                       final Document _xmlDoc)
-      throws EFapsException {
-    final List<Element> ret = new ArrayList<Element>();
-    final SearchQuery query = new SearchQuery();
-    query.setExpand(_instance, "Admin_Event_Definition\\Abstract");
-    query.addSelect("OID");
-    query.addSelect("Type");
-    query.addSelect("Method");
-    query.addSelect("JavaProg.Name");
-    query.execute();
-    while (query.next()) {
-      String element = "";
-      final Type type = (Type) query.get("Type");
-      if (type.equals(Type.get("Admin_UI_TableEvaluateEvent"))) {
-        element = "evaluate";
-      } else if (type.equals(Type.get("Admin_UI_ValidateEvent"))) {
-        element = "validate";
-      } else if (type.equals(Type.get("Admin_UI_CommandExecuteEvent"))) {
-        element = "execute";
-      }
-      final Element propEl = _xmlDoc.createElement(element);
-      propEl.setAttribute("program", (String) query.get("JavaProg.Name"));
-      propEl.setAttribute("method", (String) query.get("Method"));
-
-      final Instance inst = Instance.get((String) query.get("OID"));
-      addPropertyElements(inst, _xmlDoc, propEl);
-      ret.add(propEl);
+            final Element propEl = _xmlDoc.createElement(elementType);
+            propEl.appendChild(_xmlDoc.createTextNode((String) query.get("Name")));
+            element.appendChild(propEl);
+            add = true;
+        }
+        if (add) {
+            _parent.appendChild(element);
+        }
     }
-    return ret;
-  }
+
+    /**
+     * @param _instance Instance that will be expanded
+     * @param _xmlDoc xml document used for creation of the new elements
+     * @return list with elements
+     * @throws EFapsException on error
+     */
+    private List<Element> evaluateLinks(final Instance _instance,
+                                        final Document _xmlDoc)
+        throws EFapsException
+    {
+        final List<Element> ret = new ArrayList<Element>();
+        final SearchQuery query = new SearchQuery();
+        query.setExpand(_instance, "Admin_UI_Link\\From");
+        query.addSelect("To.Type");
+        query.addSelect("To.Name");
+        query.execute();
+        while (query.next()) {
+            String element = "";
+            final Type type = (Type) query.get("To.Type");
+            if (type.equals(CIAdminUserInterface.Form.getType())) {
+                element = "form";
+            } else if (type.equals(CIAdminUserInterface.Menu.getType())) {
+                element = "menu";
+            } else if (type.equals(CIAdminUserInterface.Table.getType())) {
+                element = "table";
+            } else if (type.equals(CIAdminUserInterface.Image.getType())) {
+                element = "image";
+            } else if (type.equals(CIAdminUserInterface.Search.getType())) {
+                element = "search";
+            }
+
+            final Element propEl = _xmlDoc.createElement(element);
+            propEl.appendChild(_xmlDoc.createTextNode((String) query.get("To.Name")));
+            ret.add(propEl);
+        }
+
+        return ret;
+    }
+
+    /**
+     * @param _instance Instance that will be expanded
+     * @param _xmlDoc xml document used for creation of the new elements
+     * @return list with elements
+     * @throws EFapsException on error
+     */
+    private List<Element> evaluateEvents(final Instance _instance,
+                                         final Document _xmlDoc)
+        throws EFapsException
+    {
+        final List<Element> ret = new ArrayList<Element>();
+        final SearchQuery query = new SearchQuery();
+        query.setExpand(_instance, "Admin_Event_Definition\\Abstract");
+        query.addSelect("OID");
+        query.addSelect("Type");
+        query.addSelect("Method");
+        query.addSelect("JavaProg.Name");
+        query.execute();
+        while (query.next()) {
+            String element = "";
+            final Type type = (Type) query.get("Type");
+            if (type.equals(Type.get("Admin_UI_TableEvaluateEvent"))) {
+                element = "evaluate";
+            } else if (type.equals(Type.get("Admin_UI_ValidateEvent"))) {
+                element = "validate";
+            } else if (type.equals(Type.get("Admin_UI_CommandExecuteEvent"))) {
+                element = "execute";
+            }
+            final Element propEl = _xmlDoc.createElement(element);
+            propEl.setAttribute("program", (String) query.get("JavaProg.Name"));
+            propEl.setAttribute("method", (String) query.get("Method"));
+
+            final Instance inst = Instance.get((String) query.get("OID"));
+            addPropertyElements(inst, _xmlDoc, propEl);
+            ret.add(propEl);
+        }
+        return ret;
+    }
 }
