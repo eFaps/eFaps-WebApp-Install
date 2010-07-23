@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2009 The eFaps Team
+ * Copyright 2003 - 2010 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -190,7 +190,8 @@ public abstract class Table_Base
                                 } else if (attr.getAttributeType().getDbAttrType() instanceof IntegerType) {
                                     clazzname = Integer.class.getName();
                                 } else if (attr.getAttributeType().getDbAttrType() instanceof BooleanType) {
-                                    clazzname = Boolean.class.getName();
+                                    // TODO this should be boolean.
+                                    clazzname = String.class.getName();
                                 } else if (attr.getAttributeType().getDbAttrType() instanceof DateTimeType) {
                                     clazzname = Date.class.getName();
                                 } else if (attr.getAttributeType().getDbAttrType() instanceof RateType) {
