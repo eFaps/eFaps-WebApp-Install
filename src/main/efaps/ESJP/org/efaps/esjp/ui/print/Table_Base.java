@@ -160,6 +160,23 @@ public abstract class Table_Base
                     for (final String col : columns) {
                         selCols.add(col);
                     }
+
+                    final List<Map <String, Object>> values = new ArrayList<Map <String, Object>>();
+                    for (final UIRow row : ((UITable) page).getValues()) {
+                        final Map<String, Object> map = new HashMap<String, Object>();
+                        for (final UITableCell cell : row.getValues()) {
+                            if (selCols.contains(cell.getName())) {
+                                Object value = print ?  cell.getCellTitle() : (cell.getCompareValue() != null
+                                                ? cell.getCompareValue() : cell.getCellTitle());
+                                if (value instanceof DateTime) {
+                                    value = ((DateTime) value).toDate();
+                                }
+                                map.put(cell.getName(), value);
+                            }
+                        }
+                        values.add(map);
+                    }
+
                     for (final UITableHeader header : ((UITable) page).getHeaders()) {
                         final boolean add;
                         if (print) {
@@ -177,23 +194,28 @@ public abstract class Table_Base
                                 .divide( new BigDecimal(widthWeight), BigDecimal.ROUND_HALF_UP)
                                 .multiply(new BigDecimal(555));
 
-                            final ColumnBuilder cbldr = ColumnBuilder.getInstance();
+                            final ColumnBuilder cbldr = ColumnBuilder.getNew();
                             String clazzname = String.class.getName();
                             final Attribute attr = header.getAttribute();
                             if (attr != null && !print) {
                                 if (attr.getAttributeType().getDbAttrType() instanceof LongType) {
-                                    clazzname = Long.class.getName();
-                                } else if (attr.getAttributeType().getDbAttrType() instanceof LongType) {
-                                    clazzname = Long.class.getName();
+                                    if (checkValues(values, header.getFieldName(), Long.class)) {
+                                        clazzname = Long.class.getName();
+                                    }
                                 } else if (attr.getAttributeType().getDbAttrType() instanceof DecimalType) {
-                                    clazzname = BigDecimal.class.getName();
+                                    if (checkValues(values, header.getFieldName(), BigDecimal.class)) {
+                                        clazzname = BigDecimal.class.getName();
+                                    }
                                 } else if (attr.getAttributeType().getDbAttrType() instanceof IntegerType) {
                                     clazzname = Integer.class.getName();
                                 } else if (attr.getAttributeType().getDbAttrType() instanceof BooleanType) {
-                                    // TODO this should be boolean.
-                                    clazzname = String.class.getName();
+                                    if (checkValues(values, header.getFieldName(), Boolean.class)) {
+                                        clazzname = Boolean.class.getName();
+                                    }
                                 } else if (attr.getAttributeType().getDbAttrType() instanceof DateTimeType) {
-                                    clazzname = Date.class.getName();
+                                    if (checkValues(values, header.getFieldName(), Date.class)) {
+                                        clazzname = Date.class.getName();
+                                    }
                                 } else if (attr.getAttributeType().getDbAttrType() instanceof RateType) {
                                     clazzname = BigDecimal.class.getName();
                                 }
@@ -207,22 +229,6 @@ public abstract class Table_Base
                             }
                             drb.addColumn(cbldr.build());
                         }
-                    }
-
-                    final List<Map <String, Object>> values = new ArrayList<Map <String, Object>>();
-                    for (final UIRow row : ((UITable) page).getValues()) {
-                        final Map<String, Object> map = new HashMap<String, Object>();
-                        for (final UITableCell cell : row.getValues()) {
-                            if (selCols.contains(cell.getName())) {
-                                Object value = print ?  cell.getCellTitle() : (cell.getCompareValue() != null
-                                                ? cell.getCompareValue() : cell.getCellTitle());
-                                if (value instanceof DateTime) {
-                                    value = ((DateTime) value).toDate();
-                                }
-                                map.put(cell.getName(), value);
-                            }
-                        }
-                        values.add(map);
                     }
 
                     if (print) {
@@ -249,6 +255,52 @@ public abstract class Table_Base
             } else {
                 // ??
             }
+        }
+        return ret;
+    }
+
+    /**
+     * Check values of a map to return true or false.
+     *
+     * @param _values map of values.
+     * @param _name name of the Attribute.
+     * @param _type of the Class.
+     * @return ret Boolean.
+     */
+    private boolean checkValues(final List<Map<String, Object>> _values,
+                                final String _name,
+                                final Class<?> _type)
+    {
+        boolean ret = true;
+        for (final Map<String, Object> map : _values) {
+            final Object object = map.get(_name);
+            if (!_type.isInstance(object)) {
+                if (_type.equals(Long.class)) {
+                    if (object == null) {
+                        map.put(_name, new Long(0));
+                    } else {
+                        ret = false;
+                        break;
+                    }
+                } else if (_type.equals(Boolean.class)) {
+                    if (object == null) {
+                        map.put(_name, new Boolean(false));
+                    } else {
+                        ret = false;
+                        break;
+                    }
+                } else if (_type.equals(Date.class)) {
+                    ret = false;
+                    break;
+                } else if (_type.equals(BigDecimal.class)) {
+                    ret = false;
+                    break;
+                } else {
+                    ret = false;
+                    break;
+                }
+            }
+
         }
         return ret;
     }
