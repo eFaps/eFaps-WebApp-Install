@@ -293,8 +293,14 @@ public abstract class Table_Base
                     ret = false;
                     break;
                 } else if (_type.equals(BigDecimal.class)) {
-                    ret = false;
-                    break;
+                    if (object == null) {
+                        map.put(_name, BigDecimal.ZERO);
+                    } else if (((String) object).isEmpty()) {
+                        map.put(_name, BigDecimal.ZERO);
+                    } else {
+                        ret = false;
+                        break;
+                    }
                 } else {
                     ret = false;
                     break;
