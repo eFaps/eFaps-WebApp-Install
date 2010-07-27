@@ -160,7 +160,7 @@ public abstract class Table_Base
                     for (final String col : columns) {
                         selCols.add(col);
                     }
-
+                    final Map<String, Attribute> selAttr = new HashMap<String, Attribute>();
                     final List<Map <String, Object>> values = new ArrayList<Map <String, Object>>();
                     for (final UIRow row : ((UITable) page).getValues()) {
                         final Map<String, Object> map = new HashMap<String, Object>();
@@ -172,6 +172,7 @@ public abstract class Table_Base
                                     value = ((DateTime) value).toDate();
                                 }
                                 map.put(cell.getName(), value);
+                                selAttr.put(cell.getName(), cell.getAttribute());
                             }
                         }
                         values.add(map);
@@ -196,7 +197,7 @@ public abstract class Table_Base
 
                             final ColumnBuilder cbldr = ColumnBuilder.getNew();
                             String clazzname = String.class.getName();
-                            final Attribute attr = header.getAttribute();
+                            final Attribute attr = selAttr.get(header.getFieldName());
                             if (attr != null && !print) {
                                 if (attr.getAttributeType().getDbAttrType() instanceof LongType) {
                                     if (checkValues(values, header.getFieldName(), Long.class)) {
