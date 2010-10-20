@@ -61,6 +61,16 @@
         Boolean (true/false). If true the oid of the current object will be shown behind the titel.
             </description>
         </attribute>
+        <attribute>
+            <key>ClassificationTreeExpandState</key>
+            <value>to be set for implementation</value>
+            <description>
+        Properties setting the default expand state of the Tree for Classifications. e.g. Products_Class=false means that the tree will not be expanded. DefaultValue is true.
+            </description>
+        </attribute>
+
+
+
     </definition>
 </common-systemconfiguration>
 
