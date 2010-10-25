@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+
+  Copyright 2003 - 2010 The eFaps Team
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+  http://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+
+  Author:          The eFaps Team
+  Revision:        $Rev: 2152 $
+  Last Changed:    $Date: 2009-01-29 17:11:40 -0500 (Thu, 29 Jan 2009) $
+  Last Changed By: $Author: jmox $
+
+-->
+
+<ui-command xmlns="http://www.efaps.org/xsd"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+
+    <uuid>df7a3915-4f14-43fd-9dd5-4157831ed4f3</uuid>
+    <file-application>eFaps-webapp</file-application>
+    <file-revision>$Rev: 2152 $</file-revision>
+
+    <definition>
+        <version-expression>(version==latest)</version-expression>
+        <name>WebApp_ToggleDevUtil</name>
+        <target>
+            <execute program="org.efaps.esjp.ui.dev.DevUtils" method="toggleDevUtils" />
+        </target>
+        <property name="Target">hidden</property>
+    </definition>
+</ui-command>
