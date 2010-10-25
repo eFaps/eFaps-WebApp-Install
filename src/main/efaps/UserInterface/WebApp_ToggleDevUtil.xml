@@ -34,6 +34,9 @@
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>WebApp_ToggleDevUtil</name>
+        <access>
+            <role>Administration</role>
+        </access>
         <target>
             <execute program="org.efaps.esjp.ui.dev.DevUtils" method="toggleDevUtils" />
         </target>
