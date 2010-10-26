@@ -341,7 +341,7 @@
         <dependency>
             <groupId>org.efaps</groupId>
             <artifactId>efaps-webapp</artifactId>
-            <version>LATEST</version>
+            <version>1.5.2-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
