@@ -25,14 +25,14 @@ import org.efaps.admin.datamodel.ui.FieldValue;
 import org.efaps.admin.dbproperty.DBProperties;
 import org.efaps.admin.event.EventExecution;
 import org.efaps.admin.event.Parameter;
-import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Parameter.ParameterValues;
+import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.Context;
 import org.efaps.esjp.common.jasperreport.StandartReport;
-import org.efaps.ui.wicket.models.objects.UIAbstractPageObject;
+import org.efaps.ui.wicket.models.objects.AbstractUIPageObject;
 import org.efaps.ui.wicket.models.objects.UITable;
 import org.efaps.ui.wicket.models.objects.UITableHeader;
 import org.efaps.util.EFapsException;
@@ -97,7 +97,7 @@ public abstract class UserInterface_Base extends StandartReport implements Event
     public Return getColumnsFieldValueUI(final Parameter _parameter)
         throws EFapsException
     {
-        final UIAbstractPageObject uiObject = (UIAbstractPageObject) RequestCycle.get().getResponsePage()
+        final AbstractUIPageObject uiObject = (AbstractUIPageObject) RequestCycle.get().getResponsePage()
                         .getDefaultModelObject();
         Context.getThreadContext().setSessionAttribute(UserInterface_Base.UIOBJECT_CACHEKEY, uiObject);
         final FieldValue fieldValue = (FieldValue) _parameter.get(ParameterValues.UIOBJECT);
