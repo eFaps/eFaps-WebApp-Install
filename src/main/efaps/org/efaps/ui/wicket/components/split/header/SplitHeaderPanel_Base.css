@@ -18,100 +18,136 @@
  * Last Changed:    $Date$
  * Last Changed By: $Author$
  */
- 
- /* 
+/*
  * @eFapsPackage  org.efaps.ui.wicket.components.split.header
  * @eFapsUUID     718846d1-99ef-4e55-b9a8-400ce35678ce
  * @eFapsRevision $Rev$
  */
- 
 .eFapsSplitImageContract {
-  position: absolute;
-  background-image:
-    url("../../servlet/image/org.efaps.ui.wicket.components.split.header.Contract.png")
-    ;
-  width: 16px;
-  height: 16px;
-  right: 2px;
-  top: 2px;
+    position: absolute;
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.components.split.header.Contract.png");
+    width: 16px;
+    height: 16px;
+    right: 2px;
+    top: 2px;
 }
 
 .eFapsSplitImageExpand {
-  position: absolute;
-  background-image:
-    url("../../servlet/image/org.efaps.ui.wicket.components.split.header.Expand.png");
-  width: 16px;
-  height: 16px;
-  left: 2px;
-  top: 2px;
+    position: absolute;
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.components.split.header.Expand.png");
+    width: 16px;
+    height: 16px;
+    left: 2px;
+    top: 2px;
 }
 
 .eFapsSplitImageContractVertical {
-  position: absolute;
-  background-image:
-    url("../../servlet/image/org.efaps.ui.wicket.components.split.header.Contract_vert.png")
-    ;
-  width: 16px;
-  height: 16px;
-  right: 20px;
-  top: 2px;
+    position: absolute;
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.components.split.header.Contract_vert.png");
+    width: 16px;
+    height: 16px;
+    right: 20px;
+    top: 2px;
 }
 
 .eFapsSplitImageExpandVertical {
-  position: absolute;
-  background-image:
-    url("../../servlet/image/org.efaps.ui.wicket.components.split.header.Expand_vert.png")
-    ;
-  width: 16px;
-  height: 16px;
-  right: 20px;
-  top: 2px;
+    position: absolute;
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.components.split.header.Expand_vert.png");
+    width: 16px;
+    height: 16px;
+    right: 20px;
+    top: 2px;
 }
 
 .eFapsSplitHeader {
-  position: absolute;
-  background-color: #EFEBDE;
-  border-bottom-style: solid;
-  border-bottom-width: 1px;
-  border-color: black;
-  height: 19px;
-  width: 100%;
-  white-space: nowrap;
-  z-index: 20;
+    position: absolute;
+    background-color: #EFEBDE;
+    border-bottom-style: solid;
+    border-bottom-width: 1px;
+    border-color: black;
+    height: 19px;
+    width: 100%;
+    white-space: nowrap;
+    z-index: 20;
 }
 
 .eFapsSplitHeader img,.eFapsSplitHeaderVert img {
-  border: 0;
-  padding-right: 4px;
+    border: 0;
+    padding-right: 4px;
 }
 
 .eFapsSplitHeaderVert img {
-  border: 0;
-  padding-left: 2px;
+    border: 0;
+    padding-left: 2px;
 }
 
 .eFapsSplitHeaderClosed {
-  background-color: #EFEBDE;
-  border-left-style: solid;
-  border-left-width: 1px;
-  border-color: black;
-  z-index: 20;
-  height: 100%;
+    background-color: #EFEBDE;
+    border-left-style: solid;
+    border-left-width: 1px;
+    border-color: black;
+    z-index: 20;
+    height: 100%;
 }
 
 .eFapsSplitTitel {
-  position: absolute;
-  font-family: arial, verdana, helvetica, sans-serif;
-  font-size: 10pt;
-  font-weight: bold;
-  left: 2px;
-  top: 2px;
+    position: absolute;
+    font-family: arial, verdana, helvetica, sans-serif;
+    font-size: 10pt;
+    font-weight: bold;
+    left: 2px;
+    top: 2px;
 }
 
 .eFapsSplitTitelHide {
-  display: none;
+    display: none;
 }
 
 .dijitContentPane {
-  overflow-x: hidden;
+    overflow-x: hidden;
+}
+
+.eFapsRecent {
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.components.split.header.Recent.png");
+    background-position:center center;
+    background-repeat:no-repeat;
+    font-family: arial, verdana, helvetica, sans-serif;
+    font-size: 10pt;
+    font-weight: bold;
+    height: 100%;
+    left: 20px;
+    padding: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+    margin-left: 25px;
+    margin-right: 25px;
+}
+
+.eFapsRecent li {
+    display: none;
+    list-style-type: none;
+    background-color: #EFEBDE;
+    position: relative;
+    left: 0px;
+    overflow: hidden;
+    padding-top: 2px;
+    padding-left: 2px;
+    padding-right: 2px;
+    color: #008800;
+}
+
+.eFapsRecent:hover {
+    cursor: pointer;
+    height: auto;
+    border-bottom: 1px solid;
+    border-left: 1px solid;
+    border-right: 1px solid;
+}
+
+.eFapsRecent:hover li {
+    display: block;
+}
+
+.eFapsRecent li:hover {
+    background-color: #D0EDB8;
 }

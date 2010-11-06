@@ -68,7 +68,16 @@
         Properties setting the default expand state of the Tree for Classifications. e.g. Products_Class=false means that the tree will not be expanded. DefaultValue is true.
             </description>
         </attribute>
-
+        <attribute>
+            <key>RecentCacheSize</key>
+            <value>5</value>
+            <description>Integer Value. Number of recent links that will be used in the webapp.</description>
+        </attribute>
+        <attribute>
+            <key>RecentLinkMaxLenght</key>
+            <value>25</value>
+            <description>Max Length of the Label inside the Recent Link.</description>
+        </attribute>
 
 
     </definition>
