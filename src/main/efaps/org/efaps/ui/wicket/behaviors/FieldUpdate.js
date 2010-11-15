@@ -25,16 +25,22 @@
  * @eFapsRevision $Rev$
  */
 
-function eFapsSetFieldValue(_referenceId, _fieldName, _fieldValue) {
-    // get the position in the field collection of the given reference
-    var refField = document.getElementById(_referenceId);
-    var name = refField.getAttribute('name');
-    var eFapsFields = document.getElementsByName(name);
+function eFapsSetFieldValue(_referenceIdOrIdx,
+                            _fieldName,
+                            _fieldValue) {
     var pos = 0;
-    for ( var i = 0; i < eFapsFields.length; i++) {
-        if (eFapsFields[i].id == _referenceId) {
-            pos = i;
-            break;
+    if(typeof(_referenceIdOrIdx) == 'number') {
+        pos = _referenceIdOrIdx;
+    } else {
+        // get the position in the field collection of the given reference
+        var refField = document.getElementById(_referenceIdOrIdx);
+        var name = refField.getAttribute('name');
+        var eFapsFields = document.getElementsByName(name);
+        for ( var i = 0; i < eFapsFields.length; i++) {
+            if (eFapsFields[i].id == _referenceIdOrIdx) {
+                pos = i;
+                break;
+            }
         }
     }
     // get the field collection
