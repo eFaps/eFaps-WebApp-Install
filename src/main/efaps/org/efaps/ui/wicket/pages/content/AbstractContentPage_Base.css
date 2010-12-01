@@ -106,4 +106,14 @@ a:visited,a:link {
     position: absolute;
     top: 50%;
     width: 55px;
+    z-index: 999988;
 }
+
+.eFapsPickerLink:hover {
+    cursor: pointer;
+}
+
+.eFapsPickerLink img {
+    vertical-align: text-bottom;
+}
+
