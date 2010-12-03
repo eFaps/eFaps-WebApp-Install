@@ -109,6 +109,12 @@ a:visited,a:link {
     z-index: 999988;
 }
 
+.eFapsTableCell .eFapsPickerLink {
+    position: relative;
+    right: 25px;
+    top: 2px;
+}
+
 .eFapsPickerLink:hover {
     cursor: pointer;
 }
