@@ -19,15 +19,15 @@
  * Last Changed By: $Author$
  */
 
-/* 
+/*
  * @eFapsPackage  org.efaps.ui.wicket.components.tree
  * @eFapsUUID     8adcb99e-a521-4f44-9472-6aa8ef413866
  * @eFapsRevision $Rev$
  * @eFapsExtends  org.efaps.ui.wicket.components.tree.tree-table.css
- * 
+ *
  * Extends the original from wicket to fit into eFaps.
  */
- 
+
 
 
 div.wicket-tree-table {
@@ -57,23 +57,23 @@ div.wicket-tree-table span.icon {
 }
 
 div.wicket-tree-table span.junction {
-  background-image: url("../../servlet/image/org.efaps.ui.wicket.components.tree.tree-images.png"); 
+  background-image: url("../../servlet/image/org.efaps.ui.wicket.components.tree.tree-images.png");
 }
 
 div.wicket-tree-table span.junction-last {
-  background-image: url("../../servlet/image/org.efaps.ui.wicket.components.tree.tree-images.png"); 
+  background-image: url("../../servlet/image/org.efaps.ui.wicket.components.tree.tree-images.png");
 }
 
 div.wicket-tree-table span.plus {
-  background-image: url("../../servlet/image/org.efaps.ui.wicket.components.tree.tree-images.png"); 
+  background-image: url("../../servlet/image/org.efaps.ui.wicket.components.tree.tree-images.png");
 }
 
 div.wicket-tree-table span.minus {
-  background-image: url("../../servlet/image/org.efaps.ui.wicket.components.tree.tree-images.png"); 
+  background-image: url("../../servlet/image/org.efaps.ui.wicket.components.tree.tree-images.png");
 }
 
 div.wicket-tree-table span.corner {
-  background-image: url("../../servlet/image/org.efaps.ui.wicket.components.tree.tree-images.png"); 
+  background-image: url("../../servlet/image/org.efaps.ui.wicket.components.tree.tree-images.png");
 }
 
 div.wicket-tree-table a:hover {
@@ -81,14 +81,14 @@ div.wicket-tree-table a:hover {
 }
 
 div.wicket-tree-table span.indent-line {
-  background-image: url("../../servlet/image/org.efaps.ui.wicket.components.tree.tree-images.png"); 
+  background-image: url("../../servlet/image/org.efaps.ui.wicket.components.tree.tree-images.png");
 }
 
 div.wicket-tree-table div.row-selected  {
   background-color: #d0edb8;
 }
 
-div.wicket-tree-table div.row , 
+div.wicket-tree-table div.row ,
 div.wicket-tree-table div.row-selected
 /* div.wicket-tree-table div.row-selected span.b_ */ {
   background-image: url("../../servlet/image/org.efaps.ui.wicket.components.tree.dotted-line.png");
@@ -144,3 +144,30 @@ div.wicket-tree-table div.header span.sortLabelDsc {
   cursor: pointer;
 }
 
+.eFapsStructBrowserTableEdit {
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.components.tree.edit.png");
+    background-repeat: no-repeat;
+    background-position: center center;
+    height:16px;
+    position:absolute;
+    left:0px;
+    width:16px;
+    padding-left:4px;
+}
+
+.eFapsStructBrowserTableEdit img {
+    border:0;
+}
+
+.eFapsStructBrowserTableEdit a {
+    display: none;
+}
+
+.eFapsStructBrowserTableEdit:hover {
+    background-image: none;
+    width: auto;
+}
+
+.eFapsStructBrowserTableEdit:hover a {
+    display: block;
+}

@@ -21,7 +21,7 @@
  Last Changed:    $Date: 2009-06-05 12:33:19 -0500 (Fri, 05 Jun 2009) $
  Last Changed By: $Author: jan.moxter $
  Original Author: Mark James (mjames at gmail.com)
- Original Name:   folder_delete.png
+ Original Name:   pencil.png
  Original Web:    Silk icon set 1.3
                   [ http://www.famfamfam.com/lab/icons/silk/ ]
  Original License:Creative Commons Attribution 2.5 License
@@ -33,13 +33,13 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
 
-    <uuid>268dde59-93d2-4251-9be2-e1d472e8101b</uuid>
+    <uuid>b2dd32e2-b203-47c9-85a4-8e8e28eb9ca2</uuid>
     <file-application>eFaps-webapp</file-application>
     <file-revision>$Rev: 2566 $</file-revision>
 
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>org.efaps.ui.wicket.components.tree.folder_delete.png</name>
-        <file>folder_delete.png</file>
+        <name>org.efaps.ui.wicket.components.tree.edit.png</name>
+        <file>edit.png</file>
     </definition>
 </ui-image>
