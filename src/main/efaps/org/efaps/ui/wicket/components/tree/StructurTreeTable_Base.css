@@ -165,7 +165,13 @@ div.wicket-tree-table div.header span.sortLabelDsc {
 
 .eFapsStructBrowserTableEdit:hover {
     background-image: none;
+    background-color: white;
+    border-color: grey;
+    border-style: solid;
+    border-width: 2px;
+    padding: 1px;
     width: auto;
+    z-index: 999;
 }
 
 .eFapsStructBrowserTableEdit:hover a {
