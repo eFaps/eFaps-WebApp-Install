@@ -33,12 +33,16 @@
         <version-expression>(version==latest)</version-expression>
         <name>Common_Main_PrintForm</name>
         <field name="mime">
-            <property name="ModeCreate">READONLY</property>
+            <property name="ModeCreate">EDITABLE</property>
             <property name="Label">Common_Main_PrintForm.mime.Label</property>
             <trigger program="org.efaps.esjp.ui.print.UserInterface"
                 method="getMimeFieldValueUI"
                 name="Common_Main_PrintForm.mime.UI_FIELD_VALUE"
                 event="UI_FIELD_VALUE"/>
+            <trigger program="org.efaps.esjp.ui.print.UserInterface"
+                method="updateColumnsFieldValueUI"
+                name="Common_Main_PrintForm.mime.UI_FIELD_UPDATE"
+                event="UI_FIELD_UPDATE"/>
         </field>
         <field name="columns">
             <property name="ModeCreate">READONLY</property>

@@ -20,8 +20,14 @@
 
 package org.efaps.esjp.ui.print;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.wicket.RequestCycle;
 import org.efaps.admin.datamodel.ui.FieldValue;
+import org.efaps.admin.datamodel.ui.UIInterface;
 import org.efaps.admin.dbproperty.DBProperties;
 import org.efaps.admin.event.EventExecution;
 import org.efaps.admin.event.Parameter;
@@ -30,6 +36,7 @@ import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.db.Context;
 import org.efaps.esjp.common.jasperreport.StandartReport;
 import org.efaps.ui.wicket.models.objects.AbstractUIPageObject;
@@ -79,11 +86,12 @@ public abstract class UserInterface_Base extends StandartReport implements Event
         final Return ret = new Return();
         final StringBuilder html = new StringBuilder();
 
-        html.append("<input type=\"radio\" checked=\"checked\" name=\"").append(fieldValue.getField().getName())
-            .append("\" value=\"pdf\">").append(DBProperties.getProperty("org.efaps.esjp.ui.print.PDF")).append("<br/>")
-            .append("<input type=\"radio\" name=\"").append(fieldValue.getField().getName())
-            .append("\" value=\"xls\">").append(DBProperties.getProperty("org.efaps.esjp.ui.print.XLS"))
-            .append("<br/>");
+        html.append("<select ").append(UIInterface.EFAPSTMPTAG).append(" name=\"")
+            .append(fieldValue.getField().getName()).append("\" size=\"1\">")
+            .append("<option value=\"pdf\" selected=\"selected\">")
+            .append(DBProperties.getProperty("org.efaps.esjp.ui.print.PDF")).append("</option>")
+            .append("<option value=\"xls\">").append(DBProperties.getProperty("org.efaps.esjp.ui.print.XLS"))
+            .append("</option></select>");
         ret.put(ReturnValues.SNIPLETT, html.toString());
         return ret;
     }
@@ -103,17 +111,62 @@ public abstract class UserInterface_Base extends StandartReport implements Event
         final FieldValue fieldValue = (FieldValue) _parameter.get(ParameterValues.UIOBJECT);
         final Return ret = new Return();
         final StringBuilder html = new StringBuilder();
+        html.append("<span id=\"eFapsColumns4Report\">");
+        html.append(updateColumns(uiObject));
+        html.append("</span>");
+        ret.put(ReturnValues.SNIPLETT, html.toString());
+        return ret;
+    }
+
+    /**
+     * Method to update the columns to show depending if it's pdf or xls.
+     *
+     * @param _parameter as passed from eFaps API.
+     * @return Return with javascript.
+     * @throws EFapsException on error.
+     */
+    public Return updateColumnsFieldValueUI(final Parameter _parameter) throws EFapsException {
+        final Return ret = new Return();
+        final List<Map<String, String>> list = new ArrayList<Map<String, String>>();
+        final Map<String, String> map = new HashMap<String, String>();
+        final String mime = _parameter.getParameterValue("mime");
+        final TargetMode print = "xls".equalsIgnoreCase(mime) ? TargetMode.PRINT : TargetMode.VIEW;
+
+        final Object object = Context.getThreadContext().getSessionAttribute(UserInterface_Base.UIOBJECT_CACHEKEY);
+        final AbstractUIPageObject page = (AbstractUIPageObject) object;
+        page.resetModel();
+        page.setMode(print);
+        page.execute();
+
+        final StringBuilder html = updateColumns(page);
+        final StringBuilder js = new StringBuilder();
+        js.append("document.getElementById('eFapsColumns4Report').innerHTML='").append(html).append("';");
+
+        map.put("eFapsFieldUpdateJS", js.toString());
+        list.add(map);
+
+        ret.put(ReturnValues.VALUES, list);
+        return ret;
+    }
+
+    /**
+     * Method to get the columns of the table.
+     *
+     * @param uiObject with the data.
+     * @return StringBuilder
+     */
+    public StringBuilder updateColumns(final AbstractUIPageObject uiObject) {
+        final StringBuilder html = new StringBuilder();
         if (uiObject instanceof UITable) {
             int i = 1;
             for (final UITableHeader header : ((UITable) uiObject).getHeaders()) {
                 html.append("<input type=\"checkbox\" ")
                     .append(header.getLabel().length() < 1 ? "" : "checked=\"checked\"")
                     .append(" name=\"")
-                    .append(fieldValue.getField().getName()).append("\" value=\"").append(header.getFieldName())
+                    .append("columns").append("\" value=\"").append(header.getFieldName())
                     .append("\">").append(i++).append(": ").append(header.getLabel()).append("<br/>");
             }
         }
-        ret.put(ReturnValues.SNIPLETT, html.toString());
-        return ret;
+        return html;
     }
 }
