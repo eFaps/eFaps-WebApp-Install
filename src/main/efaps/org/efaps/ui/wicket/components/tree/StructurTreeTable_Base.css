@@ -177,3 +177,14 @@ div.wicket-tree-table div.header span.sortLabelDsc {
 .eFapsStructBrowserTableEdit:hover a {
     display: block;
 }
+
+
+.eFapsContentDiv .wicket-tree-table {
+    position: relative;
+    top: auto;
+}
+
+.eFapsContentDiv .wicket-tree-table-body {
+    position: relative;
+    top: auto;
+}
