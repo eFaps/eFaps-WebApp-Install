@@ -83,7 +83,29 @@ public abstract class StandartStructurBrowser_Base
             ret = sort(_parameter);
         } else if (status.equals(ExecutionStatus.CHECKHIDECOLUMN4ROW)) {
             ret = checkHideColumn4Row(_parameter);
+        } else if(status.equals(ExecutionStatus.GETJAVASCRIPT4TARGET)) {
+            ret = getJavaScript4Target(_parameter);
         }
+        return ret;
+    }
+
+    /**
+     * Method is called after the insert etc. of a new node in edit mode to
+     * get a JavaScript that will be appended to the AjaxTarget.
+     * In this Step the values for the StructurBrowsers also can be altered.
+     *
+     * @param _parameter as passed from eFaps API.
+     * @return Return with SNIPPLET
+     * @throws EFapsException on error
+     */
+    protected Return getJavaScript4Target(final Parameter _parameter)
+        throws EFapsException
+    {
+        final Return ret = new Return();
+        //EXAMPLE to be done by implementation
+        //  StringBuilder js = new StringBuilder();
+        //  js.append("document.getElementById..");
+        //  ret.put(ReturnValues.SNIPLETT, js.toString());
         return ret;
     }
 
