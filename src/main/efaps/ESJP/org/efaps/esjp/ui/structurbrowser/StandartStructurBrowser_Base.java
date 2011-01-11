@@ -120,20 +120,67 @@ public abstract class StandartStructurBrowser_Base
         throws EFapsException
     {
         final Return ret = new Return();
+        final Instance instance = _parameter.getInstance();
         final Map<Instance, Boolean> tree = new LinkedHashMap<Instance, Boolean>();
         final Map<?, ?> properties = (Map<?, ?>) _parameter.get(ParameterValues.PROPERTIES);
+
         final String typesStr = (String) properties.get("Types");
-        final String[] types = typesStr.split(";");
-        for (final String type : types) {
-            final QueryBuilder queryBldr = new QueryBuilder(Type.get(type));
-            final InstanceQuery query = queryBldr.getQuery();
-            query.execute();
-            while (query.next()) {
-                tree.put(query.getCurrentValue(), null);
+        final String linkFromsStr = (String) properties.get("LinkFroms");
+        final boolean includeChildTypes = !"false".equalsIgnoreCase((String) properties.get("ExpandChildTypes"));
+
+        if (this.LOG.isDebugEnabled()) {
+            this.LOG.debug("Types: {}\n LinkFroms: {}\n ExpandChildTypes: {}",
+                                            new Object[]{typesStr, linkFromsStr, includeChildTypes});
+        }
+        if (typesStr != null && !typesStr.isEmpty()) {
+            final String[] typesArray = typesStr.split(";");
+            for (int i = 0; i < typesArray.length; i++) {
+                final Type type = Type.get(typesArray[i]);
+                final QueryBuilder queryBldr = new QueryBuilder(type);
+                if (linkFromsStr != null) {
+                    final String[] linkFroms = linkFromsStr.split(";");
+                    queryBldr.addWhereAttrEqValue(linkFroms[i], instance.getId());
+                }
+                addCriteria(_parameter, queryBldr);
+                final InstanceQuery query = queryBldr.getQuery();
+                query.execute();
+                while (query.next()) {
+                    tree.put(query.getCurrentValue(), null);
+                }
             }
         }
         ret.put(ReturnValues.VALUES, tree);
         return ret;
+    }
+
+    /**
+     * Add additional Criteria to the QueryBuilder.
+     * To be used by implementation.
+     *
+     * @param _parameter Parameter as passed from the eFaps API
+     * @param _queryBldr QueryBuilder the criteria will be added to
+     * @throws EFapsException on error
+     */
+    protected void addCriteria(final Parameter _parameter,
+                               final QueryBuilder _queryBldr)
+        throws EFapsException
+    {
+        // used by implementation
+    }
+
+    /**
+     * Add additional Criteria to the QueryBuilder.
+     * To be used by implementation.
+     *
+     * @param _parameter Parameter as passed from the eFaps API
+     * @param _queryBldr QueryBuilder the criteria will be added to
+     * @throws EFapsException on error
+     */
+    protected void addCriteria4Children(final Parameter _parameter,
+                               final QueryBuilder _queryBldr)
+        throws EFapsException
+    {
+        // used by implementation
     }
 
     /**
@@ -182,6 +229,39 @@ public abstract class StandartStructurBrowser_Base
         throws EFapsException
     {
         final Map<Instance, Boolean> ret = new LinkedHashMap<Instance, Boolean>();
+
+        final Instance instance = _parameter.getInstance();
+        final Map<?, ?> properties = (Map<?, ?>) _parameter.get(ParameterValues.PROPERTIES);
+
+        final String typesStr = (String) properties.get("Child_Types");
+        final String linkFromsStr = (String) properties.get("Child_LinkFroms");
+        final boolean includeChildTypes = !"false".equalsIgnoreCase((String) properties.get("Child_ExpandChildTypes"));
+
+        if (this.LOG.isDebugEnabled()) {
+            this.LOG.debug("Child_Types: {}\n Child_LinkFroms: {}\n Child_ExpandChildTypes: {}",
+                                            new Object[]{typesStr, linkFromsStr, includeChildTypes});
+        }
+        if (typesStr != null && !typesStr.isEmpty()) {
+            final String[] typesArray = typesStr.split(";");
+            for (int i = 0; i < typesArray.length; i++) {
+                final Type type = Type.get(typesArray[i]);
+                final QueryBuilder queryBldr = new QueryBuilder(type);
+                if (linkFromsStr != null) {
+                    final String[] linkFroms = linkFromsStr.split(";");
+                    queryBldr.addWhereAttrEqValue(linkFroms[i], instance.getId());
+                }
+                addCriteria4Children(_parameter, queryBldr);
+                final InstanceQuery query = queryBldr.getQuery();
+                if (_check) {
+                    query.setLimit(1);
+                }
+                query.execute();
+                while (query.next()) {
+                    ret.put(query.getCurrentValue(), null);
+                }
+            }
+        }
+
         return ret;
     }
 
