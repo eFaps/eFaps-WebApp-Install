@@ -103,9 +103,9 @@ public abstract class StandartStructurBrowser_Base
     {
         final Return ret = new Return();
         //EXAMPLE to be done by implementation
-        //  StringBuilder js = new StringBuilder();
-        //  js.append("document.getElementById..");
-        //  ret.put(ReturnValues.SNIPLETT, js.toString());
+        final StringBuilder js = new StringBuilder();
+        //js.append("document.getElementById..");
+        ret.put(ReturnValues.SNIPLETT, js.toString());
         return ret;
     }
 
