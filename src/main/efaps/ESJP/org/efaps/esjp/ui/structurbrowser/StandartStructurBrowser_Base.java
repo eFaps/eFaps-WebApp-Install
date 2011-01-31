@@ -75,6 +75,8 @@ public abstract class StandartStructurBrowser_Base
             ret = internalExecute(_parameter);
         } else if (status.equals(ExecutionStatus.ALLOWSCHILDREN)) {
             ret = allowChildren(_parameter);
+        } else if (status.equals(ExecutionStatus.ALLOWSITEM)) {
+                ret = allowItem(_parameter);
         } else if (status.equals(ExecutionStatus.CHECKFORCHILDREN)) {
             ret = checkForChildren(_parameter);
         } else if (status.equals(ExecutionStatus.ADDCHILDREN)) {
@@ -83,6 +85,14 @@ public abstract class StandartStructurBrowser_Base
             ret = sort(_parameter);
         } else if (status.equals(ExecutionStatus.CHECKHIDECOLUMN4ROW)) {
             ret = checkHideColumn4Row(_parameter);
+        } else if(status.equals(ExecutionStatus.NODE_REMOVE)) {
+            ret = onNodeRemove(_parameter);
+        } else if(status.equals(ExecutionStatus.NODE_INSERTCHILDITEM)) {
+            ret = onNodeInsertChildItem(_parameter);
+        } else if(status.equals(ExecutionStatus.NODE_INSERTITEM)) {
+            ret = onNodeInsertItem(_parameter);
+        } else if(status.equals(ExecutionStatus.NODE_INSERTCHILDFOLDER)) {
+            ret = onNodeInsertChildFolder(_parameter);
         } else if(status.equals(ExecutionStatus.GETJAVASCRIPT4TARGET)) {
             ret = getJavaScript4Target(_parameter);
         }
@@ -200,6 +210,22 @@ public abstract class StandartStructurBrowser_Base
     }
 
     /**
+     * Method to check if an instance allows children of type item. It is used in the
+     * tree to determine if "item" can be rendered. It will only be executed if
+     * the {@link #allowChildren(Parameter)} method returned true.
+     *
+     * @param _parameter Parameter as passed from the eFaps API
+     * @return Return with true or false
+     * @throws EFapsException on error
+     */
+    protected Return allowItem(final Parameter _parameter)
+    {
+        final Return ret = new Return();
+        ret.put(ReturnValues.TRUE, true);
+        return ret;
+    }
+
+    /**
      * Method to check if an instance has children. It is used in the tree to
      * determine if a "plus" to open the children must be rendered.
      *
@@ -299,6 +325,54 @@ public abstract class StandartStructurBrowser_Base
                 cell.setHide(true);
             }
         }
+        return new Return();
+    }
+
+    /**
+     * Executed on insert of a folder node as an listener and does not
+     * effect directly the tree, but allows to manipulate it.
+     *
+     * @param _parameter    _parameter as passed from eFaps API.
+     * @return
+     */
+    protected Return onNodeInsertChildFolder(final Parameter _parameter)
+    {
+        return new Return();
+    }
+
+    /**
+     * Executed on insert of an new item node as an listener and does not
+     * effect directly the tree, but allows to manipulate it.
+     *
+     * @param _parameter    _parameter as passed from eFaps API.
+     * @return
+     */
+    protected Return onNodeInsertItem(final Parameter _parameter)
+    {
+        return new Return();
+    }
+
+    /**
+     * Executed on insert of an item as child as an listener and does not
+     * effect directly the tree, but allows to manipulate it.
+     *
+     * @param _parameter    _parameter as passed from eFaps API.
+     * @return
+     */
+    protected Return onNodeInsertChildItem(final Parameter _parameter)
+    {
+        return new Return();
+    }
+
+    /**
+     * Executed on removal of a node as an listener and does not
+     * effect directly the tree, but allows to manipulate it.
+     *
+     * @param _parameter    _parameter as passed from eFaps API.
+     * @return
+     */
+    protected Return onNodeRemove(final Parameter _parameter)
+    {
         return new Return();
     }
 
