@@ -58,3 +58,9 @@
   font-size: 9pt;
   text-decoration: underline;
 }
+
+
+.eFapsContentDiv .eFapsChart img {
+  width: auto;
+  height: auto;
+}
