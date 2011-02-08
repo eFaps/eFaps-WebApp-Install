@@ -147,7 +147,7 @@ public abstract class StandartStructurBrowser_Base
             for (int i = 0; i < typesArray.length; i++) {
                 final Type type = Type.get(typesArray[i]);
                 final QueryBuilder queryBldr = new QueryBuilder(type);
-                if (linkFromsStr != null) {
+                if (linkFromsStr != null && instance != null && instance.isValid()) {
                     final String[] linkFroms = linkFromsStr.split(";");
                     queryBldr.addWhereAttrEqValue(linkFroms[i], instance.getId());
                 }
@@ -272,7 +272,7 @@ public abstract class StandartStructurBrowser_Base
             for (int i = 0; i < typesArray.length; i++) {
                 final Type type = Type.get(typesArray[i]);
                 final QueryBuilder queryBldr = new QueryBuilder(type);
-                if (linkFromsStr != null) {
+                if (linkFromsStr != null && instance != null && instance.isValid()) {
                     final String[] linkFroms = linkFromsStr.split(";");
                     queryBldr.addWhereAttrEqValue(linkFroms[i], instance.getId());
                 }
