@@ -108,6 +108,10 @@ div.wicket-tree-table div.row:hover{
   background-color: #D0EDB8;
 }
 
+div.wicket-tree-table span.b_ span.c_ span {
+    display: block;
+}
+
 .eFapsCheckboxCell{
   margin-left: -9px;
   margin-top: 1px;
