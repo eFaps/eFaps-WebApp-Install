@@ -19,7 +19,7 @@
  * Last Changed By: $Author$
  */
 
-/* 
+/*
  * @eFapsPackage  org.efaps.ui.wicket.components.button
  * @eFapsUUID     a742d113-b1c7-4cd2-918d-87c8c522fa50
  * @eFapsRevision $Rev$
@@ -45,6 +45,7 @@
   background-position: left top;
   background-repeat: no-repeat;
   background-color: transparent;
+  height: 28px;
 }
 
 .eFapsButtonImage {
