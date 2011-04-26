@@ -56,6 +56,7 @@ import org.efaps.db.Context;
 import org.efaps.ui.wicket.models.cell.UITableCell;
 import org.efaps.ui.wicket.models.objects.AbstractUIPageObject;
 import org.efaps.ui.wicket.models.objects.UIRow;
+import org.efaps.ui.wicket.models.objects.UIStructurBrowser;
 import org.efaps.ui.wicket.models.objects.UITable;
 import org.efaps.ui.wicket.models.objects.UITableHeader;
 import org.efaps.util.EFapsException;
@@ -104,7 +105,7 @@ public abstract class Table_Base
 
             final AbstractUIPageObject page = (AbstractUIPageObject) object;
 
-            if (page instanceof UITable) {
+            if (page instanceof UITable || page instanceof UIStructurBrowser) {
                 String mime = (String) properties.get("Mime");
                 if (mime == null) {
                     mime = _parameter.getParameterValue("mime");

@@ -40,6 +40,7 @@ import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.db.Context;
 import org.efaps.esjp.common.jasperreport.StandartReport;
 import org.efaps.ui.wicket.models.objects.AbstractUIPageObject;
+import org.efaps.ui.wicket.models.objects.UIStructurBrowser;
 import org.efaps.ui.wicket.models.objects.UITable;
 import org.efaps.ui.wicket.models.objects.UITableHeader;
 import org.efaps.util.EFapsException;
@@ -108,7 +109,6 @@ public abstract class UserInterface_Base extends StandartReport implements Event
         final AbstractUIPageObject uiObject = (AbstractUIPageObject) RequestCycle.get().getResponsePage()
                         .getDefaultModelObject();
         Context.getThreadContext().setSessionAttribute(UserInterface_Base.UIOBJECT_CACHEKEY, uiObject);
-        final FieldValue fieldValue = (FieldValue) _parameter.get(ParameterValues.UIOBJECT);
         final Return ret = new Return();
         final StringBuilder html = new StringBuilder();
         html.append("<span id=\"eFapsColumns4Report\">");
@@ -157,9 +157,15 @@ public abstract class UserInterface_Base extends StandartReport implements Event
      */
     public StringBuilder updateColumns(final AbstractUIPageObject uiObject) {
         final StringBuilder html = new StringBuilder();
+        List<UITableHeader> headers = null;
         if (uiObject instanceof UITable) {
+            headers = ((UITable) uiObject).getHeaders();
+        } else if (uiObject instanceof UIStructurBrowser) {
+            headers =  ((UIStructurBrowser) uiObject).getHeaders();
+        }
+        if (headers != null) {
             int i = 1;
-            for (final UITableHeader header : ((UITable) uiObject).getHeaders()) {
+            for (final UITableHeader header : headers) {
                 html.append("<input type=\"checkbox\" ")
                     .append(header.getLabel().length() < 1 ? "" : "checked=\"checked\"")
                     .append(" name=\"")
