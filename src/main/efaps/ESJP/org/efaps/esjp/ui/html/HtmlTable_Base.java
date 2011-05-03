@@ -48,7 +48,7 @@ public abstract class HtmlTable_Base
     }
 
     public HtmlTable_Base trC() {
-        return tag("tr", false);
+        return tag("tr", true);
     }
 
     private HtmlTable_Base tag(final String _tag,
@@ -89,13 +89,13 @@ public abstract class HtmlTable_Base
     }
 
     public HtmlTable_Base th(final String _value) {
-        td(_value, null);
+        th(_value, null);
         return this;
     }
 
     public HtmlTable_Base th(final String _value,
                              final String _styleSheet) {
-        td(_value, _styleSheet, 0, 0);
+        th(_value, _styleSheet, 0, 0);
         return this;
     }
 
@@ -103,7 +103,7 @@ public abstract class HtmlTable_Base
                              final String _styleSheet,
                              final int _colspan,
                              final int _rowspan) {
-        td(_value, _styleSheet, _colspan, _rowspan, null);
+        th(_value, _styleSheet, _colspan, _rowspan, null);
         return this;
     }
 
