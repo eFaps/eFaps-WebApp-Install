@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2010 The eFaps Team
+ * Copyright 2003 - 2011 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -61,6 +61,8 @@ import org.efaps.ui.wicket.models.objects.UITable;
 import org.efaps.ui.wicket.models.objects.UITableHeader;
 import org.efaps.util.EFapsException;
 import org.joda.time.DateTime;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import ar.com.fdvs.dj.core.DynamicJasperHelper;
 import ar.com.fdvs.dj.core.layout.ClassicLayoutManager;
@@ -88,12 +90,21 @@ import ar.com.fdvs.dj.domain.constants.Transparency;
 public abstract class Table_Base
     extends UserInterface
 {
+    /**
+     * Logger for this class.
+     */
+    protected static final Logger LOG = LoggerFactory.getLogger(Table_Base.class);
 
+    /**
+     * Sections of the report.
+     */
     public enum Section
     {
+        /**
+         * DateilSection, Header, Title, Subtitle, Column.
+         */
         DETAIL, HEADER, TITLE, SUBTITLE, COLUMN, COLUMNHEADER;
     }
-
 
     /**
      * @param _parameter Parameter
@@ -125,13 +136,12 @@ public abstract class Table_Base
 
                 setFileName(page.getTitle());
 
-                final Style detailStyle = getStyle(_parameter, Section.DETAIL);
-                final Style headerStyle = getStyle(_parameter, Section.HEADER);
-                final Style titleStyle = getStyle(_parameter, Section.TITLE);
-                final Style subtitleStyle = getStyle(_parameter, Section.SUBTITLE);
-                final Style columnStyle = getStyle(_parameter, Section.COLUMN);
-                final Style columnHeaderStyle = getStyle(_parameter, Section.COLUMNHEADER);
-
+                final Style detailStyle = getStyle(_parameter, Table_Base.Section.DETAIL);
+                final Style headerStyle = getStyle(_parameter, Table_Base.Section.HEADER);
+                final Style titleStyle = getStyle(_parameter, Table_Base.Section.TITLE);
+                final Style subtitleStyle = getStyle(_parameter, Table_Base.Section.SUBTITLE);
+                final Style columnStyle = getStyle(_parameter, Table_Base.Section.COLUMN);
+                final Style columnHeaderStyle = getStyle(_parameter, Table_Base.Section.COLUMNHEADER);
 
                 final DynamicReportBuilder drb = new DynamicReportBuilder()
                     .setTitle(page.getTitle())
@@ -191,7 +201,7 @@ public abstract class Table_Base
                         }
                         if (add) {
                             final BigDecimal width = new BigDecimal(header.getWidth()).setScale(2)
-                                .divide( new BigDecimal(widthWeight), BigDecimal.ROUND_HALF_UP)
+                                .divide(new BigDecimal(widthWeight), BigDecimal.ROUND_HALF_UP)
                                 .multiply(new BigDecimal(555));
 
                             final ColumnBuilder cbldr = ColumnBuilder.getNew();
@@ -240,25 +250,45 @@ public abstract class Table_Base
                     drb.setReportLocale(Context.getThreadContext().getLocale());
                     final DynamicReport dr = drb.build(); // Finally build the
                     // report!
-                    final JRDataSource ds = new TableSource(values);
+                    final JRDataSource ds = getSource(_parameter, values);
                     final JasperPrint jp = DynamicJasperHelper.generateJasperPrint(dr,
                                     print ? new  ClassicLayoutManager() : new ListLayoutManager(), ds);
                     ret.put(ReturnValues.VALUES, super.getFile(jp, mime));
                     ret.put(ReturnValues.TRUE, true);
                 } catch (final ColumnBuilderException e) {
-                   throw new EFapsException(Table_Base.class, "ColumnBuilderException", e);
+                    throw new EFapsException(Table_Base.class, "ColumnBuilderException", e);
                 } catch (final JRException e) {
                     throw new EFapsException(Table_Base.class, "JRException", e);
                 } catch (final IOException e) {
                     throw new EFapsException(Table_Base.class, "IOException", e);
                 }
             } else {
-                // ??
+                Table_Base.LOG.error("Not implemented!");
             }
         }
         return ret;
     }
 
+    /**
+     * @param _parameter Parameter as passed by the eFaps API
+     * @param _values    Map of values for the DateSource
+     * @return DataSource
+     * @throws EFapsException on error
+     */
+    protected JRDataSource getSource(final Parameter _parameter,
+                                    final List<Map<String, Object>> _values)
+        throws EFapsException
+    {
+        return new TableSource(_values);
+    }
+
+    /**
+     * Get the Style for the different Sections.
+     * @param _parameter    Parameter as passed by the eFaps API
+     * @param _detail       Section
+     * @return Style for Dynamic JAsper
+     * @throws EFapsException on error
+     */
     protected Style getStyle(final Parameter _parameter,
                              final Section _detail)
         throws EFapsException
@@ -287,15 +317,13 @@ public abstract class Table_Base
                 ret.getFont().setPdfFontEmbedded(true);
                 break;
             default:
-                ret= new Style();
+                ret = new Style();
                 ret.setFont(Font.VERDANA_MEDIUM);
                 ret.getFont().setPdfFontEmbedded(true);
                 break;
         }
-
         return ret;
     }
-
 
     /**
      * Check values of a map to return true or false.

@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2010 The eFaps Team
+ * Copyright 2003 - 2011 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -57,7 +57,7 @@ public abstract class StandartStructurBrowser_Base
     /**
      * Logger for this class.
      */
-    protected final Logger LOG = LoggerFactory.getLogger(StandartStructurBrowser_Base.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(StandartStructurBrowser_Base.class);
 
     /**
      * @param _parameter Parameter
@@ -76,7 +76,7 @@ public abstract class StandartStructurBrowser_Base
         } else if (status.equals(ExecutionStatus.ALLOWSCHILDREN)) {
             ret = allowChildren(_parameter);
         } else if (status.equals(ExecutionStatus.ALLOWSITEM)) {
-                ret = allowItem(_parameter);
+            ret = allowItem(_parameter);
         } else if (status.equals(ExecutionStatus.CHECKFORCHILDREN)) {
             ret = checkForChildren(_parameter);
         } else if (status.equals(ExecutionStatus.ADDCHILDREN)) {
@@ -85,15 +85,15 @@ public abstract class StandartStructurBrowser_Base
             ret = sort(_parameter);
         } else if (status.equals(ExecutionStatus.CHECKHIDECOLUMN4ROW)) {
             ret = checkHideColumn4Row(_parameter);
-        } else if(status.equals(ExecutionStatus.NODE_REMOVE)) {
+        } else if (status.equals(ExecutionStatus.NODE_REMOVE)) {
             ret = onNodeRemove(_parameter);
-        } else if(status.equals(ExecutionStatus.NODE_INSERTCHILDITEM)) {
+        } else if (status.equals(ExecutionStatus.NODE_INSERTCHILDITEM)) {
             ret = onNodeInsertChildItem(_parameter);
-        } else if(status.equals(ExecutionStatus.NODE_INSERTITEM)) {
+        } else if (status.equals(ExecutionStatus.NODE_INSERTITEM)) {
             ret = onNodeInsertItem(_parameter);
-        } else if(status.equals(ExecutionStatus.NODE_INSERTCHILDFOLDER)) {
+        } else if (status.equals(ExecutionStatus.NODE_INSERTCHILDFOLDER)) {
             ret = onNodeInsertChildFolder(_parameter);
-        } else if(status.equals(ExecutionStatus.GETJAVASCRIPT4TARGET)) {
+        } else if (status.equals(ExecutionStatus.GETJAVASCRIPT4TARGET)) {
             ret = getJavaScript4Target(_parameter);
         }
         return ret;
@@ -138,8 +138,8 @@ public abstract class StandartStructurBrowser_Base
         final String linkFromsStr = (String) properties.get("LinkFroms");
         final boolean includeChildTypes = !"false".equalsIgnoreCase((String) properties.get("ExpandChildTypes"));
 
-        if (this.LOG.isDebugEnabled()) {
-            this.LOG.debug("Types: {}\n LinkFroms: {}\n ExpandChildTypes: {}",
+        if (StandartStructurBrowser_Base.LOG.isDebugEnabled()) {
+            StandartStructurBrowser_Base.LOG.debug("Types: {}\n LinkFroms: {}\n ExpandChildTypes: {}",
                                             new Object[]{typesStr, linkFromsStr, includeChildTypes});
         }
         if (typesStr != null && !typesStr.isEmpty()) {
@@ -203,6 +203,7 @@ public abstract class StandartStructurBrowser_Base
      * @throws EFapsException on error
      */
     protected Return allowChildren(final Parameter _parameter)
+        throws EFapsException
     {
         final Return ret = new Return();
         ret.put(ReturnValues.TRUE, true);
@@ -219,6 +220,7 @@ public abstract class StandartStructurBrowser_Base
      * @throws EFapsException on error
      */
     protected Return allowItem(final Parameter _parameter)
+        throws EFapsException
     {
         final Return ret = new Return();
         ret.put(ReturnValues.TRUE, true);
@@ -263,8 +265,8 @@ public abstract class StandartStructurBrowser_Base
         final String linkFromsStr = (String) properties.get("Child_LinkFroms");
         final boolean includeChildTypes = !"false".equalsIgnoreCase((String) properties.get("Child_ExpandChildTypes"));
 
-        if (this.LOG.isDebugEnabled()) {
-            this.LOG.debug("Child_Types: {}\n Child_LinkFroms: {}\n Child_ExpandChildTypes: {}",
+        if (StandartStructurBrowser_Base.LOG.isDebugEnabled()) {
+            StandartStructurBrowser_Base.LOG.debug("Child_Types: {}\n Child_LinkFroms: {}\n Child_ExpandChildTypes: {}",
                                             new Object[]{typesStr, linkFromsStr, includeChildTypes});
         }
         if (typesStr != null && !typesStr.isEmpty()) {
@@ -287,7 +289,6 @@ public abstract class StandartStructurBrowser_Base
                 }
             }
         }
-
         return ret;
     }
 
@@ -316,8 +317,10 @@ public abstract class StandartStructurBrowser_Base
      * hidden for the folders.
      * @param _parameter Paraemter as passed from the eFasp API
      * @return empty Return;
+     * @throws EFapsException on error
      */
     protected Return checkHideColumn4Row(final Parameter _parameter)
+        throws EFapsException
     {
         final UIStructurBrowser strBrws = (UIStructurBrowser) _parameter.get(ParameterValues.CLASS);
         for (final UIStructurBrowserTableCell cell : strBrws.getColumns()) {
@@ -333,9 +336,11 @@ public abstract class StandartStructurBrowser_Base
      * effect directly the tree, but allows to manipulate it.
      *
      * @param _parameter    _parameter as passed from eFaps API.
-     * @return
+     * @return empty Return
+     * @throws EFapsException on error
      */
     protected Return onNodeInsertChildFolder(final Parameter _parameter)
+        throws EFapsException
     {
         return new Return();
     }
@@ -345,9 +350,11 @@ public abstract class StandartStructurBrowser_Base
      * effect directly the tree, but allows to manipulate it.
      *
      * @param _parameter    _parameter as passed from eFaps API.
-     * @return
+     * @return empty Return
+     * @throws EFapsException on error
      */
     protected Return onNodeInsertItem(final Parameter _parameter)
+        throws EFapsException
     {
         return new Return();
     }
@@ -357,9 +364,11 @@ public abstract class StandartStructurBrowser_Base
      * effect directly the tree, but allows to manipulate it.
      *
      * @param _parameter    _parameter as passed from eFaps API.
-     * @return
+     * @return empty Return
+     * @throws EFapsException on error
      */
     protected Return onNodeInsertChildItem(final Parameter _parameter)
+        throws EFapsException
     {
         return new Return();
     }
@@ -369,9 +378,11 @@ public abstract class StandartStructurBrowser_Base
      * effect directly the tree, but allows to manipulate it.
      *
      * @param _parameter    _parameter as passed from eFaps API.
-     * @return
+     * @return empty Return
+     * @throws EFapsException on error
      */
     protected Return onNodeRemove(final Parameter _parameter)
+        throws EFapsException
     {
         return new Return();
     }
@@ -380,9 +391,11 @@ public abstract class StandartStructurBrowser_Base
      * Method to sort the values of the StructurBrowser.
      *
      * @param _parameter Paraemter as passed from the eFasp API
-     * @return empty Return;
+     * @return empty Return
+     * @throws EFapsException on error
      */
     protected Return sort(final Parameter _parameter)
+        throws EFapsException
     {
         final UIStructurBrowser strBro = (UIStructurBrowser) _parameter.get(ParameterValues.CLASS);
 
@@ -399,13 +412,13 @@ public abstract class StandartStructurBrowser_Base
             protected String getSortString(final UIStructurBrowser _structurBrowser)
             {
                 final StringBuilder ret = new StringBuilder();
-                    try {
-                        if (_structurBrowser.getInstance() != null) {
-                            _structurBrowser.getInstance().getType();
-                        }
-                    } catch (final EFapsException e) {
-                        StandartStructurBrowser_Base.this.LOG.error("error during sorting", e);
+                try {
+                    if (_structurBrowser.getInstance() != null) {
+                        _structurBrowser.getInstance().getType();
                     }
+                } catch (final EFapsException e) {
+                    StandartStructurBrowser_Base.LOG.error("error during sorting", e);
+                }
                 ret.append(_structurBrowser.getLabel());
                 return ret.toString();
             }
