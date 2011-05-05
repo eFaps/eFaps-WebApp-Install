@@ -89,6 +89,12 @@ public abstract class Table_Base
     extends UserInterface
 {
 
+    public enum Section
+    {
+        DETAIL, HEADER, TITLE, SUBTITLE, COLUMN, COLUMNHEADER;
+    }
+
+
     /**
      * @param _parameter Parameter
      * @return return PDF with Table
@@ -119,22 +125,13 @@ public abstract class Table_Base
 
                 setFileName(page.getTitle());
 
-                final Style detailStyle = new Style();
+                final Style detailStyle = getStyle(_parameter, Section.DETAIL);
+                final Style headerStyle = getStyle(_parameter, Section.HEADER);
+                final Style titleStyle = getStyle(_parameter, Section.TITLE);
+                final Style subtitleStyle = getStyle(_parameter, Section.SUBTITLE);
+                final Style columnStyle = getStyle(_parameter, Section.COLUMN);
+                final Style columnHeaderStyle = getStyle(_parameter, Section.COLUMNHEADER);
 
-                final Style headerStyle = new Style();
-                final Style titleStyle = new Style();
-                titleStyle.setFont(Font.VERDANA_BIG_BOLD);
-                final Style subtitleStyle = new Style();
-
-                final Style columnStyle = new Style();
-                columnStyle.setBorder(Border.PEN_1_POINT);
-
-                final Style columnHeaderStyle = new Style();
-                columnHeaderStyle.setBackgroundColor(Color.gray);
-                columnHeaderStyle.setBorder(Border.PEN_1_POINT);
-                columnHeaderStyle.setTransparency(Transparency.OPAQUE);
-                columnHeaderStyle.setTextColor(Color.white);
-                columnHeaderStyle.setStreching(Stretching.NO_STRETCH);
 
                 final DynamicReportBuilder drb = new DynamicReportBuilder()
                     .setTitle(page.getTitle())
@@ -151,7 +148,8 @@ public abstract class Table_Base
                     drb.setPrintColumnNames(true)
                         .setIgnorePagination(true)
                         .setMargins(0, 0, 0, 0)
-                        .setReportName(page.getTitle());
+                        .setReportName(page.getTitle())
+                        .setDefaultStyles(titleStyle, subtitleStyle, headerStyle, detailStyle);
                 }
 
                 try {
@@ -261,6 +259,44 @@ public abstract class Table_Base
         return ret;
     }
 
+    protected Style getStyle(final Parameter _parameter,
+                             final Section _detail)
+        throws EFapsException
+    {
+        Style ret;
+        switch (_detail) {
+            case TITLE:
+                ret = new Style();
+                ret.setFont(Font.VERDANA_BIG_BOLD);
+                ret.getFont().setPdfFontEmbedded(true);
+                break;
+            case COLUMN:
+                ret = new Style();
+                ret.setFont(Font.VERDANA_MEDIUM);
+                ret.setBorder(Border.PEN_1_POINT);
+                ret.getFont().setPdfFontEmbedded(true);
+                break;
+            case COLUMNHEADER:
+                ret = new Style();
+                ret.setFont(Font.VERDANA_MEDIUM_BOLD);
+                ret.setBackgroundColor(Color.gray);
+                ret.setBorder(Border.PEN_1_POINT);
+                ret.setTransparency(Transparency.OPAQUE);
+                ret.setTextColor(Color.white);
+                ret.setStreching(Stretching.NO_STRETCH);
+                ret.getFont().setPdfFontEmbedded(true);
+                break;
+            default:
+                ret= new Style();
+                ret.setFont(Font.VERDANA_MEDIUM);
+                ret.getFont().setPdfFontEmbedded(true);
+                break;
+        }
+
+        return ret;
+    }
+
+
     /**
      * Check values of a map to return true or false.
      *
@@ -269,9 +305,9 @@ public abstract class Table_Base
      * @param _type of the Class.
      * @return ret Boolean.
      */
-    private boolean checkValues(final List<Map<String, Object>> _values,
-                                final String _name,
-                                final Class<?> _type)
+    protected boolean checkValues(final List<Map<String, Object>> _values,
+                                  final String _name,
+                                  final Class<?> _type)
     {
         boolean ret = true;
         for (final Map<String, Object> map : _values) {
@@ -316,7 +352,7 @@ public abstract class Table_Base
     /**
      * Source for a Table.
      */
-    private class TableSource
+    public class TableSource
         implements JRDataSource
     {
         /**
