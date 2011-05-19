@@ -67,15 +67,14 @@ a:visited,a:link {
 }
 
 .eFapsHelpLink {
-    top: -22px;
-    position: relative;
-    float: right;
-    padding-right: 10px;
+    top: 28px;
+    position: absolute;
     font-size: 11pt;
     height: 18px;
     margin-right: 5px;
     padding-left: 3px;
     padding-right: 3px;
+    right: 5px;
 }
 
 .eFapsHelpMainLink {
