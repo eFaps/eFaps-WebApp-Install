@@ -280,6 +280,7 @@ public abstract class StandartStructurBrowser_Base
                 }
                 addCriteria4Children(_parameter, queryBldr);
                 final InstanceQuery query = queryBldr.getQuery();
+                query.setIncludeChildTypes(includeChildTypes);
                 if (_check) {
                     query.setLimit(1);
                 }
