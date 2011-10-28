@@ -51,13 +51,9 @@ public abstract class HtmlTable_Base
         return tag("tr", true);
     }
 
-    private HtmlTable_Base tag(final String _tag,
-                               final boolean _close) {
-        this.html.append("<");
-        if (_close) {
-            this.html.append("/");
-        }
-        this.html.append(_tag).append(">");
+    public HtmlTable_Base append(final Object _object)
+    {
+        this.html.append(_object);
         return this;
     }
 
@@ -115,7 +111,16 @@ public abstract class HtmlTable_Base
         return tag(_value, _styleSheet, _colspan, _rowspan, _inner, "th");
     }
 
-    private HtmlTable_Base tag(final String _value,
+    public HtmlTable_Base tag(final String _tag,
+                               final boolean _close) {
+        this.html.append("<");
+        if (_close) {
+            this.html.append("/");
+        }
+        this.html.append(_tag).append(">");
+        return this;
+    }
+    public HtmlTable_Base tag(final String _value,
                                final String _styleSheet,
                                final int _colspan,
                                final int _rowspan,
