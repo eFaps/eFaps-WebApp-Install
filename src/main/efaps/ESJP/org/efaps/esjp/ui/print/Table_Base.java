@@ -245,7 +245,7 @@ public abstract class Table_Base
                         drb.addAutoText(AutoText.AUTOTEXT_PAGE_X_OF_Y, AutoText.POSITION_FOOTER,
                                         AutoText.ALIGMENT_RIGHT, 200, 40);
                         drb.addAutoText(AutoText.AUTOTEXT_CREATED_ON, AutoText.POSITION_HEADER, AutoText.ALIGMENT_RIGHT,
-                                    AutoText.PATTERN_DATE_DATE_TIME);
+                                    AutoText.PATTERN_DATE_DATE_TIME, 200, 50);
                     }
                     drb.setReportLocale(Context.getThreadContext().getLocale());
                     final DynamicReport dr = drb.build(); // Finally build the
@@ -407,6 +407,7 @@ public abstract class Table_Base
          * @return value for the field
          * @throws JRException on error
          */
+        @Override
         public Object getFieldValue(final JRField _field)
             throws JRException
         {
@@ -418,6 +419,7 @@ public abstract class Table_Base
          * @return true if next
          * @throws JRException on error
          */
+        @Override
         public boolean next()
             throws JRException
         {
