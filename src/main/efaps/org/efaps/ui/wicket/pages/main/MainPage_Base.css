@@ -24,7 +24,7 @@
  */ /*
  * Background Appearance
  */
-body {
+html, body {
     background-color: white;
     padding: 0px;
     margin: 0px;
@@ -168,3 +168,9 @@ span {
     top: 0px;
     left: 0px;
 }
+
+#borderPanel {
+    height:100%;
+}
+
+
