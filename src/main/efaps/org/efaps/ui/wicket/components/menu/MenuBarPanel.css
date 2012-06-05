@@ -18,40 +18,12 @@
  * Last Changed:    $Date: 2012-05-11 13:45:53 -0500 (Fri, 11 May 2012) $
  * Last Changed By: $Author: jan@moxter.net $
  */ /*
- * @eFapsPackage  org.efaps.ui.wicket.pages.info
- * @eFapsUUID     5b441f7d-1a6a-4a80-b1af-2a85ccd4d971
+ * @eFapsPackage  org.efaps.ui.wicket.components.menu
+ * @eFapsUUID     98a1f64a-7feb-483f-a828-91c965af7c7e
  * @eFapsRevision $Rev: 7509 $
+ * @eFapsExtends  org.efaps.ui.wicket.components.menu.MenuBarPanel_Base.css
+ *
+ * This stylesheet must be replaced for customization, therefore it is left empty.
+ * Functional description can be found in the related "<code>_Base</code>"
+ * stylesheet.
  */
-
-/*
- * Background Appearance
- */
-html,body {
-    background-color: white;
-    padding: 0px;
-    margin: 0px;
-    border: 0px hidden transparent;
-    border-style: none;
-    max-height: 100%;
-    height: 100%;
-    overflow: hidden;
-}
-
-.eFapsGatherInfoContainer {
-    margin: auto;
-    width: 400px;
-}
-
-.eFapsGatherInfo {
-    background-image: url("../../servlet/image/org.efaps.ui.wicket.pages.content.ajax-indicator.gif");
-    top: 50px;
-    width: 450px;
-    background: #224388;
-    color: #fff;
-    margin: auto;
-    border-radius: 20px;
-    padding: 5px;
-    position: relative;
-    text-align: center;
-    width: 450px;
-}

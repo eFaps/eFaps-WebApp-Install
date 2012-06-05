@@ -18,40 +18,48 @@
  * Last Changed:    $Date: 2012-05-11 13:45:53 -0500 (Fri, 11 May 2012) $
  * Last Changed By: $Author: jan@moxter.net $
  */ /*
- * @eFapsPackage  org.efaps.ui.wicket.pages.info
- * @eFapsUUID     5b441f7d-1a6a-4a80-b1af-2a85ccd4d971
+ * @eFapsPackage  org.efaps.ui.wicket.components.menu
+ * @eFapsUUID     bb1718c4-5505-4991-803b-fa95fe94be7f
  * @eFapsRevision $Rev: 7509 $
  */
 
-/*
- * Background Appearance
- */
-html,body {
-    background-color: white;
-    padding: 0px;
-    margin: 0px;
-    border: 0px hidden transparent;
-    border-style: none;
-    max-height: 100%;
-    height: 100%;
-    overflow: hidden;
+.eFapsMenuBarPanel {
+    min-height: 20px;
 }
 
-.eFapsGatherInfoContainer {
-    margin: auto;
-    width: 400px;
+.eFapsMenuItem {
+    white-space: nowrap;
 }
 
-.eFapsGatherInfo {
-    background-image: url("../../servlet/image/org.efaps.ui.wicket.pages.content.ajax-indicator.gif");
-    top: 50px;
-    width: 450px;
-    background: #224388;
-    color: #fff;
-    margin: auto;
-    border-radius: 20px;
-    padding: 5px;
+.eFapsMenuTreeSubItem {
+    white-space: nowrap;
+}
+
+.eFapsMenuTreeItemSelected {
+    white-space: nowrap;
+}
+
+.eFapsMenuTreeLink{
+    white-space: nowrap;
+}
+
+.eFapsMenuLabel {
+
+}
+.eFapsMenuImage {
+  padding-right:2px;
+  vertical-align:bottom;
+  width:16px;
+  height:16px;
+}
+
+.eFapsMenuImagePlaceHolder {
+    display: block;
+    float: left;
+    height: 16px;
     position: relative;
-    text-align: center;
-    width: 450px;
+    top: 1px;
+    width: 16px;
 }
+
+

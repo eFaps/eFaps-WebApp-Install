@@ -94,3 +94,26 @@
 .eFapsMenuTreeRemove {
     float: right;
 }
+
+/*
+    New ones!
+*/
+.eFapsMenuTreeNode{
+
+}
+.eFapsMenuTreeLink{
+
+}
+
+.eFapsMenuTreeItem :HOVER{
+    cursor: pointer;
+}
+
+.eFapsMenuTreeHeader {
+  font-weight: bold;
+  font-size: 9pt;
+}
+
+.eFapsMenuTreeSubItem {
+    font-size: 9pt;
+}

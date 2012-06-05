@@ -40,6 +40,7 @@ import org.efaps.util.EFapsException;
 @EFapsRevision("$Rev$")
 public class DevUtils
 {
+    //http://localhost:8888/eFaps/wicket/bookmarkable/org.apache.wicket.devutils.DevUtilsPage
     public Return toggleDevUtils(final Parameter _parameter)
         throws EFapsException
     {

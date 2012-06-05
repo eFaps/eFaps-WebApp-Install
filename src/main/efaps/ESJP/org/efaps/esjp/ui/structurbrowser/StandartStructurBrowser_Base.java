@@ -325,7 +325,7 @@ public abstract class StandartStructurBrowser_Base
     {
         final UIStructurBrowser strBrws = (UIStructurBrowser) _parameter.get(ParameterValues.CLASS);
         for (final UIStructurBrowserTableCell cell : strBrws.getColumns()) {
-            if (strBrws.isAllowChilds() && !cell.isBrowserField()) {
+            if (strBrws.isAllowChildren() && !cell.isBrowserField()) {
                 cell.setHide(true);
             }
         }
@@ -400,7 +400,7 @@ public abstract class StandartStructurBrowser_Base
     {
         final UIStructurBrowser strBro = (UIStructurBrowser) _parameter.get(ParameterValues.CLASS);
 
-        Collections.sort(strBro.getChilds(), new Comparator<UIStructurBrowser>() {
+        Collections.sort(strBro.getChildren(), new Comparator<UIStructurBrowser>() {
 
             public int compare(final UIStructurBrowser _structurBrowser1,
                                final UIStructurBrowser _structurBrowser2)

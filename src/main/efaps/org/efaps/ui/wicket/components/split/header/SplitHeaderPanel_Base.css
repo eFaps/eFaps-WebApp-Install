@@ -29,7 +29,7 @@
     width: 16px;
     height: 16px;
     right: 2px;
-    top: 2px;
+    top: 7px;
 }
 
 .eFapsSplitImageExpand {
@@ -38,7 +38,7 @@
     width: 16px;
     height: 16px;
     left: 2px;
-    top: 2px;
+    top: 7px;
 }
 
 .eFapsSplitImageContractVertical {
@@ -47,7 +47,7 @@
     width: 16px;
     height: 16px;
     right: 20px;
-    top: 2px;
+    top: 7px;
 }
 
 .eFapsSplitImageExpandVertical {
@@ -56,11 +56,10 @@
     width: 16px;
     height: 16px;
     right: 20px;
-    top: 2px;
+    top: 7px;
 }
 
 .eFapsSplitHeader {
-    position: absolute;
     background-color: #EFEBDE;
     border-bottom-style: solid;
     border-bottom-width: 1px;
@@ -121,6 +120,7 @@
     margin-bottom: 0;
     margin-left: 25px;
     margin-right: 25px;
+    z-index: 99;
 }
 
 .eFapsRecent li {

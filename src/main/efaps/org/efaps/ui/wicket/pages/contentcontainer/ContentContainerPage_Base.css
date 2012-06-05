@@ -19,11 +19,11 @@
  * Last Changed By: $Author$
  */
 
-/* 
+/*
  * @eFapsPackage  org.efaps.ui.wicket.pages.contentcontainer
  * @eFapsUUID     de79d0bd-814f-4b07-914d-faf67aaf1c93
  * @eFapsRevision $Rev$
- * 
+ *
  */
 
 html,body {
@@ -34,6 +34,18 @@ html,body {
   margin: 0 0 0 0;
 }
 
+body,th,td,p,div {
+    font-family: arial, verdana, helvetica, sans-serif;
+    font-size: 8pt;
+    margin: 0;
+}
+
+a:visited,a:link {
+    font-weight: bold;
+    color: #00A000;
+    text-decoration: none;
+}
+
 /**
  * Content iframe
  */
@@ -41,7 +53,7 @@ html,body {
   position: absolute;
   top: 0px;
   width: 100%;
-  height: 100%; 
+  height: 100%;
   bottom: 0px;
   left: 0px;
   right: 0px;
