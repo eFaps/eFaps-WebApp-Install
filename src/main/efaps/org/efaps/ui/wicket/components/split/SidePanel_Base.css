@@ -19,13 +19,21 @@
  * Last Changed By: $Author$
  */
 
-/* 
+/*
  * @eFapsPackage  org.efaps.ui.wicket.components.split
- * @eFapsUUID     4101691d-a768-43f0-ba5a-fea211461b6c
+ * @eFapsUUID     b93f31c6-bdfa-4770-93fc-0515873e5e43
  * @eFapsRevision $Rev$
- * @eFapsExtends  org.efaps.ui.wicket.components.split.ListOnlyPanel_Base.css
- *
- * This stylesheet must be replaced for customization, therefore it is left empty.
- * Functional description can be found in the related "<code>_Base</code>"
- * stylesheet.
  */
+
+.eFapsListMenuOverflow {
+    position: absolute;
+    top: 26px;
+    bottom: 0px;
+    overflow: auto;
+    width: 100%;
+    white-space: nowrap;
+}
+
+.eFapsSplit {
+    top: 0;
+}

@@ -50,7 +50,6 @@
             // assign command WebApp_UI_Abstract_Export
             // to menu Admin_UI_CommandTree_Menu_Action
             UIUpdate update = new UIUpdate();
-            update.add2Menu("d88a1009-921f-49b5-8834-045e1e306a47", "789a8af2-c072-4130-9399-76424d25d9f2", 1);
             // WebApp_ToggleDevUtil - Admin_Common_MyDesk
             update.add2Menu("df7a3915-4f14-43fd-9dd5-4157831ed4f3", "8d9aae87-fa36-4b62-aba0-dbd9c0ca273a", -1);
 
