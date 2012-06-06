@@ -26,11 +26,15 @@
  */
 
 .eFapsListMenuOverflow {
-  position: absolute;
-  top: 26px;
-  bottom: 0px;
-  overflow: auto;
-  width: 100%;
-  white-space: nowrap;
+    position: absolute;
+    top: 26px;
+    bottom: 0px;
+    overflow: auto;
+    width: 100%;
+    white-space: nowrap;
 }
 
+.
+.eFapsSplit {
+    top: 0;
+}
