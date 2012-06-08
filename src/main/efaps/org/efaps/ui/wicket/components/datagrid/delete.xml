@@ -16,7 +16,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 
- Author:          jmox
+ Author:          The efaps Team
  Revision:        $Rev$
  Last Changed:    $Date$
  Last Changed By: $Author$
@@ -39,7 +39,7 @@
 
   <definition>
     <version-expression>(version==latest)</version-expression>
-    <name>org.efaps.ui.wicket.components.form.set.delete.png</name>
+    <name>org.efaps.ui.wicket.components.datagrid.delete.png</name>
     <file>delete.png</file>
   </definition>
 

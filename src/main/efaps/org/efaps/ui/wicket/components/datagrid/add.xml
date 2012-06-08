@@ -16,7 +16,7 @@
  See the License for the specific language governing permissions and
  limitations under the License.
 
- Author:          jmox
+ Author:          The eFaps Team
  Revision:        $Rev$
  Last Changed:    $Date$
  Last Changed By: $Author$
@@ -39,7 +39,7 @@
 
   <definition>
     <version-expression>(version==latest)</version-expression>
-    <name>org.efaps.ui.wicket.components.form.set.add.png</name>
+    <name>org.efaps.ui.wicket.components.datagrid.add.png</name>
     <file>add.png</file>
   </definition>
 
