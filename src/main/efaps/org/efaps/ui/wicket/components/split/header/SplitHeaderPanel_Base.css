@@ -134,14 +134,15 @@
     padding-left: 2px;
     padding-right: 2px;
     color: #008800;
+    z-index: 99;
+    border-bottom: 1px solid black;
+    border-left: 1px solid black;
+    border-right: 1px solid black;
 }
 
 .eFapsRecent:hover {
     cursor: pointer;
     height: auto;
-    border-bottom: 1px solid;
-    border-left: 1px solid;
-    border-right: 1px solid;
 }
 
 .eFapsRecent:hover li {
