@@ -24,43 +24,48 @@
  * @eFapsUUID     fc702787-b573-42f5-91b5-38f70981a240
  * @eFapsRevision $Rev$
  */
-
 .eFapsContentDiv {
-  position: absolute;
-  width: 100%;
-  top: 50px;
-  bottom: 0px;
-  overflow: auto;
-  padding-bottom: 20px;
+    position: absolute;
+    width: 100%;
+    top: 50px;
+    bottom: 0px;
+    overflow: auto;
+    padding-bottom: 20px;
 }
 
 .eFapsContentDiv img {
-  width: 16px;
-  height: 16px;
-  border: 0;
-  vertical-align: text-bottom;
+    width: 16px;
+    height: 16px;
+    border: 0;
+    vertical-align: text-bottom;
 }
 
 .eFapsHeading1 {
-  margin-top: 15px;
-  margin-bottom: 3px;
-  color: #008800;
-  font-weight: bold;
-  font-size: 11pt;
-  padding: 3px;
+    margin-top: 15px;
+    margin-bottom: 3px;
+    color: #008800;
+    font-weight: bold;
+    font-size: 11pt;
+    padding: 3px;
 }
 
 .eFapsHeading2 {
-  margin-top: 20px;
-  margin-bottom: 5px;
-  color: #008800;
-  font-weight: bold;
-  font-size: 9pt;
-  text-decoration: underline;
+    margin-top: 20px;
+    margin-bottom: 5px;
+    color: #008800;
+    font-weight: bold;
+    font-size: 9pt;
+    text-decoration: underline;
 }
 
+.eFapsHeading3 {
+    margin-top: 15px;
+    margin-bottom: 5px;
+    font-weight: bold;
+    font-size: 9pt;
+}
 
 .eFapsContentDiv .eFapsChart img {
-  width: auto;
-  height: auto;
+    width: auto;
+    height: auto;
 }
