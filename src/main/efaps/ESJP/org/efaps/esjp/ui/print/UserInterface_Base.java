@@ -25,6 +25,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.wicket.ajax.AjaxRequestHandler;
+import org.apache.wicket.request.IRequestHandler;
+import org.apache.wicket.request.cycle.RequestCycle;
 import org.efaps.admin.datamodel.ui.FieldValue;
 import org.efaps.admin.datamodel.ui.UIInterface;
 import org.efaps.admin.dbproperty.DBProperties;
@@ -105,13 +108,17 @@ public abstract class UserInterface_Base extends StandartReport implements Event
     public Return getColumnsFieldValueUI(final Parameter _parameter)
         throws EFapsException
     {
-//        final AbstractUIPageObject uiObject = (AbstractUIPageObject) RequestCycle.get().getActiveRequestHandler() getResponse().   get()  .getResponsePage()
-//                        .getDefaultModelObject();
-      //.getThreadContext().setSessionAttribute(UserInterface_Base.UIOBJECT_CACHEKEY, uiObject);
         final Return ret = new Return();
         final StringBuilder html = new StringBuilder();
         html.append("<span id=\"eFapsColumns4Report\">");
-        //html.append(updateColumns(uiObject));
+
+        final IRequestHandler handler = RequestCycle.get().getRequestHandlerScheduledAfterCurrent();
+        if (handler instanceof AjaxRequestHandler) {
+            final AbstractUIPageObject uiObject = (AbstractUIPageObject) ((AjaxRequestHandler) handler).getPage()
+                            .getDefaultModelObject();
+            Context.getThreadContext().setSessionAttribute(UserInterface_Base.UIOBJECT_CACHEKEY, uiObject);
+            html.append(updateColumns(uiObject));
+        }
         html.append("</span>");
         ret.put(ReturnValues.SNIPLETT, html.toString());
         return ret;

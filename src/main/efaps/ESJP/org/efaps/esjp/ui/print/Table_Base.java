@@ -303,14 +303,14 @@ public abstract class Table_Base
             case COLUMN:
                 ret = new Style();
                 ret.setFont(Font.VERDANA_MEDIUM);
-                ret.setBorder(Border.PEN_1_POINT);
+                ret.setBorder(Border.PEN_1_POINT());
                 ret.getFont().setPdfFontEmbedded(true);
                 break;
             case COLUMNHEADER:
                 ret = new Style();
                 ret.setFont(Font.VERDANA_MEDIUM_BOLD);
                 ret.setBackgroundColor(Color.gray);
-                ret.setBorder(Border.PEN_1_POINT);
+                ret.setBorder(Border.PEN_1_POINT());
                 ret.setTransparency(Transparency.OPAQUE);
                 ret.setTextColor(Color.white);
                 ret.setStreching(Stretching.NO_STRETCH);
