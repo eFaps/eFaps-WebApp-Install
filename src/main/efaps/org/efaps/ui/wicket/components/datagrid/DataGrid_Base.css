@@ -45,3 +45,7 @@ tbody.eFapsSetDataGridBody tr td {
     border-right: solid;
     border-right-width: 1px;
 }
+
+table.eFapsSetDataGrid .editHeader,table.eFapsSetDataGrid .editColumn {
+    min-width: 0;
+}
