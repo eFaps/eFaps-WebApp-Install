@@ -22,7 +22,6 @@
  * @eFapsUUID     bb1718c4-5505-4991-803b-fa95fe94be7f
  * @eFapsRevision $Rev: 7509 $
  */
-
 .eFapsMenuBarPanel {
     min-height: 20px;
 }
@@ -32,22 +31,18 @@
 }
 
 .eFapsMenuLabel {
-
+    vertical-align: sub;
 }
+
 .eFapsMenuImage {
-  padding-right:2px;
-  vertical-align:bottom;
-  width:16px;
-  height:16px;
+    padding-right: 2px;
+    vertical-align: bottom;
+    width: 16px;
+    height: 16px;
 }
 
 .eFapsMenuImagePlaceHolder {
-    display: block;
     float: left;
-    height: 16px;
-    position: relative;
-    top: 1px;
     width: 16px;
+    padding-right: 2px;
 }
-
-
