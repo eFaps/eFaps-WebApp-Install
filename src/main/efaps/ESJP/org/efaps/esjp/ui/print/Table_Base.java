@@ -53,13 +53,16 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.db.Context;
+import org.efaps.ui.wicket.models.cell.UIStructurBrowserTableCell;
 import org.efaps.ui.wicket.models.cell.UITableCell;
+import org.efaps.ui.wicket.models.objects.AbstractUIHeaderObject;
 import org.efaps.ui.wicket.models.objects.AbstractUIPageObject;
 import org.efaps.ui.wicket.models.objects.UIRow;
 import org.efaps.ui.wicket.models.objects.UIStructurBrowser;
 import org.efaps.ui.wicket.models.objects.UITable;
 import org.efaps.ui.wicket.models.objects.UITableHeader;
 import org.efaps.util.EFapsException;
+import org.efaps.util.cache.CacheReloadException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -120,21 +123,21 @@ public abstract class Table_Base
         final Object object = Context.getThreadContext().getSessionAttribute(UserInterface_Base.UIOBJECT_CACHEKEY);
         if (object instanceof AbstractUIPageObject) {
 
-            final AbstractUIPageObject page = (AbstractUIPageObject) object;
+            final AbstractUIPageObject pageObject = (AbstractUIPageObject) object;
 
-            if (page instanceof UITable || page instanceof UIStructurBrowser) {
+            if (pageObject instanceof UITable || pageObject instanceof UIStructurBrowser) {
                 String mime = (String) properties.get("Mime");
                 if (mime == null) {
                     mime = _parameter.getParameterValue("mime");
                 }
                 final boolean print = "pdf".equalsIgnoreCase(mime);
                 if (!print) {
-                    page.resetModel();
-                    page.setMode(TargetMode.PRINT);
-                    page.execute();
+                    pageObject.resetModel();
+                    pageObject.setMode(TargetMode.PRINT);
+                    pageObject.execute();
                 }
 
-                setFileName(page.getTitle());
+                setFileName(pageObject.getTitle());
 
                 final Style detailStyle = getStyle(_parameter, Table_Base.Section.DETAIL);
                 final Style headerStyle = getStyle(_parameter, Table_Base.Section.HEADER);
@@ -144,7 +147,7 @@ public abstract class Table_Base
                 final Style columnHeaderStyle = getStyle(_parameter, Table_Base.Section.COLUMNHEADER);
 
                 final DynamicReportBuilder drb = new DynamicReportBuilder()
-                    .setTitle(page.getTitle())
+                    .setTitle(pageObject.getTitle())
                     .setUseFullPageWidth(true);
 
                 if (print) {
@@ -158,12 +161,12 @@ public abstract class Table_Base
                     drb.setPrintColumnNames(true)
                         .setIgnorePagination(true)
                         .setMargins(0, 0, 0, 0)
-                        .setReportName(page.getTitle())
+                        .setReportName(pageObject.getTitle())
                         .setDefaultStyles(titleStyle, subtitleStyle, headerStyle, detailStyle);
                 }
 
                 try {
-                    final int widthWeight = ((UITable) page).getWidthWeight();
+                    final int widthWeight = ((AbstractUIHeaderObject) pageObject).getWidthWeight();
                     final String[] columns = _parameter.getParameterValues("columns");
                     final Set<String> selCols = new HashSet<String>();
                     for (final String col : columns) {
@@ -171,23 +174,29 @@ public abstract class Table_Base
                     }
                     final Map<String, Attribute> selAttr = new HashMap<String, Attribute>();
                     final List<Map <String, Object>> values = new ArrayList<Map <String, Object>>();
-                    for (final UIRow row : ((UITable) page).getValues()) {
-                        final Map<String, Object> map = new HashMap<String, Object>();
-                        for (final UITableCell cell : row.getValues()) {
-                            if (selCols.contains(cell.getName())) {
-                                Object value = print ?  cell.getCellTitle() : (cell.getCompareValue() != null
-                                                ? cell.getCompareValue() : cell.getCellTitle());
-                                if (value instanceof DateTime) {
-                                    value = ((DateTime) value).toDate();
+
+                    if (pageObject instanceof UITable) {
+                        for (final UIRow row : ((UITable) pageObject).getValues()) {
+                            final Map<String, Object> map = new HashMap<String, Object>();
+                            for (final UITableCell cell : row.getValues()) {
+                                if (selCols.contains(cell.getName())) {
+                                    Object value = print ?  cell.getCellTitle() : (cell.getCompareValue() != null
+                                                    ? cell.getCompareValue() : cell.getCellTitle());
+                                    if (value instanceof DateTime) {
+                                        value = ((DateTime) value).toDate();
+                                    }
+                                    map.put(cell.getName(), value);
+                                    selAttr.put(cell.getName(), cell.getAttribute());
                                 }
-                                map.put(cell.getName(), value);
-                                selAttr.put(cell.getName(), cell.getAttribute());
                             }
+                            values.add(map);
                         }
-                        values.add(map);
+                    } else if (pageObject instanceof UIStructurBrowser) {
+                        final List<UIStructurBrowser> roots = ((UIStructurBrowser) pageObject).getChildren();
+                        add2Values4StrBrws(selCols, selAttr, print, values, roots);
                     }
 
-                    for (final UITableHeader header : ((UITable) page).getHeaders()) {
+                    for (final UITableHeader header : ((AbstractUIHeaderObject) pageObject).getHeaders()) {
                         final boolean add;
                         if (print) {
                             add = selCols.contains(header.getFieldName());
@@ -267,6 +276,41 @@ public abstract class Table_Base
             }
         }
         return ret;
+    }
+
+    /**
+     * Recursive Method to add to the values map for StructurBrowser.
+     * @param _selCols  selected Columns
+     * @param _selAttr  selected Attributes
+     * @param _print    print mode
+     * @param _values   values to be added to
+     * @param _children children to be evaluated for values
+     * @throws CacheReloadException on error
+     */
+    protected void add2Values4StrBrws(final Set<String> _selCols,
+                                      final Map<String, Attribute> _selAttr,
+                                      final boolean _print,
+                                      final List<Map<String, Object>> _values,
+                                      final List<UIStructurBrowser> _children)
+        throws CacheReloadException
+    {
+        for (final UIStructurBrowser child : _children) {
+            final List<UIStructurBrowserTableCell> cols = child.getColumns();
+            final Map<String, Object> map = new HashMap<String, Object>();
+            for (final UIStructurBrowserTableCell cell : cols) {
+                if (_selCols.contains(cell.getName())) {
+                    Object value = _print ? cell.getCellTitle() : (cell.getCompareValue() != null
+                                    ? cell.getCompareValue() : cell.getCellTitle());
+                    if (value instanceof DateTime) {
+                        value = ((DateTime) value).toDate();
+                    }
+                    map.put(cell.getName(), value);
+                    _selAttr.put(cell.getName(), cell.getAttribute());
+                }
+            }
+            _values.add(map);
+            add2Values4StrBrws(_selCols, _selAttr, _print, _values, child.getChildren());
+        }
     }
 
     /**
