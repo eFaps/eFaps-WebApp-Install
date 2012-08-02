@@ -192,3 +192,11 @@ div.wicket-tree-table div.header span.sortLabelDsc {
     position: relative;
     top: auto;
 }
+
+.eFapsStrucTreeBrows .tree-theme-human {
+    bottom: 0;
+    overflow: auto;
+    position: absolute;
+    top: 69px;
+}
+
