@@ -32,10 +32,18 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
+import net.sf.dynamicreports.report.builder.DynamicReports;
+import net.sf.dynamicreports.report.builder.column.TextColumnBuilder;
+import net.sf.dynamicreports.report.builder.style.StyleBuilder;
+import net.sf.dynamicreports.report.builder.style.Styles;
+import net.sf.dynamicreports.report.constant.HorizontalAlignment;
+import net.sf.dynamicreports.report.constant.PageOrientation;
+import net.sf.dynamicreports.report.constant.PageType;
+import net.sf.dynamicreports.report.exception.DRException;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRField;
-import net.sf.jasperreports.engine.JasperPrint;
 
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.attributetype.BooleanType;
@@ -67,21 +75,6 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ar.com.fdvs.dj.core.DynamicJasperHelper;
-import ar.com.fdvs.dj.core.layout.ClassicLayoutManager;
-import ar.com.fdvs.dj.core.layout.ListLayoutManager;
-import ar.com.fdvs.dj.domain.AutoText;
-import ar.com.fdvs.dj.domain.DynamicReport;
-import ar.com.fdvs.dj.domain.Style;
-import ar.com.fdvs.dj.domain.builders.ColumnBuilder;
-import ar.com.fdvs.dj.domain.builders.ColumnBuilderException;
-import ar.com.fdvs.dj.domain.builders.DynamicReportBuilder;
-import ar.com.fdvs.dj.domain.constants.Border;
-import ar.com.fdvs.dj.domain.constants.Font;
-import ar.com.fdvs.dj.domain.constants.Page;
-import ar.com.fdvs.dj.domain.constants.Stretching;
-import ar.com.fdvs.dj.domain.constants.Transparency;
-
 /**
  * TODO comment!
  *
@@ -93,6 +86,7 @@ import ar.com.fdvs.dj.domain.constants.Transparency;
 public abstract class Table_Base
     extends UserInterface
 {
+
     /**
      * Logger for this class.
      */
@@ -139,30 +133,23 @@ public abstract class Table_Base
 
                 setFileName(pageObject.getTitle());
 
-                final Style detailStyle = getStyle(_parameter, Table_Base.Section.DETAIL);
-                final Style headerStyle = getStyle(_parameter, Table_Base.Section.HEADER);
-                final Style titleStyle = getStyle(_parameter, Table_Base.Section.TITLE);
-                final Style subtitleStyle = getStyle(_parameter, Table_Base.Section.SUBTITLE);
-                final Style columnStyle = getStyle(_parameter, Table_Base.Section.COLUMN);
-                final Style columnHeaderStyle = getStyle(_parameter, Table_Base.Section.COLUMNHEADER);
-
-                final DynamicReportBuilder drb = new DynamicReportBuilder()
-                    .setTitle(pageObject.getTitle())
-                    .setUseFullPageWidth(true);
+                final JasperReportBuilder jrb = DynamicReports.report()
+                                .addTitle(DynamicReports.cmp.horizontalList(
+                                            DynamicReports.cmp.text(pageObject.getTitle()),
+                                            DynamicReports.cmp. text(new Date())
+                                            .setHorizontalAlignment(HorizontalAlignment.RIGHT)
+                                            .setDataType(DynamicReports.type.dateYearToMinuteType())));
 
                 if (print) {
-                    drb.setDetailHeight(15)
-                        .setHeaderHeight(15)
-                        .setDefaultStyles(titleStyle, subtitleStyle, headerStyle, detailStyle)
-                        .setColumnsPerPage(1)
-                        .setPageSizeAndOrientation(Page.Page_A4_Landscape())
-                        .setMargins(20, 20, 20, 20); // (top, bottom, left and right)
+                    jrb.setPageMargin(DynamicReports.margin(20))
+                                    .setPageFormat(PageType.A4, PageOrientation.LANDSCAPE)
+                                    .setColumnHeaderStyle(getStyle(_parameter, Table_Base.Section.HEADER))
+                                    .highlightDetailEvenRows()
+                                    .pageFooter(DynamicReports.cmp.pageXofY().setStyle(DynamicReports.stl.style()
+                                                    .setHorizontalAlignment(HorizontalAlignment.CENTER)));
                 } else {
-                    drb.setPrintColumnNames(true)
-                        .setIgnorePagination(true)
-                        .setMargins(0, 0, 0, 0)
-                        .setReportName(pageObject.getTitle())
-                        .setDefaultStyles(titleStyle, subtitleStyle, headerStyle, detailStyle);
+                    jrb.setIgnorePagination(true)
+                                    .setPageMargin(DynamicReports.margin(0));
                 }
 
                 try {
@@ -173,14 +160,14 @@ public abstract class Table_Base
                         selCols.add(col);
                     }
                     final Map<String, Attribute> selAttr = new HashMap<String, Attribute>();
-                    final List<Map <String, Object>> values = new ArrayList<Map <String, Object>>();
+                    final List<Map<String, Object>> values = new ArrayList<Map<String, Object>>();
 
                     if (pageObject instanceof UITable) {
                         for (final UIRow row : ((UITable) pageObject).getValues()) {
                             final Map<String, Object> map = new HashMap<String, Object>();
                             for (final UITableCell cell : row.getValues()) {
                                 if (selCols.contains(cell.getName())) {
-                                    Object value = print ?  cell.getCellTitle() : (cell.getCompareValue() != null
+                                    Object value = print ? cell.getCellTitle() : (cell.getCompareValue() != null
                                                     ? cell.getCompareValue() : cell.getCellTitle());
                                     if (value instanceof DateTime) {
                                         value = ((DateTime) value).toDate();
@@ -203,73 +190,68 @@ public abstract class Table_Base
                         } else {
                             final Field field = Field.get(header.getFieldId());
                             add = (field.isNoneDisplay(TargetMode.VIEW) && !field.isNoneDisplay(TargetMode.PRINT))
-                                || selCols.contains(header.getFieldName());
+                                            || selCols.contains(header.getFieldName());
                             if (add && !selCols.contains(header.getFieldName())) {
                                 selCols.add(header.getFieldName());
                             }
                         }
                         if (add) {
                             final BigDecimal width = new BigDecimal(header.getWidth()).setScale(2)
-                                .divide(new BigDecimal(widthWeight), BigDecimal.ROUND_HALF_UP)
-                                .multiply(new BigDecimal(555));
+                                            .divide(new BigDecimal(widthWeight), BigDecimal.ROUND_HALF_UP)
+                                            .multiply(new BigDecimal(555));
 
-                            final ColumnBuilder cbldr = ColumnBuilder.getNew();
-                            String clazzname = String.class.getName();
+                            TextColumnBuilder<?> clbdr = null;
                             final Attribute attr = selAttr.get(header.getFieldName());
                             if (attr != null && !print) {
                                 if (attr.getAttributeType().getDbAttrType() instanceof LongType) {
                                     if (checkValues(values, header.getFieldName(), Long.class)) {
-                                        clazzname = Long.class.getName();
+                                        clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
+                                                        DynamicReports.type.longType());
                                     }
                                 } else if (attr.getAttributeType().getDbAttrType() instanceof DecimalType) {
                                     if (checkValues(values, header.getFieldName(), BigDecimal.class)) {
-                                        clazzname = BigDecimal.class.getName();
+                                        clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
+                                                        DynamicReports.type.bigDecimalType());
                                     }
                                 } else if (attr.getAttributeType().getDbAttrType() instanceof IntegerType) {
-                                    clazzname = Integer.class.getName();
+                                    clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
+                                                    DynamicReports.type.integerType());
                                 } else if (attr.getAttributeType().getDbAttrType() instanceof BooleanType) {
                                     if (checkValues(values, header.getFieldName(), Boolean.class)) {
-                                        clazzname = Boolean.class.getName();
+                                        clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
+                                                        DynamicReports.type.booleanType());
                                     }
                                 } else if (attr.getAttributeType().getDbAttrType() instanceof DateTimeType) {
                                     if (checkValues(values, header.getFieldName(), Date.class)) {
-                                        clazzname = Date.class.getName();
+                                        clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
+                                                        DynamicReports.type.dateType());
                                     }
                                 } else if (attr.getAttributeType().getDbAttrType() instanceof RateType) {
-                                    clazzname = BigDecimal.class.getName();
+                                    clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
+                                                    DynamicReports.type.bigDecimalType());
                                 }
                             }
-                            cbldr.setColumnProperty(header.getFieldName(), clazzname)
-                                .setTitle(header.getLabel());
-                            if (print) {
-                                cbldr.setStyle(columnStyle)
-                                    .setHeaderStyle(columnHeaderStyle)
-                                    .setWidth(header.isFixedWidth() ? header.getWidth() : width.intValue());
+                            if (clbdr == null) {
+                                clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
+                                                DynamicReports.type.stringType());
                             }
-                            drb.addColumn(cbldr.build());
+                            if (print) {
+                                clbdr.setWidth(header.isFixedWidth() ? header.getWidth() : width.intValue());
+                            }
+                            jrb.addColumn(clbdr);
                         }
                     }
 
-                    if (print) {
-                        drb.addAutoText(AutoText.AUTOTEXT_PAGE_X_OF_Y, AutoText.POSITION_FOOTER,
-                                        AutoText.ALIGMENT_RIGHT, 200, 40);
-                        drb.addAutoText(AutoText.AUTOTEXT_CREATED_ON, AutoText.POSITION_HEADER, AutoText.ALIGMENT_RIGHT,
-                                    AutoText.PATTERN_DATE_DATE_TIME, 200, 50);
-                    }
-                    drb.setReportLocale(Context.getThreadContext().getLocale());
-                    final DynamicReport dr = drb.build(); // Finally build the
-                    // report!
-                    final JRDataSource ds = getSource(_parameter, values);
-                    final JasperPrint jp = DynamicJasperHelper.generateJasperPrint(dr,
-                                    print ? new  ClassicLayoutManager() : new ListLayoutManager(), ds);
-                    ret.put(ReturnValues.VALUES, super.getFile(jp, mime));
+                    jrb.setLocale(Context.getThreadContext().getLocale()).setDataSource(getSource(_parameter, values));
+
+                    ret.put(ReturnValues.VALUES, super.getFile(jrb.toJasperPrint(), mime));
                     ret.put(ReturnValues.TRUE, true);
-                } catch (final ColumnBuilderException e) {
-                    throw new EFapsException(Table_Base.class, "ColumnBuilderException", e);
                 } catch (final JRException e) {
                     throw new EFapsException(Table_Base.class, "JRException", e);
                 } catch (final IOException e) {
                     throw new EFapsException(Table_Base.class, "IOException", e);
+                } catch (final DRException e) {
+                    throw new EFapsException(Table_Base.class, "DRException", e);
                 }
             } else {
                 Table_Base.LOG.error("Not implemented!");
@@ -280,10 +262,11 @@ public abstract class Table_Base
 
     /**
      * Recursive Method to add to the values map for StructurBrowser.
-     * @param _selCols  selected Columns
-     * @param _selAttr  selected Attributes
-     * @param _print    print mode
-     * @param _values   values to be added to
+     *
+     * @param _selCols selected Columns
+     * @param _selAttr selected Attributes
+     * @param _print print mode
+     * @param _values values to be added to
      * @param _children children to be evaluated for values
      * @throws CacheReloadException on error
      */
@@ -315,12 +298,12 @@ public abstract class Table_Base
 
     /**
      * @param _parameter Parameter as passed by the eFaps API
-     * @param _values    Map of values for the DateSource
+     * @param _values Map of values for the DateSource
      * @return DataSource
      * @throws EFapsException on error
      */
     protected JRDataSource getSource(final Parameter _parameter,
-                                    final List<Map<String, Object>> _values)
+                                     final List<Map<String, Object>> _values)
         throws EFapsException
     {
         return new TableSource(_values);
@@ -328,42 +311,37 @@ public abstract class Table_Base
 
     /**
      * Get the Style for the different Sections.
-     * @param _parameter    Parameter as passed by the eFaps API
-     * @param _detail       Section
+     *
+     * @param _parameter Parameter as passed by the eFaps API
+     * @param _detail Section
      * @return Style for Dynamic JAsper
      * @throws EFapsException on error
      */
-    protected Style getStyle(final Parameter _parameter,
-                             final Section _detail)
+    protected StyleBuilder getStyle(final Parameter _parameter,
+                                    final Section _detail)
         throws EFapsException
     {
-        Style ret;
+        StyleBuilder ret;
         switch (_detail) {
             case TITLE:
-                ret = new Style();
-                ret.setFont(Font.VERDANA_BIG_BOLD);
-                ret.getFont().setPdfFontEmbedded(true);
+                ret = DynamicReports.stl.style().setBold(true);
                 break;
             case COLUMN:
-                ret = new Style();
-                ret.setFont(Font.VERDANA_MEDIUM);
-                ret.setBorder(Border.PEN_1_POINT());
-                ret.getFont().setPdfFontEmbedded(true);
+                ret = DynamicReports.stl.style().setFont(Styles.font().bold()
+                                .setFontSize(12))
+                                .setBorder(Styles.pen1Point());
                 break;
             case COLUMNHEADER:
-                ret = new Style();
-                ret.setFont(Font.VERDANA_MEDIUM_BOLD);
-                ret.setBackgroundColor(Color.gray);
-                ret.setBorder(Border.PEN_1_POINT());
-                ret.setTransparency(Transparency.OPAQUE);
-                ret.setTextColor(Color.white);
-                ret.setStreching(Stretching.NO_STRETCH);
-                ret.getFont().setPdfFontEmbedded(true);
+                ret = DynamicReports.stl.style()
+                                .setFont(Styles.font().bold().setFontSize(12))
+                                .setBorder(Styles.pen1Point())
+                                .setBackgroundColor(Color.gray)
+                                .setForegroundColor(Color.white);
                 break;
             default:
-                ret = new Style();
-                ret.setFont(Font.VERDANA_MEDIUM);
-                ret.getFont().setPdfFontEmbedded(true);
+                ret = DynamicReports.stl.style()
+                                .setFont(Styles.font().setFontSize(12))
+                                .setBorder(Styles.pen1Point());
                 break;
         }
         return ret;
@@ -427,6 +405,7 @@ public abstract class Table_Base
     public class TableSource
         implements JRDataSource
     {
+
         /**
          * Values for the rows.
          */
