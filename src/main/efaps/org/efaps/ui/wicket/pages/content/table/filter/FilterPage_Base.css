@@ -19,15 +19,15 @@
  * Last Changed By: $Author$
  */
 
- /* 
+ /*
  * @eFapsPackage  org.efaps.ui.wicket.pages.content.table.filter
  * @eFapsUUID     bc399180-055c-4149-ac41-5b1a3c11ca80
  * @eFapsRevision $Rev$
  */
- 
+
 body {
   background-color: #E1E1E1;;
-  overflow: hidden;
+  overflow: auto;
 }
 
 body,th,td,p,div {
