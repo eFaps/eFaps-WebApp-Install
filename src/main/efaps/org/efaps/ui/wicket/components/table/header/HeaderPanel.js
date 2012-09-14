@@ -19,7 +19,7 @@
  * Last Changed By: $Author$
  */
 
-/* 
+/*
  * @eFapsPackage  org.efaps.ui.wicket.components.table.header
  * @eFapsUUID      62934dc5-42b0-48eb-8e5a-57e6c41a77a8
  * @eFapsRevision $Rev$
@@ -42,63 +42,50 @@ function headerProperties(){
  this.storeColumnWidths ="";
  this.storeColumnOrder = "";
  this.reloadTable = "";
-} 
-
-function positionTableColumns(_props) {
-  var header = document.getElementById(_props.headerID);
-  var cells = new Array();
-  var widthWeight = 0;
-  var widthCor = 0;
-  var addCell = 0;
-  var celldivs = header.getElementsByTagName("div");
-  for(i = 0; i < celldivs.length; i++){
-    var cell = celldivs[i];
-    var fixed = cell.className.indexOf("eFapsCellFixedWidth");
-    if(fixed > -1){
-      var addwith = getAdditionalWidth(cell);
-      cells.push(new Array(cell.clientWidth, addwith, false));
-      widthCor += cell.clientWidth + addwith;
-    }
-    var f = cell.className.indexOf("eFapsCellWidth");
-    if (f>-1){
-      var addwith = getAdditionalWidth(cell);
-      cells.push(new Array(cell.clientWidth, addwith,true));
-      widthWeight += cell.clientWidth;
-      widthCor+= addwith;
-    }
-  }
-  var tablebody = document.getElementById(_props.bodyID);
-  var completeWidth = (tablebody.clientWidth ) ;
-  if (completeWidth != 0) {
-    header.style.width = completeWidth + "px";
-    var cellWidth;
-    var rightshift = 0;
-    for(k = 0;k < cells.length; k++){
-      if(cells[k][2]==true){
-        var rule = getStyleRule(k + _props.modelID, _props.modelID);
-        cellWidth = ((100/widthWeight * cells[k][0])/100)* (completeWidth - widthCor - 5);
-        rule.style.width= cellWidth + "px";
-       
-      }else {
-        cellWidth = cells[k][0];
-      }
-      if(k+1 < cells.length){
-        rightshift += cellWidth + cells[k][1];
-        if(cells[k][2]==true ){
-          if(document.getElementById((k + _props.modelID) + "eFapsHeaderSeperator")){
-            document.getElementById((k + _props.modelID) + "eFapsHeaderSeperator").style.left = rightshift + "px";
-          }
-        }
-      }
-    }
-  }
 }
 
- 
+function positionTableColumns(_props) {
+    require([ "dojo/dom", "dojo/dom-geometry", "dojo/dom-style" ],
+        function(dom, domGeom, style) {
+            var header = dom.byId(_props.headerID);
+            var cells = new Array();
+            var widthWeight = 0;
+            var celldivs = header.getElementsByTagName("div");
+            for (i = 0; i < celldivs.length; i++) {
+                var cell = celldivs[i];
+                var cS = style.getComputedStyle(cell);
+                width = domGeom.position(cell).w;
+                widthWeight += domGeom.getMarginSize(cell).w + domGeom.getPadBorderExtents(cell).w;
+                cells.push(new Array(cell, width, cell.className.indexOf("eFapsCellWidth") > -1));
+            }
+            var tablebody = dom.byId(_props.bodyID);
+            var completeWidth = domGeom.position(tablebody.children[0]).w;
+
+            if (completeWidth != 0) {
+                header.style.width = completeWidth + "px";
+                for (k = 0; k < cells.length; k++) {
+                    if (cells[k][2] == true) {
+                        var rule = getStyleRule(k + _props.modelID, _props.modelID);
+                        var cellWidth = Math.round(((cells[k][1] / widthWeight) * completeWidth) - 1);
+                        rule.style.width = cellWidth + "px";
+
+                        if (k + 1 < cells.length) {
+                            if (dom.byId((k + _props.modelID) + "eFapsHeaderSeperator")) {
+                                var sep = dom.byId((k + _props.modelID) + "eFapsHeaderSeperator");
+                                sep.style.left = domGeom.position(cells[k + 1][0]).x - domGeom.position(sep).w / 2 + "px";
+                            }
+                        }
+                    }
+                }
+            }
+        });
+}
+
+
 // function used to retrieve a Style Rule from a StyleSheet
 function getStyleRule(_styleIndex, _modelID) {
   var selectorName = ".eFapsCellWidth" + _styleIndex;
-  for (i = 0; i < document.styleSheets.length; i++) { 
+  for (i = 0; i < document.styleSheets.length; i++) {
     var find = document.styleSheets[i].cssRules[0].cssText.indexOf("eFapsCSSId"+ _modelID)
     if(find > -1){
       for (j = 0; j < document.styleSheets[i].cssRules.length; j++) {
@@ -109,33 +96,21 @@ function getStyleRule(_styleIndex, _modelID) {
     }
   }
 }
-//function used to retrieve the additional Width of an DomObject like the margin
-// and padding
-function getAdditionalWidth(_cell){
-  var compu = window.getComputedStyle(_cell,null); 
-  var width=0;
-  width += parseInt(compu.getPropertyValue("margin-left"));
-  width += parseInt(compu.getPropertyValue("margin-right"));
-  width += parseInt(compu.getPropertyValue("padding-left"));
-  width += parseInt(compu.getPropertyValue("padding-right"));
-  width += parseInt(compu.getPropertyValue("border-left-width"));
-  width += parseInt(compu.getPropertyValue("border-right-width"));
-  return width;
-}
+
 
 function getColumnWidths(_props){
   var header = document.getElementById(_props.headerID);
   var celldivs = header.getElementsByTagName("div");
   var widths="";
   for(i = 0;i<celldivs.length;i++){
-    if(celldivs[i].className.indexOf("eFapsCellFixedWidth") > -1 || 
+    if(celldivs[i].className.indexOf("eFapsCellFixedWidth") > -1 ||
          celldivs[i].className.indexOf("eFapsCellWidth") > -1){
       widths += window.getComputedStyle(celldivs[i],null).getPropertyValue("width") +";";
     }
   }
   return widths;
 }
-  
+
 function beginColumnSize(_seperator,_event){
   lastpos = _event.screenX;
   startpos = lastpos;
@@ -193,7 +168,7 @@ function getColumnOrder(props){
   var celldivs = header.getElementsByTagName("div");
   var ids="";
   for(i = 0;i<celldivs.length;i++){
-    if(celldivs[i].className.indexOf("eFapsCellFixedWidth") > -1 || 
+    if(celldivs[i].className.indexOf("eFapsCellFixedWidth") > -1 ||
               celldivs[i].className.indexOf("eFapsCellWidth") > -1){
       ids += celldivs[i].id + ";";
     }
