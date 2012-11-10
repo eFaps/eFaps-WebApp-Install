@@ -80,8 +80,12 @@
     vertical-align: top;
 }
 
-.eFapsTableCell input,.eFapsTableCell textarea,.eFapsTableCell select {
+.eFapsTableCell input, .eFapsTableCell textarea {
+    background-color: #E8E8E8;
+    border: 1px solid #CCCCCC;
+    border-radius: 2px 2px 2px 2px;
     width: inherit;
+    margin-left: -4px;
 }
 
 .eFapsTableCheckBoxCell {
@@ -90,6 +94,11 @@
     height: 18px;
     width: 14px;
 }
+
+.eFapsTableCellEdit {
+    width: 5px;
+}
+
 
 .eFapsTableCheckBoxCell input {
     margin: 0;
@@ -130,9 +139,13 @@
     background-color: yellow;
 }
 
+/*
+for implementation purpose
+
 .eFapsTableFirstCell {
-    margin-left: 0px;
+
 }
+*/
 
 .eFapsTableCellClear {
     clear: both;

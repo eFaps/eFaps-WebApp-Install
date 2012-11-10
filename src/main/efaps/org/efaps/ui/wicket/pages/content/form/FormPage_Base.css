@@ -71,9 +71,11 @@
 }
 
 .eFapsContentDiv .tree-theme-human {
-    display: table-row;
+    display: inline-table;
+    width: 100%;
 }
 
 .eFapsContentDiv .tree-theme-windows {
-    display: table-row;
+    display: inline-table;
+    width: 100%;
 }
