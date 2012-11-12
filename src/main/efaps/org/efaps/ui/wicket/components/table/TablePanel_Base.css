@@ -99,6 +99,11 @@
     width: 5px;
 }
 
+.eFapsTableCellEdit.edited {
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.components.tree.edit.png");
+    background-position: right center;
+    background-size: 12px auto;
+}
 
 .eFapsTableCheckBoxCell input {
     margin: 0;
