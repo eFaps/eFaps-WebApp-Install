@@ -33,6 +33,10 @@
     padding-bottom: 20px;
 }
 
+.EDIT .eFapsContentDiv, .CREATE .eFapsContentDiv {
+    bottom: 42px;
+}
+
 .eFapsContentDiv img {
     width: 16px;
     height: 16px;

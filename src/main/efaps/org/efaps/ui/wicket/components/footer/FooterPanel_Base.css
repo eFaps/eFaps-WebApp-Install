@@ -19,12 +19,12 @@
  * Last Changed By: $Author$
  */
 
-/* 
+/*
  * @eFapsPackage  org.efaps.ui.wicket.components.footer
  * @eFapsUUID     f4ed6682-e08c-4963-a422-ef39ea28ce6f
  * @eFapsRevision $Rev$
  */
- 
+
 .eFapsFooter {
   background: #DDDECB;
   border-bottom: 1px solid;
@@ -45,8 +45,4 @@
 
 .eFapsFooterButton1,.eFapsFooterButton2, .eFapsFooterButton3 {
   float: left;
-}
-
-#eFapsContentDiv {
-  bottom: 42px;
 }
