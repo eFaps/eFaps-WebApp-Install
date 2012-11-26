@@ -130,7 +130,7 @@
     overflow: hidden;
     width: 13px;
     height: 18px;
-    margin-left: 1px;
+    margin-left: -6px;
     z-index: 1000;
     cursor: col-resize;
     position: absolute;
