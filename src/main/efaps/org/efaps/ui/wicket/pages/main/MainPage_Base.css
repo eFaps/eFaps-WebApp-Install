@@ -111,16 +111,23 @@ div.eFapsLogoVersion span {
     display: table-cell;
 }
 
-#eFapsUserMsg {
-    display: table-cell;
+.eFapsUserMsg {
+    background-color: rgba(84, 84, 84, 0.75);
+    cursor: pointer;
+    color: white;
+    display: block;
+    font-family: arial,verdana,helvetica,sans-serif;
+    font-size: 9pt;
+    height: 20px;
+    position: absolute;
     text-align: center;
+    top: 0;
     vertical-align: middle;
     white-space: nowrap;
-    font-size: 9pt;
-    font-family: arial, verdana, helvetica, sans-serif;
+    width: 100%;
 }
 
-#eFapsUserMsg a:visited,a:link {
+.eFapsUserMsg a:visited,a:link {
     text-decoration: none;
 }
 
