@@ -33,7 +33,10 @@ var seperatorOffset = 0;
 var connections = [];
 var seperator;
 
-
+// value is used to reduce the evaluated table with to ensure that the columns will fit
+var widthCorrection = 5;
+// the with that will be substracted from the complete with in case that there is a scrollbar
+var scrollBarWidth = 20;
 
 function headerProperties() {
     this.headerID = "";
@@ -51,6 +54,11 @@ function positionTableColumns(_props) {
     var completeWidth = domGeom.position(table, false).w;
     var widthWeight = 0;
     var calcWidth = 0;
+
+    // for a structurbrowser there will be a scrollbar in case that the content expands
+    if (table.clientHeight < table.scrollHeight) {
+        completeWidth = completeWidth - scrollBarWidth;
+    }
 
     var nl = query(".eFapsTableHeaderCell, .eFapsTableCheckBoxCell", header);
     nl.forEach(function(node){
@@ -73,8 +81,8 @@ function positionTableColumns(_props) {
             var computedStyle = style.getComputedStyle(node);
             var output = domGeom.getContentBox(node, computedStyle).w;
             var rule = getStyleRule(styleIndex + _props.modelID, _props.modelID);
-            cellWidth = Math.round((100/widthWeight * Math.round(output)/100)* (completeWidth- calcWidth-5));
-        rule.style.width= cellWidth + "px";
+            cellWidth = Math.round((100/widthWeight * Math.round(output)/100)* (completeWidth - calcWidth - widthCorrection));
+            rule.style.width= cellWidth + "px";
         }
         styleIndex++;
     })
