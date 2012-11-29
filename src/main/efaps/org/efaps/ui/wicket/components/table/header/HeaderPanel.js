@@ -122,7 +122,7 @@ function getColumnWidths(_props) {
     require([ "dojo/query", "dojo/dom", "dojo/dom-geometry", "dojo/dom-style" ],
             function(query, dom, domGeom, style) {
                 var header = dom.byId(_props.headerID);
-                var nl = query("div", header);
+                var nl = query("> div", header);
                 nl.forEach(function(node) {
                     computedStyle = style.getComputedStyle(node);
                     widths += domGeom.getContentBox(node, computedStyle).w + "px;";
