@@ -55,7 +55,7 @@
     float: left;
     min-height: 18px;
     overflow: hidden;
-    padding-left: 6px;
+    padding: 0 0 0 6px;
     display: block;
     float: left;
     white-space: nowrap;
