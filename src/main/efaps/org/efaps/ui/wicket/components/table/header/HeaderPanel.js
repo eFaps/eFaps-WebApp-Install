@@ -60,7 +60,7 @@ function positionTableColumns(_props) {
         completeWidth = completeWidth - scrollBarWidth;
     }
 
-    var nl = query(".eFapsTableHeaderCell, .eFapsTableCheckBoxCell", header);
+    var nl = query("> div", header);
     nl.forEach(function(node){
         var fixed = node.className.indexOf("eFapsCellFixedWidth");
         var computedStyle = style.getComputedStyle(node);
@@ -73,7 +73,7 @@ function positionTableColumns(_props) {
             calcWidth = calcWidth + Math.round(marginBoxWidth);
         }
     });
-    var styleIndex = 1;
+    var styleIndex = 0;
     nl.forEach(function(node){
         var fixed = node.className.indexOf("eFapsCellFixedWidth");
         var selectorName = ".eFapsCellWidth" + (styleIndex + _props.modelID);
