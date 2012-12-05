@@ -19,50 +19,50 @@
  * Last Changed By: $Author$
  */
 
-/* 
+/*
  * @eFapsPackage  org.efaps.ui.wicket.components.table.header
  * @eFapsUUID     e45e029b-d7d3-477f-89ce-529f84d4e894
  * @eFapsRevision $Rev$
  */
-
 .eFapsHeaderSort,.eFapsHeaderSortAscending,.eFapsHeaderSortDescending {
-  cursor: pointer;
-  float: left;
-  width: 100%;
+    cursor: pointer;
+    float: left;
+    width: 100%;
 }
 
 .eFapsHeaderSortAscending,.eFapsHeaderSortDescending {
-  background-repeat: no-repeat;
-  background-position: right;
+    background-repeat: no-repeat;
+    background-position: right;
 }
 
 .eFapsHeaderFilterActive,.eFapsHeaderFilter {
-  background-position: center;
-  background-repeat: no-repeat;
-  cursor: pointer;
-  width: 18px;
-  float: right;
+    background-position: center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    width: 18px;
+    float: right;
 }
 
 .dojoDndAvatar {
-  border: 2px solid #ccc;
-  font-size: 75%;
-  -moz-border-radius: 8pt 8pt;
-  radius: 8pt;
-}
-
-.dojoDndAvatarHeader {
-  display: none;
+    border: 2px solid #ccc;
+    font-size: 75%;
+    -moz-border-radius: 8pt 8pt;
+    radius: 8pt;
 }
 
 .dojoDndAvatarItem {
-  background: #008800;
+    background: none repeat scroll 0 0 transparent;
 }
 
 .dojoDndItemAfter {
-  border-right: 4px solid red;
+    border-right: 4px solid red;
 }
 
 .dojoDndHandle {
-  cursor: pointer;
+    cursor: pointer;
+}
+
+.eFapsTableHeaderCell.dojoDndItemAnchor,.eFapsTableHeaderCell.dojoDndItemSelected
+    {
+    background-color: #005C00;
 }
