@@ -173,7 +173,7 @@
         <dependency>
             <groupId>org.efaps</groupId>
             <artifactId>efaps-webapp</artifactId>
-            <version>[2.1.0-SNAPSHOT,2.2.0)</version>
+            <version>2.1.5-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
