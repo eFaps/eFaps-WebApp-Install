@@ -139,6 +139,11 @@
     position: absolute;
 }
 
+.eFapsTableHeaderSeperator.eFapsMove {
+    background-position: top center;
+}
+
+
 .eFapsTableCellInvalidValue {
     background-color: yellow;
 }

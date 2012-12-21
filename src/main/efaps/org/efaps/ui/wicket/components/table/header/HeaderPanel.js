@@ -49,55 +49,55 @@ function headerProperties() {
 
 function positionTableColumns(_props) {
     require(["dojo/query", "dojo/dom","dojo/dom-geometry","dojo/dom-style","dojo/NodeList-dom"], function(query,dom,domGeom,style){
-    var header = dom.byId(_props.headerID);
-    var table = dom.byId(_props.bodyID);
-    var completeWidth = domGeom.position(table, false).w;
-    var widthWeight = 0;
-    var calcWidth = 0;
+        var header = dom.byId(_props.headerID);
+        var table = dom.byId(_props.bodyID);
+        var completeWidth = domGeom.position(table, false).w;
+        var widthWeight = 0;
+        var calcWidth = 0;
 
-    // for a structurbrowser there will be a scrollbar in case that the content expands
-    if (table.clientHeight < table.scrollHeight) {
-        completeWidth = completeWidth - scrollBarWidth;
-    }
-
-    var nl = query("> div", header);
-    nl.forEach(function(node){
-        var fixed = node.className.indexOf("eFapsCellFixedWidth");
-        var computedStyle = style.getComputedStyle(node);
-        var output = domGeom.getContentBox(node, computedStyle).w;
-        var marginBoxWidth = domGeom.getMarginSize(node, computedStyle).w;
-        if(fixed == -1){
-            calcWidth = calcWidth - Math.round(output) + Math.round(marginBoxWidth);
-            widthWeight = widthWeight + Math.round(output);
-        } else {
-            calcWidth = calcWidth + Math.round(marginBoxWidth);
+        // for a structurbrowser there will be a scrollbar in case that the content expands
+        if (table.clientHeight < table.scrollHeight) {
+            completeWidth = completeWidth - scrollBarWidth;
         }
-    });
-    var styleIndex = 0;
-    nl.forEach(function(node){
-        var fixed = node.className.indexOf("eFapsCellFixedWidth");
-        var selectorName = ".eFapsCellWidth" + (styleIndex + _props.modelID);
-        if(fixed == -1){
+
+        var nl = query("> div", header);
+        nl.forEach(function(node){
+            var fixed = node.className.indexOf("eFapsCellFixedWidth");
             var computedStyle = style.getComputedStyle(node);
             var output = domGeom.getContentBox(node, computedStyle).w;
-            var rule = getStyleRule(styleIndex + _props.modelID, _props.modelID);
-            cellWidth = Math.round((100/widthWeight * Math.round(output)/100)* (completeWidth - calcWidth - widthCorrection));
-            rule.style.width= cellWidth + "px";
-        }
-        styleIndex++;
-    })
-    var k = 0;
-    nl.forEach(function(node){
-        var fixed = node.className.indexOf("eFapsCellFixedWidth");
-        if(fixed == -1){
-            var xpos = domGeom.position(node).x;
-            sep = dom.byId((k + _props.modelID) + "eFapsHeaderSeperator");
-            if (sep != null) {
-                style.set(sep, "left", xpos + "px");
+            var marginBoxWidth = domGeom.getMarginSize(node, computedStyle).w;
+            if(fixed == -1){
+                calcWidth = calcWidth - Math.round(output) + Math.round(marginBoxWidth);
+                widthWeight = widthWeight + Math.round(output);
+            } else {
+                calcWidth = calcWidth + Math.round(marginBoxWidth);
+            }
+        });
+        var styleIndex = 0;
+        nl.forEach(function(node){
+            var fixed = node.className.indexOf("eFapsCellFixedWidth");
+            var selectorName = ".eFapsCellWidth" + (styleIndex + _props.modelID);
+            if(fixed == -1){
+                var computedStyle = style.getComputedStyle(node);
+                var output = domGeom.getContentBox(node, computedStyle).w;
+                var rule = getStyleRule(styleIndex + _props.modelID, _props.modelID);
+                cellWidth = Math.round((100/widthWeight * Math.round(output)/100)* (completeWidth - calcWidth - widthCorrection));
+                rule.style.width= cellWidth + "px";
+            }
+            styleIndex++;
+        })
+        var k = 0;
+        nl.forEach(function(node){
+            var fixed = node.className.indexOf("eFapsCellFixedWidth");
+            if(fixed == -1 && k+1 < nl.length){
+                var xpos = domGeom.position(nl[k+1]).x;
+                sep = dom.byId((k + _props.modelID) + "eFapsHeaderSeperator");
+                if (sep != null) {
+                    style.set(sep, "left", xpos + "px");
+                }
             }
             k++;
-        }
-    });
+        });
     });
 }
 
@@ -131,56 +131,51 @@ function getColumnWidths(_props) {
     return widths;
 }
 
-function beginColumnSize(_seperator,_event){
-  lastpos = _event.screenX;
-  startpos = lastpos;
-  seperator = _seperator;
-  seperatorOffset = _event.screenX - parseInt(_seperator.style.left);
-  _seperator.style.width = parseInt(window.getComputedStyle(_seperator,null).getPropertyValue("width")) + seperatorWidth +"px";
-  _seperator.style.left = parseInt(_seperator.style.left) - seperatorWidth/2 +"px";
-  _seperator.style.backgroundPosition="top center";
-  connections[0] = dojo.connect(_seperator,"onmousemove",this,  "doColumnSize" );
-  connections[1] = dojo.connect(_seperator,"onmouseout",this,  "cancelColumnSize" );
-}
+function addMoveable(_sepId, _props) {
+    require(["dojo/dnd/move","dojo/dom","dojo/dom-geometry","dojo/dom-style","dojo/dom-class"], function(move, dom, domGeom, domStyle, domClass) {
+        var x = 0;
+        //Create your "Moveable" as
+        var ma = new move.constrainedMoveable(_sepId, {
+            constraints: function() {
+                            var n = dom.byId(_props.headerID),
+                            s = domStyle.getComputedStyle(n),
+                            mb = domGeom.getMarginBox(n, s);
+                            mb.h=0;
+                            return mb;
+                        },
+            within: false
+        });
 
-
-function doColumnSize(_event){
-  seperator.style.left= (_event.screenX-seperatorOffset) - seperatorWidth/2 +"px";
-  lastpos=_event.screenX;
-}
-
-function endColumnSize(_seperator,_event,_props){
-  dojo.forEach(connections,dojo.disconnect);
-  var dif = lastpos - startpos;
-  var i = parseInt(seperator.id);
-  var leftrule = getStyleRule(i, _props.modelID);
-  var rightrule = getStyleRule(i+1, _props.modelID);
-  var leftWidth = parseInt(leftrule.style.width);
-  var rightWidth = parseInt(rightrule.style.width);
-  var move = 0;
-  if(leftWidth + dif > minWidth && rightWidth - dif > minWidth){
-    leftrule.style.width = leftWidth + dif +"px";
-    rightrule.style.width = rightWidth - dif +"px";
-  } else {
-    if(dif < 0){
-      leftrule.style.width = minWidth +"px";
-      rightrule.style.width = rightWidth + leftWidth - minWidth + "px";
-      move = (leftWidth + dif-minWidth);
-    } else {
-      rightrule.style.width = minWidth +"px";
-      leftrule.style.width = leftWidth + rightWidth - minWidth + "px";
-      move = -(rightWidth - dif - minWidth);
-    }
-  }
-  _seperator.style.width = parseInt(_seperator.style.width) - seperatorWidth +"px";
-  _seperator.style.left = parseInt(_seperator.style.left) - move + seperatorWidth/2 +"px";
-  _seperator.style.backgroundPosition = "-200px 0";
-  _props.storeColumnWidths(getColumnWidths(_props));
-}
-
-
-function cancelColumnSize(_event){
-  endColumnSize(seperator,_event);
+        ma.onMoveStart = function() {
+            x = domGeom.position( this.node).x;
+            domClass.add(this.node, "eFapsMove");
+        }
+        ma.onMoveStop = function() {
+            dif = domGeom.position(this.node).x - x;
+            domClass.remove(this.node, "eFapsMove");
+            tableId = parseInt(this.node.id);
+            leftrule = getStyleRule(tableId, _props.modelID);
+            rightrule = getStyleRule(tableId+1, _props.modelID);
+            leftWidth = parseInt(leftrule.style.width);
+            rightWidth = parseInt(rightrule.style.width);
+            move = 0;
+            if (leftWidth + dif > minWidth && rightWidth - dif > minWidth) {
+                leftrule.style.width = leftWidth + dif +"px";
+                rightrule.style.width = rightWidth - dif +"px";
+            } else {
+                if (dif < 0) {
+                    leftrule.style.width = minWidth +"px";
+                    rightrule.style.width = rightWidth + leftWidth - minWidth + "px";
+                    move = (leftWidth + dif-minWidth);
+                } else {
+                    rightrule.style.width = minWidth +"px";
+                    leftrule.style.width = leftWidth + rightWidth - minWidth + "px";
+                    move = -(rightWidth - dif - minWidth);
+                }
+                this.node.style.left = parseInt(this.node.style.left) - move +"px";
+            }
+        }
+    });
 }
 
 function getColumnOrder(_props) {
