@@ -52,9 +52,13 @@ function positionTableColumns(_props) {
         var header = dom.byId(_props.headerID);
         var table = dom.byId(_props.bodyID);
         var completeWidth = domGeom.position(table, false).w;
+        // in rare cases the calculation of the browser is wrong, this solves the problem
+        var parentCompleteWidth = domGeom.position(table.parentNode, false).w;
+        if (completeWidth > parentCompleteWidth) {
+            completeWidth = parentCompleteWidth;
+        }
         var widthWeight = 0;
         var calcWidth = 0;
-
         // for a structurbrowser there will be a scrollbar in case that the content expands
         if (table.clientHeight < table.scrollHeight) {
             completeWidth = completeWidth - scrollBarWidth;
