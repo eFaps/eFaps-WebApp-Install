@@ -178,6 +178,7 @@ function addMoveable(_sepId, _props) {
                 }
                 this.node.style.left = parseInt(this.node.style.left) - move +"px";
             }
+            _props.storeColumnWidths(getColumnWidths(_props));
         }
     });
 }
