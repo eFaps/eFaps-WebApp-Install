@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2012 The eFaps Team
+ * Copyright 2003 - 2013 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,66 +19,71 @@
  * Last Changed By: $Author$
  */
 
- /*
+/*
  * @eFapsPackage  org.efaps.ui.wicket.pages.content.table.filter
  * @eFapsUUID     bc399180-055c-4149-ac41-5b1a3c11ca80
  * @eFapsRevision $Rev$
  */
-
 body {
-  background-color: #E1E1E1;;
-  overflow: auto;
+    background-color: #E1E1E1;;
+    overflow: auto;
 }
 
 body,th,td,p,div {
-  font-family: arial, verdana, helvetica, sans-serif;
-  font-size: 8pt;
-  margin: 0;
+    font-family: arial, verdana, helvetica, sans-serif;
+    font-size: 8pt;
+    margin: 0;
 }
 
-a:visited, a:link {
-  color:#00A000;
-  font-weight:bold;
-  text-decoration:none;
+a:visited,a:link {
+    color: #00A000;
+    font-weight: bold;
+    text-decoration: none;
 }
 
 .eFapsFilterForm {
-  text-align: center;
+    text-align: center;
+}
+
+.eFapsFilterForm .eFapsClassTree {
+    text-align: left;
 }
 
 .eFapsFilterTable {
-  white-space: nowrap;
-  width: 100%;
-  background-color: #008800;
-  text-align:left;
+    white-space: nowrap;
+    width: 100%;
+    background-color: #008800;
+    text-align: left;
 }
 
 .eFapsFilterTable th {
-  text-align: left;
-  color: white;
+    text-align: left;
+    color: white;
 }
+
 tr.eFapsTableRowEven {
-  background-color: #d0edb8;
+    background-color: #d0edb8;
 }
 
 tr.eFapsTableRowOdd {
-  background-color: #ffffff;
+    background-color: #ffffff;
 }
 
-.eFapsFilterCancel, .eFapsFilterClear, .eFapsFilterSubmit {
-  float: left;
+.eFapsFilterCancel,.eFapsFilterClear,.eFapsFilterSubmit {
+    float: left;
 }
 
-.eFapsFilterCancel:hover, .eFapsFilterClear:hover, .eFapsFilterSubmit:hover {
-  cursor: pointer;
+.eFapsFilterCancel:hover,.eFapsFilterClear:hover,.eFapsFilterSubmit:hover
+    {
+    cursor: pointer;
 }
 
 .eFapsFilterButtons {
-  margin-top: 9px;
-  margin-left: auto;
-  margin-right: auto;
+    margin-top: 9px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .eFapsFilterText {
-  display: block;
+    display: block;
 }
