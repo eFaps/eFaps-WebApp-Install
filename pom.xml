@@ -35,7 +35,7 @@
     <parent>
         <groupId>org.efaps</groupId>
         <artifactId>efaps-parent</artifactId>
-        <version>2.2.0-SNAPSHOT</version>
+        <version>3.0.0-SNAPSHOT</version>
     </parent>
     <packaging>jar</packaging>
     <artifactId>efaps-webapp-install</artifactId>
@@ -173,7 +173,7 @@
         <dependency>
             <groupId>org.efaps</groupId>
             <artifactId>efaps-webapp</artifactId>
-            <version>2.2.1-SNAPSHOT</version>
+            <version>3.0.0-SNAPSHOT</version>
         </dependency>
     </dependencies>
 </project>
