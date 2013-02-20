@@ -17,9 +17,9 @@
  limitations under the License.
 
  Author:          The eFasp Team
- Revision:        $Rev: 2144 $
- Last Changed:    $Date: 2009-01-28 17:02:26 -0500 (Wed, 28 Jan 2009) $
- Last Changed By: $Author: jmox $
+ Revision:        $Rev$
+ Last Changed:    $Date$
+ Last Changed By: $Author$
  Original Author: Mark James (mjames at gmail.com)
  Original Name:   bullet_go.png
  Original Name:   time.png
@@ -35,7 +35,7 @@
 
     <uuid>499d5dcc-c83e-45e4-b39f-63fced87e676</uuid>
     <file-application>eFaps-webapp</file-application>
-    <file-revision>$Rev: 2144 $</file-revision>
+    <file-revision>$Rev$</file-revision>
 
     <definition>
         <version-expression>(version==latest)</version-expression>
