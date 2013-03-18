@@ -402,28 +402,28 @@ public abstract class StandartStructurBrowser_Base
 
         Collections.sort(strBro.getChildren(), new Comparator<UIStructurBrowser>() {
 
+            @SuppressWarnings({ "rawtypes", "unchecked" })
             public int compare(final UIStructurBrowser _structurBrowser1,
                                final UIStructurBrowser _structurBrowser2)
             {
-                final String value1 = getSortString(_structurBrowser1);
-                final String value2 = getSortString(_structurBrowser2);
+                final Comparable value1 = getComparable(_parameter, _structurBrowser1);
+                final Comparable value2 = getComparable(_parameter, _structurBrowser2);
                 return value1.compareTo(value2);
-            }
-
-            protected String getSortString(final UIStructurBrowser _structurBrowser)
-            {
-                final StringBuilder ret = new StringBuilder();
-                try {
-                    if (_structurBrowser.getInstance() != null) {
-                        _structurBrowser.getInstance().getType();
-                    }
-                } catch (final EFapsException e) {
-                    StandartStructurBrowser_Base.LOG.error("error during sorting", e);
-                }
-                ret.append(_structurBrowser.getLabel());
-                return ret.toString();
             }
         });
         return new Return();
+    }
+
+    /**
+     * @param _parameter Paraemter as passed from the eFasp API
+     * @return Comparable value
+     */
+    @SuppressWarnings("rawtypes")
+    protected Comparable getComparable(final Parameter _parameter,
+                                       final UIStructurBrowser _structurBrowser)
+    {
+        final StringBuilder ret = new StringBuilder();
+        ret.append(_structurBrowser.getLabel());
+        return ret.toString();
     }
 }
