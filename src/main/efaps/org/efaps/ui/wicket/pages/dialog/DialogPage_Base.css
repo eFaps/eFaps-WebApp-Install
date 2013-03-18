@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2012 The eFaps Team
+ * Copyright 2003 - 2013 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,9 +24,9 @@
  *
  */
 body {
-  font-family: arial, verdana, helvetica, sans-serif;
-  font-size: 8pt;
-  text-align: center;
+    font-family: arial, verdana, helvetica, sans-serif;
+    font-size: 8pt;
+    text-align: center;
 }
 
 .eFapsWarnDialogText {
@@ -39,33 +39,33 @@ body {
 }
 
 .eFapsWarnDialogButtons {
+    border-top: 1px solid lightgrey;
     bottom: 0;
-    margin-left: auto;
-    margin-right: auto;
+    padding-top: 3px;
     position: absolute;
-    width: 60%;
+    width: 100%;
 }
 
 .eFapsWarnDialogButton1 {
-  float: left;
+    float: right;
 }
 
 .eFapsWarnDialogButton2 {
-  float: right;
+    float: right;
 }
 
 .eFapsValidateFieldValuesTable {
-  margin-left: auto;
-  margin-right: auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .eFapsValidateFieldValuesTable td:first-child {
-  text-align: left;
-  font-weight: bold;
-  font-style: italic;
-  padding-right: 5px;
+    text-align: left;
+    font-weight: bold;
+    font-style: italic;
+    padding-right: 5px;
 }
 
 .eFapsValidateFieldValuesTable td {
-  text-align: left;
+    text-align: left;
 }
