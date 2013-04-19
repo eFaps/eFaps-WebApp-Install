@@ -96,3 +96,13 @@ table.dataview #message {
 table.dataview caption {
     padding-bottom: 2px;
 }
+
+table.dataview .navigatorLabel
+{
+    float: left;
+}
+
+table.dataview .navigator
+{
+    float: right;
+}
