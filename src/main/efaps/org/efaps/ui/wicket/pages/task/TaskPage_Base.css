@@ -1,0 +1,88 @@
+/*
+ * Copyright 2003 - 2012 The eFaps Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Author:          The eFaps Team
+ * Revision:        $Rev: 8247 $
+ * Last Changed:    $Date: 2012-11-23 18:28:56 -0500 (Fri, 23 Nov 2012) $
+ * Last Changed By: $Author: jan@moxter.net $
+ */
+
+/*
+ * @eFapsPackage  org.efaps.ui.wicket.pages.task
+ * @eFapsUUID     73b50997-6cdb-4986-b030-023df7e1d381
+ * @eFapsRevision $Rev: 8247 $
+ */
+
+
+
+.eFapsForm {
+    font-size: 12px;
+    display: table;
+    width: 100%;
+}
+
+.eFapsForm .group {
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.components.form.dotted-line.png");
+    background-position: center bottom;
+    background-repeat: repeat-x;
+    border-spacing: 2px;
+    display: table-row;
+}
+
+.eFapsForm .label {
+    background-color: #D0EDB8;
+    border: 2px solid #008800;
+    color: #008800;
+    display: table-cell;
+    font-weight: bold;
+    max-width: 150px;
+    min-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    width: 150px;
+}
+
+.eFapsForm .field {
+    background-color: white;
+    display: table-cell;
+    height: 25px;
+    padding-left: 4px;
+    padding-right: 4px;
+    vertical-align: middle;
+    width: 100%;
+}
+
+.eFapsFooter {
+    background: #DDDECB;
+    border-bottom: 1px solid;
+    border-top: 1px solid;
+    bottom: 0px;
+    height: 40px;
+    margin: 0pt;
+    padding: 0pt;
+    position: absolute;
+    width: 100%;
+}
+
+.eFapsFooterButtons {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+}
+
+.eFapsFooterButton1,.eFapsFooterButton2,.eFapsFooterButton3 {
+    float: left;
+}

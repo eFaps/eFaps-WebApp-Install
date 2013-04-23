@@ -25,7 +25,7 @@
 
 table.dataview {
     margin-bottom: 10px;
-    border-bottom: 1px solid #0079d6;
+    border-bottom: 1px solid #00a000;
     font-size: 1em;
     font-family: arial;
 }
@@ -58,9 +58,9 @@ table.dataview tr th {
     padding-bottom: 3px;
     padding-left: 8px;
     padding-right: 30px;
-    background-color: #c1e4ff;
-    border-bottom: 1px solid #0079d6;
-    border-top: 1px solid #0079d6;
+    background-color: #d0edb8;
+    border-bottom: 1px solid #00a000;
+    border-top: 1px solid #00a000;
     text-align: left;
     white-space: nowrap;
     vertical-align: middle;
@@ -72,12 +72,12 @@ table.dataview tr th {
 }
 
 table.dataview tr th.wicket_orderDown {
-    background-color: #87cbff;
+    background-color: #A4E46F;
     background-image: url(../../servlet/image/arrow_down);
 }
 
 table.dataview tr th.wicket_orderUp {
-    background-color: #87cbff;
+    background-color: #A4E46F;
     background-image: url(../../servlet/image/arrow_up);
 }
 
