@@ -106,3 +106,15 @@ table.dataview .navigator
 {
     float: right;
 }
+
+table.dataview .openTask .select
+{
+    background-image: url(../../servlet/image/task-select);
+    background-position: center center;
+    background-repeat: no-repeat;
+    display: block;
+    width: 20px;
+    cursor: pointer;
+}
+
+
