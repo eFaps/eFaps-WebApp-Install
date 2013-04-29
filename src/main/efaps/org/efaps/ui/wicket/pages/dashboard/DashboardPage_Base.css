@@ -86,7 +86,12 @@ table.dataview tr th.wicket_orderNone {
 }
 
 table.dataview tr th a {
-    font-weight: normal;
+    font-weight: bold;
+    color: #00A000;
+}
+
+table.dataview tr th a:visited,a:link {
+    text-decoration: none;
 }
 
 table.dataview #message {
