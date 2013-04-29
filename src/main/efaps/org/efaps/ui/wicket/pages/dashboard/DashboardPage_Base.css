@@ -24,10 +24,11 @@
  */
 
 table.dataview {
+    border: 1px solid #00a000;
+    border-radius: 4px;
     margin-bottom: 10px;
-    border-bottom: 1px solid #00a000;
-    font-size: 1em;
     font-family: arial;
+    font-size: 9pt;
 }
 
 table.dataview caption {
@@ -60,7 +61,6 @@ table.dataview tr th {
     padding-right: 30px;
     background-color: #d0edb8;
     border-bottom: 1px solid #00a000;
-    border-top: 1px solid #00a000;
     text-align: left;
     white-space: nowrap;
     vertical-align: middle;
