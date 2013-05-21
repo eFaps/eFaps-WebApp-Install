@@ -114,10 +114,20 @@ table.dataview .navigator
 
 table.dataview .openTask .select
 {
+    background-image: url(../../servlet/image/task-pencil);
+    background-position: center center;
+    background-repeat: no-repeat;
+    display: inline-block;
+    width: 20px;
+    cursor: pointer;
+}
+
+table.dataview .openTask .open
+{
     background-image: url(../../servlet/image/task-select);
     background-position: center center;
     background-repeat: no-repeat;
-    display: block;
+    display: inline-block;
     width: 20px;
     cursor: pointer;
 }
