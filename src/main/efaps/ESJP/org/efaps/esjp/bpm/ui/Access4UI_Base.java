@@ -23,8 +23,10 @@ package org.efaps.esjp.bpm.ui;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.efaps.admin.event.Parameter;
+import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsRevision;
@@ -51,18 +53,25 @@ public abstract class Access4UI_Base
         throws EFapsException
     {
         final Return ret = new Return();
+        final Map<?, ?> properties = (Map<?, ?>) _parameter.get(ParameterValues.PROPERTIES);
+
         final List<org.jbpm.task.Status> status = new ArrayList<org.jbpm.task.Status>();
         status.add(org.jbpm.task.Status.Reserved);
 
         final BProcess process = new BProcess();
 
         final List<TaskSummary> taskSummaries = process.getTaskSummary4Instance(_parameter, null, status);
+        boolean access = false;
         for (final TaskSummary taskSummary : taskSummaries) {
             final User owner = taskSummary.getActualOwner();
             if (owner.getId().equals(Context.getThreadContext().getPerson().getUUID().toString())) {
-                ret.put(ReturnValues.TRUE, true);
+                access = true;
                 break;
             }
+        }
+        final boolean inverse = "true".equalsIgnoreCase((String) properties.get("Inverse"));
+        if ((!inverse && access) || (inverse && !access)) {
+            ret.put(ReturnValues.TRUE, true);
         }
         return ret;
     }
