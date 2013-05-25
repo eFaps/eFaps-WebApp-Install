@@ -132,4 +132,16 @@ table.dataview .openTask .open
     cursor: pointer;
 }
 
+table.dataview .navigator a
+{
+    color: black ;
+}
 
+div.header
+{
+    font-size: 10pt;
+    font-weight: bold;
+    padding-bottom: 2px;
+    padding-left: 2px;
+    padding-right: 2px;
+}
