@@ -144,6 +144,10 @@
 }
 
 
+input.eFapsTableCellInvalidValue, textarea.eFapsTableCellInvalidValue  {
+    background-color: #F7F19E;
+}
+
 .eFapsTableCellInvalidValue {
     background-color: yellow;
 }
