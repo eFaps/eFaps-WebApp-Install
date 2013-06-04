@@ -45,6 +45,7 @@ function headerProperties() {
     this.storeColumnWidths = "";
     this.storeColumnOrder = "";
     this.reloadTable = "";
+    this.tableName = "";
 }
 
 function positionTableColumns(_props) {
