@@ -413,7 +413,9 @@ public abstract class MultiPrint_Base
                 final Set<Classification> filters = new HashSet<Classification>();
                 final Set<Classification> remove = new HashSet<Classification>();
                 for (final Object obj : list) {
-                    filters.add((Classification) Type.get((UUID) obj));
+                    if (obj != null) {
+                        filters.add((Classification) Type.get((UUID) obj));
+                    }
                 }
 
                 for (final Classification clazz : filters) {
