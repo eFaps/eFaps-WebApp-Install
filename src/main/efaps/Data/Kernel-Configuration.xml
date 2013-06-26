@@ -33,13 +33,13 @@
     <definition>
         <version-expression>(version==1)</version-expression>
         <attribute>
-            <key>DefaultMenu</key>
+            <key>org.efaps.DefaultMenu</key>
             <value><![CDATA[Menu0=Common_Main_Default]]>
         </value>
             <description>Definition of default menus. E.G.
 Menu0=Common_Main_0Default
-Enabled4Form0=false/true(defaul:false)
-Enabled4Table0=false/true(defaul:true)
+Enabled4Form0=false/true(default:false)
+Enabled4Table0=false/true(default:true)
       </description>
         </attribute>
     </definition>
