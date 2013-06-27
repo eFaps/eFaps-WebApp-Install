@@ -31,9 +31,9 @@
     <file-application>eFaps-Kernel</file-application>
     <file-revision>$Rev$</file-revision>
     <definition>
-        <version-expression>(version==1)</version-expression>
+        <version-expression>(version==latest)</version-expression>
         <attribute>
-            <key>org.efaps.DefaultMenu</key>
+            <key>org.efaps.kernel.DefaultMenu</key>
             <value><![CDATA[Menu0=Common_Main_Default]]>
         </value>
             <description>Definition of default menus. E.G.
