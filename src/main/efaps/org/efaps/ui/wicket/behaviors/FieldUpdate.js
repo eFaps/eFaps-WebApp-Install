@@ -25,66 +25,68 @@
  * @eFapsRevision $Rev$
  */
 
-function eFapsSetFieldValue(_referenceIdOrIdx,
-                            _fieldName,
-                            _fieldValue) {
-    var pos = 0;
-    if(typeof(_referenceIdOrIdx) == 'number') {
-        pos = _referenceIdOrIdx;
-    } else {
-        // get the position in the field collection of the given reference
-        var refField = document.getElementById(_referenceIdOrIdx);
-        var name = refField.getAttribute('name');
-        var eFapsFields = document.getElementsByName(name);
-        for ( var i = 0; i < eFapsFields.length; i++) {
-            if (eFapsFields[i].id == _referenceIdOrIdx) {
-                pos = i;
-                break;
+function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue) {
+
+    require([ 'dojo/query', 'dojo/dom' ], function(query, dom) {
+        var pos = 0;
+        if (typeof (_referenceIdOrIdx) == 'number') {
+            pos = _referenceIdOrIdx;
+        } else {
+            // get the position in the field collection of the given
+            // reference
+            var refField = dom.byId(_referenceIdOrIdx);
+            var name = refField.getAttribute('name');
+            var i = 0;
+            query("*[name=" + name + "]").forEach(function(node) {
+                if (node.name == name) {
+                    pos = i;
+                }
+                i++;
+            });
+        }
+        // get the field collection
+        var fields = query("*[name=" + _fieldName + "]")
+        console.log(pos);
+        // only if the field exist go on
+        if (fields.length > 0) {
+            var cp = 0;
+            if (fields.length > 1) {
+                var cp = pos;
             }
-        }
-    }
-    // get the field collection
-    var fields = document.getElementsByName(_fieldName);
-    //only if the field exist go on
-    if (fields.length > 0) {
-        var cp = 0;
-        if (fields.length > 1) {
-            var cp = pos;
-        }
-        if (_fieldValue instanceof Array) {
-            var sel = fields[cp];
-            if (sel.nodeName == 'SELECT') {
+            if (_fieldValue instanceof Array) {
+                var sel = fields[cp];
+                if (sel.nodeName == 'SELECT') {
+                } else {
+                    sel = document.createElement('SELECT');
+                    for (i = 0; i < fields[cp].attributes.length; i++) {
+                        if (sel.getAttributeNode(fields[cp].attributes[i].name) == null) {
+                            sel.setAttribute(fields[cp].attributes[i].name, fields[cp].attributes[i].value);
+                        }
+                    }
+                    sel.size = 1;
+                    fields[cp].parentNode.replaceChild(sel, fields[cp]);
+                }
+                while (sel.options.length) {
+                    sel.options[0] = null;
+                }
+                for (i = 1; i < _fieldValue.length; i = i + 2) {
+                    option = new Option(_fieldValue[i + 1], _fieldValue[i], false, _fieldValue[i] == _fieldValue[0]);
+                    sel.options[sel.length] = option;
+                }
             } else {
-                sel = document.createElement('SELECT');
-                for (i = 0; i< fields[cp].attributes.length;i++) {
-                    if (sel.getAttributeNode(fields[cp].attributes[i].name)==null) {
-                        sel.setAttribute(fields[cp].attributes[i].name, fields[cp].attributes[i].value);
+                // if it is an input, the value can be set directly, else the dom must be used
+                if (fields[cp].nodeName == 'INPUT' || fields[cp].nodeName == 'TEXTAREA'
+                        || fields[cp].nodeName == 'SELECT') {
+                    fields[cp].value = _fieldValue;
+                } else {
+                    if (fields[cp].hasChildNodes()) {
+                        fields[cp].firstChild.data = _fieldValue;
+                    } else {
+                        var n = document.createTextNode(_fieldValue);
+                        fields[cp].appendChild(n);
                     }
                 }
-                sel.size=1;
-                fields[cp].parentNode.replaceChild(sel, fields[cp]);
-            }
-            while (sel.options.length) {
-                sel.options[0] = null;
-            }
-            for (i = 1; i < _fieldValue.length; i = i + 2) {
-                option = new Option(_fieldValue[i + 1], _fieldValue[i], false,
-                        _fieldValue[i] == _fieldValue[0]);
-                sel.options[sel.length] = option;
-            }
-        } else {
-            // if it is an input, the value can be set directly, else the dom must be used
-            if (fields[cp].nodeName == 'INPUT' || fields[cp].nodeName == 'TEXTAREA') {
-                fields[cp].value = _fieldValue;
-            } else {
-                if (fields[cp].hasChildNodes()) {
-                    fields[cp].firstChild.data = _fieldValue;
-                } else {
-                    var n = document.createTextNode(_fieldValue);
-                    fields[cp].appendChild(n);
-                }
             }
         }
-    }
+    });
 }
-
