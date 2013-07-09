@@ -46,7 +46,6 @@ function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue) {
         }
         // get the field collection
         var fields = query("*[name=" + _fieldName + "]")
-        console.log(pos);
         // only if the field exist go on
         if (fields.length > 0) {
             var cp = 0;
