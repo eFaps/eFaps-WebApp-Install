@@ -22,8 +22,11 @@ package org.efaps.esjp.ui.print;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 
 import org.apache.wicket.ajax.AjaxRequestHandler;
 import org.apache.wicket.request.IRequestHandler;
@@ -62,6 +65,13 @@ public abstract class UserInterface_Base extends StandartReport implements Event
      */
     public static final String UIOBJECT_CACHEKEY = "eFaps_UIObject4PrintCacheKey";
 
+    private static final Map<String, String> MIME_MAP = new HashMap<String, String>();
+    static {
+        UserInterface_Base.MIME_MAP.put("xls", "org.efaps.esjp.ui.print.XLS");
+        UserInterface_Base.MIME_MAP.put("pdf", "org.efaps.esjp.ui.print.PDF");
+        UserInterface_Base.MIME_MAP.put("txt", "org.efaps.esjp.ui.print.TXT");
+    };
+
     /**
      * Execute the export.
      * @param _parameter Parameter as passed form the eFaps API
@@ -84,17 +94,35 @@ public abstract class UserInterface_Base extends StandartReport implements Event
     public Return getMimeFieldValueUI(final Parameter _parameter)
         throws EFapsException
     {
-
+        final Map<?, ?> props = (Map<?, ?>) _parameter.get(ParameterValues.PROPERTIES);
         final FieldValue fieldValue = (FieldValue) _parameter.get(ParameterValues.UIOBJECT);
         final Return ret = new Return();
         final StringBuilder html = new StringBuilder();
+        final String defaultMime = (String) props.get("DefaultMime");
+        final Set<String> ignoreSet = new HashSet<String>();
+        if (props.containsKey("IgnoreMime")) {
+            final String ignoreMime = (String) props.get("IgnoreMime");
+            final String[] ignoreMimeStr = ignoreMime.split(";");
+            for (final String ignore : ignoreMimeStr) {
+                ignoreSet.add(ignore.toLowerCase());
+            }
+        }
 
         html.append("<select ").append(UIInterface.EFAPSTMPTAG).append(" name=\"")
-            .append(fieldValue.getField().getName()).append("\" size=\"1\">")
-            .append("<option value=\"pdf\" selected=\"selected\">")
-            .append(DBProperties.getProperty("org.efaps.esjp.ui.print.PDF")).append("</option>")
-            .append("<option value=\"xls\">").append(DBProperties.getProperty("org.efaps.esjp.ui.print.XLS"))
-            .append("</option></select>");
+            .append(fieldValue.getField().getName()).append("\" size=\"1\">");
+        for (final Entry<String, String> mimeEntry : UserInterface_Base.MIME_MAP.entrySet()) {
+            if (!ignoreSet.contains(mimeEntry.getKey())) {
+                html.append("<option value=\"").append(mimeEntry.getKey()).append("\"");
+                if (defaultMime != null && mimeEntry.getKey().equalsIgnoreCase(defaultMime)) {
+                    html.append(" selected=\"selected\">");
+                } else {
+                    html.append(">");
+                }
+                html.append(DBProperties.getProperty(mimeEntry.getValue())).append("</option>");
+            }
+        }
+        html.append("</select>");
+
         ret.put(ReturnValues.SNIPLETT, html.toString());
         return ret;
     }
