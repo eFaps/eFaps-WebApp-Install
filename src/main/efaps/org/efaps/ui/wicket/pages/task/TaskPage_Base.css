@@ -33,6 +33,10 @@
     width: 100%;
 }
 
+.taskDelegate select {
+    margin: 20px;
+}
+
 .eFapsForm .group {
     background-image: url("../../servlet/image/org.efaps.ui.wicket.components.form.dotted-line.png");
     background-position: center bottom;
@@ -83,6 +87,6 @@
     top: 5px;
 }
 
-.eFapsFooterButton1,.eFapsFooterButton2,.eFapsFooterButton3 {
+.eFapsFooterButton1,.eFapsFooterButton2,.eFapsFooterButton3, .eFapsFooterButton4, .eFapsFooterButton5 {
     float: left;
 }
