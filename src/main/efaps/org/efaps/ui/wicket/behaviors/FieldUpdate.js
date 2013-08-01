@@ -38,7 +38,7 @@ function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue) {
             var name = refField.getAttribute('name');
             var i = 0;
             query("*[name=" + name + "]").forEach(function(node) {
-                if (node.name == name) {
+                if (node.id == _referenceIdOrIdx) {
                     pos = i;
                 }
                 i++;
