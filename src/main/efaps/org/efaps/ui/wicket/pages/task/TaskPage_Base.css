@@ -26,6 +26,47 @@
  */
 
 
+.button {
+    font-size: 13px;
+    font-weight: normal;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    border-radius: 8px;
+    border: 1px solid #268a16;
+    padding: 6px 15px;
+    text-decoration: none;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(5%, #77d42a),
+        color-stop(100%, #5cb811));
+    background: -moz-linear-gradient(center top, #77d42a 5%, #5cb811 100%);
+    background: -ms-linear-gradient(top, #77d42a 5%, #5cb811 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#77d42a',
+        endColorstr='#5cb811');
+    background-color: #77d42a;
+    color: #306108;
+    display: inline-block;
+    text-shadow: 1px 1px 0px #aade7c;
+    -webkit-box-shadow: inset 1px 1px 0px 0px #caefab;
+    -moz-box-shadow: inset 1px 1px 0px 0px #caefab;
+    box-shadow: inset 1px 1px 0px 0px #caefab;
+    min-width: 40px;
+    margin: 3px;
+    text-align: center;
+}
+
+.button:hover {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(5%, #5cb811),
+        color-stop(100%, #77d42a));
+    background: -moz-linear-gradient(center top, #5cb811 5%, #77d42a 100%);
+    background: -ms-linear-gradient(top, #5cb811 5%, #77d42a 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5cb811',
+        endColorstr='#77d42a');
+    background-color: #5cb811;
+}
+
+.button:active {
+    position: relative;
+    top: 1px;
+}
 
 .eFapsForm {
     font-size: 12px;
