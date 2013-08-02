@@ -1,0 +1,144 @@
+/*
+ * Copyright 2003 - 2013 The eFaps Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Author:          The eFaps Team
+ * Revision:        $Rev: 9532 $
+ * Last Changed:    $Date: 2013-06-03 13:38:13 -0500 (Mon, 03 Jun 2013) $
+ * Last Changed By: $Author: jan@moxter.net $
+ */
+
+/*
+ * @eFapsPackage  org.efaps.ui.wicket.components.task
+ * @eFapsUUID     55075b1d-0b4b-4c09-9607-3a76356eeadf
+ * @eFapsRevision $Rev: 9532 $
+ */
+ 
+table.dataview {
+    border: 1px solid #00a000;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-family: arial;
+    font-size: 9pt;
+}
+
+table.dataview caption {
+    text-align: left;
+}
+
+table.dataview tr {
+    padding-top: 2px;
+    padding-bottom: 2px;
+}
+
+table.dataview tr.even {
+    background-color: #ffebcd;
+}
+
+table.dataview tr.odd {
+    background-color: #fff;
+}
+
+table.dataview tr td {
+    padding-left: 8px;
+    padding-right: 30px;
+}
+
+table.dataview tr th {
+    color: black;
+    padding-top: 3px;
+    padding-bottom: 3px;
+    padding-left: 8px;
+    padding-right: 30px;
+    background-color: #d0edb8;
+    border-bottom: 1px solid #00a000;
+    text-align: left;
+    white-space: nowrap;
+    vertical-align: middle;
+}
+
+table.dataview tr th {
+    background-position: right;
+    background-repeat: no-repeat;
+}
+
+table.dataview tr th.wicket_orderDown {
+    background-color: #A4E46F;
+    background-image: url(../../servlet/image/arrow_down);
+}
+
+table.dataview tr th.wicket_orderUp {
+    background-color: #A4E46F;
+    background-image: url(../../servlet/image/arrow_up);
+}
+
+table.dataview tr th.wicket_orderNone {
+    background-image: url(../../servlet/image/arrow_off);
+}
+
+table.dataview tr th a {
+    font-weight: bold;
+    color: #00A000;
+}
+
+table.dataview tr th a:visited,a:link {
+    text-decoration: none;
+}
+
+table.dataview #message {
+    padding-left: 3px;
+}
+
+table.dataview caption {
+    padding-bottom: 2px;
+}
+
+table.dataview .navigatorLabel
+{
+    float: left;
+}
+
+table.dataview .navigator
+{
+    float: right;
+}
+
+
+
+
+table.dataview .openTask .select
+{
+    background-image: url(../../servlet/image/task-pencil);
+    background-position: center center;
+    background-repeat: no-repeat;
+    display: inline-block;
+    width: 20px;
+    cursor: pointer;
+}
+
+table.dataview .openTask .open
+{
+    background-image: url(../../servlet/image/task-select);
+    background-position: center center;
+    background-repeat: no-repeat;
+    display: inline-block;
+    width: 20px;
+    cursor: pointer;
+}
+
+table.dataview .navigator a
+{
+    color: black ;
+}
+

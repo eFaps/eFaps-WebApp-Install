@@ -14,20 +14,18 @@
  * limitations under the License.
  *
  * Author:          The eFaps Team
- * Revision:        $Rev: 8254 $
- * Last Changed:    $Date: 2012-11-26 20:19:06 -0500 (Mon, 26 Nov 2012) $
+ * Revision:        $Rev: 7509 $
+ * Last Changed:    $Date: 2012-05-11 13:45:53 -0500 (Fri, 11 May 2012) $
  * Last Changed By: $Author: jan@moxter.net $
- *
- * @eFapsPackage  org.efaps.ui.wicket.pages.dashboard
- * @eFapsUUID     2330fc41-1133-4670-bd29-55158fcd5227
- * @eFapsRevision $Rev: 8254 $
  */
 
-div.header
-{
-    font-size: 10pt;
-    font-weight: bold;
-    padding-bottom: 2px;
-    padding-left: 2px;
-    padding-right: 2px;
-}
+/* 
+ * @eFapsPackage  org.efaps.ui.wicket.components.task
+ * @eFapsUUID     6fd3ed8e-5d87-4fbc-a51a-59895fae632e
+ * @eFapsRevision $Rev: 7509 $
+ * @eFapsExtends  org.efaps.ui.wicket.components.task.TaskTablePanel_Base.css
+ *
+ * This stylesheet must be replaced for customization, therefore it is left empty.
+ * Functional description can be found in the related "<code>_Base</code>"
+ * stylesheet.
+ */
