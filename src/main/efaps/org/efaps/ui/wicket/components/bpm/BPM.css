@@ -20,10 +20,10 @@
  */
 
 /* 
- * @eFapsPackage  org.efaps.ui.wicket.components.task
+ * @eFapsPackage  org.efaps.ui.wicket.components.bpm
  * @eFapsUUID     6fd3ed8e-5d87-4fbc-a51a-59895fae632e
  * @eFapsRevision $Rev: 7509 $
- * @eFapsExtends  org.efaps.ui.wicket.components.task.TaskTablePanel_Base.css
+ * @eFapsExtends  org.efaps.ui.wicket.components.bpm.BPM_Base.css
  *
  * This stylesheet must be replaced for customization, therefore it is left empty.
  * Functional description can be found in the related "<code>_Base</code>"
