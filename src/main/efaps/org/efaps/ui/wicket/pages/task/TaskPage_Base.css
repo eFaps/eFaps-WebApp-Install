@@ -131,3 +131,60 @@
 .eFapsFooterButton1,.eFapsFooterButton2,.eFapsFooterButton3, .eFapsFooterButton4, .eFapsFooterButton5 {
     float: left;
 }
+
+div.tab-panel {
+     padding: 2px;
+}
+
+div.tabpanel div.tab-row {
+     background-color: #D0EDB8;
+     float: left;
+     line-height: normal;
+     width: 100%;
+}
+
+div.tabpanel div.tab-row ul {
+     list-style: none outside none;
+     margin: 0px;
+     padding: 2px 10px 0px;
+}
+
+div.tabpanel div.tab-row li {
+     border-right: 1px solid black;
+     float: left;
+     margin: 0px;
+     padding: 0px 0px 0px 9px;
+     text-shadow: 1px 1px 2px grey;
+}
+
+div.tabpanel div.tab-row li:hover {
+     text-shadow: none;
+}
+
+div.tabpanel div.tab-row a {
+     color: #00A000;
+     display: block;
+     font-weight: bold;
+     font-size: 12px;
+     padding: 5px 15px 4px 6px;
+     text-decoration: none;
+     white-space: nowrap;
+}
+
+div.tab-panel {
+     clear: left;
+}
+
+div.tabpanel div.tab-row a:hover {
+     color: #00000;
+}
+
+div.tabpanel div.tab-row li.selected {
+     text-shadow: 1px 1px 3px white;
+}
+
+div.tabpanel div.tab-row li.selected a {
+     color: #333333;
+     padding-bottom: 5px;
+}
+

@@ -114,8 +114,10 @@ table.dataview .navigator
     float: right;
 }
 
-
-
+table.dataview .navigator .goto em {
+    font-weight: bold;
+    color: #00A000;
+}
 
 table.dataview .openTask .select
 {
@@ -136,6 +138,19 @@ table.dataview .openTask .open
     width: 20px;
     cursor: pointer;
 }
+
+table.dataview .openProcess .select
+{
+    background-image: url(../../servlet/image/processor);
+    background-position: center center;
+    background-repeat: no-repeat;
+    display: inline-block;
+    width: 20px;
+    cursor: pointer;
+}
+
+
+
 
 table.dataview .navigator a
 {
