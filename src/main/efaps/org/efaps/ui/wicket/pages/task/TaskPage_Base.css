@@ -132,6 +132,12 @@
     float: left;
 }
 
+div.tabpanel {
+    height: 100%;
+    overflow: auto;
+}
+
+
 div.tab-panel {
      padding: 2px;
 }
