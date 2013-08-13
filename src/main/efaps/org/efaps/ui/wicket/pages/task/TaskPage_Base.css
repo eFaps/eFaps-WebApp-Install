@@ -95,6 +95,7 @@
     max-width: 150px;
     min-width: 150px;
     overflow: hidden;
+    padding: 2px;
     text-overflow: ellipsis;
     vertical-align: middle;
     width: 150px;
