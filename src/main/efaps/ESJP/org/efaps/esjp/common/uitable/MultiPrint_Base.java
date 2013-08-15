@@ -697,7 +697,8 @@ public abstract class MultiPrint_Base
         if (filter != null) {
             final String[] parts = filter.split(":");
             final String range = parts[0];
-            final int sub = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
+            final int fromSub = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
+            final int rangeCount = parts.length > 2 ? Integer.parseInt(parts[2]) : 1;
             DateTime dateFrom = new DateTime();
             DateTime dateTo = new DateTime();
             if (range != null) {
@@ -705,26 +706,26 @@ public abstract class MultiPrint_Base
                 DateMidnight tmp = DateTimeUtil.translateFromUI(new DateTime()).toDateMidnight();
                 switch (def) {
                     case TODAY:
-                        dateFrom = tmp.toDateTime().minusDays(sub).minusMinutes(1);
-                        dateTo = dateFrom.plusDays(1).plusSeconds(1);
+                        dateFrom = tmp.toDateTime().minusDays(fromSub).minusMinutes(1);
+                        dateTo = dateFrom.plusDays(rangeCount).plusSeconds(1);
                         ret = new DateTime[] { dateFrom, dateTo };
                         break;
                     case WEEK:
                         tmp = tmp.minusDays(tmp.getDayOfWeek() - 1);
-                        dateFrom = tmp.toDateTime().minusWeeks(sub).minusMinutes(1);
-                        dateTo = tmp.toDateTime().plusWeeks(1);
+                        dateFrom = tmp.toDateTime().minusWeeks(fromSub).minusMinutes(1);
+                        dateTo = dateFrom.toDateTime().plusWeeks(rangeCount);
                         ret = new DateTime[] { dateFrom, dateTo };
                         break;
                     case MONTH:
                         tmp = tmp.minusDays(tmp.getDayOfMonth() - 1);
-                        dateFrom = tmp.toDateTime().minusMonths(sub).minusMinutes(1);
-                        dateTo = tmp.toDateTime().plusMonths(1);
+                        dateFrom = tmp.toDateTime().minusMonths(fromSub).minusMinutes(1);
+                        dateTo = dateFrom.toDateTime().plusMonths(rangeCount);
                         ret = new DateTime[] { dateFrom, dateTo };
                         break;
                     case YEAR:
                         tmp = tmp.minusDays(tmp.getDayOfYear() - 1);
-                        dateFrom = tmp.toDateTime().minusYears(sub).minusMinutes(1);
-                        dateTo = tmp.toDateTime().plusYears(1);
+                        dateFrom = tmp.toDateTime().minusYears(fromSub).minusMinutes(1);
+                        dateTo = dateFrom.toDateTime().plusYears(rangeCount);
                         ret = new DateTime[] { dateFrom, dateTo };
                         break;
                     case ALL:
