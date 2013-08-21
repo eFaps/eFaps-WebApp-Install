@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.event.EventExecution;
@@ -33,9 +34,11 @@ import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.ui.AbstractUserInterfaceObject;
 import org.efaps.db.Instance;
 import org.efaps.db.InstanceQuery;
 import org.efaps.db.QueryBuilder;
+import org.efaps.esjp.common.AbstractCommon;
 import org.efaps.ui.wicket.models.cell.UIStructurBrowserTableCell;
 import org.efaps.ui.wicket.models.objects.UIStructurBrowser;
 import org.efaps.ui.wicket.models.objects.UIStructurBrowser.ExecutionStatus;
@@ -52,6 +55,7 @@ import org.slf4j.LoggerFactory;
 @EFapsUUID("d6548826-830b-4540-a46d-d861c3f21f15")
 @EFapsRevision("$Rev$")
 public abstract class StandartStructurBrowser_Base
+    extends AbstractCommon
     implements EventExecution
 {
     /**
@@ -137,24 +141,35 @@ public abstract class StandartStructurBrowser_Base
         final Map<?, ?> properties = (Map<?, ?>) _parameter.get(ParameterValues.PROPERTIES);
 
         final String typesStr = (String) properties.get("Types");
-        final String linkFromsStr = (String) properties.get("LinkFroms");
-        final boolean includeChildTypes = !"false".equalsIgnoreCase((String) properties.get("ExpandChildTypes"));
-
-        if (StandartStructurBrowser_Base.LOG.isDebugEnabled()) {
-            StandartStructurBrowser_Base.LOG.debug("Types: {}\n LinkFroms: {}\n ExpandChildTypes: {}",
-                                            new Object[]{typesStr, linkFromsStr, includeChildTypes});
+        if (typesStr != null) {
+            final AbstractUserInterfaceObject command = (AbstractUserInterfaceObject) _parameter
+                            .get(ParameterValues.UIOBJECT);
+            StandartStructurBrowser_Base.LOG.error("Command: '{}' uses deprecated API defintion for StructurBrowser.",
+                            command.getName());
         }
-        if (typesStr != null && !typesStr.isEmpty()) {
-            final String[] typesArray = typesStr.split(";");
-            for (int i = 0; i < typesArray.length; i++) {
-                final Type type = Type.get(typesArray[i]);
+
+        final Map<Integer, String> types = analyseProperty(_parameter, "Type");
+        final Map<Integer, String> linkFroms = analyseProperty(_parameter, "LinkFrom");
+        final Map<Integer, String> expandChildTypes = analyseProperty(_parameter, "ExpandChildType");
+
+        StandartStructurBrowser_Base.LOG.debug("Types: {}\n LinkFroms: {}\n ExpandChildTypes: {}",
+                                            new Object[]{ types, linkFroms, expandChildTypes });
+        if (!types.isEmpty()) {
+            for (final Entry<Integer, String> entry : types.entrySet()) {
+                final Type type = Type.get(entry.getValue());
                 final QueryBuilder queryBldr = new QueryBuilder(type);
-                if (linkFromsStr != null && instance != null && instance.isValid()) {
-                    final String[] linkFroms = linkFromsStr.split(";");
-                    queryBldr.addWhereAttrEqValue(linkFroms[i], instance.getId());
+                if (!linkFroms.isEmpty() && instance != null && instance.isValid()) {
+                    String linkfrom = linkFroms.get(entry.getKey());
+                    if (linkfrom == null && entry.getKey() > 0) {
+                        linkfrom = linkFroms.get(0);
+                    }
+                    queryBldr.addWhereAttrEqValue(linkfrom, instance.getId());
                 }
                 addCriteria(_parameter, queryBldr);
                 final InstanceQuery query = queryBldr.getQuery();
+                final boolean includeChildTypes = !"false".equalsIgnoreCase(expandChildTypes.containsKey(entry
+                                .getValue()) ? expandChildTypes.get(entry.getValue()) : expandChildTypes.get(0));
+                query.setIncludeChildTypes(includeChildTypes);
                 query.execute();
                 while (query.next()) {
                     tree.put(query.getCurrentValue(), null);
@@ -164,6 +179,8 @@ public abstract class StandartStructurBrowser_Base
         ret.put(ReturnValues.VALUES, tree);
         return ret;
     }
+
+
 
     /**
      * Add additional Criteria to the QueryBuilder.
@@ -189,7 +206,7 @@ public abstract class StandartStructurBrowser_Base
      * @throws EFapsException on error
      */
     protected void addCriteria4Children(final Parameter _parameter,
-                               final QueryBuilder _queryBldr)
+                                        final QueryBuilder _queryBldr)
         throws EFapsException
     {
         // used by implementation
@@ -264,24 +281,37 @@ public abstract class StandartStructurBrowser_Base
         final Map<?, ?> properties = (Map<?, ?>) _parameter.get(ParameterValues.PROPERTIES);
 
         final String typesStr = (String) properties.get("Child_Types");
-        final String linkFromsStr = (String) properties.get("Child_LinkFroms");
-        final boolean includeChildTypes = !"false".equalsIgnoreCase((String) properties.get("Child_ExpandChildTypes"));
+        if (typesStr != null) {
+            final AbstractUserInterfaceObject command = (AbstractUserInterfaceObject) _parameter
+                            .get(ParameterValues.UIOBJECT);
+            StandartStructurBrowser_Base.LOG.error("Command: '{}' uses deprecated API defintion for StructurBrowser.",
+                            command.getName());
+        }
+
+        final Map<Integer, String> types = analyseProperty(_parameter, "Child_Type");
+        final Map<Integer, String> linkFroms = analyseProperty(_parameter, "Child_LinkFrom");
+        final Map<Integer, String> expandChildTypes = analyseProperty(_parameter, "Child_ExpandChildType");
 
         if (StandartStructurBrowser_Base.LOG.isDebugEnabled()) {
             StandartStructurBrowser_Base.LOG.debug("Child_Types: {}\n Child_LinkFroms: {}\n Child_ExpandChildTypes: {}",
-                                            new Object[]{typesStr, linkFromsStr, includeChildTypes});
+                                            new Object[]{types, linkFroms, expandChildTypes});
         }
-        if (typesStr != null && !typesStr.isEmpty()) {
-            final String[] typesArray = typesStr.split(";");
-            for (int i = 0; i < typesArray.length; i++) {
-                final Type type = Type.get(typesArray[i]);
+
+        if (!types.isEmpty()) {
+            for (final Entry<Integer, String> entry : types.entrySet()) {
+                final Type type = Type.get(entry.getValue());
                 final QueryBuilder queryBldr = new QueryBuilder(type);
-                if (linkFromsStr != null && instance != null && instance.isValid()) {
-                    final String[] linkFroms = linkFromsStr.split(";");
-                    queryBldr.addWhereAttrEqValue(linkFroms[i], instance.getId());
+                if (!linkFroms.isEmpty() && instance != null && instance.isValid()) {
+                    String linkfrom = linkFroms.get(entry.getKey());
+                    if (linkfrom == null && entry.getKey() > 0) {
+                        linkfrom = linkFroms.get(0);
+                    }
+                    queryBldr.addWhereAttrEqValue(linkfrom, instance.getId());
                 }
-                addCriteria4Children(_parameter, queryBldr);
+                addCriteria(_parameter, queryBldr);
                 final InstanceQuery query = queryBldr.getQuery();
+                final boolean includeChildTypes = !"false".equalsIgnoreCase(expandChildTypes.containsKey(entry
+                                .getValue()) ? expandChildTypes.get(entry.getValue()) : expandChildTypes.get(0));
                 query.setIncludeChildTypes(includeChildTypes);
                 if (_check) {
                     query.setLimit(1);
