@@ -152,7 +152,7 @@ public abstract class StandartStructurBrowser_Base
         final Map<Integer, String> linkFroms = analyseProperty(_parameter, "LinkFrom");
         final Map<Integer, String> expandChildTypes = analyseProperty(_parameter, "ExpandChildType");
 
-        StandartStructurBrowser_Base.LOG.debug("Types: {}\n LinkFroms: {}\n ExpandChildTypes: {}",
+        StandartStructurBrowser_Base.LOG.debug("Types: {}, LinkFroms: {}, ExpandChildTypes: {}",
                                             new Object[]{ types, linkFroms, expandChildTypes });
         if (!types.isEmpty()) {
             for (final Entry<Integer, String> entry : types.entrySet()) {
@@ -167,8 +167,9 @@ public abstract class StandartStructurBrowser_Base
                 }
                 addCriteria(_parameter, queryBldr);
                 final InstanceQuery query = queryBldr.getQuery();
-                final boolean includeChildTypes = !"false".equalsIgnoreCase(expandChildTypes.containsKey(entry
-                                .getValue()) ? expandChildTypes.get(entry.getValue()) : expandChildTypes.get(0));
+                final boolean includeChildTypes = expandChildTypes.isEmpty() ? true :
+                    !"false".equalsIgnoreCase(expandChildTypes.containsKey(entry.getKey())
+                                    ? expandChildTypes.get(entry.getKey()) : expandChildTypes.get(0));
                 query.setIncludeChildTypes(includeChildTypes);
                 query.execute();
                 while (query.next()) {
@@ -293,7 +294,7 @@ public abstract class StandartStructurBrowser_Base
         final Map<Integer, String> expandChildTypes = analyseProperty(_parameter, "Child_ExpandChildType");
 
         if (StandartStructurBrowser_Base.LOG.isDebugEnabled()) {
-            StandartStructurBrowser_Base.LOG.debug("Child_Types: {}\n Child_LinkFroms: {}\n Child_ExpandChildTypes: {}",
+            StandartStructurBrowser_Base.LOG.debug("Child_Types: {}, Child_LinkFroms: {}, Child_ExpandChildTypes: {}",
                                             new Object[]{types, linkFroms, expandChildTypes});
         }
 
@@ -308,10 +309,11 @@ public abstract class StandartStructurBrowser_Base
                     }
                     queryBldr.addWhereAttrEqValue(linkfrom, instance.getId());
                 }
-                addCriteria(_parameter, queryBldr);
+                addCriteria4Children(_parameter, queryBldr);
                 final InstanceQuery query = queryBldr.getQuery();
-                final boolean includeChildTypes = !"false".equalsIgnoreCase(expandChildTypes.containsKey(entry
-                                .getValue()) ? expandChildTypes.get(entry.getValue()) : expandChildTypes.get(0));
+                final boolean includeChildTypes = expandChildTypes.isEmpty() ? true :
+                                !"false".equalsIgnoreCase(expandChildTypes.containsKey(entry.getKey())
+                                                ? expandChildTypes.get(entry.getKey()) : expandChildTypes.get(0));
                 query.setIncludeChildTypes(includeChildTypes);
                 if (_check) {
                     query.setLimit(1);
