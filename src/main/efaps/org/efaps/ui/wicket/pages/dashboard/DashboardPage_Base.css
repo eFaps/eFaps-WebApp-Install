@@ -23,6 +23,10 @@
  * @eFapsRevision $Rev: 8254 $
  */
 
+.dashboard {
+    overflow:auto;
+}
+
 div.header
 {
     font-size: 10pt;
