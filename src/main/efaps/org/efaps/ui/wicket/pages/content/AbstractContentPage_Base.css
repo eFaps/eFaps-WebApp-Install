@@ -107,12 +107,15 @@ a:visited,a:link {
 }
 
 .eFapsLink {
-    background-image: url("../../servlet/image/org.efaps.ui.wicket.pages.content.information.png");;
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.pages.content.information.png");
+    background-position: center center;
+    background-repeat: no-repeat;
     cursor: pointer;
     display: block;
-    height: 16px;
+    height: 100%;
     margin-left: auto;
     margin-right: auto;
+    top: 13px;
     width: 16px;
 }
 
