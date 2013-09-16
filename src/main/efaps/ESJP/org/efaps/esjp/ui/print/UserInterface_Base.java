@@ -23,6 +23,7 @@ package org.efaps.esjp.ui.print;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -65,7 +66,7 @@ public abstract class UserInterface_Base extends StandartReport implements Event
      */
     public static final String UIOBJECT_CACHEKEY = "eFaps_UIObject4PrintCacheKey";
 
-    private static final Map<String, String> MIME_MAP = new HashMap<String, String>();
+    private static final Map<String, String> MIME_MAP = new LinkedHashMap<String, String>();
     static {
         UserInterface_Base.MIME_MAP.put("pdf", "org.efaps.esjp.ui.print.PDF");
         UserInterface_Base.MIME_MAP.put("xls", "org.efaps.esjp.ui.print.XLS");
