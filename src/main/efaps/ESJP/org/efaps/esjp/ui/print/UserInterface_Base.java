@@ -67,8 +67,8 @@ public abstract class UserInterface_Base extends StandartReport implements Event
 
     private static final Map<String, String> MIME_MAP = new HashMap<String, String>();
     static {
-        UserInterface_Base.MIME_MAP.put("xls", "org.efaps.esjp.ui.print.XLS");
         UserInterface_Base.MIME_MAP.put("pdf", "org.efaps.esjp.ui.print.PDF");
+        UserInterface_Base.MIME_MAP.put("xls", "org.efaps.esjp.ui.print.XLS");
         UserInterface_Base.MIME_MAP.put("txt", "org.efaps.esjp.ui.print.TXT");
     };
 
