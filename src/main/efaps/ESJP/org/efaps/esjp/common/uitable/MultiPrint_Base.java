@@ -383,6 +383,8 @@ public abstract class MultiPrint_Base
                     }
                 } else if (field.getFilter().getType().equals(Filter.Type.CLASSIFICATION)) {
                     exec = addClassFilter(entry, _queryBldr, _type, field);
+                } else if (field.getFilter().getType().equals(Filter.Type.STATUS)) {
+                    exec = addStatusFilter(entry, _queryBldr, _type, field);
                 }
             }
         }
@@ -390,7 +392,55 @@ public abstract class MultiPrint_Base
     }
 
     /**
-     * Method to add a Filter for a inside Range of two attributes.
+     * Method to add a Filter for Status.
+     *
+     * @param _entry entry to be evaluated
+     * @param _queryBldr QueryBuilder used to get the instances
+     * @param _type type for the query
+     * @param _field field the filter belongs to
+     * @return true if the query must be executed, else false
+     * @throws EFapsException on error
+     */
+    protected boolean addStatusFilter(final Entry<?, ?> _entry,
+                                      final QueryBuilder _queryBldr,
+                                      final Type _type,
+                                      final Field _field)
+        throws EFapsException
+    {
+        final Map<?, ?> inner = (Map<?, ?>) _entry.getValue();
+        boolean ret = false;
+        if (inner != null) {
+            if (inner.containsKey("list")) {
+                final Set<?> list = (Set<?>) inner.get("list");
+                if (!list.isEmpty()) {
+                    _queryBldr.addWhereAttrEqValue(_field.getAttribute(), list.toArray());
+                    ret = true;
+                }
+            } else {
+                final List<Status> filters = new ArrayList<Status>();
+                final String defaultvalues = _field.getFilter().getDefaultValue();
+                if (defaultvalues != null && !defaultvalues.isEmpty()) {
+                    final String[] defaultAr = defaultvalues.split(";");
+                    final Attribute attr = _type.getStatusAttribute();
+                    final Type statusgrp = attr.getLink();
+                    for (final String defaultv : defaultAr) {
+                        final Status status = Status.find(statusgrp.getUUID(), defaultv);
+                        if (status != null) {
+                            filters.add(status);
+                        }
+                    }
+                }
+                if (!filters.isEmpty()) {
+                    _queryBldr.addWhereAttrEqValue(_field.getAttribute(), filters.toArray());
+                    ret = true;
+                }
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Method to add a Filter for Classification.
      *
      * @param _entry entry to be evaluated
      * @param _queryBldr QueryBuilder used to get the instances
@@ -618,11 +668,11 @@ public abstract class MultiPrint_Base
     }
 
     protected AttributeQuery evaluateFilterSelect(final List<String> _lstParts,
-                                              final Integer _dir,
-                                              final Type _type,
-                                              final String _from,
-                                              final String _to,
-                                              final Object[] _filter)
+                                                  final Integer _dir,
+                                                  final Type _type,
+                                                  final String _from,
+                                                  final String _to,
+                                                  final Object[] _filter)
         throws EFapsException
     {
         AttributeQuery attrQuery = null;
