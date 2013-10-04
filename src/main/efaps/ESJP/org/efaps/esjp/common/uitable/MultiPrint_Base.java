@@ -32,6 +32,7 @@ import java.util.UUID;
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.Classification;
 import org.efaps.admin.datamodel.Status;
+import org.efaps.admin.datamodel.Status.StatusGroup;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Parameter.ParameterValues;
@@ -52,6 +53,7 @@ import org.efaps.esjp.common.AbstractCommon;
 import org.efaps.ui.wicket.util.FilterDefault;
 import org.efaps.util.DateTimeUtil;
 import org.efaps.util.EFapsException;
+import org.efaps.util.cache.CacheReloadException;
 import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
@@ -423,10 +425,12 @@ public abstract class MultiPrint_Base
                     final String[] defaultAr = defaultvalues.split(";");
                     final Attribute attr = _type.getStatusAttribute();
                     final Type statusgrp = attr.getLink();
+                    final List<Status> status =   getStatus4Type(statusgrp);
                     for (final String defaultv : defaultAr) {
-                        final Status status = Status.find(statusgrp.getUUID(), defaultv);
-                        if (status != null) {
-                            filters.add(status);
+                        for (final Status statusTmp : status) {
+                            if (defaultv.equals(statusTmp.getKey())) {
+                                filters.add(statusTmp);
+                            }
                         }
                     }
                 }
@@ -434,6 +438,27 @@ public abstract class MultiPrint_Base
                     _queryBldr.addWhereAttrEqValue(_field.getAttribute(), filters.toArray());
                     ret = true;
                 }
+            }
+        }
+        return ret;
+    }
+
+    /**
+     * Recursive method to get all status for a Type representing a StatusGrp.
+     * @param _type Type the status list is wanted for
+     * @return list of status
+     * @throws CacheReloadException on error
+     */
+    protected List<Status> getStatus4Type(final Type _type)
+        throws CacheReloadException
+    {
+        final List<Status> ret = new ArrayList<Status>();
+        final StatusGroup grp = Status.get(_type.getUUID());
+        if (grp != null) {
+            ret.addAll(grp.values());
+        } else {
+            for (final Type type : _type.getChildTypes()) {
+                ret.addAll(getStatus4Type(type));
             }
         }
         return ret;
