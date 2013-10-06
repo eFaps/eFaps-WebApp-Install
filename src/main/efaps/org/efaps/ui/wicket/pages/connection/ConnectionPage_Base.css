@@ -1,0 +1,197 @@
+/*
+ * Copyright 2003 - 2012 The eFaps Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ * Author:          The eFaps Team
+ * Revision:        $Rev: 8247 $
+ * Last Changed:    $Date: 2012-11-23 18:28:56 -0500 (Fri, 23 Nov 2012) $
+ * Last Changed By: $Author: jan@moxter.net $
+ */
+
+/*
+ * @eFapsPackage  org.efaps.ui.wicket.pages.connection
+ * @eFapsUUID     f4928b2f-478e-489e-b800-b02e7c36a44c
+ * @eFapsRevision $Rev: 8247 $
+ */
+
+
+.button {
+    font-size: 13px;
+    font-weight: normal;
+    -moz-border-radius: 8px;
+    -webkit-border-radius: 8px;
+    border-radius: 8px;
+    border: 1px solid #268a16;
+    padding: 6px 15px;
+    text-decoration: none;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(5%, #77d42a),
+        color-stop(100%, #5cb811));
+    background: -moz-linear-gradient(center top, #77d42a 5%, #5cb811 100%);
+    background: -ms-linear-gradient(top, #77d42a 5%, #5cb811 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#77d42a',
+        endColorstr='#5cb811');
+    background-color: #77d42a;
+    color: #306108;
+    display: inline-block;
+    text-shadow: 1px 1px 0px #aade7c;
+    -webkit-box-shadow: inset 1px 1px 0px 0px #caefab;
+    -moz-box-shadow: inset 1px 1px 0px 0px #caefab;
+    box-shadow: inset 1px 1px 0px 0px #caefab;
+    min-width: 40px;
+    margin: 3px;
+    text-align: center;
+}
+
+.button:hover {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(5%, #5cb811),
+        color-stop(100%, #77d42a));
+    background: -moz-linear-gradient(center top, #5cb811 5%, #77d42a 100%);
+    background: -ms-linear-gradient(top, #5cb811 5%, #77d42a 100%);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5cb811',
+        endColorstr='#77d42a');
+    background-color: #5cb811;
+}
+
+.button:active {
+    position: relative;
+    top: 1px;
+}
+
+.eFapsForm {
+    font-size: 12px;
+    display: table;
+    width: 100%;
+}
+
+.taskDelegate select {
+    margin: 20px;
+}
+
+.eFapsForm .group {
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.components.form.dotted-line.png");
+    background-position: center bottom;
+    background-repeat: repeat-x;
+    border-spacing: 2px;
+    display: table-row;
+}
+
+.eFapsForm .label {
+    background-color: #D0EDB8;
+    border: 2px solid #008800;
+    color: #008800;
+    display: table-cell;
+    font-weight: bold;
+    max-width: 150px;
+    min-width: 150px;
+    overflow: hidden;
+    padding: 2px;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    width: 150px;
+}
+
+.eFapsForm .field {
+    background-color: white;
+    display: table-cell;
+    height: 25px;
+    padding-left: 4px;
+    padding-right: 4px;
+    vertical-align: middle;
+    width: 100%;
+}
+
+.eFapsFooter {
+    background: #DDDECB;
+    border-bottom: 1px solid;
+    border-top: 1px solid;
+    bottom: 0px;
+    height: 40px;
+    margin: 0pt;
+    padding: 0pt;
+    position: absolute;
+    width: 100%;
+}
+
+.eFapsFooterButtons {
+    position: absolute;
+    right: 10px;
+    top: 5px;
+}
+
+.eFapsFooterButton1,.eFapsFooterButton2,.eFapsFooterButton3, .eFapsFooterButton4, .eFapsFooterButton5 {
+    float: left;
+}
+
+div.tabpanel {
+    height: 100%;
+    overflow: auto;
+}
+
+
+div.tab-panel {
+     padding: 2px;
+}
+
+div.tabpanel div.tab-row {
+     background-color: #D0EDB8;
+     float: left;
+     line-height: normal;
+     width: 100%;
+}
+
+div.tabpanel div.tab-row ul {
+     list-style: none outside none;
+     margin: 0px;
+     padding: 2px 10px 0px;
+}
+
+div.tabpanel div.tab-row li {
+     border-right: 1px solid black;
+     float: left;
+     margin: 0px;
+     padding: 0px 0px 0px 9px;
+     text-shadow: 1px 1px 2px grey;
+}
+
+div.tabpanel div.tab-row li:hover {
+     text-shadow: none;
+}
+
+div.tabpanel div.tab-row a {
+     color: #00A000;
+     display: block;
+     font-weight: bold;
+     font-size: 12px;
+     padding: 5px 15px 4px 6px;
+     text-decoration: none;
+     white-space: nowrap;
+}
+
+div.tab-panel {
+     clear: left;
+}
+
+div.tabpanel div.tab-row a:hover {
+     color: #00000;
+}
+
+div.tabpanel div.tab-row li.selected {
+     text-shadow: 1px 1px 3px white;
+}
+
+div.tabpanel div.tab-row li.selected a {
+     color: #333333;
+     padding-bottom: 5px;
+}
+
