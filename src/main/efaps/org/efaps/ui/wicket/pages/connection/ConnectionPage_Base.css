@@ -196,3 +196,11 @@ div.tabpanel div.tab-row li.selected a {
      padding-bottom: 5px;
 }
 
+.closeSessionLink div {
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.components.tree.delete.png");
+    height: 16px;
+    width: 16px;
+}
+.closeSessionLink div:HOVER {
+    cursor: pointer;
+}
