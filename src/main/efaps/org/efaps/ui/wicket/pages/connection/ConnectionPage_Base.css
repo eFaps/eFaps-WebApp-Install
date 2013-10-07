@@ -61,6 +61,7 @@
     filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#5cb811',
         endColorstr='#77d42a');
     background-color: #5cb811;
+    cursor: pointer;
 }
 
 .button:active {

@@ -180,4 +180,38 @@ span {
     height:100%;
 }
 
+div.eFapsMsg {
+    background-color: rgba(125, 160, 135, 0.81);
+    border: 2px solid #514B4B;
+    color: #000000;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    position: absolute;
+    text-align: center;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    display: none;
+}
+
+div.eFapsMsg, div.eFapsMsg span {
+    font-size: 16pt;
+    font-weight: bold;
+}
+
+div.eFapsMsg .closeMsg {
+    background-image: url(../../servlet/image/cross-circle);
+    background-position: center center;
+    background-repeat: no-repeat;
+    display: block;
+    float: right;
+    height: 25px;
+    padding: 2px;
+    width: 25px;
+}
+
+div.eFapsMsg .closeMsg:HOVER {
+    cursor: pointer;
+}
+
 
