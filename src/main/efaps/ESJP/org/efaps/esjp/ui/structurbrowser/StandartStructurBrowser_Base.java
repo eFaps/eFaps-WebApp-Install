@@ -35,6 +35,7 @@ import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractUserInterfaceObject;
+import org.efaps.db.AttributeQuery;
 import org.efaps.db.Instance;
 import org.efaps.db.InstanceQuery;
 import org.efaps.db.QueryBuilder;
@@ -68,6 +69,7 @@ public abstract class StandartStructurBrowser_Base
      * @throws EFapsException on error
      * @return Return
      */
+    @Override
     public Return execute(final Parameter _parameter)
         throws EFapsException
     {
@@ -151,6 +153,8 @@ public abstract class StandartStructurBrowser_Base
         final Map<Integer, String> types = analyseProperty(_parameter, "Type");
         final Map<Integer, String> linkFroms = analyseProperty(_parameter, "LinkFrom");
         final Map<Integer, String> expandChildTypes = analyseProperty(_parameter, "ExpandChildType");
+        final Map<Integer, String> excludeConnectedTypes = analyseProperty(_parameter, "ExcludeConnectedType");
+        final Map<Integer, String> excludeConnectedLinkFroms = analyseProperty(_parameter, "ExcludeConnectedLinkFrom");
 
         StandartStructurBrowser_Base.LOG.debug("Types: {}, LinkFroms: {}, ExpandChildTypes: {}",
                                             new Object[]{ types, linkFroms, expandChildTypes });
@@ -166,11 +170,27 @@ public abstract class StandartStructurBrowser_Base
                     queryBldr.addWhereAttrEqValue(linkfrom, instance.getId());
                 }
                 addCriteria(_parameter, queryBldr);
+
+                final String excludeConnTypesStr = excludeConnectedTypes.containsKey(entry.getKey())
+                                ? excludeConnectedTypes.get(entry.getKey()) : excludeConnectedTypes.get(0);
+                final String excludeConnLinkFromsStr = excludeConnectedLinkFroms.containsKey(entry.getKey())
+                                ? excludeConnectedLinkFroms.get(entry.getKey()) : excludeConnectedLinkFroms.get(0);
+                final String[] excludeConnTypesArr = excludeConnTypesStr.split(";");
+                final String[] excludeConnLinkFromsArr = excludeConnLinkFromsStr.split(";");
+                int cont = 0;
+                for (final String excludeConnType : excludeConnTypesArr) {
+                    final QueryBuilder attrQueryBldr = new QueryBuilder(Type.get(excludeConnType));
+                    final AttributeQuery attrQuery = attrQueryBldr.getAttributeQuery(excludeConnLinkFromsArr[cont]);
+                    queryBldr.addWhereAttrNotInQuery("ID", attrQuery);
+                    cont++;
+                }
+
                 final InstanceQuery query = queryBldr.getQuery();
                 final boolean includeChildTypes = expandChildTypes.isEmpty() ? true :
                     !"false".equalsIgnoreCase(expandChildTypes.containsKey(entry.getKey())
                                     ? expandChildTypes.get(entry.getKey()) : expandChildTypes.get(0));
                 query.setIncludeChildTypes(includeChildTypes);
+
                 query.execute();
                 while (query.next()) {
                     tree.put(query.getCurrentValue(), null);
@@ -436,6 +456,7 @@ public abstract class StandartStructurBrowser_Base
 
         Collections.sort(strBro.getChildren(), new Comparator<UIStructurBrowser>() {
 
+            @Override
             @SuppressWarnings({ "rawtypes", "unchecked" })
             public int compare(final UIStructurBrowser _structurBrowser1,
                                final UIStructurBrowser _structurBrowser2)
