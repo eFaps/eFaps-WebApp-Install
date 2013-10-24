@@ -56,8 +56,8 @@ import org.slf4j.LoggerFactory;
 @EFapsUUID("d6548826-830b-4540-a46d-d861c3f21f15")
 @EFapsRevision("$Rev$")
 public abstract class StandartStructurBrowser_Base
-    extends AbstractCommon
-    implements EventExecution
+extends AbstractCommon
+implements EventExecution
 {
     /**
      * Logger for this class.
@@ -120,9 +120,9 @@ public abstract class StandartStructurBrowser_Base
         throws EFapsException
     {
         final Return ret = new Return();
-        //EXAMPLE to be done by implementation
+        // EXAMPLE to be done by implementation
         final StringBuilder js = new StringBuilder();
-        //js.append("document.getElementById..");
+        // js.append("document.getElementById..");
         ret.put(ReturnValues.SNIPLETT, js.toString());
         return ret;
     }
@@ -157,7 +157,7 @@ public abstract class StandartStructurBrowser_Base
         final Map<Integer, String> excludeConnectedLinkFroms = analyseProperty(_parameter, "ExcludeConnectedLinkFrom");
 
         StandartStructurBrowser_Base.LOG.debug("Types: {}, LinkFroms: {}, ExpandChildTypes: {}",
-                                            new Object[]{ types, linkFroms, expandChildTypes });
+                        new Object[] { types, linkFroms, expandChildTypes });
         if (!types.isEmpty()) {
             for (final Entry<Integer, String> entry : types.entrySet()) {
                 final Type type = Type.get(entry.getValue());
@@ -171,24 +171,26 @@ public abstract class StandartStructurBrowser_Base
                 }
                 addCriteria(_parameter, queryBldr);
 
-                final String excludeConnTypesStr = excludeConnectedTypes.containsKey(entry.getKey())
-                                ? excludeConnectedTypes.get(entry.getKey()) : excludeConnectedTypes.get(0);
-                final String excludeConnLinkFromsStr = excludeConnectedLinkFroms.containsKey(entry.getKey())
-                                ? excludeConnectedLinkFroms.get(entry.getKey()) : excludeConnectedLinkFroms.get(0);
-                final String[] excludeConnTypesArr = excludeConnTypesStr.split(";");
-                final String[] excludeConnLinkFromsArr = excludeConnLinkFromsStr.split(";");
-                int cont = 0;
-                for (final String excludeConnType : excludeConnTypesArr) {
-                    final QueryBuilder attrQueryBldr = new QueryBuilder(Type.get(excludeConnType));
-                    final AttributeQuery attrQuery = attrQueryBldr.getAttributeQuery(excludeConnLinkFromsArr[cont]);
-                    queryBldr.addWhereAttrNotInQuery("ID", attrQuery);
-                    cont++;
+                if (!excludeConnectedTypes.isEmpty() && !excludeConnectedLinkFroms.isEmpty()) {
+                    final String excludeConnTypesStr = excludeConnectedTypes.containsKey(entry.getKey())
+                                    ? excludeConnectedTypes.get(entry.getKey()) : excludeConnectedTypes.get(0);
+                    final String excludeConnLinkFromsStr = excludeConnectedLinkFroms.containsKey(entry.getKey())
+                                    ? excludeConnectedLinkFroms.get(entry.getKey()) : excludeConnectedLinkFroms.get(0);
+                    final String[] excludeConnTypesArr = excludeConnTypesStr.split(";");
+                    final String[] excludeConnLinkFromsArr = excludeConnLinkFromsStr.split(";");
+                    int cont = 0;
+                    for (final String excludeConnType : excludeConnTypesArr) {
+                        final QueryBuilder attrQueryBldr = new QueryBuilder(Type.get(excludeConnType));
+                        final AttributeQuery attrQuery = attrQueryBldr.getAttributeQuery(excludeConnLinkFromsArr[cont]);
+                        queryBldr.addWhereAttrNotInQuery("ID", attrQuery);
+                        cont++;
+                    }
                 }
 
                 final InstanceQuery query = queryBldr.getQuery();
                 final boolean includeChildTypes = expandChildTypes.isEmpty() ? true :
-                    !"false".equalsIgnoreCase(expandChildTypes.containsKey(entry.getKey())
-                                    ? expandChildTypes.get(entry.getKey()) : expandChildTypes.get(0));
+                                !"false".equalsIgnoreCase(expandChildTypes.containsKey(entry.getKey())
+                                                ? expandChildTypes.get(entry.getKey()) : expandChildTypes.get(0));
                 query.setIncludeChildTypes(includeChildTypes);
 
                 query.execute();
@@ -315,7 +317,7 @@ public abstract class StandartStructurBrowser_Base
 
         if (StandartStructurBrowser_Base.LOG.isDebugEnabled()) {
             StandartStructurBrowser_Base.LOG.debug("Child_Types: {}, Child_LinkFroms: {}, Child_ExpandChildTypes: {}",
-                                            new Object[]{types, linkFroms, expandChildTypes});
+                            new Object[] { types, linkFroms, expandChildTypes });
         }
 
         if (!types.isEmpty()) {
@@ -454,8 +456,8 @@ public abstract class StandartStructurBrowser_Base
     {
         final UIStructurBrowser strBro = (UIStructurBrowser) _parameter.get(ParameterValues.CLASS);
 
-        Collections.sort(strBro.getChildren(), new Comparator<UIStructurBrowser>() {
-
+        Collections.sort(strBro.getChildren(), new Comparator<UIStructurBrowser>()
+        {
             @Override
             @SuppressWarnings({ "rawtypes", "unchecked" })
             public int compare(final UIStructurBrowser _structurBrowser1,
