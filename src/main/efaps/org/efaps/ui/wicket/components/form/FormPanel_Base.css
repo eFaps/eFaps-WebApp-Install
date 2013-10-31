@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2012 The eFaps Team
+ * Copyright 2003 - 2013 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,63 +24,63 @@
  * @eFapsUUID     950998a2-38b1-4d1e-8ae5-95b337cce789
  * @eFapsRevision $Rev$
  */
-
 .eFapsForm {
-  width: 99%;
+    width: 99%;
 }
 
 .eFapsFormRow {
-  height: 24px;
+    height: 24px;
 }
 
-.eFapsFormLabel,.eFapsFormLabelRequired,.eFapsFormLabelRequiredForce,.eFapsFormLabelInvalidValue {
-  background-color: #D0EDB8;
-  font-weight: bold;
-  padding-left: 4px;
-  padding-right: 4px;
-  width: 150px;
-  white-space: nowrap;
+.eFapsFormLabel,.eFapsFormLabelRequired,.eFapsFormLabelRequiredForce,.eFapsFormLabelInvalidValue
+    {
+    background-color: #D0EDB8;
+    font-weight: bold;
+    padding-left: 4px;
+    padding-right: 4px;
+    width: 150px;
+    white-space: nowrap;
 }
 
 .eFapsFormLabel {
-  color: #008800;
-  border-style: solid;
-  border-color: #008800;
-  border-width: 2px;
+    color: #008800;
+    border-style: solid;
+    border-color: #008800;
+    border-width: 2px;
 }
 
 .eFapsFormLabelRequired {
-  color: black;
-  font-style: italic;
-  border-style: double;
-  border-color: #008800;
+    color: black;
+    font-style: italic;
+    border-style: double;
+    border-color: #008800;
 }
 
 .eFapsFormLabelRequiredForce {
-  background-color: red;
-  color: black;
-  font-style: italic;
-  border-style: double;
-  border-color: black;
+    background-color: red;
+    color: black;
+    font-style: italic;
+    border-style: double;
+    border-color: black;
 }
 
 .eFapsFormLabelInvalidValue {
-  background-color: yellow;
-  color: black;
-  font-style: italic;
-  border-style: double;
-  border-color: black;
+    background-color: yellow;
+    color: black;
+    font-style: italic;
+    border-style: double;
+    border-color: black;
 }
 
 .eFapsFormValue {
-  padding-left: 4px;
-  padding-right: 4px;
-  white-space: nowrap;
-  background-color: white;
-  background-image: url("../../servlet/image/org.efaps.ui.wicket.components.form.dotted-line.png");
-  background-repeat: repeat-x;
-  background-position: bottom;
-  border-right: 1px solid #ddd;
+    padding-left: 4px;
+    padding-right: 4px;
+    white-space: nowrap;
+    background-color: white;
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.components.form.dotted-line.png");
+    background-repeat: repeat-x;
+    background-position: bottom;
+    border-right: 1px solid #ddd;
 }
 
 /* For firefox this must be set especially for input and textarea */
@@ -95,21 +95,26 @@
 
 /* Input Field Appearance */
 .eFapsFormInputField {
-  background-color: #eeeeee;
-  font-size: 12px;
+    background-color: #eeeeee;
+    font-size: 12px;
 }
 
 .eFapsValidateFieldValuesTable {
-  margin-left:auto;
-  margin-right:auto;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .eFapsValidateFieldValuesTable td:first-child {
-  text-align:left;
-  font-weight:bold;
-  font-style:italic;
-  padding-right:5px;
+    text-align: left;
+    font-weight: bold;
+    font-style: italic;
+    padding-right: 5px;
 }
-.eFapsValidateFieldValuesTable td{
-  text-align:left;
+
+.eFapsValidateFieldValuesTable td {
+    text-align: left;
+}
+
+.eFapsReadOnly {
+    color: grey;
 }
