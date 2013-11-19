@@ -54,7 +54,6 @@ import org.efaps.ui.wicket.util.FilterDefault;
 import org.efaps.util.DateTimeUtil;
 import org.efaps.util.EFapsException;
 import org.efaps.util.cache.CacheReloadException;
-import org.joda.time.DateMidnight;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -375,9 +374,9 @@ public abstract class MultiPrint_Base
                         exec = addInsideRangeFilter(entry, _queryBldr, _type, attrNames, field);
                     } else {
                         if (attrName != null && _type.getAttribute(attrName) != null) {
-                            exec = addFilter(entry, _queryBldr, _type, attrName, field);
+                            exec = addFilter(_parameter, entry, _queryBldr, _type, attrName, field);
                         } else {
-                            exec = addFilter4Select(entry, _queryBldr, _type, field.getSelect(), field);
+                            exec = addFilter4Select(_parameter, entry, _queryBldr, _type, field.getSelect(), field);
                         }
                     }
                     if (!exec) {
@@ -584,7 +583,8 @@ public abstract class MultiPrint_Base
      * @return true if the query must be executed, else false
      * @throws EFapsException on error
      */
-    protected boolean addFilter(final Entry<?, ?> _entry,
+    protected boolean addFilter(final Parameter _parameter,
+                                final Entry<?, ?> _entry,
                                 final QueryBuilder _queryBldr,
                                 final Type _type,
                                 final String _attrName,
@@ -614,11 +614,11 @@ public abstract class MultiPrint_Base
             _queryBldr.addWhereAttrLessValue(_attrName, dateTo);
         } else {
             if (from != null && !from.isEmpty()) {
-                _queryBldr.addWhereAttrMatchValue(_attrName, from).setIgnoreCase(true);
+                addMatch(_parameter, _queryBldr, _attrName, inner, from);
             } else {
                 final String[] filter = (String[]) getFilter(_field);
                 if (filter != null) {
-                    _queryBldr.addWhereAttrMatchValue(_attrName, filter[0]).setIgnoreCase(true);
+                    addMatch(_parameter, _queryBldr, _attrName, inner, filter[0]);
                 } else {
                     ret = false;
                 }
@@ -626,6 +626,27 @@ public abstract class MultiPrint_Base
         }
         return ret;
     }
+
+    protected void addMatch(final Parameter _parameter,
+                            final QueryBuilder _queryBldr,
+                            final String _attrName,
+                            final Map<?, ?> _filterMap,
+                            final String _criteria)
+        throws EFapsException
+    {
+        boolean ignoreCase = true;
+        String value = _criteria;
+        if (_filterMap.containsKey("expertMode")) {
+            if (!(Boolean) _filterMap.get("expertMode")) {
+                value = "*" + value + "*";
+            }
+        }
+        if (_filterMap.containsKey("ignoreCase")) {
+            ignoreCase = (Boolean) _filterMap.get("ignoreCase");
+        }
+        _queryBldr.addWhereAttrMatchValue(_attrName, value).setIgnoreCase(ignoreCase);
+    }
+
 
     /**
      * Method to add a Filter for one select.
@@ -638,7 +659,8 @@ public abstract class MultiPrint_Base
      * @return true if the query must be executed, else false
      * @throws EFapsException on error
      */
-    protected boolean addFilter4Select(final Entry<?, ?> _entry,
+    protected boolean addFilter4Select(final Parameter _parameter,
+                                       final Entry<?, ?> _entry,
                                        final QueryBuilder _queryBldr,
                                        final Type _type,
                                        final String _select,
@@ -663,13 +685,15 @@ public abstract class MultiPrint_Base
             if (_select.startsWith("class")) {
                 final String typeStr = lstParts.get(0).substring(6, lstParts.get(0).length() - 1);
                 final Classification classification = (Classification) Type.get(typeStr);
-                final AttributeQuery attrQuery = evaluateFilterSelect(lstParts, 1, classification, from, to, filter);
+                final AttributeQuery attrQuery = evaluateFilterSelect(_parameter, inner, lstParts, 1, classification,
+                                from, to, filter);
 
                 _queryBldr.addWhereAttrInQuery("ID", attrQuery);
             } else if (_select.startsWith("linkto")) {
                 final String attrName = lstParts.get(0).substring(7, lstParts.get(0).length() - 1);
                 final Attribute attr = _type.getAttribute(attrName);
-                final AttributeQuery attrQuery = evaluateFilterSelect(lstParts, 1, attr.getLink(), from, to, filter);
+                final AttributeQuery attrQuery = evaluateFilterSelect(_parameter, inner, lstParts, 1, attr.getLink(),
+                                from, to, filter);
 
                 _queryBldr.addWhereAttrInQuery(attrName, attrQuery);
             } else if (_select.startsWith("linkfrom")) {
@@ -677,22 +701,23 @@ public abstract class MultiPrint_Base
                 final String typeStr = parts2[0].substring(9);
                 final Type type = Type.get(typeStr);
                 final String attrName = parts2[1].substring(0, parts2[1].length() - 1);
-                final AttributeQuery attrQuery2 = evaluateFilterSelect(lstParts, 1, type, from, to, filter);
+                final AttributeQuery attrQuery2 = evaluateFilterSelect(_parameter, inner, lstParts, 1, type, from, to,
+                                filter);
 
                 final QueryBuilder attrQueryBldr = new QueryBuilder(type);
                 attrQueryBldr.addWhereAttrInQuery("ID", attrQuery2);
                 final AttributeQuery attrQuery = attrQueryBldr.getAttributeQuery(attrName);
-
                 _queryBldr.addWhereAttrInQuery("ID", attrQuery);
             }
         } else {
             ret = false;
         }
-
         return ret;
     }
 
-    protected AttributeQuery evaluateFilterSelect(final List<String> _lstParts,
+    protected AttributeQuery evaluateFilterSelect(final Parameter _parameter,
+                                                  final Map<?, ?> _filterMap,
+                                                  final List<String> _lstParts,
                                                   final Integer _dir,
                                                   final Type _type,
                                                   final String _from,
@@ -705,7 +730,8 @@ public abstract class MultiPrint_Base
             final String attrName = _lstParts.get(_dir).substring(7, _lstParts.get(_dir).length() - 1);
             final Attribute attr = _type.getAttribute(attrName);
 
-            final AttributeQuery attrQueryAux = evaluateFilterSelect(_lstParts, _dir + 1, attr.getLink(), _from, _to, _filter);
+            final AttributeQuery attrQueryAux = evaluateFilterSelect(_parameter, _filterMap, _lstParts, _dir + 1,
+                            attr.getLink(), _from, _to, _filter);
             final QueryBuilder attrQueryBldr = new QueryBuilder(_type);
             attrQueryBldr.addWhereAttrInQuery(attrName, attrQueryAux);
 
@@ -722,7 +748,7 @@ public abstract class MultiPrint_Base
                             || UUID.fromString("e764db0f-70f2-4cd4-b2fe-d23d3da72f78").equals(attrTypeUUId)) {
                 DateTime dateFrom = null;
                 DateTime dateTo = null;
-                if (_from == null || _to == null ) {
+                if (_from == null || _to == null) {
                     final DateTime[] dates = (DateTime[]) _filter;
                     dateFrom = dates[0];
                     dateTo = dates[1];
@@ -734,15 +760,15 @@ public abstract class MultiPrint_Base
                 attrQueryBldr.addWhereAttrLessValue(attrName, dateTo);
             } else {
                 if (_from != null && !_from.isEmpty()) {
-                    attrQueryBldr.addWhereAttrMatchValue(attrName, _from).setIgnoreCase(true);
+                    addMatch(_parameter, attrQueryBldr, attrName, _filterMap, _from);
                 } else {
                     final String[] filter = (String[]) _filter;
-                    attrQueryBldr.addWhereAttrMatchValue(attrName, filter[0]).setIgnoreCase(true);
+                    addMatch(_parameter, attrQueryBldr, attrName, _filterMap, filter[0]);
                 }
             }
 
             if (_type instanceof Classification) {
-                attrQuery = attrQueryBldr.getAttributeQuery(((Classification)_type).getLinkAttributeName());
+                attrQuery = attrQueryBldr.getAttributeQuery(((Classification) _type).getLinkAttributeName());
             } else {
                 attrQuery = attrQueryBldr.getAttributeQuery("ID");
             }
@@ -750,7 +776,8 @@ public abstract class MultiPrint_Base
             final String typeStr = _lstParts.get(_dir).substring(6, _lstParts.get(_dir).length() - 1);
             final Classification classification = (Classification) Type.get(typeStr);
 
-            final AttributeQuery attrQueryAux = evaluateFilterSelect(_lstParts, _dir + 1, classification, _from, _to, _filter);
+            final AttributeQuery attrQueryAux = evaluateFilterSelect(_parameter, _filterMap, _lstParts, _dir + 1,
+                            classification, _from, _to, _filter);
 
             final QueryBuilder attrQueryBldr = new QueryBuilder(_type);
             attrQueryBldr.addWhereAttrInQuery("ID", attrQueryAux);
@@ -778,7 +805,7 @@ public abstract class MultiPrint_Base
             DateTime dateTo = new DateTime();
             if (range != null) {
                 final FilterDefault def = FilterDefault.valueOf(range.toUpperCase());
-                DateMidnight tmp = DateTimeUtil.translateFromUI(new DateTime()).toDateMidnight();
+                DateTime tmp = DateTimeUtil.translateFromUI(new DateTime()).withTimeAtStartOfDay();
                 switch (def) {
                     case TODAY:
                         dateFrom = tmp.toDateTime().minusDays(fromSub).minusMinutes(1);
