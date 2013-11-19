@@ -87,3 +87,11 @@ tr.eFapsTableRowOdd {
 .eFapsFilterText {
     display: block;
 }
+
+.eFapsFilterOptions > div {
+    margin-left: auto;
+    margin-right: auto;
+    text-align: left;
+    width: 167px;
+}
+
