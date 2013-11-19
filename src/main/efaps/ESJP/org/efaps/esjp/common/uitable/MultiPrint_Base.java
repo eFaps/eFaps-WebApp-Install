@@ -261,7 +261,7 @@ public abstract class MultiPrint_Base
                         final AbstractUserInterfaceObject command = (AbstractUserInterfaceObject) _parameter
                                         .get(ParameterValues.UIOBJECT);
                         MultiPrint_Base.LOG.error("Status Definition invalid. Command: {}, Index: {}",
-                                        command.getName(), typeEntry.getKey());
+                                        command.getName(), i);
                         throw new EFapsException(getClass(), "Status", typeEntry);
                     } else {
                         statusIds.add(stat.getId());
