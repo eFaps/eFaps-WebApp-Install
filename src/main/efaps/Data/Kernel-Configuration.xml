@@ -32,6 +32,7 @@
     <file-revision>$Rev$</file-revision>
     <definition>
         <version-expression>(version==latest)</version-expression>
+        <name>Kernel-Configuration</name>
         <attribute>
             <key>org.efaps.kernel.DefaultMenu</key>
             <value><![CDATA[Menu0=Common_Main_Default]]>
