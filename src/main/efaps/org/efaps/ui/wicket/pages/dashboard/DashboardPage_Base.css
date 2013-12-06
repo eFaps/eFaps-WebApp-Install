@@ -35,3 +35,15 @@ div.header
     padding-left: 2px;
     padding-right: 2px;
 }
+
+.dashboard .table {
+    display: table;
+}
+
+.dashboard .row {
+    display: table-row;
+}
+
+.dashboard .cell {
+    display: table-cell;
+}
