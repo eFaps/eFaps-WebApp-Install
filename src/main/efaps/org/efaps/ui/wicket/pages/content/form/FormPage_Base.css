@@ -108,3 +108,22 @@
     vertical-align: middle;
     width: 100%;
 }
+
+.eFapsHiddenSection {
+    display: none;
+}
+
+.eFapsCollapsible  {
+    background-image: url("../../servlet/image//org.efaps.ui.wicket.components.heading.Close.png");
+    display: inline-block;
+    cursor: pointer;
+    height: 16px;
+    margin-left: 5px;
+    position: relative;
+    top: 3px;
+    width: 16px;
+}
+
+.eFapsCollapsedSection .eFapsCollapsible  {
+    background-image: url("../../servlet/image//org.efaps.ui.wicket.components.heading.Open.png");
+}
