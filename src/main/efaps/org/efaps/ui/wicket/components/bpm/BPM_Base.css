@@ -24,7 +24,7 @@
  * @eFapsUUID     55075b1d-0b4b-4c09-9607-3a76356eeadf
  * @eFapsRevision $Rev: 9532 $
  */
- 
+
 table.dataview {
     border: 1px solid #00a000;
     border-radius: 4px;
@@ -149,8 +149,15 @@ table.dataview .openProcess .select
     cursor: pointer;
 }
 
-
-
+table.dataview .openProcess .abort
+{
+    background-image: url(../../servlet/image/org.efaps.ui.wicket.components.button.delete.png);
+    background-position: center center;
+    background-repeat: no-repeat;
+    display: inline-block;
+    width: 20px;
+    cursor: pointer;
+}
 
 table.dataview .navigator a
 {

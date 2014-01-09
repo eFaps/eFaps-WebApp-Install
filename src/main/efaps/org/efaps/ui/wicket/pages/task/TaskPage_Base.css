@@ -68,6 +68,15 @@
     top: 1px;
 }
 
+.button .image {
+    background-repeat: no-repeat;
+    display: inline-block;
+    height: 16px;
+    vertical-align: bottom;
+    width: 16px;
+}
+
+
 .eFapsForm {
     font-size: 12px;
     display: table;
