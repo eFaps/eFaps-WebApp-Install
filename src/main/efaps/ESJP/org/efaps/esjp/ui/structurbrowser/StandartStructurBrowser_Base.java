@@ -73,35 +73,37 @@ implements EventExecution
     public Return execute(final Parameter _parameter)
         throws EFapsException
     {
-        Return ret = null;
-
-        final UIStructurBrowser strBro = (UIStructurBrowser) _parameter.get(ParameterValues.CLASS);
-        if (strBro != null) {
-            final ExecutionStatus status = strBro.getExecutionStatus();
-            if (status.equals(ExecutionStatus.EXECUTE)) {
-                ret = internalExecute(_parameter);
-            } else if (status.equals(ExecutionStatus.ALLOWSCHILDREN)) {
-                ret = allowChildren(_parameter);
-            } else if (status.equals(ExecutionStatus.ALLOWSITEM)) {
-                ret = allowItem(_parameter);
-            } else if (status.equals(ExecutionStatus.CHECKFORCHILDREN)) {
-                ret = checkForChildren(_parameter);
-            } else if (status.equals(ExecutionStatus.ADDCHILDREN)) {
-                ret = addChildren(_parameter);
-            } else if (status.equals(ExecutionStatus.SORT)) {
-                ret = sort(_parameter);
-            } else if (status.equals(ExecutionStatus.CHECKHIDECOLUMN4ROW)) {
-                ret = checkHideColumn4Row(_parameter);
-            } else if (status.equals(ExecutionStatus.NODE_REMOVE)) {
-                ret = onNodeRemove(_parameter);
-            } else if (status.equals(ExecutionStatus.NODE_INSERTCHILDITEM)) {
-                ret = onNodeInsertChildItem(_parameter);
-            } else if (status.equals(ExecutionStatus.NODE_INSERTITEM)) {
-                ret = onNodeInsertItem(_parameter);
-            } else if (status.equals(ExecutionStatus.NODE_INSERTCHILDFOLDER)) {
-                ret = onNodeInsertChildFolder(_parameter);
-            } else if (status.equals(ExecutionStatus.GETJAVASCRIPT4TARGET)) {
-                ret = getJavaScript4Target(_parameter);
+        Return ret = new Return();
+        final Object object = _parameter.get(ParameterValues.CLASS);
+        if (object instanceof UIStructurBrowser) {
+            final UIStructurBrowser strBro = (UIStructurBrowser) object;
+            if (strBro != null) {
+                final ExecutionStatus status = strBro.getExecutionStatus();
+                if (status.equals(ExecutionStatus.EXECUTE)) {
+                    ret = internalExecute(_parameter);
+                } else if (status.equals(ExecutionStatus.ALLOWSCHILDREN)) {
+                    ret = allowChildren(_parameter);
+                } else if (status.equals(ExecutionStatus.ALLOWSITEM)) {
+                    ret = allowItem(_parameter);
+                } else if (status.equals(ExecutionStatus.CHECKFORCHILDREN)) {
+                    ret = checkForChildren(_parameter);
+                } else if (status.equals(ExecutionStatus.ADDCHILDREN)) {
+                    ret = addChildren(_parameter);
+                } else if (status.equals(ExecutionStatus.SORT)) {
+                    ret = sort(_parameter);
+                } else if (status.equals(ExecutionStatus.CHECKHIDECOLUMN4ROW)) {
+                    ret = checkHideColumn4Row(_parameter);
+                } else if (status.equals(ExecutionStatus.NODE_REMOVE)) {
+                    ret = onNodeRemove(_parameter);
+                } else if (status.equals(ExecutionStatus.NODE_INSERTCHILDITEM)) {
+                    ret = onNodeInsertChildItem(_parameter);
+                } else if (status.equals(ExecutionStatus.NODE_INSERTITEM)) {
+                    ret = onNodeInsertItem(_parameter);
+                } else if (status.equals(ExecutionStatus.NODE_INSERTCHILDFOLDER)) {
+                    ret = onNodeInsertChildFolder(_parameter);
+                } else if (status.equals(ExecutionStatus.GETJAVASCRIPT4TARGET)) {
+                    ret = getJavaScript4Target(_parameter);
+                }
             }
         }
         return ret;
