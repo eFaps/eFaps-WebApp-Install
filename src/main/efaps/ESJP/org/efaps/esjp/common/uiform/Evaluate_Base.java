@@ -72,7 +72,7 @@ public abstract class Evaluate_Base
         final Instance instance = Instance.get(oid);
         setMode(_parameter, instance);
         final Return ret = new Return();
-        ret.put(ReturnValues.VALUES, instance);
+        ret.put(ReturnValues.INSTANCE, instance);
         return ret;
     }
 
