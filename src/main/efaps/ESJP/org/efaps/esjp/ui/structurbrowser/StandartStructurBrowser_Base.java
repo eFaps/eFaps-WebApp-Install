@@ -22,9 +22,13 @@ package org.efaps.esjp.ui.structurbrowser;
 
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
+import java.util.UUID;
 
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.event.EventExecution;
@@ -34,8 +38,12 @@ import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject;
+import org.efaps.admin.ui.Command;
+import org.efaps.admin.ui.Menu;
 import org.efaps.db.AttributeQuery;
+import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.db.InstanceQuery;
 import org.efaps.db.QueryBuilder;
@@ -56,13 +64,13 @@ import org.slf4j.LoggerFactory;
 @EFapsUUID("d6548826-830b-4540-a46d-d861c3f21f15")
 @EFapsRevision("$Rev$")
 public abstract class StandartStructurBrowser_Base
-extends AbstractCommon
-implements EventExecution
+    extends AbstractCommon
+    implements EventExecution
 {
     /**
      * Logger for this class.
      */
-    protected static final Logger LOG = LoggerFactory.getLogger(StandartStructurBrowser_Base.class);
+    protected static final Logger LOG = LoggerFactory.getLogger(StandartStructurBrowser.class);
 
     /**
      * @param _parameter Parameter
@@ -484,5 +492,69 @@ implements EventExecution
         final StringBuilder ret = new StringBuilder();
         ret.append(_structurBrowser.getLabel());
         return ret.toString();
+    }
+
+    /**
+     * @param _parameter Parameter as passed by the efaps API
+     * @return new Return
+     * @throws EFapsException on error
+     */
+    @SuppressWarnings("unchecked")
+    public Return expand(final Parameter _parameter)
+        throws EFapsException
+    {
+        final String[] oids = (String[]) _parameter.get(ParameterValues.OTHERS);
+        final String cmdStr = getProperty(_parameter, "StrBrwsCmd");
+        AbstractCommand cmd;
+        if (isUUID(cmdStr)) {
+            cmd = Command.get(UUID.fromString(cmdStr));
+            if (cmd == null) {
+                cmd = Menu.get(UUID.fromString(cmdStr));
+            }
+        } else {
+            cmd = Command.get(cmdStr);
+            if (cmd == null) {
+                cmd = Menu.get(cmdStr);
+            }
+        }
+        final String key = cmd.getUUID() + "-" + UIStructurBrowser.USERSESSIONKEY;
+        final Set<Instance> instances = new HashSet<Instance>();
+        for (final String oid :oids) {
+            final Instance inst = Instance.get(oid);
+            instances.add(inst);
+            _parameter.put(ParameterValues.INSTANCE, inst);
+            instances.addAll(getChildren4Expand(_parameter));
+        }
+        final Map<String, Boolean> sessMap;
+        if (Context.getThreadContext().containsSessionAttribute(key)) {
+            sessMap = (Map<String, Boolean>) Context.getThreadContext().getSessionAttribute(key);
+        } else {
+            sessMap = new HashMap<String, Boolean>();
+        }
+
+        for (final Instance inst : instances) {
+            sessMap.put(inst.getKey(), true);
+        }
+        Context.getThreadContext().setSessionAttribute(key, sessMap);
+        return new Return();
+    }
+
+    /**
+     * Recursive method to load all children.
+     * @param _parameter    Parameter as passed by the eFaps API
+     * @return set of instances to be expanded
+     * @throws EFapsException on errro
+     */
+    protected Set<Instance> getChildren4Expand(final Parameter _parameter)
+        throws EFapsException
+    {
+        final Set<Instance> ret = new HashSet<Instance>();
+        final Map<Instance, Boolean> tmp = getChildren(_parameter, false);
+        for (final Instance inst : tmp.keySet()) {
+            ret.add(inst);
+            _parameter.put(ParameterValues.INSTANCE, inst);
+            ret.addAll(getChildren4Expand(_parameter));
+        }
+        return ret;
     }
 }
