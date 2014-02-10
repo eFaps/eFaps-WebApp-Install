@@ -87,6 +87,10 @@
     margin-left: -5px;
 }
 
+.eFapsTableCell input[type="radio"] {
+	margin-left: 0px;
+}
+
 .eFapsTableCheckBoxCell {
     padding-left: 0;
     float: left;
