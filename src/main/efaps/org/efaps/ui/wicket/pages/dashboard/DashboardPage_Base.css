@@ -47,3 +47,10 @@ div.header
 .dashboard .cell {
     display: table-cell;
 }
+
+.dashboard.item {
+    border: 1px solid #D0D0D0;
+    border-radius: 5px;
+    margin: 2px;
+    padding: 5px;
+}
