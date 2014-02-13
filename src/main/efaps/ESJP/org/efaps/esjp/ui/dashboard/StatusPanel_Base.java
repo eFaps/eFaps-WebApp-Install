@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2014 The eFaps Team
+ * Copyright 2003 - 2013 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,28 +18,40 @@
  * Last Changed By: $Author$
  */
 
-
 package org.efaps.esjp.ui.dashboard;
 
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
-
+import org.efaps.ui.wicket.models.IEsjpSnipplet;
+import org.efaps.util.EFapsException;
 
 /**
- * This class must be replaced for customization, therefore it is left empty.
- * Functional description can be found in the related "<code>_base</code>"
- * class.
+ * TODO comment!
  *
  * @author The eFaps Team
  * @version $Id$
  */
-@EFapsUUID("91b6e8f3-3894-4010-b714-1c23d310e783")
+@EFapsUUID("a1f59464-0354-47c4-ac92-0f393d5bfa8a")
 @EFapsRevision("$Rev$")
-public class StatusPanel
-    extends StatusPanel_Base
+public class StatusPanel_Base
+    implements IEsjpSnipplet
 {
+
     /**
      *
      */
     private static final long serialVersionUID = 1L;
+
+    public CharSequence getHtmlSnipplet()
+        throws EFapsException
+    {
+        return "Hello Welt";
+    }
+
+    @Override
+    public boolean isVisible()
+        throws EFapsException
+    {
+        return true;
+    }
 }
