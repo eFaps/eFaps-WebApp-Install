@@ -26,36 +26,17 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 
 
 /**
- * TODO comment!
+ * This class must be replaced for customization, therefore it is left empty.
+ * Functional description can be found in the related "<code>_base</code>"
+ * class.
  *
  * @author The eFaps Team
  * @version $Id$
  */
-@EFapsUUID("89b73dfc-c56a-4b93-9970-c8364d5bd052")
+@EFapsUUID("6c1fbb33-6c50-4c59-8318-acb48a3bf025")
 @EFapsRevision("$Rev$")
-public abstract class AbstractData_Base
+public class PieChart
+    extends PieChart_Base
 {
-    private Number value;
 
-    public abstract CharSequence getJavaScript();
-
-    /**
-     * Getter method for the instance variable {@link #value}.
-     *
-     * @return value of instance variable {@link #value}
-     */
-    public Number getValue()
-    {
-        return this.value;
-    }
-
-    /**
-     * Setter method for instance variable {@link #value}.
-     *
-     * @param _value value for instance variable {@link #value}
-     */
-    public void setValue(final Number _value)
-    {
-        this.value = _value;
-    }
 }

@@ -31,31 +31,9 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * @author The eFaps Team
  * @version $Id$
  */
-@EFapsUUID("89b73dfc-c56a-4b93-9970-c8364d5bd052")
+@EFapsUUID("88954558-6004-4063-9f38-ead8eab43dd2")
 @EFapsRevision("$Rev$")
-public abstract class AbstractData_Base
+public enum TitlePos
 {
-    private Number value;
-
-    public abstract CharSequence getJavaScript();
-
-    /**
-     * Getter method for the instance variable {@link #value}.
-     *
-     * @return value of instance variable {@link #value}
-     */
-    public Number getValue()
-    {
-        return this.value;
-    }
-
-    /**
-     * Setter method for instance variable {@link #value}.
-     *
-     * @param _value value for instance variable {@link #value}
-     */
-    public void setValue(final Number _value)
-    {
-        this.value = _value;
-    }
+    top, bottom;
 }

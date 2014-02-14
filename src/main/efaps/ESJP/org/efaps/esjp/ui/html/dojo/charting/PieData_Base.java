@@ -37,7 +37,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 public abstract class PieData_Base
     extends AbstractData
 {
-    private int value;
     private String text;
     private String legend;
     private String tooltip;
@@ -60,30 +59,6 @@ public abstract class PieData_Base
         return ret;
     }
 
-
-    /**
-     * Getter method for the instance variable {@link #value}.
-     *
-     * @return value of instance variable {@link #value}
-     */
-    public int getValue()
-    {
-        return this.value;
-    }
-
-
-    /**
-     * Setter method for instance variable {@link #value}.
-     *
-     * @param _value value for instance variable {@link #value}
-     */
-    public void setValue(final int _value)
-    {
-        this.value = _value;
-    }
-
-
-
     /**
      * Getter method for the instance variable {@link #text}.
      *
@@ -93,8 +68,6 @@ public abstract class PieData_Base
     {
         return this.text;
     }
-
-
 
     /**
      * Setter method for instance variable {@link #text}.
@@ -106,8 +79,6 @@ public abstract class PieData_Base
         this.text = _text;
     }
 
-
-
     /**
      * Getter method for the instance variable {@link #legend}.
      *
@@ -117,8 +88,6 @@ public abstract class PieData_Base
     {
         return this.legend;
     }
-
-
 
     /**
      * Setter method for instance variable {@link #legend}.
@@ -130,8 +99,6 @@ public abstract class PieData_Base
         this.legend = _legend;
     }
 
-
-
     /**
      * Getter method for the instance variable {@link #tooltip}.
      *
@@ -141,8 +108,6 @@ public abstract class PieData_Base
     {
         return this.tooltip;
     }
-
-
 
     /**
      * Setter method for instance variable {@link #tooltip}.

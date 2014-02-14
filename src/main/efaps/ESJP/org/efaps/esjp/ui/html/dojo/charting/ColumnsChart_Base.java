@@ -31,31 +31,31 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * @author The eFaps Team
  * @version $Id$
  */
-@EFapsUUID("89b73dfc-c56a-4b93-9970-c8364d5bd052")
+@EFapsUUID("3613d031-fb22-4aad-80c6-b71755065f33")
 @EFapsRevision("$Rev$")
-public abstract class AbstractData_Base
+public abstract class ColumnsChart_Base
+    extends AbstractChart<Data>
 {
-    private Number value;
 
-    public abstract CharSequence getJavaScript();
-
-    /**
-     * Getter method for the instance variable {@link #value}.
-     *
-     * @return value of instance variable {@link #value}
-     */
-    public Number getValue()
+    @Override
+    public CharSequence getRequireJS()
     {
-        return this.value;
+        return ",\"dojox/charting/plot2d/Columns\"";
     }
 
-    /**
-     * Setter method for instance variable {@link #value}.
-     *
-     * @param _value value for instance variable {@link #value}
-     */
-    public void setValue(final Number _value)
+    @Override
+    public CharSequence getParameterJS()
     {
-        this.value = _value;
+        return ", Columns";
+    }
+
+    @Override
+    public CharSequence getAddPlotJS()
+    {
+        final StringBuilder ret = new StringBuilder()
+            .append(" chart.addPlot(\"default\", {\n")
+            .append(" type: Columns\n")
+            .append(" });\n");
+        return ret;
     }
 }

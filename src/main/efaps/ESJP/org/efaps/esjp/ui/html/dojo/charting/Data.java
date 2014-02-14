@@ -26,36 +26,17 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 
 
 /**
- * TODO comment!
+ * This class must be replaced for customization, therefore it is left empty.
+ * Functional description can be found in the related "<code>_base</code>"
+ * class.
  *
  * @author The eFaps Team
  * @version $Id$
  */
-@EFapsUUID("89b73dfc-c56a-4b93-9970-c8364d5bd052")
+@EFapsUUID("52f10e61-a409-460e-9a0b-289cf8ca9882")
 @EFapsRevision("$Rev$")
-public abstract class AbstractData_Base
+public class Data
+    extends Data_Base
 {
-    private Number value;
 
-    public abstract CharSequence getJavaScript();
-
-    /**
-     * Getter method for the instance variable {@link #value}.
-     *
-     * @return value of instance variable {@link #value}
-     */
-    public Number getValue()
-    {
-        return this.value;
-    }
-
-    /**
-     * Setter method for instance variable {@link #value}.
-     *
-     * @param _value value for instance variable {@link #value}
-     */
-    public void setValue(final Number _value)
-    {
-        this.value = _value;
-    }
 }

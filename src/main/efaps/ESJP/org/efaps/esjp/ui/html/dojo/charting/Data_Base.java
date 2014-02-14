@@ -26,17 +26,22 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 
 
 /**
- * This class must be replaced for customization, therefore it is left empty.
- * Functional description can be found in the related "<code>_base</code>"
- * class.
+ * TODO comment!
  *
  * @author The eFaps Team
  * @version $Id$
  */
-@EFapsUUID("6c1fbb33-6c50-4c59-8318-acb48a3bf025")
+@EFapsUUID("63e02ff1-f75f-444a-8932-25af17159306")
 @EFapsRevision("$Rev$")
-public class Pie
-    extends Pie_Base
+public abstract class Data_Base
+    extends AbstractData
 {
+    @Override
+    public CharSequence getJavaScript()
+    {
+        final StringBuilder ret = new StringBuilder()
+            .append(getValue());
+        return ret;
+    }
 
 }

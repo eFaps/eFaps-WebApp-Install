@@ -46,6 +46,7 @@ div.header
 
 .dashboard .cell {
     display: table-cell;
+    vertical-align: top;
 }
 
 .dashboard .item {
