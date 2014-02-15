@@ -35,7 +35,12 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @EFapsUUID("6339ad18-e0c8-4805-b0d9-b422c8e4163b")
 @EFapsRevision("$Rev$")
 public class PieData
-    extends PieData_Base
+    extends PieData_Base<PieData>
 {
+    @Override
+    protected PieData getThis()
+    {
+        return this;
+    }
 
 }

@@ -34,8 +34,8 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  */
 @EFapsUUID("48437957-49f9-40b0-9dc5-d5169f16a2d4")
 @EFapsRevision("$Rev$")
-public abstract class PieData_Base
-    extends AbstractData
+public abstract class PieData_Base<S extends AbstractData_Base<S>>
+    extends AbstractData<S>
 {
     private String text;
     private String legend;
@@ -74,9 +74,10 @@ public abstract class PieData_Base
      *
      * @param _text value for instance variable {@link #text}
      */
-    public void setText(final String _text)
+    public S setText(final String _text)
     {
         this.text = _text;
+        return getThis();
     }
 
     /**
@@ -94,9 +95,10 @@ public abstract class PieData_Base
      *
      * @param _legend value for instance variable {@link #legend}
      */
-    public void setLegend(final String _legend)
+    public S setLegend(final String _legend)
     {
         this.legend = _legend;
+        return getThis();
     }
 
     /**
@@ -114,8 +116,9 @@ public abstract class PieData_Base
      *
      * @param _tooltip value for instance variable {@link #tooltip}
      */
-    public void setTooltip(final String _tooltip)
+    public S setTooltip(final String _tooltip)
     {
         this.tooltip = _tooltip;
+        return getThis();
     }
 }

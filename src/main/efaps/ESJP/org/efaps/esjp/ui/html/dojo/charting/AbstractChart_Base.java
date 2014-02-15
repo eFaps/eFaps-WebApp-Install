@@ -40,7 +40,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  */
 @EFapsUUID("dfe47174-e442-4244-807b-5e11f56f0630")
 @EFapsRevision("$Rev$")
-public abstract class AbstractChart_Base<T extends AbstractData, S extends AbstractChart_Base<T,S>>
+public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends AbstractChart_Base<T,S>>
 {
     private final Map<String, String> modules = new LinkedHashMap<String, String>();
 

@@ -36,7 +36,11 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @EFapsUUID("52f10e61-a409-460e-9a0b-289cf8ca9882")
 @EFapsRevision("$Rev$")
 public class Data
-    extends Data_Base
+    extends Data_Base<Data>
 {
-
+    @Override
+    protected Data getThis()
+    {
+        return this;
+    }
 }

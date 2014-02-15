@@ -36,7 +36,13 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @EFapsUUID("43489961-ff20-437e-9de4-b9ed9fca5cab")
 @EFapsRevision("$Rev$")
 public class Legend
-    extends Legend_Base
+    extends Legend_Base<Legend>
 {
+
+    @Override
+    protected Legend getThis()
+    {
+        return this;
+    }
 
 }

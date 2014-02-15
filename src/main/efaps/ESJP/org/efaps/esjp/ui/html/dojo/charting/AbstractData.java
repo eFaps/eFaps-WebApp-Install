@@ -35,8 +35,8 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  */
 @EFapsUUID("4c844ba4-1ea1-4521-abe8-f2617390274f")
 @EFapsRevision("$Rev$")
-public abstract class AbstractData
-    extends AbstractData_Base
+public abstract class AbstractData<S extends AbstractData_Base<S>>
+    extends AbstractData_Base<S>
 {
 
 }

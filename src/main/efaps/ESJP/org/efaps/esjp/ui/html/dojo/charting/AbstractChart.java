@@ -35,7 +35,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  */
 @EFapsUUID("c1ecbcc0-3706-45ff-8242-b1e2227fcd3a")
 @EFapsRevision("$Rev$")
-public abstract class AbstractChart<T extends AbstractData, S extends AbstractChart_Base<T,S>>
+public abstract class AbstractChart<T extends AbstractData<T>, S extends AbstractChart_Base<T,S>>
     extends AbstractChart_Base<T, S>
 {
 

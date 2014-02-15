@@ -38,7 +38,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  */
 @EFapsUUID("e1c7f4c7-9e0b-4681-bdcf-8cee80caea4b")
 @EFapsRevision("$Rev$")
-public abstract class Serie_Base<T extends AbstractData, S extends Serie_Base<T,S>>
+public abstract class Serie_Base<T extends AbstractData<T>, S extends Serie_Base<T,S>>
 {
     private String name;
 

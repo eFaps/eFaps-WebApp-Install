@@ -37,7 +37,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  */
 @EFapsUUID("f155aac0-fa27-4cf8-bfd2-d02e4dd1c128")
 @EFapsRevision("$Rev$")
-public abstract class Legend_Base
+public abstract class Legend_Base<S extends Legend_Base<S>>
 {
     private boolean vertical = false;
 
@@ -47,8 +47,14 @@ public abstract class Legend_Base
 
     private String chartVarName = "chart";
 
+    /**
+     * "getThis" trick.
+     * @return this
+     */
+    protected abstract S getThis();
 
-    public void addLegendJS(final StringBuilder _js)
+
+    protected void addLegendJS(final StringBuilder _js)
     {
         _js.append("new Legend(").append(getConfigJS()).append(",\n\"").append(getNodeId()).append("\");\n");
     }
@@ -83,9 +89,10 @@ public abstract class Legend_Base
      *
      * @param _legendNodeId value for instance variable {@link #legendNodeId}
      */
-    public void setNodeId(final String _legendNodeId)
+    public S setNodeId(final String _legendNodeId)
     {
         this.nodeId = _legendNodeId;
+        return getThis();
     }
 
     /**
@@ -103,9 +110,10 @@ public abstract class Legend_Base
      *
      * @param _horizontal value for instance variable {@link #horizontal}
      */
-    public void setVertical(final boolean _vertical)
+    public S setVertical(final boolean _vertical)
     {
         this.vertical = _vertical;
+        return getThis();
     }
 
     /**
@@ -123,9 +131,10 @@ public abstract class Legend_Base
      *
      * @param _horizontalCount value for instance variable {@link #horizontalCount}
      */
-    public void setHorizontalCount(final int _horizontalCount)
+    public S setHorizontalCount(final int _horizontalCount)
     {
         this.horizontalCount = _horizontalCount;
+        return getThis();
     }
 
 
@@ -145,8 +154,9 @@ public abstract class Legend_Base
      *
      * @param _chartVarName value for instance variable {@link #chartVarName}
      */
-    public void setChartVarName(final String _chartVarName)
+    public S setChartVarName(final String _chartVarName)
     {
         this.chartVarName = _chartVarName;
+        return getThis();
     }
 }

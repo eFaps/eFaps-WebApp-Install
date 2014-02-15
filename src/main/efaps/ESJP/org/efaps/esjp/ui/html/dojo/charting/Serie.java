@@ -33,7 +33,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  */
 @EFapsUUID("bee552c7-443b-4d48-bca0-7c315fc97e52")
 @EFapsRevision("$Rev$")
-public class Serie<T extends AbstractData>
+public class Serie<T extends AbstractData<T>>
     extends Serie_Base<T, Serie<T>>
 {
     @Override

@@ -33,8 +33,8 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  */
 @EFapsUUID("63e02ff1-f75f-444a-8932-25af17159306")
 @EFapsRevision("$Rev$")
-public abstract class Data_Base
-    extends AbstractData
+public abstract class Data_Base<S extends AbstractData_Base<S>>
+    extends AbstractData<S>
 {
     @Override
     public CharSequence getJavaScript()

@@ -27,7 +27,7 @@ package org.efaps.esjp.ui.html.dojo.charting;
  * @version $Id: AbstractCartesianChart.java 12052 2014-02-15 01:30:21Z
  *          jan@moxter.net $
  */
-public abstract class AbstractCartesianChart<T extends AbstractData, S extends AbstractChart_Base<T, S>>
+public abstract class AbstractCartesianChart<T extends AbstractData<T>, S extends AbstractChart_Base<T, S>>
     extends AbstractCartesianChart_Base<T, S>
 {
 

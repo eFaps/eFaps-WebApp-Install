@@ -33,9 +33,15 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  */
 @EFapsUUID("89b73dfc-c56a-4b93-9970-c8364d5bd052")
 @EFapsRevision("$Rev$")
-public abstract class AbstractData_Base
+public abstract class AbstractData_Base<S extends AbstractData_Base<S>>
 {
     private Number value;
+
+    /**
+     * "getThis" trick.
+     * @return this
+     */
+    protected abstract S getThis();
 
     public abstract CharSequence getJavaScript();
 
@@ -54,8 +60,9 @@ public abstract class AbstractData_Base
      *
      * @param _value value for instance variable {@link #value}
      */
-    public void setValue(final Number _value)
+    public S setValue(final Number _value)
     {
         this.value = _value;
+        return getThis();
     }
 }
