@@ -37,6 +37,8 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
 
     private boolean vertical = false;
 
+    private final Map<String, Object> configMap = new LinkedHashMap<String, Object>();
+
     /**
      * e.g. to get month<br/>
      * [{value: 1, text: "Jan"}, {value: 2, text: "Feb"},
@@ -49,6 +51,7 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
      */
     private CharSequence labels;
 
+    private CharSequence title;
 
     private boolean leftBottom = true;
 
@@ -77,17 +80,20 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
      */
     public CharSequence getConfigJS()
     {
-        final Map<String, Object> paraMap = new LinkedHashMap<String, Object>();
+        final Map<String, Object> confMap = getConfigMap();
         if (isVertical()) {
-            paraMap.put("vertical", true);
+            confMap.put("vertical", true);
         }
         if (getLabels() != null) {
-            paraMap.put("labels", getLabels());
+            confMap.put("labels", getLabels());
         }
         if (!isLeftBottom()) {
-            paraMap.put("leftBottom", isLeftBottom());
+            confMap.put("leftBottom", isLeftBottom());
         }
-        return Util.mapToObjectList(paraMap);
+        if (getTitle() != null) {
+            confMap.put("title", "\"" + getTitle() + "\"");
+        }
+        return Util.mapToObjectList(confMap);
     }
 
     /**
@@ -174,6 +180,46 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
     public T setLeftBottom(final boolean _leftBottom)
     {
         this.leftBottom = _leftBottom;
+        return getThis();
+    }
+
+    public T addConfig(final String _key,
+                       final Object _value)
+    {
+        this.configMap.put(_key, _value);
+        return getThis();
+    }
+
+    /**
+     * Getter method for the instance variable {@link #configMap}.
+     *
+     * @return value of instance variable {@link #configMap}
+     */
+    public Map<String, Object> getConfigMap()
+    {
+        return this.configMap;
+    }
+
+
+
+    /**
+     * Getter method for the instance variable {@link #title}.
+     *
+     * @return value of instance variable {@link #title}
+     */
+    public CharSequence getTitle()
+    {
+        return this.title;
+    }
+
+    /**
+     * Setter method for instance variable {@link #title}.
+     *
+     * @param _title value for instance variable {@link #title}
+     */
+    public T setTitle(final CharSequence _title)
+    {
+        this.title = _title;
         return getThis();
     }
 }

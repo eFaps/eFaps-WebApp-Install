@@ -58,7 +58,7 @@ public class StatusPanel_Base
         final LineChart chart = new LineChart().setLineLayout(LineLayout.LINES);
         chart.setTitle("Este es un titulo mu bueno");
         chart.addPlot(new Plot().setName("other").addConfig("type", "Lines").setvAxis("oy"));
-        chart.addAxis(new Axis().setName("oy").setVertical(true).setLeftBottom(false));
+        chart.addAxis(new Axis().setName("oy").setVertical(true).setLeftBottom(false).setTitle("hallo hier USD"));
 
         final Serie<Data> serie = new Serie<Data>();
         serie.setName("Demo");
