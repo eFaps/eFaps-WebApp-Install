@@ -21,8 +21,8 @@
 
 package org.efaps.esjp.ui.html.dojo.charting;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
-import org.efaps.admin.program.esjp.EFapsUUID;
+import java.util.ArrayList;
+import java.util.List;
 
 
 /**
@@ -31,30 +31,46 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * @author The eFaps Team
  * @version $Id$
  */
-@EFapsUUID("65db322f-4229-4382-aae6-3dc47402caa2")
-@EFapsRevision("$Rev$")
-public abstract class PieChart_Base
-    extends AbstractChart<PieData>
+public abstract class AbstractCartesianChart_Base<T extends AbstractData>
+    extends AbstractChart<T>
 {
+    private final List<Axis> axis = new ArrayList<Axis>();
+
     @Override
     protected void initialize()
     {
         super.initialize();
-        addModule("dojox/charting/plot2d/Pie", "PiePlot");
-        addModule("dojox/charting/action2d/MoveSlice", "MoveSlice");
-        addPlotConfig("type", "PiePlot");
-        addPlotConfig("radius", 100);
-        addPlotConfig("fontColor", "\"black\"");
-        addPlotConfig("labelOffset", 0);
-        addPlotConfig("omitLabels", true);
-        addPlotConfig("labelStyle", "\"columns\"");
-        // default/columns/rows/auto
+        addModule("dojox/charting/axis2d/Default", "Default");
     }
 
     @Override
     protected void addBeforeRenderJS(final StringBuilder _js)
     {
         super.addBeforeRenderJS(_js);
-        _js.append("new MoveSlice(chart, \"default\");\n");
+        for (final Axis axisTmp : getAxis()) {
+            final CharSequence configjs = axisTmp.getConfigJS();
+            _js.append(" chart.addAxis(\"")
+                .append(axisTmp.getName()).append("\"")
+                .append(configjs.length() > 0 ? ("," + configjs) : "")
+                .append(");\n");
+        }
+    }
+
+    /**
+     * Getter method for the instance variable {@link #axis}.
+     *
+     * @return value of instance variable {@link #axis}
+     */
+    public List<Axis> getAxis()
+    {
+        return this.axis;
+    }
+
+    /**
+     * @param _serie
+     */
+    public void addAxis(final Axis _axis)
+    {
+        this.axis.add(_axis);
     }
 }

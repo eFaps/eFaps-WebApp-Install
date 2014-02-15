@@ -22,7 +22,9 @@
 package org.efaps.esjp.ui.html.dojo.charting;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
@@ -40,7 +42,12 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @EFapsRevision("$Rev$")
 public abstract class AbstractChart_Base<T extends AbstractData>
 {
+    private final Map<String, String> modules = new LinkedHashMap<String, String>();
+
+    private final Map<String, Object> plotConfig = new LinkedHashMap<String, Object>();
+
     private Orientation orientation = Orientation.VERTICAL_CHART_LEGEND;
+
     private Theme theme = Theme.JULIE;
 
     private Legend legend = new Legend();
@@ -57,48 +64,119 @@ public abstract class AbstractChart_Base<T extends AbstractData>
 
     private TitlePos titlePos = TitlePos.top;
 
+    private boolean initialized = false;
+
+    protected void initialize()
+    {
+        this.initialized = true;
+        addModule("dojox/charting/Chart", "Chart");
+        addModule(getTheme().getAmd(), "theme");
+        addModule("dojox/charting/widget/Legend", "Legend");
+        addModule("dojox/charting/action2d/Tooltip", "Tooltip");
+
+    }
+
     /**
      * @return
      */
     public CharSequence getHtmlSnipplet()
     {
+        if (!this.initialized) {
+            initialize();
+        }
         final StringBuilder ret = new StringBuilder()
-            .append(getCSS())
-            .append("\n<script type=\"text/javascript\">\n")
-            .append("require([\"dojox/charting/Chart\", \"")
-            .append(getTheme().getAmd()).append("\", ")
-            .append("\"dojox/charting/widget/Legend\", ")
-            .append("\"dojox/charting/action2d/Tooltip\"")
-            .append(getRequireJS())
-            .append(", \"dojo/domReady!\"], ")
-            .append("function(Chart, theme, Legend, Tooltip ").append(getParameterJS()).append(" ){ \n")
-            .append(" var chart = new Chart(\"").append(getChartNodeId()).append("\", {\n")
-            .append(getTitleJS())
-            .append(" });\n")
-            .append(" chart.setTheme(theme);\n")
-            .append(getAddPlotJS())
-            .append(getSeriesJS())
-            .append(getAdditionalJS())
-            .append(" new Tooltip(chart, \"default\");\n")
-            .append(" chart.render();\n")
-            .append(getLegend().getScriptPart("chart"))
-            .append("</script> \n")
-            .append(getHtmlNodes());
+            .append("\n<style type=\"text/css\"> ");
+
+        addCSS(ret);
+
+        ret.append("</style>\n")
+            .append("<script type=\"text/javascript\">\n");
+
+        addJavaScript(ret);
+
+        ret.append("</script> \n");
+
+        addHtmlNodes(ret);
         return ret;
     }
 
-    public CharSequence getCSS()
+
+    protected void addJavaScript(final StringBuilder _js)
     {
-        final StringBuilder ret = new StringBuilder()
-            .append("\n<style type=\"text/css\"> ")
-            .append(".dojoxLegendNode Label {")
-            .append("font-size: 8pt;")
-            .append("}")
-            .append("</style>\n");
-        return ret;
+        // to be sure that it is the last module, add now
+        addModule("dojo/domReady!", null);
+
+        _js.append("require(").append(Util.collectionToObjectArray(this.modules.keySet())).append(", ")
+            .append("function(");
+        boolean first = true;
+        for (final String para : this.modules.values()) {
+            if (first) {
+                first = false;
+                _js.append(para);
+            } else if (para != null) {
+                _js.append(",").append(para);
+            }
+        }
+        _js.append(")")
+            .append(" { \n");
+
+        addFunctionJS(_js);
+
+        _js.append(" });");
     }
 
-    public CharSequence getTitleJS()
+
+    protected void addFunctionJS(final StringBuilder _js)
+    {
+        _js.append(" var chart = new Chart(\"").append(getChartNodeId()).append("\", {\n");
+        addChartJS(_js);
+        _js.append(" });\n");
+        addBeforeRenderJS(_js);
+        addRenderJS(_js);
+        addAfterRenderJS(_js);
+    }
+
+    protected void addBeforeRenderJS(final StringBuilder _js)
+    {
+        _js.append(" chart.setTheme(theme);\n");
+        addPlotJS(_js);
+        addSeriesJS(_js);
+        _js.append(" new Tooltip(chart, \"default\");\n");
+    }
+
+    protected void addRenderJS(final StringBuilder _js)
+    {
+        _js.append(" chart.render();\n");
+    }
+
+    protected void addAfterRenderJS(final StringBuilder _js)
+    {
+        getLegend().addLegendJS(_js);
+    }
+
+    protected void addChartJS(final StringBuilder _js)
+    {
+        _js.append(getTitleJS());
+    }
+
+    protected void addPlotJS(final StringBuilder _js)
+    {
+        _js.append(" chart.addPlot(\"default\",\n").append(getPlotConfigJS()).append("\n);\n");
+    }
+
+    public void addCSS(final StringBuilder _js)
+    {
+            _js.append(".dojoxLegendNode Label {")
+            .append("font-size: 8pt;")
+            .append("}");
+    }
+
+    protected CharSequence getPlotConfigJS()
+    {
+        return Util.mapToObjectList(getPlotConfig());
+    }
+
+    protected CharSequence getTitleJS()
     {
         final StringBuilder ret = new StringBuilder();
         final String titleTmp = getTitle();
@@ -112,33 +190,20 @@ public abstract class AbstractChart_Base<T extends AbstractData>
         return ret;
     }
 
-
-    public CharSequence getAdditionalJS(){
-        return "";
-    }
-
-    public abstract CharSequence getParameterJS();
-
-    public abstract CharSequence getRequireJS();
-
-    public abstract CharSequence getAddPlotJS();
-
-    public CharSequence getSeriesJS()
+    protected void addSeriesJS(final StringBuilder _js)
     {
-        final StringBuilder ret = new StringBuilder();
         for (final Serie<T> serie : getSeries()) {
-            ret.append(" chart.addSeries(\"")
+            _js.append(" chart.addSeries(\"")
                 .append(serie.getName()).append("\", ").append(serie.getJavaScript()).append(");\n");
         }
-        return ret;
+
     }
 
-    public CharSequence getHtmlNodes()
+    protected void addHtmlNodes(final StringBuilder _js)
     {
-        final StringBuilder ret = new StringBuilder();
         switch (getOrientation()) {
             case HORIZONTAL_CHART_LEGEND:
-                ret.append(" <div style=\"display: table-row\">")
+                _js.append(" <div style=\"display: table-row\">")
                     .append(" <div style=\"display: table-cell\">")
                     .append(" <div id=\"").append(getChartNodeId()).append("\" style=\"width: ")
                         .append(getWidth()).append("px; height: ").append(getHeight()).append("px;\"></div>\n")
@@ -149,7 +214,7 @@ public abstract class AbstractChart_Base<T extends AbstractData>
                     .append(" </div>");
                 break;
             case HORIZONTAL_LEGEND_CHART:
-                ret.append(" <div style=\"display: table-row\">")
+                _js.append(" <div style=\"display: table-row\">")
                     .append(" <div style=\"display: table-cell\">")
                     .append(" <div id=\"").append(getLegend().getNodeId()).append("\"></div>\n")
                     .append(" </div>")
@@ -160,20 +225,19 @@ public abstract class AbstractChart_Base<T extends AbstractData>
                     .append(" </div>");
                 break;
             case VERTICAL_CHART_LEGEND:
-                ret.append(" <div id=\"").append(getChartNodeId()).append("\" style=\"width: ")
+                _js.append(" <div id=\"").append(getChartNodeId()).append("\" style=\"width: ")
                         .append(getWidth()).append("px; height: ").append(getHeight()).append("px;\"></div>\n")
                     .append(" <div id=\"").append(getLegend().getNodeId()).append("\"></div>\n");
 
                 break;
             case VERTICAL_LEGEND_CHART:
-                ret .append(" <div id=\"").append(getLegend().getNodeId()).append("\"></div>\n")
+                _js .append(" <div id=\"").append(getLegend().getNodeId()).append("\"></div>\n")
                     .append(" <div id=\"").append(getChartNodeId()).append("\" style=\"width: ")
                         .append(getWidth()).append("px; height: ").append(getHeight()).append("px;\"></div>\n");
                 break;
             default:
                 break;
         }
-        return ret;
     }
 
     /**
@@ -217,6 +281,7 @@ public abstract class AbstractChart_Base<T extends AbstractData>
     public void setHeight(final int _height)
     {
         this.height = _height;
+
     }
 
     /**
@@ -237,6 +302,7 @@ public abstract class AbstractChart_Base<T extends AbstractData>
     public void setWidth(final int _width)
     {
         this.width = _width;
+
     }
 
     /**
@@ -255,6 +321,7 @@ public abstract class AbstractChart_Base<T extends AbstractData>
     public void addSerie(final Serie<T> _serie)
     {
         this.series.add(_serie);
+
     }
 
     /**
@@ -275,6 +342,7 @@ public abstract class AbstractChart_Base<T extends AbstractData>
     public void setTheme(final Theme _theme)
     {
         this.theme = _theme;
+
     }
 
     /**
@@ -295,6 +363,7 @@ public abstract class AbstractChart_Base<T extends AbstractData>
     public void setLegend(final Legend _legend)
     {
         this.legend = _legend;
+
     }
 
     /**
@@ -319,6 +388,7 @@ public abstract class AbstractChart_Base<T extends AbstractData>
             getLegend().setVertical(true);
         }
         this.orientation = _orientation;
+
     }
 
 
@@ -341,8 +411,8 @@ public abstract class AbstractChart_Base<T extends AbstractData>
     public void setTitle(final String _title)
     {
         this.title = _title;
-    }
 
+    }
 
     /**
      * Getter method for the instance variable {@link #titlePos}.
@@ -363,5 +433,35 @@ public abstract class AbstractChart_Base<T extends AbstractData>
     public void setTitlePos(final TitlePos _titlePos)
     {
         this.titlePos = _titlePos;
+
     }
+
+    protected void addModule(final String _module,
+                                              final String _var)
+    {
+        this.modules.put("\"" + _module + "\"", _var);
+
+    }
+
+    /**
+     * @param _string
+     * @param _string2
+     */
+    protected void addPlotConfig(final String _key,
+                                                  final Object _object)
+    {
+        getPlotConfig().put(_key, _object);
+
+    }
+
+    /**
+     * Getter method for the instance variable {@link #plotConfig}.
+     *
+     * @return value of instance variable {@link #plotConfig}
+     */
+    protected Map<String, Object> getPlotConfig()
+    {
+        return this.plotConfig;
+    }
+
 }

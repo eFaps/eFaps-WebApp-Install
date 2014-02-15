@@ -29,13 +29,17 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * class.
  *
  * @author The eFaps Team
- * @version $Id: DocumentAbstract.java 5526 2010-09-10 14:17:54Z miguel.a.aranya
- *          $
+ * @version $Id$
  */
 @EFapsUUID("bee552c7-443b-4d48-bca0-7c315fc97e52")
 @EFapsRevision("$Rev$")
 public class Serie<T extends AbstractData>
-    extends Serie_Base<T>
+    extends Serie_Base<T, Serie<T>>
 {
+    @Override
+    protected Serie<T> getThis()
+    {
+        return this;
+    }
 
 }

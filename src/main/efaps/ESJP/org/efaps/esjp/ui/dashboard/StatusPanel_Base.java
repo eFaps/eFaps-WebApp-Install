@@ -20,8 +20,14 @@
 
 package org.efaps.esjp.ui.dashboard;
 
+import java.util.Random;
+
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.esjp.ui.html.dojo.charting.ColumnsChart;
+import org.efaps.esjp.ui.html.dojo.charting.Data;
+import org.efaps.esjp.ui.html.dojo.charting.Orientation;
+import org.efaps.esjp.ui.html.dojo.charting.Serie;
 import org.efaps.ui.wicket.models.IEsjpSnipplet;
 import org.efaps.util.EFapsException;
 
@@ -37,6 +43,7 @@ public class StatusPanel_Base
     implements IEsjpSnipplet
 {
 
+    private static final Random RANDOM = new Random();
     /**
      *
      */
@@ -45,7 +52,21 @@ public class StatusPanel_Base
     public CharSequence getHtmlSnipplet()
         throws EFapsException
     {
-        return "Hello Welt";
+        final ColumnsChart chart = new ColumnsChart();
+        chart.setTitle("Este es un titulo mu bueno");
+        final Serie<Data> serie = new Serie<Data>();
+        serie.setName("Demo");
+        chart.addSerie(serie);
+
+        for (int i = 0; i < 20; i++) {
+            final Data data = new Data();
+            serie.addData(data);
+            data.setValue(StatusPanel_Base.RANDOM.nextInt(25));
+
+        }
+        chart.setOrientation(Orientation.HORIZONTAL_LEGEND_CHART);
+
+        return chart.getHtmlSnipplet();
     }
 
     @Override

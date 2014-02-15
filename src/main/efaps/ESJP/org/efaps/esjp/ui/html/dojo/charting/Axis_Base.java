@@ -21,12 +21,8 @@
 
 package org.efaps.esjp.ui.html.dojo.charting;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import org.apache.commons.lang3.RandomStringUtils;
-import org.efaps.admin.program.esjp.EFapsRevision;
-import org.efaps.admin.program.esjp.EFapsUUID;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 
 /**
@@ -34,41 +30,29 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  *
  * @author The eFaps Team
  * @version $Id$
- * @param <T> Data
  */
-@EFapsUUID("e1c7f4c7-9e0b-4681-bdcf-8cee80caea4b")
-@EFapsRevision("$Rev$")
-public abstract class Serie_Base<T extends AbstractData, S extends Serie_Base<T,S>>
+public abstract class Axis_Base<T extends Axis_Base<T>>
 {
     private String name;
 
-
-    private final List<T> data = new ArrayList<T>();
+    private boolean vertical = false;
 
     /**
      * "getThis" trick.
      * @return this
      */
-    protected abstract S getThis();
+    protected abstract T getThis();
 
     /**
      * @return
      */
-    public CharSequence getJavaScript()
+    public CharSequence getConfigJS()
     {
-        final StringBuilder ret = new StringBuilder()
-            .append("[\n");
-        boolean first = true;
-        for (final T dat  : this.data) {
-            if (first) {
-                first = false;
-            } else {
-                ret.append(",\n");
-            }
-            ret.append(dat.getJavaScript());
+        final Map<String, Object> paraMap = new LinkedHashMap<String, Object>();
+        if (this.vertical) {
+            paraMap.put("vertical", true);
         }
-        ret.append("\n]");
-        return ret;
+        return Util.mapToObjectList(paraMap);
     }
 
     /**
@@ -78,9 +62,6 @@ public abstract class Serie_Base<T extends AbstractData, S extends Serie_Base<T,
      */
     public String getName()
     {
-        if (this.name == null) {
-            this.name = RandomStringUtils.randomAlphabetic(8);
-        }
         return this.name;
     }
 
@@ -89,30 +70,30 @@ public abstract class Serie_Base<T extends AbstractData, S extends Serie_Base<T,
      *
      * @param _name value for instance variable {@link #name}
      */
-    public S setName(final String _name)
+    public T setName(final String _name)
     {
         this.name = _name;
         return getThis();
     }
 
     /**
-     * Getter method for the instance variable {@link #data}.
+     * Getter method for the instance variable {@link #vertical}.
      *
-     * @return value of instance variable {@link #data}
+     * @return value of instance variable {@link #vertical}
      */
-    public List<T> getData()
+    public boolean isVertical()
     {
-        return this.data;
+        return this.vertical;
     }
 
     /**
-     * Getter method for the instance variable {@link #data}.
+     * Setter method for instance variable {@link #vertical}.
      *
-     * @return value of instance variable {@link #data}
+     * @param _vertical value for instance variable {@link #vertical}
      */
-    public S addData(final T _data)
+    public T setVertical(final boolean _vertical)
     {
-        this.data.add(_data);
+        this.vertical = _vertical;
         return getThis();
     }
 }

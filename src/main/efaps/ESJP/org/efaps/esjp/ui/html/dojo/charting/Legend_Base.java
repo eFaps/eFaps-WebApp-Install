@@ -21,6 +21,9 @@
 
 package org.efaps.esjp.ui.html.dojo.charting;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.RandomStringUtils;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
@@ -42,21 +45,24 @@ public abstract class Legend_Base
 
     private  int horizontalCount = 5;
 
-    public CharSequence getScriptPart(final String _chart)
+    private String chartVarName = "chart";
+
+
+    public void addLegendJS(final StringBuilder _js)
     {
-        final StringBuilder ret = new StringBuilder();
-        ret.append("new Legend({\n")
-            .append(" chart: ").append(_chart);
+        _js.append("new Legend(").append(getConfigJS()).append(",\n\"").append(getNodeId()).append("\");\n");
+    }
 
+    public CharSequence getConfigJS()
+    {
+        final Map<String, Object> paraMap = new LinkedHashMap<String, Object>();
+        paraMap.put("chart", getChartVarName());
         if (isVertical()) {
-            ret.append(",\n horizontal: false");
+            paraMap.put("horizontal", false);
         } else if (getHorizontalCount() > 0) {
-            ret.append(",\n horizontal: ").append(getHorizontalCount());
+            paraMap.put("horizontal", getHorizontalCount());
         }
-
-        ret.append(" },\n\"").append(getNodeId()).append("\");\n")
-            .append(" });");
-        return ret;
+        return Util.mapToObjectList(paraMap);
     }
 
     /**
@@ -120,5 +126,27 @@ public abstract class Legend_Base
     public void setHorizontalCount(final int _horizontalCount)
     {
         this.horizontalCount = _horizontalCount;
+    }
+
+
+    /**
+     * Getter method for the instance variable {@link #chartVarName}.
+     *
+     * @return value of instance variable {@link #chartVarName}
+     */
+    public String getChartVarName()
+    {
+        return this.chartVarName;
+    }
+
+
+    /**
+     * Setter method for instance variable {@link #chartVarName}.
+     *
+     * @param _chartVarName value for instance variable {@link #chartVarName}
+     */
+    public void setChartVarName(final String _chartVarName)
+    {
+        this.chartVarName = _chartVarName;
     }
 }

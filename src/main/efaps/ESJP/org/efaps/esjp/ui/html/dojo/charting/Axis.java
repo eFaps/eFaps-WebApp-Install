@@ -21,21 +21,19 @@
 
 package org.efaps.esjp.ui.html.dojo.charting;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
-import org.efaps.admin.program.esjp.EFapsUUID;
-
 
 /**
- * This class must be replaced for customization, therefore it is left empty.
- * Functional description can be found in the related "<code>_base</code>"
- * class.
+ * TODO comment!
  *
  * @author The eFaps Team
  * @version $Id$
  */
-@EFapsUUID("cda0c98b-7694-4b30-b0ba-1d9cbf7df2d7")
-@EFapsRevision("$Rev$")
-public class ColumnsChart
-    extends ColumnsChart_Base
+public class Axis
+    extends Axis_Base<Axis>
 {
+    @Override
+    protected Axis getThis()
+    {
+        return this;
+    }
 }

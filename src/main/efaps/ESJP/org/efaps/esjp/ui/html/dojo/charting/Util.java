@@ -18,24 +18,27 @@
  * Last Changed By: $Author$
  */
 
-
 package org.efaps.esjp.ui.html.dojo.charting;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
-import org.efaps.admin.program.esjp.EFapsUUID;
-
+import java.util.Collection;
+import java.util.Map;
 
 /**
- * This class must be replaced for customization, therefore it is left empty.
- * Functional description can be found in the related "<code>_base</code>"
- * class.
+ * TODO comment!
  *
  * @author The eFaps Team
  * @version $Id$
  */
-@EFapsUUID("cda0c98b-7694-4b30-b0ba-1d9cbf7df2d7")
-@EFapsRevision("$Rev$")
-public class ColumnsChart
-    extends ColumnsChart_Base
+public class Util
+    extends Util_Base
 {
+
+    public static CharSequence mapToObjectList(final Map<String, Object> _map)
+    {
+        return Util_Base.mapToObjectList(_map);
+    }
+    public static CharSequence collectionToObjectArray(final Collection<? extends String> _list)
+    {
+        return Util_Base.collectionToObjectArray(_list);
+    }
 }
