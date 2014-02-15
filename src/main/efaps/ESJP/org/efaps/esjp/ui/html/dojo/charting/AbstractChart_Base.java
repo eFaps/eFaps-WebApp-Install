@@ -40,7 +40,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  */
 @EFapsUUID("dfe47174-e442-4244-807b-5e11f56f0630")
 @EFapsRevision("$Rev$")
-public abstract class AbstractChart_Base<T extends AbstractData>
+public abstract class AbstractChart_Base<T extends AbstractData, S extends AbstractChart_Base<T,S>>
 {
     private final Map<String, String> modules = new LinkedHashMap<String, String>();
 
@@ -65,6 +65,14 @@ public abstract class AbstractChart_Base<T extends AbstractData>
     private TitlePos titlePos = TitlePos.top;
 
     private boolean initialized = false;
+
+
+    /**
+     * "getThis" trick.
+     * @return this
+     */
+    protected abstract S getThis();
+
 
     protected void initialize()
     {
@@ -258,9 +266,10 @@ public abstract class AbstractChart_Base<T extends AbstractData>
      *
      * @param _charNodeId value for instance variable {@link #charNodeId}
      */
-    public void setChartNodeId(final String _chartNodeId)
+    public S setChartNodeId(final String _chartNodeId)
     {
         this.chartNodeId = _chartNodeId;
+        return getThis();
     }
 
     /**
@@ -278,10 +287,10 @@ public abstract class AbstractChart_Base<T extends AbstractData>
      *
      * @param _height value for instance variable {@link #height}
      */
-    public void setHeight(final int _height)
+    public S setHeight(final int _height)
     {
         this.height = _height;
-
+        return getThis();
     }
 
     /**
@@ -299,10 +308,10 @@ public abstract class AbstractChart_Base<T extends AbstractData>
      *
      * @param _width value for instance variable {@link #width}
      */
-    public void setWidth(final int _width)
+    public S setWidth(final int _width)
     {
         this.width = _width;
-
+        return getThis();
     }
 
     /**
@@ -318,10 +327,10 @@ public abstract class AbstractChart_Base<T extends AbstractData>
     /**
      * @param _serie
      */
-    public void addSerie(final Serie<T> _serie)
+    public S addSerie(final Serie<T> _serie)
     {
         this.series.add(_serie);
-
+        return getThis();
     }
 
     /**
@@ -339,10 +348,10 @@ public abstract class AbstractChart_Base<T extends AbstractData>
      *
      * @param _theme value for instance variable {@link #theme}
      */
-    public void setTheme(final Theme _theme)
+    public S setTheme(final Theme _theme)
     {
         this.theme = _theme;
-
+        return getThis();
     }
 
     /**
@@ -360,10 +369,10 @@ public abstract class AbstractChart_Base<T extends AbstractData>
      *
      * @param _legend value for instance variable {@link #legend}
      */
-    public void setLegend(final Legend _legend)
+    public S setLegend(final Legend _legend)
     {
         this.legend = _legend;
-
+        return getThis();
     }
 
     /**
@@ -381,14 +390,14 @@ public abstract class AbstractChart_Base<T extends AbstractData>
      *
      * @param _orientation value for instance variable {@link #orientation}
      */
-    public void setOrientation(final Orientation _orientation)
+    public S setOrientation(final Orientation _orientation)
     {
         if (_orientation.equals(Orientation.HORIZONTAL_CHART_LEGEND)
                         || _orientation.equals(Orientation.HORIZONTAL_LEGEND_CHART)) {
             getLegend().setVertical(true);
         }
         this.orientation = _orientation;
-
+        return getThis();
     }
 
 
@@ -408,10 +417,10 @@ public abstract class AbstractChart_Base<T extends AbstractData>
      *
      * @param _title value for instance variable {@link #title}
      */
-    public void setTitle(final String _title)
+    public S setTitle(final String _title)
     {
         this.title = _title;
-
+        return getThis();
     }
 
     /**
@@ -430,10 +439,10 @@ public abstract class AbstractChart_Base<T extends AbstractData>
      *
      * @param _titlePos value for instance variable {@link #titlePos}
      */
-    public void setTitlePos(final TitlePos _titlePos)
+    public S setTitlePos(final TitlePos _titlePos)
     {
         this.titlePos = _titlePos;
-
+        return getThis();
     }
 
     protected void addModule(final String _module,

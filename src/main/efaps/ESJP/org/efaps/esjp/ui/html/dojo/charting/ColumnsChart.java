@@ -36,6 +36,11 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @EFapsUUID("cda0c98b-7694-4b30-b0ba-1d9cbf7df2d7")
 @EFapsRevision("$Rev$")
 public class ColumnsChart
-    extends ColumnsChart_Base
+    extends ColumnsChart_Base<ColumnsChart>
 {
+    @Override
+    protected ColumnsChart getThis()
+    {
+        return this;
+    }
 }

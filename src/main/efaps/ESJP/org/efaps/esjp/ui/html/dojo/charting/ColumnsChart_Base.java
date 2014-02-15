@@ -33,8 +33,8 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  */
 @EFapsUUID("3613d031-fb22-4aad-80c6-b71755065f33")
 @EFapsRevision("$Rev$")
-public abstract class ColumnsChart_Base
-    extends AbstractCartesianChart<Data>
+public abstract class ColumnsChart_Base<S extends AbstractChart_Base<Data, S>>
+    extends AbstractCartesianChart<Data, S>
 {
 
     @Override

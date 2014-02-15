@@ -31,8 +31,8 @@ import java.util.List;
  * @author The eFaps Team
  * @version $Id$
  */
-public abstract class AbstractCartesianChart_Base<T extends AbstractData>
-    extends AbstractChart<T>
+public abstract class AbstractCartesianChart_Base<T extends AbstractData, S extends AbstractChart_Base<T,S>>
+    extends AbstractChart<T, S>
 {
     private final List<Axis> axis = new ArrayList<Axis>();
 

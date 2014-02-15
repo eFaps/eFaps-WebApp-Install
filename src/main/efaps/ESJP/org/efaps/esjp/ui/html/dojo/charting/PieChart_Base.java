@@ -33,8 +33,8 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  */
 @EFapsUUID("65db322f-4229-4382-aae6-3dc47402caa2")
 @EFapsRevision("$Rev$")
-public abstract class PieChart_Base
-    extends AbstractChart<PieData>
+public abstract class PieChart_Base<S extends AbstractChart_Base<PieData, S>>
+    extends AbstractChart<PieData, S>
 {
     @Override
     protected void initialize()

@@ -36,7 +36,13 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @EFapsUUID("6c1fbb33-6c50-4c59-8318-acb48a3bf025")
 @EFapsRevision("$Rev$")
 public class PieChart
-    extends PieChart_Base
+    extends PieChart_Base<PieChart>
 {
+
+    @Override
+    protected PieChart getThis()
+    {
+        return this;
+    }
 
 }

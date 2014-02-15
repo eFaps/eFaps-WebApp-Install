@@ -18,18 +18,17 @@
  * Last Changed By: $Author$
  */
 
-
 package org.efaps.esjp.ui.html.dojo.charting;
-
 
 /**
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
+ * @version $Id: AbstractCartesianChart.java 12052 2014-02-15 01:30:21Z
+ *          jan@moxter.net $
  */
-public abstract class AbstractCartesianChart<T extends AbstractData>
-    extends AbstractCartesianChart_Base<T>
+public abstract class AbstractCartesianChart<T extends AbstractData, S extends AbstractChart_Base<T, S>>
+    extends AbstractCartesianChart_Base<T, S>
 {
 
 }
