@@ -33,17 +33,49 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  */
 @EFapsUUID("3613d031-fb22-4aad-80c6-b71755065f33")
 @EFapsRevision("$Rev$")
-public abstract class ColumnsChart_Base<S extends AbstractChart_Base<Data, S>>
-    extends AbstractCartesianChart<Data, S>
+public abstract class ColumnsChart_Base<S extends AbstractBarColChart<Data, S>>
+    extends AbstractBarColChart<Data, S>
 {
+    private PlotLayout plotLayout = PlotLayout.STANDART;
 
     @Override
     protected void initialize()
     {
         super.initialize();
-        addModule("dojox/charting/plot2d/Columns", "Columns");
+        switch (getPlotLayout()) {
+            case STACKED:
+                addModule("dojox/charting/plot2d/StackedColumns", "Columns");
+                break;
+            case CLUSTERED:
+                addModule("dojox/charting/plot2d/ClusteredColumns", "Columns");
+                break;
+            default:
+                addModule("dojox/charting/plot2d/Columns", "Columns");
+                break;
+        }
         addAxis(new Axis().setName("x"));
         addAxis(new Axis().setName("y").setVertical(true));
         addPlotConfig("type", "Columns");
+    }
+
+    /**
+     * Getter method for the instance variable {@link #plotLayout}.
+     *
+     * @return value of instance variable {@link #plotLayout}
+     */
+    public PlotLayout getPlotLayout()
+    {
+        return this.plotLayout;
+    }
+
+    /**
+     * Setter method for instance variable {@link #plotLayout}.
+     *
+     * @param _plotLayout value for instance variable {@link #plotLayout}
+     */
+    public S setPlotLayout(final PlotLayout _plotLayout)
+    {
+        this.plotLayout = _plotLayout;
+        return getThis();
     }
 }

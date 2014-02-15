@@ -47,6 +47,8 @@ public abstract class Legend_Base<S extends Legend_Base<S>>
 
     private String chartVarName = "chart";
 
+    private boolean selectable = false;
+
     /**
      * "getThis" trick.
      * @return this
@@ -158,5 +160,25 @@ public abstract class Legend_Base<S extends Legend_Base<S>>
     {
         this.chartVarName = _chartVarName;
         return getThis();
+    }
+
+    /**
+     * Getter method for the instance variable {@link #selectable}.
+     *
+     * @return value of instance variable {@link #selectable}
+     */
+    public boolean isSelectable()
+    {
+        return this.selectable;
+    }
+
+    /**
+     * Setter method for instance variable {@link #selectable}.
+     *
+     * @param _selectable value for instance variable {@link #selectable}
+     */
+    public void setSelectable(final boolean _selectable)
+    {
+        this.selectable = _selectable;
     }
 }

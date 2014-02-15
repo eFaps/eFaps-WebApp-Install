@@ -79,9 +79,15 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
         this.initialized = true;
         addModule("dojox/charting/Chart", "Chart");
         addModule(getTheme().getAmd(), "theme");
-        addModule("dojox/charting/widget/Legend", "Legend");
-        addModule("dojox/charting/action2d/Tooltip", "Tooltip");
 
+        if (getLegend() != null) {
+            if (getLegend().isSelectable()) {
+                addModule("dojox/charting/widget/SelectableLegend", "Legend");
+            } else {
+                addModule("dojox/charting/widget/Legend", "Legend");
+            }
+        }
+        addModule("dojox/charting/action2d/Tooltip", "Tooltip");
     }
 
     /**
