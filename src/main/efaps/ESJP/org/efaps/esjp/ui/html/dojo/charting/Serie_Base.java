@@ -50,6 +50,8 @@ public abstract class Serie_Base<T extends AbstractData<T>, S extends Serie_Base
 
     private final List<T> data = new ArrayList<T>();
 
+    private MouseIndicator mouseIndicator;
+
     /**
      * "getThis" trick.
      * @return this
@@ -71,6 +73,10 @@ public abstract class Serie_Base<T extends AbstractData<T>, S extends Serie_Base
             _js.append(",").append(config);
         }
         _js.append(");\n");
+
+        if (getMouseIndicator() != null) {
+            getMouseIndicator().addMouseIndicatorJS(_js, _chartVarName, getName());
+        }
     }
 
     /**
@@ -166,7 +172,6 @@ public abstract class Serie_Base<T extends AbstractData<T>, S extends Serie_Base
         return getThis();
     }
 
-
     /**
      * Getter method for the instance variable {@link #configMap}.
      *
@@ -175,5 +180,25 @@ public abstract class Serie_Base<T extends AbstractData<T>, S extends Serie_Base
     public Map<String, Object> getConfigMap()
     {
         return this.configMap;
+    }
+
+    /**
+     * Getter method for the instance variable {@link #mouseIndicator}.
+     *
+     * @return value of instance variable {@link #mouseIndicator}
+     */
+    public MouseIndicator getMouseIndicator()
+    {
+        return this.mouseIndicator;
+    }
+
+    /**
+     * Setter method for instance variable {@link #mouseIndicator}.
+     *
+     * @param _mouseIndicator value for instance variable {@link #mouseIndicator}
+     */
+    public void setMouseIndicator(final MouseIndicator _mouseIndicator)
+    {
+        this.mouseIndicator = _mouseIndicator;
     }
 }

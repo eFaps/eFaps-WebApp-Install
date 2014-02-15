@@ -41,6 +41,8 @@ public abstract class Legend_Base<S extends Legend_Base<S>>
 {
     private boolean vertical = false;
 
+    private final Map<String, Object> configMap = new LinkedHashMap<String, Object>();
+
     private String nodeId;
 
     private  int horizontalCount = 5;
@@ -63,14 +65,13 @@ public abstract class Legend_Base<S extends Legend_Base<S>>
 
     public CharSequence getConfigJS()
     {
-        final Map<String, Object> paraMap = new LinkedHashMap<String, Object>();
-        paraMap.put("chart", getChartVarName());
+        this.configMap.put("chart", getChartVarName());
         if (isVertical()) {
-            paraMap.put("horizontal", false);
+            this.configMap.put("horizontal", false);
         } else if (getHorizontalCount() > 0) {
-            paraMap.put("horizontal", getHorizontalCount());
+            this.configMap.put("horizontal", getHorizontalCount());
         }
-        return Util.mapToObjectList(paraMap);
+        return Util.mapToObjectList(this.configMap);
     }
 
     /**
@@ -177,8 +178,16 @@ public abstract class Legend_Base<S extends Legend_Base<S>>
      *
      * @param _selectable value for instance variable {@link #selectable}
      */
-    public void setSelectable(final boolean _selectable)
+    public S setSelectable(final boolean _selectable)
     {
         this.selectable = _selectable;
+        return getThis();
+    }
+
+    public S addConfig(final String _key,
+                       final Object _value)
+    {
+        this.configMap.put(_key, _value);
+        return getThis();
     }
 }

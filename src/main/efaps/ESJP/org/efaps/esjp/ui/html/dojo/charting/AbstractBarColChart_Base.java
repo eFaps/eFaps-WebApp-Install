@@ -51,7 +51,6 @@ public abstract class AbstractBarColChart_Base <T extends AbstractData<T>, S ext
     protected void initialize()
     {
         super.initialize();
-        addModule("dojox/charting/axis2d/Default", "Default");
 
         final Plot plot = new Plot();
         configurePlot(plot);

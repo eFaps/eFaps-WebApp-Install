@@ -18,10 +18,12 @@
  * Last Changed By: $Author$
  */
 
+
 package org.efaps.esjp.ui.html.dojo.charting;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+
 
 /**
  * TODO comment!
@@ -29,38 +31,35 @@ import java.util.Map;
  * @author The eFaps Team
  * @version $Id$
  */
-public abstract class Plot_Base<S extends Plot_Base<S>>
+public abstract class MouseIndicator_Base<T extends MouseIndicator_Base<T>>
 {
-
     private String name = "default";
 
     private final Map<String, Object> configMap = new LinkedHashMap<String, Object>();
 
-    private String hAxis;
 
-    private String vAxis;
+    private boolean mouseOver = true;
 
     /**
      * "getThis" trick.
-     *
      * @return this
      */
-    protected abstract S getThis();
+    protected abstract T getThis();
 
-    protected void addJS(final StringBuilder _js,
-                         final String _chartVarName)
+    protected void addMouseIndicatorJS(final StringBuilder _js,
+                                       final String _chartVarName,
+                                       final String _seriesName)
     {
-        _js.append(_chartVarName).append(".addPlot(\"").append(getName()).append("\", ")
-                        .append(getConfigJS()).append(");\n");
+       this.configMap.put("series", "\"" + _seriesName + "\"");
+        _js.append(" new MouseIndicator(").append(_chartVarName)
+            .append(",\"").append(getName()).append("\",")
+            .append(getConfigJS()).append(");\n");
     }
 
     public CharSequence getConfigJS()
     {
-        if (getvAxis() != null && !this.configMap.containsKey("vAxis")) {
-            this.configMap.put("vAxis", "\"" + getvAxis() + "\"");
-        }
-        if (gethAxis() != null && !this.configMap.containsKey("hAxis")) {
-            this.configMap.put("hAxis", "\"" + getvAxis() + "\"");
+        if (isMouseOver()) {
+            this.configMap.put("mouseOver", isMouseOver());
         }
         return Util.mapToObjectList(this.configMap);
     }
@@ -80,62 +79,37 @@ public abstract class Plot_Base<S extends Plot_Base<S>>
      *
      * @param _name value for instance variable {@link #name}
      */
-    public S setName(final String _name)
+    public T setName(final String _name)
     {
         this.name = _name;
         return getThis();
     }
 
-    public S addConfig(final String _key,
+    public T addConfig(final String _key,
                        final Object _value)
     {
         this.configMap.put(_key, _value);
         return getThis();
     }
 
-
     /**
-     * Getter method for the instance variable {@link #hAxis}.
+     * Getter method for the instance variable {@link #mouseOver}.
      *
-     * @return value of instance variable {@link #hAxis}
+     * @return value of instance variable {@link #mouseOver}
      */
-    public String gethAxis()
+    public boolean isMouseOver()
     {
-        return this.hAxis;
+        return this.mouseOver;
     }
 
-
     /**
-     * Setter method for instance variable {@link #hAxis}.
+     * Setter method for instance variable {@link #mouseOver}.
      *
-     * @param _hAxis value for instance variable {@link #hAxis}
+     * @param _mouseOver value for instance variable {@link #mouseOver}
      */
-    public S sethAxis(final String _hAxis)
+    public T setMouseOver(final boolean _mouseOver)
     {
-        this.hAxis = _hAxis;
-        return getThis();
-    }
-
-
-    /**
-     * Getter method for the instance variable {@link #vAxis}.
-     *
-     * @return value of instance variable {@link #vAxis}
-     */
-    public String getvAxis()
-    {
-        return this.vAxis;
-    }
-
-
-    /**
-     * Setter method for instance variable {@link #vAxis}.
-     *
-     * @param _vAxis value for instance variable {@link #vAxis}
-     */
-    public S setvAxis(final String _vAxis)
-    {
-        this.vAxis = _vAxis;
+        this.mouseOver = _mouseOver;
         return getThis();
     }
 }

@@ -36,11 +36,19 @@ public abstract class AbstractCartesianChart_Base<T extends AbstractData<T>, S e
 {
     private final List<Axis> axis = new ArrayList<Axis>();
 
+
+
     @Override
     protected void initialize()
     {
         super.initialize();
         addModule("dojox/charting/axis2d/Default", "Default");
+        for (final Serie<?> serie :  getSeries()) {
+            if (serie.getMouseIndicator() != null) {
+                addModule("dojox/charting/action2d/MouseIndicator", "MouseIndicator");
+                break;
+            }
+        }
     }
 
     @Override
@@ -49,7 +57,7 @@ public abstract class AbstractCartesianChart_Base<T extends AbstractData<T>, S e
     {
         super.addBeforeRenderJS(_js, _chartVarName);
         for (final Axis axisTmp : getAxis()) {
-            axisTmp.addJS(_js, "chart");
+            axisTmp.addJS(_js, _chartVarName);
         }
     }
 

@@ -28,6 +28,7 @@ import org.efaps.esjp.ui.html.dojo.charting.Axis;
 import org.efaps.esjp.ui.html.dojo.charting.Data;
 import org.efaps.esjp.ui.html.dojo.charting.LineChart;
 import org.efaps.esjp.ui.html.dojo.charting.LineLayout;
+import org.efaps.esjp.ui.html.dojo.charting.MouseIndicator;
 import org.efaps.esjp.ui.html.dojo.charting.Orientation;
 import org.efaps.esjp.ui.html.dojo.charting.Plot;
 import org.efaps.esjp.ui.html.dojo.charting.Serie;
@@ -61,7 +62,7 @@ public class StatusPanel_Base
         chart.addAxis(new Axis().setName("oy").setVertical(true).setLeftBottom(false).setTitle("hallo hier USD"));
 
         final Serie<Data> serie = new Serie<Data>();
-        serie.setName("Demo");
+        serie.setName("Demo").setMouseIndicator(new MouseIndicator());;
         chart.addSerie(serie);
 
         for (int i = 0; i < 12; i++) {
