@@ -61,13 +61,13 @@ public abstract class Util_Base
      * @param _list Collection to be converted
      * @return StringBuilder conting the string elements
      */
-    public static CharSequence collectionToObjectArray(final Collection<? extends String> _list)
+    public static CharSequence collectionToObjectArray(final Collection<CharSequence> _list)
     {
         final StringBuilder ret = new StringBuilder();
         if (!_list.isEmpty()) {
             boolean first = true;
             ret.append("[");
-            for (final String entry :_list) {
+            for (final CharSequence entry :_list) {
                 if (first) {
                     first = false;
                 } else {

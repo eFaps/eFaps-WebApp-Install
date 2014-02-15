@@ -38,6 +38,18 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
     private boolean vertical = false;
 
     /**
+     * e.g. to get month<br/>
+     * [{value: 1, text: "Jan"}, {value: 2, text: "Feb"},
+     *  {value: 3, text: "Mar"}, {value: 4, text: "Apr"},
+     *  {value: 5, text: "May"}, {value: 6, text: "Jun"},
+     *  {value: 7, text: "Jul"}, {value: 8, text: "Aug"},
+     *  {value: 9, text: "Sep"}, {value: 10, text: "Oct"},
+     *  {value: 11, text: "Nov"}, {value: 12, text: "Dec"}]
+     *
+     */
+    private CharSequence labels;
+
+    /**
      * "getThis" trick.
      * @return this
      */
@@ -49,8 +61,11 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
     public CharSequence getConfigJS()
     {
         final Map<String, Object> paraMap = new LinkedHashMap<String, Object>();
-        if (this.vertical) {
+        if (isVertical()) {
             paraMap.put("vertical", true);
+        }
+        if (getLabels() != null) {
+            paraMap.put("labels", getLabels());
         }
         return Util.mapToObjectList(paraMap);
     }
@@ -95,5 +110,26 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
     {
         this.vertical = _vertical;
         return getThis();
+    }
+
+
+    /**
+     * Getter method for the instance variable {@link #labels}.
+     *
+     * @return value of instance variable {@link #labels}
+     */
+    public CharSequence getLabels()
+    {
+        return this.labels;
+    }
+
+    /**
+     * Setter method for instance variable {@link #labels}.
+     *
+     * @param _labels value for instance variable {@link #labels}
+     */
+    public void setLabels(final CharSequence _labels)
+    {
+        this.labels = _labels;
     }
 }

@@ -21,6 +21,9 @@
 
 package org.efaps.esjp.ui.html.dojo.charting;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
@@ -44,19 +47,19 @@ public abstract class PieData_Base<S extends AbstractData_Base<S>>
     @Override
     public CharSequence getJavaScript()
     {
-        final StringBuilder ret = new StringBuilder()
-            .append("{ x:1,y:").append(getValue());
+        final Map<String, Object> paraMap = new LinkedHashMap<String, Object>();
+        paraMap.put("x", 1);
+        paraMap.put("y", getValue());
         if (getText() != null) {
-            ret.append(", text:\"").append(StringEscapeUtils.escapeEcmaScript(getText())).append("\"");
+            paraMap.put("text", "\"" + StringEscapeUtils.escapeEcmaScript(getText()) + "\"");
         }
         if (getLegend() != null) {
-            ret.append(", legend:\"").append(StringEscapeUtils.escapeEcmaScript(getLegend())).append("\"");
+            paraMap.put("legend", "\"" + StringEscapeUtils.escapeEcmaScript(getLegend()) + "\"");
         }
         if (getTooltip() != null) {
-            ret.append(", tooltip:\"").append(StringEscapeUtils.escapeEcmaScript(getTooltip())).append("\"");
+            paraMap.put("tooltip", "\"" + StringEscapeUtils.escapeEcmaScript(getTooltip()) + "\"");
         }
-        ret.append("}");
-        return ret;
+        return Util.mapToObjectList(paraMap);
     }
 
     /**

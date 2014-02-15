@@ -37,7 +37,7 @@ public class Util
     {
         return Util_Base.mapToObjectList(_map);
     }
-    public static CharSequence collectionToObjectArray(final Collection<? extends String> _list)
+    public static CharSequence collectionToObjectArray(final Collection<CharSequence> _list)
     {
         return Util_Base.collectionToObjectArray(_list);
     }

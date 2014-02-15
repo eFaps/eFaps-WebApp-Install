@@ -42,7 +42,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @EFapsRevision("$Rev$")
 public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends AbstractChart_Base<T,S>>
 {
-    private final Map<String, String> modules = new LinkedHashMap<String, String>();
+    private final Map<CharSequence, String> modules = new LinkedHashMap<CharSequence, String>();
 
     private final Map<String, Object> plotConfig = new LinkedHashMap<String, Object>();
 

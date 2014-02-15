@@ -56,19 +56,11 @@ public abstract class Serie_Base<T extends AbstractData<T>, S extends Serie_Base
      */
     public CharSequence getJavaScript()
     {
-        final StringBuilder ret = new StringBuilder()
-            .append("[\n");
-        boolean first = true;
-        for (final T dat  : this.data) {
-            if (first) {
-                first = false;
-            } else {
-                ret.append(",\n");
-            }
-            ret.append(dat.getJavaScript());
+        final List<CharSequence> js = new ArrayList<CharSequence>();
+        for (final T dat : getData()) {
+            js.add(dat.getJavaScript());
         }
-        ret.append("\n]");
-        return ret;
+        return Util.collectionToObjectArray(js);
     }
 
     /**
