@@ -44,15 +44,12 @@ public abstract class AbstractCartesianChart_Base<T extends AbstractData<T>, S e
     }
 
     @Override
-    protected void addBeforeRenderJS(final StringBuilder _js)
+    protected void addBeforeRenderJS(final StringBuilder _js,
+                                     final String _chartVarName)
     {
-        super.addBeforeRenderJS(_js);
+        super.addBeforeRenderJS(_js, _chartVarName);
         for (final Axis axisTmp : getAxis()) {
-            final CharSequence configjs = axisTmp.getConfigJS();
-            _js.append(" chart.addAxis(\"")
-                .append(axisTmp.getName()).append("\"")
-                .append(configjs.length() > 0 ? ("," + configjs) : "")
-                .append(");\n");
+            axisTmp.addJS(_js, "chart");
         }
     }
 

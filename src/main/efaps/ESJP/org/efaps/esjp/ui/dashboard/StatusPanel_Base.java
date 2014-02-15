@@ -24,9 +24,12 @@ import java.util.Random;
 
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
-import org.efaps.esjp.ui.html.dojo.charting.ColumnsChart;
+import org.efaps.esjp.ui.html.dojo.charting.Axis;
 import org.efaps.esjp.ui.html.dojo.charting.Data;
+import org.efaps.esjp.ui.html.dojo.charting.LineChart;
+import org.efaps.esjp.ui.html.dojo.charting.LineLayout;
 import org.efaps.esjp.ui.html.dojo.charting.Orientation;
+import org.efaps.esjp.ui.html.dojo.charting.Plot;
 import org.efaps.esjp.ui.html.dojo.charting.Serie;
 import org.efaps.ui.wicket.models.IEsjpSnipplet;
 import org.efaps.util.EFapsException;
@@ -52,18 +55,33 @@ public class StatusPanel_Base
     public CharSequence getHtmlSnipplet()
         throws EFapsException
     {
-        final ColumnsChart chart = new ColumnsChart();
+        final LineChart chart = new LineChart().setLineLayout(LineLayout.LINES);
         chart.setTitle("Este es un titulo mu bueno");
+        chart.addPlot(new Plot().setName("other").addConfig("type", "Lines").setvAxis("oy"));
+        chart.addAxis(new Axis().setName("oy").setVertical(true).setLeftBottom(false));
+
         final Serie<Data> serie = new Serie<Data>();
         serie.setName("Demo");
         chart.addSerie(serie);
 
-        for (int i = 0; i < 20; i++) {
+        for (int i = 0; i < 12; i++) {
             final Data data = new Data();
             serie.addData(data);
             data.setValue(StatusPanel_Base.RANDOM.nextInt(25));
-
         }
+
+
+        final Serie<Data> serie2 = new Serie<Data>();
+        serie2.setName("Demo2").setPlot("other");
+        chart.addSerie(serie2);
+
+        for (int i = 0; i < 12; i++) {
+            final Data data = new Data();
+            serie2.addData(data);
+            data.setValue(StatusPanel_Base.RANDOM.nextInt(25));
+        }
+
+
         chart.setOrientation(Orientation.HORIZONTAL_LEGEND_CHART);
 
         return chart.getHtmlSnipplet();

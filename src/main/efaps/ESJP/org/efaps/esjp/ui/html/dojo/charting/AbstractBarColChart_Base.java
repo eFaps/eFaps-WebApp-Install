@@ -53,14 +53,21 @@ public abstract class AbstractBarColChart_Base <T extends AbstractData<T>, S ext
         super.initialize();
         addModule("dojox/charting/axis2d/Default", "Default");
 
+        final Plot plot = new Plot();
+        configurePlot(plot);
+        addPlot(plot);
+    }
+
+    protected void configurePlot(final Plot _plot)
+    {
         if (getGap() != null) {
-            addPlotConfig("gap", getGap());
+            _plot.addConfig("gap", getGap());
         }
         if (getMinBarSize() != null) {
-            addPlotConfig("minBarSize", getMinBarSize());
+            _plot.addConfig("minBarSize", getMinBarSize());
         }
         if (getMaxBarSize() != null) {
-            addPlotConfig("maxBarSize", getMaxBarSize());
+            _plot.addConfig("maxBarSize", getMaxBarSize());
         }
     }
 

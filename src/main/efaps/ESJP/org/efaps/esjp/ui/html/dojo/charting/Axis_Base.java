@@ -49,11 +49,28 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
      */
     private CharSequence labels;
 
+
+    private boolean leftBottom = true;
+
     /**
      * "getThis" trick.
      * @return this
      */
     protected abstract T getThis();
+
+
+    protected void addJS(final StringBuilder _js,
+                         final String _chartVarName)
+    {
+        _js.append(_chartVarName).append(".addAxis(\"")
+        .append(getName()).append("\"");
+
+        final CharSequence configjs = getConfigJS();
+
+        _js.append(configjs.length() > 0 ? ("," + configjs) : "")
+            .append(");\n");
+    }
+
 
     /**
      * @return
@@ -66,6 +83,9 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
         }
         if (getLabels() != null) {
             paraMap.put("labels", getLabels());
+        }
+        if (!isLeftBottom()) {
+            paraMap.put("leftBottom", isLeftBottom());
         }
         return Util.mapToObjectList(paraMap);
     }
@@ -128,8 +148,32 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
      *
      * @param _labels value for instance variable {@link #labels}
      */
-    public void setLabels(final CharSequence _labels)
+    public T setLabels(final CharSequence _labels)
     {
         this.labels = _labels;
+        return getThis();
+    }
+
+
+    /**
+     * Getter method for the instance variable {@link #leftBottom}.
+     *
+     * @return value of instance variable {@link #leftBottom}
+     */
+    public boolean isLeftBottom()
+    {
+        return this.leftBottom;
+    }
+
+
+    /**
+     * Setter method for instance variable {@link #leftBottom}.
+     *
+     * @param _leftBottom value for instance variable {@link #leftBottom}
+     */
+    public T setLeftBottom(final boolean _leftBottom)
+    {
+        this.leftBottom = _leftBottom;
+        return getThis();
     }
 }

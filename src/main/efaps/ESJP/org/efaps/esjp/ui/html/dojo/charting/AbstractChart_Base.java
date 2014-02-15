@@ -44,7 +44,7 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
 {
     private final Map<CharSequence, String> modules = new LinkedHashMap<CharSequence, String>();
 
-    private final Map<String, Object> plotConfig = new LinkedHashMap<String, Object>();
+    private final Map<String, Plot_Base<?>> plots = new LinkedHashMap<String, Plot_Base<?>>();
 
     private Orientation orientation = Orientation.VERTICAL_CHART_LEGEND;
 
@@ -114,6 +114,12 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
         return ret;
     }
 
+    protected void addCSS(final StringBuilder _js)
+    {
+        _js.append(".dojoxLegendNode Label {")
+            .append("font-size: 8pt;")
+            .append("}");
+    }
 
     protected void addJavaScript(final StringBuilder _js)
     {
@@ -143,51 +149,46 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
     protected void addFunctionJS(final StringBuilder _js)
     {
         _js.append(" var chart = new Chart(\"").append(getChartNodeId()).append("\", {\n");
-        addChartJS(_js);
+        addChartJS(_js, "chart");
         _js.append(" });\n");
-        addBeforeRenderJS(_js);
-        addRenderJS(_js);
-        addAfterRenderJS(_js);
+        addBeforeRenderJS(_js, "chart");
+        addRenderJS(_js, "chart");
+        addAfterRenderJS(_js, "chart");
     }
 
-    protected void addBeforeRenderJS(final StringBuilder _js)
+    protected void addBeforeRenderJS(final StringBuilder _js,
+                                     final String _chartVarName)
     {
         _js.append(" chart.setTheme(theme);\n");
-        addPlotJS(_js);
-        addSeriesJS(_js);
+        addPlotJS(_js, _chartVarName);
+        addSeriesJS(_js, _chartVarName);
         _js.append(" new Tooltip(chart, \"default\");\n");
     }
 
-    protected void addRenderJS(final StringBuilder _js)
+    protected void addRenderJS(final StringBuilder _js,
+                               final String _chartVarName)
     {
         _js.append(" chart.render();\n");
     }
 
-    protected void addAfterRenderJS(final StringBuilder _js)
+    protected void addAfterRenderJS(final StringBuilder _js,
+                                    final String _chartVarName)
     {
         getLegend().addLegendJS(_js);
     }
 
-    protected void addChartJS(final StringBuilder _js)
+    protected void addChartJS(final StringBuilder _js,
+                              final String _chartVarName)
     {
         _js.append(getTitleJS());
     }
 
-    protected void addPlotJS(final StringBuilder _js)
+    protected void addPlotJS(final StringBuilder _js,
+                             final String _chartVarName)
     {
-        _js.append(" chart.addPlot(\"default\",\n").append(getPlotConfigJS()).append("\n);\n");
-    }
-
-    public void addCSS(final StringBuilder _js)
-    {
-            _js.append(".dojoxLegendNode Label {")
-            .append("font-size: 8pt;")
-            .append("}");
-    }
-
-    protected CharSequence getPlotConfigJS()
-    {
-        return Util.mapToObjectList(getPlotConfig());
+        for (final Plot_Base<?> plot : getPlots().values()) {
+            plot.addJS(_js, _chartVarName);
+        }
     }
 
     protected CharSequence getTitleJS()
@@ -204,13 +205,12 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
         return ret;
     }
 
-    protected void addSeriesJS(final StringBuilder _js)
+    protected void addSeriesJS(final StringBuilder _js,
+                               final String _chartVarName)
     {
         for (final Serie<T> serie : getSeries()) {
-            _js.append(" chart.addSeries(\"")
-                .append(serie.getName()).append("\", ").append(serie.getJavaScript()).append(");\n");
+            serie.addJS(_js, _chartVarName);
         }
-
     }
 
     protected void addHtmlNodes(final StringBuilder _js)
@@ -462,21 +462,19 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
      * @param _string
      * @param _string2
      */
-    protected void addPlotConfig(final String _key,
-                                                  final Object _object)
+    public void addPlot(final Plot_Base<?> _plot)
     {
-        getPlotConfig().put(_key, _object);
-
+        getPlots().put(_plot.getName(), _plot);
     }
 
     /**
-     * Getter method for the instance variable {@link #plotConfig}.
+     * Getter method for the instance variable {@link #plots}.
      *
-     * @return value of instance variable {@link #plotConfig}
+     * @return value of instance variable {@link #plots}
      */
-    protected Map<String, Object> getPlotConfig()
+    public Map<String, Plot_Base<?>> getPlots()
     {
-        return this.plotConfig;
+        return this.plots;
     }
 
 }

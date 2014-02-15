@@ -18,27 +18,23 @@
  * Last Changed By: $Author$
  */
 
+
 package org.efaps.esjp.ui.html.dojo.charting;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
-import org.efaps.admin.program.esjp.EFapsUUID;
 
 /**
- * This class must be replaced for customization, therefore it is left empty.
- * Functional description can be found in the related "<code>_base</code>"
- * class.
+ * TODO comment!
  *
  * @author The eFaps Team
  * @version $Id$
  */
-@EFapsUUID("bee552c7-443b-4d48-bca0-7c315fc97e52")
-@EFapsRevision("$Rev$")
-public class Serie<T extends AbstractData<T>>
-    extends Serie_Base<T, Serie<T>>
+public class Plot extends Plot_Base<Plot>
 {
+
     @Override
-    protected Serie<T> getThis()
+    protected Plot getThis()
     {
         return this;
     }
+
 }

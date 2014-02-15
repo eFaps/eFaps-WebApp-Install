@@ -55,9 +55,13 @@ public abstract class ColumnsChart_Base<S extends AbstractBarColChart<Data, S>>
         }
         addAxis(new Axis().setName("x"));
         addAxis(new Axis().setName("y").setVertical(true));
-        addPlotConfig("type", "Columns");
     }
 
+    @Override
+    protected void configurePlot(final Plot _plot)
+    {
+        _plot.addConfig("type", "Columns");
+    }
     /**
      * Getter method for the instance variable {@link #plotLayout}.
      *

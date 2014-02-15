@@ -58,7 +58,7 @@ public abstract class LineChart_Base <S extends AbstractCartesianChart<Data, S>>
 
         addAxis(new Axis().setName("x"));
         addAxis(new Axis().setName("y").setVertical(true));
-        addPlotConfig("type", "Lines");
+        addPlot(new Plot().addConfig("type", "Lines"));
     }
 
     /**

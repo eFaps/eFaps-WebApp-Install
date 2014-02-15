@@ -42,19 +42,22 @@ public abstract class PieChart_Base<S extends AbstractChart_Base<PieData, S>>
         super.initialize();
         addModule("dojox/charting/plot2d/Pie", "PiePlot");
         addModule("dojox/charting/action2d/MoveSlice", "MoveSlice");
-        addPlotConfig("type", "PiePlot");
-        addPlotConfig("radius", 100);
-        addPlotConfig("fontColor", "\"black\"");
-        addPlotConfig("labelOffset", 0);
-        addPlotConfig("omitLabels", true);
-        addPlotConfig("labelStyle", "\"columns\"");
+
+        final Plot plot = new Plot().addConfig("type", "PiePlot");
+        addPlot(plot);
+        plot.addConfig("radius", 100);
+        plot.addConfig("fontColor", "\"black\"");
+        plot.addConfig("labelOffset", 0);
+        plot.addConfig("omitLabels", true);
+        plot.addConfig("labelStyle", "\"columns\"");
         // default/columns/rows/auto
     }
 
     @Override
-    protected void addBeforeRenderJS(final StringBuilder _js)
+    protected void addBeforeRenderJS(final StringBuilder _js,
+                                     final String _chartVarName)
     {
-        super.addBeforeRenderJS(_js);
+        super.addBeforeRenderJS(_js, _chartVarName);
         _js.append("new MoveSlice(chart, \"default\");\n");
     }
 }

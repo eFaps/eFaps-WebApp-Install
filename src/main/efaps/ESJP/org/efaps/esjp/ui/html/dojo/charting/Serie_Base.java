@@ -22,7 +22,9 @@
 package org.efaps.esjp.ui.html.dojo.charting;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.efaps.admin.program.esjp.EFapsRevision;
@@ -42,6 +44,9 @@ public abstract class Serie_Base<T extends AbstractData<T>, S extends Serie_Base
 {
     private String name;
 
+    private String plot;
+
+    private final Map<String, Object> configMap = new LinkedHashMap<String, Object>();
 
     private final List<T> data = new ArrayList<T>();
 
@@ -52,15 +57,40 @@ public abstract class Serie_Base<T extends AbstractData<T>, S extends Serie_Base
     protected abstract S getThis();
 
     /**
+     * @param _js
+     * @param _string
+     */
+    public void addJS(final StringBuilder _js,
+                      final String _chartVarName)
+    {
+        _js.append(_chartVarName).append(".addSeries(\"")
+            .append(getName()).append("\", ").append(getDataJS());
+
+        final CharSequence config = getConfigJS();
+        if (config.length() > 0) {
+            _js.append(",").append(config);
+        }
+        _js.append(");\n");
+    }
+
+    /**
      * @return
      */
-    public CharSequence getJavaScript()
+    public CharSequence getDataJS()
     {
         final List<CharSequence> js = new ArrayList<CharSequence>();
         for (final T dat : getData()) {
             js.add(dat.getJavaScript());
         }
         return Util.collectionToObjectArray(js);
+    }
+
+    public CharSequence getConfigJS()
+    {
+        if (this.plot != null && !this.configMap.containsKey("plot")) {
+            this.configMap.put("plot", "\"" + getPlot() + "\"");
+        }
+        return Util.mapToObjectList(this.configMap);
     }
 
     /**
@@ -106,5 +136,44 @@ public abstract class Serie_Base<T extends AbstractData<T>, S extends Serie_Base
     {
         this.data.add(_data);
         return getThis();
+    }
+
+    public S addConfig(final String _key,
+                       final Object _value)
+    {
+        this.configMap.put(_key, _value);
+        return getThis();
+    }
+
+    /**
+     * Getter method for the instance variable {@link #plot}.
+     *
+     * @return value of instance variable {@link #plot}
+     */
+    public String getPlot()
+    {
+        return this.plot;
+    }
+
+    /**
+     * Setter method for instance variable {@link #plot}.
+     *
+     * @param _plot value for instance variable {@link #plot}
+     */
+    public S setPlot(final String _plot)
+    {
+        this.plot = _plot;
+        return getThis();
+    }
+
+
+    /**
+     * Getter method for the instance variable {@link #configMap}.
+     *
+     * @return value of instance variable {@link #configMap}
+     */
+    public Map<String, Object> getConfigMap()
+    {
+        return this.configMap;
     }
 }
