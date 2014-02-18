@@ -23,6 +23,7 @@ package org.efaps.esjp.ui.html;
 
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.util.EFapsException;
 
 
 /**
@@ -35,20 +36,41 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @EFapsRevision("$Rev$")
 public abstract class HtmlTable_Base
 {
+
     private final StringBuilder html = new StringBuilder();
 
-    public HtmlTable_Base table() {
+    public HtmlTable_Base table()
+    {
         return tag("table", false);
     }
-    public HtmlTable_Base tableC() {
+
+    public HtmlTable_Base tableC()
+    {
         return tag("table", true);
     }
-    public HtmlTable_Base tr() {
+
+    public HtmlTable_Base tr()
+    {
         return tag("tr", false);
     }
 
-    public HtmlTable_Base trC() {
+    public HtmlTable_Base trC()
+    {
         return tag("tr", true);
+    }
+
+    public HtmlTable_Base table(final String classStyle)
+    {
+        return tag("table", classStyle);
+    }
+
+    public String getStyleSheet()
+        throws EFapsException
+    {
+        final StringBuilder css = new StringBuilder();
+        // to implement
+        return css.toString();
+
     }
 
     public HtmlTable_Base append(final Object _object)
@@ -57,13 +79,15 @@ public abstract class HtmlTable_Base
         return this;
     }
 
-    public HtmlTable_Base td(final String _value) {
+    public HtmlTable_Base td(final String _value)
+    {
         td(_value, null);
         return this;
     }
 
     public HtmlTable_Base td(final String _value,
-                             final String _styleSheet) {
+                             final String _styleSheet)
+    {
         td(_value, _styleSheet, 0, 0);
         return this;
     }
@@ -71,7 +95,8 @@ public abstract class HtmlTable_Base
     public HtmlTable_Base td(final String _value,
                              final String _styleSheet,
                              final int _colspan,
-                             final int _rowspan) {
+                             final int _rowspan)
+    {
         td(_value, _styleSheet, _colspan, _rowspan, null);
         return this;
     }
@@ -80,17 +105,20 @@ public abstract class HtmlTable_Base
                              final String _styleSheet,
                              final int _colspan,
                              final int _rowspan,
-                             final String _inner) {
+                             final String _inner)
+    {
         return tag(_value, _styleSheet, _colspan, _rowspan, _inner, "td");
     }
 
-    public HtmlTable_Base th(final String _value) {
+    public HtmlTable_Base th(final String _value)
+    {
         th(_value, null);
         return this;
     }
 
     public HtmlTable_Base th(final String _value,
-                             final String _styleSheet) {
+                             final String _styleSheet)
+    {
         th(_value, _styleSheet, 0, 0);
         return this;
     }
@@ -98,7 +126,8 @@ public abstract class HtmlTable_Base
     public HtmlTable_Base th(final String _value,
                              final String _styleSheet,
                              final int _colspan,
-                             final int _rowspan) {
+                             final int _rowspan)
+    {
         th(_value, _styleSheet, _colspan, _rowspan, null);
         return this;
     }
@@ -107,12 +136,14 @@ public abstract class HtmlTable_Base
                              final String _styleSheet,
                              final int _colspan,
                              final int _rowspan,
-                             final String _inner) {
+                             final String _inner)
+    {
         return tag(_value, _styleSheet, _colspan, _rowspan, _inner, "th");
     }
 
     public HtmlTable_Base tag(final String _tag,
-                               final boolean _close) {
+                              final boolean _close)
+    {
         this.html.append("<");
         if (_close) {
             this.html.append("/");
@@ -120,12 +151,26 @@ public abstract class HtmlTable_Base
         this.html.append(_tag).append(">");
         return this;
     }
+
+    public HtmlTable_Base tag(final String _tag,
+                              final String _classStyle)
+    {
+        this.html.append("<");
+        this.html.append(_tag);
+        if (!_classStyle.isEmpty()) {
+            this.html.append(" class= \"" + _classStyle + "\"");
+        }
+        this.html.append(">");
+        return this;
+    }
+
     public HtmlTable_Base tag(final String _value,
-                               final String _styleSheet,
-                               final int _colspan,
-                               final int _rowspan,
-                               final String _inner,
-                               final String _tag) {
+                              final String _styleSheet,
+                              final int _colspan,
+                              final int _rowspan,
+                              final String _inner,
+                              final String _tag)
+    {
         this.html.append("<").append(_tag);
         if (_styleSheet != null) {
             this.html.append(" style=\"").append(_styleSheet).append("\"");
