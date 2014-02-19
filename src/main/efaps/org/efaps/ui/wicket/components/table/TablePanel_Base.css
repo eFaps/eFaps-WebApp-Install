@@ -89,6 +89,7 @@
 
 .eFapsTableCell input[type="radio"], .eFapsTableCell input[type="checkbox"] {
 	margin-left: 0px;
+	width: auto;
 }
 
 .eFapsTableCheckBoxCell {
