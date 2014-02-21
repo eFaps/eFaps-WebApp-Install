@@ -197,10 +197,11 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
         final String titleTmp = getTitle();
         if (titleTmp != null) {
             ret.append("title: \"").append(StringEscapeUtils.escapeEcmaScript(titleTmp)).append("\",")
-                .append("titlePos: \"").append(getTitlePos()).append("\"");
+                .append("titlePos: \"").append(getTitlePos()).append("\",")
+                .append("titleFont: \"bold 8pt Tahoma\"");
         }
         //titleGap: 25,
-        //titleFont: "normal normal normal 15pt Arial",
+
         //titleFontColor: "orange"
         return ret;
     }
