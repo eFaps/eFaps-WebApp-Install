@@ -36,12 +36,33 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 public abstract class Data_Base<S extends AbstractData_Base<S>>
     extends AbstractData<S>
 {
+
+    private boolean simple = true;
+
     @Override
     public CharSequence getJavaScript()
     {
-        final StringBuilder ret = new StringBuilder()
-            .append(getValue());
+        final StringBuilder ret = new StringBuilder();
+        if (simple) {
+            ret.append(getYValue());
+        } else {
+            addConfig("x", getXValue());
+            addConfig("y", getYValue());
+            ret.append(getConfigJS());
+        }
+
         return ret;
+    }
+
+    public boolean isSimple()
+    {
+        return simple;
+    }
+
+    public S setSimple(final boolean simple)
+    {
+        this.simple = simple;
+        return getThis();
     }
 
 }

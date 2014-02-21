@@ -21,9 +21,6 @@
 
 package org.efaps.esjp.ui.html.dojo.charting;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-
 import org.apache.commons.lang3.StringEscapeUtils;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
@@ -42,24 +39,20 @@ public abstract class PieData_Base<S extends AbstractData_Base<S>>
 {
     private String text;
     private String legend;
-    private String tooltip;
+
 
     @Override
     public CharSequence getJavaScript()
     {
-        final Map<String, Object> paraMap = new LinkedHashMap<String, Object>();
-        paraMap.put("x", 1);
-        paraMap.put("y", getValue());
+        addConfig("x", 1);
+        addConfig("y", getYValue());
         if (getText() != null) {
-            paraMap.put("text", "\"" + StringEscapeUtils.escapeEcmaScript(getText()) + "\"");
+            addConfig("text", "\"" + StringEscapeUtils.escapeEcmaScript(getText()) + "\"");
         }
         if (getLegend() != null) {
-            paraMap.put("legend", "\"" + StringEscapeUtils.escapeEcmaScript(getLegend()) + "\"");
+            addConfig("legend", "\"" + StringEscapeUtils.escapeEcmaScript(getLegend()) + "\"");
         }
-        if (getTooltip() != null) {
-            paraMap.put("tooltip", "\"" + StringEscapeUtils.escapeEcmaScript(getTooltip()) + "\"");
-        }
-        return Util.mapToObjectList(paraMap);
+        return getConfigJS();
     }
 
     /**
@@ -104,24 +97,5 @@ public abstract class PieData_Base<S extends AbstractData_Base<S>>
         return getThis();
     }
 
-    /**
-     * Getter method for the instance variable {@link #tooltip}.
-     *
-     * @return value of instance variable {@link #tooltip}
-     */
-    public String getTooltip()
-    {
-        return this.tooltip;
-    }
 
-    /**
-     * Setter method for instance variable {@link #tooltip}.
-     *
-     * @param _tooltip value for instance variable {@link #tooltip}
-     */
-    public S setTooltip(final String _tooltip)
-    {
-        this.tooltip = _tooltip;
-        return getThis();
-    }
 }

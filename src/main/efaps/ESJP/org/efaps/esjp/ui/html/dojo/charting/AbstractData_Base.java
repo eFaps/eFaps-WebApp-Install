@@ -21,6 +21,10 @@
 
 package org.efaps.esjp.ui.html.dojo.charting;
 
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import org.apache.commons.lang3.StringEscapeUtils;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
@@ -35,7 +39,12 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @EFapsRevision("$Rev$")
 public abstract class AbstractData_Base<S extends AbstractData_Base<S>>
 {
-    private Number value;
+    private Number yValue;
+    private Number xValue=1;
+
+
+    private String tooltip;
+    private final Map<String, Object> configMap = new LinkedHashMap<String, Object>();
 
     /**
      * "getThis" trick.
@@ -45,24 +54,83 @@ public abstract class AbstractData_Base<S extends AbstractData_Base<S>>
 
     public abstract CharSequence getJavaScript();
 
-    /**
-     * Getter method for the instance variable {@link #value}.
-     *
-     * @return value of instance variable {@link #value}
-     */
-    public Number getValue()
+
+    public CharSequence getConfigJS()
     {
-        return this.value;
+        if (getTooltip() != null) {
+            this.configMap.put("tooltip", "\"" + StringEscapeUtils.escapeEcmaScript(getTooltip()) + "\"");
+        }
+        return Util.mapToObjectList(this.configMap);
     }
 
     /**
-     * Setter method for instance variable {@link #value}.
+     * Getter method for the instance variable {@link #yValue}.
      *
-     * @param _value value for instance variable {@link #value}
+     * @return value of instance variable {@link #yValue}
      */
-    public S setValue(final Number _value)
+    public Number getXValue()
     {
-        this.value = _value;
+        return this.xValue;
+    }
+
+    /**
+     * Setter method for instance variable {@link #yValue}.
+     *
+     * @param _value value for instance variable {@link #yValue}
+     */
+    public S setXValue(final Number _value)
+    {
+        this.xValue = _value;
+        return getThis();
+    }
+
+
+    /**
+     * Getter method for the instance variable {@link #yValue}.
+     *
+     * @return value of instance variable {@link #yValue}
+     */
+    public Number getYValue()
+    {
+        return this.yValue;
+    }
+
+    /**
+     * Setter method for instance variable {@link #yValue}.
+     *
+     * @param _value value for instance variable {@link #yValue}
+     */
+    public S setYValue(final Number _value)
+    {
+        this.yValue = _value;
+        return getThis();
+    }
+
+    /**
+     * Getter method for the instance variable {@link #tooltip}.
+     *
+     * @return value of instance variable {@link #tooltip}
+     */
+    public String getTooltip()
+    {
+        return this.tooltip;
+    }
+
+    /**
+     * Setter method for instance variable {@link #tooltip}.
+     *
+     * @param _tooltip value for instance variable {@link #tooltip}
+     */
+    public S setTooltip(final String _tooltip)
+    {
+        this.tooltip = _tooltip;
+        return getThis();
+    }
+
+    public S addConfig(final String _key,
+                       final Object _value)
+    {
+        this.configMap.put(_key, _value);
         return getThis();
     }
 }

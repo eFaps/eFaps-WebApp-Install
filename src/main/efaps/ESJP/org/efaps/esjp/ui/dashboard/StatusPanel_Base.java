@@ -53,6 +53,7 @@ public class StatusPanel_Base
      */
     private static final long serialVersionUID = 1L;
 
+    @Override
     public CharSequence getHtmlSnipplet()
         throws EFapsException
     {
@@ -68,7 +69,7 @@ public class StatusPanel_Base
         for (int i = 0; i < 12; i++) {
             final Data data = new Data();
             serie.addData(data);
-            data.setValue(StatusPanel_Base.RANDOM.nextInt(25));
+            data.setYValue(StatusPanel_Base.RANDOM.nextInt(25));
         }
 
 
@@ -79,7 +80,7 @@ public class StatusPanel_Base
         for (int i = 0; i < 12; i++) {
             final Data data = new Data();
             serie2.addData(data);
-            data.setValue(StatusPanel_Base.RANDOM.nextInt(25));
+            data.setYValue(StatusPanel_Base.RANDOM.nextInt(25));
         }
 
 
