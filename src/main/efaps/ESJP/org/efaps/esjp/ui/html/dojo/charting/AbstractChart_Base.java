@@ -250,6 +250,11 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
                     .append(" <div id=\"").append(getChartNodeId()).append("\" style=\"width: ")
                         .append(getWidth()).append("px; height: ").append(getHeight()).append("px;\"></div>\n");
                 break;
+
+            case HORIZONTAL_CHART_ONLY:
+                _js.append(" <div id=\"").append(getChartNodeId()).append("\" style=\"width: ")
+                .append(getWidth()).append("px; height: ").append(getHeight()).append("px;\"></div>\n");
+            break;
             default:
                 break;
         }
