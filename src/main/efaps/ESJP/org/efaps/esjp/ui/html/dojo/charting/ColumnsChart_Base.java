@@ -54,7 +54,7 @@ public abstract class ColumnsChart_Base<S extends AbstractBarColChart<Data, S>>
                 break;
         }
         addAxis(new Axis().setName("x"));
-        addAxis(new Axis().setName("y").setVertical(true));
+        addAxis(new Axis().setName("y").setVertical(true).setMin(0));
     }
 
     @Override

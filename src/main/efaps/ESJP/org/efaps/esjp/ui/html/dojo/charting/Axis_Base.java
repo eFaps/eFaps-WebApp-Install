@@ -55,6 +55,11 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
 
     private boolean leftBottom = true;
 
+    private Integer min;
+
+    private Integer max;
+
+
     /**
      * "getThis" trick.
      * @return this
@@ -92,6 +97,12 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
         }
         if (getTitle() != null) {
             confMap.put("title", "\"" + getTitle() + "\"");
+        }
+        if(getMin() != null) {
+            confMap.put("min", getMin());
+        }
+        if(getMax() != null) {
+            confMap.put("max", getMax());
         }
         return Util.mapToObjectList(confMap);
     }
@@ -222,4 +233,53 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
         this.title = _title;
         return getThis();
     }
+
+    /**
+     * Getter method for the instance variable {@link #min}.
+     *
+     * @return value of instance variable {@link #min}
+     */
+    public Integer getMin()
+    {
+        return this.min;
+    }
+
+
+
+    /**
+     * Setter method for instance variable {@link #min}.
+     *
+     * @param _min value for instance variable {@link #min}
+     */
+    public T setMin(final Integer _min)
+    {
+        this.min = _min;
+        return getThis();
+    }
+
+
+
+    /**
+     * Getter method for the instance variable {@link #max}.
+     *
+     * @return value of instance variable {@link #max}
+     */
+    public Integer getMax()
+    {
+        return this.max;
+    }
+
+
+
+    /**
+     * Setter method for instance variable {@link #max}.
+     *
+     * @param _max value for instance variable {@link #max}
+     */
+    public T setMax(final Integer _max)
+    {
+        this.max = _max;
+        return getThis();
+    }
+
 }
