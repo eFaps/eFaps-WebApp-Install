@@ -37,7 +37,20 @@ public abstract class MouseIndicator_Base<T extends MouseIndicator_Base<T>>
 
     private final Map<String, Object> configMap = new LinkedHashMap<String, Object>();
 
+    /**
+     * Whether the label is rendered at the start or end of the indicator.
+     * Default is false meaning end of the line.
+     */
+    private boolean start = false;
 
+    /**
+     *  Whether the indicator lines are visible or not. Default is true.
+     */
+    private boolean lines = true;
+
+    /**
+     * Whether the mouse indicator is enabled on mouse over or on mouse drag. Default is true.
+     */
     private boolean mouseOver = true;
 
     /**
@@ -61,6 +74,13 @@ public abstract class MouseIndicator_Base<T extends MouseIndicator_Base<T>>
         if (isMouseOver()) {
             this.configMap.put("mouseOver", isMouseOver());
         }
+        if (isStart()) {
+            this.configMap.put("start", isStart());
+        }
+        if (!isLines()) {
+            this.configMap.put("lines", isLines());
+        }
+
         return Util.mapToObjectList(this.configMap);
     }
 
@@ -110,6 +130,48 @@ public abstract class MouseIndicator_Base<T extends MouseIndicator_Base<T>>
     public T setMouseOver(final boolean _mouseOver)
     {
         this.mouseOver = _mouseOver;
+        return getThis();
+    }
+
+    /**
+     * Getter method for the instance variable {@link #lines}.
+     *
+     * @return value of instance variable {@link #lines}
+     */
+    public boolean isLines()
+    {
+        return this.lines;
+    }
+
+    /**
+     * Setter method for instance variable {@link #lines}.
+     *
+     * @param _lines value for instance variable {@link #lines}
+     */
+    public T setLines(final boolean _lines)
+    {
+        this.lines = _lines;
+        return getThis();
+    }
+
+    /**
+     * Getter method for the instance variable {@link #start}.
+     *
+     * @return value of instance variable {@link #start}
+     */
+    public boolean isStart()
+    {
+        return this.start;
+    }
+
+    /**
+     * Setter method for instance variable {@link #start}.
+     *
+     * @param _start value for instance variable {@link #start}
+     */
+    public T setStart(final boolean _start)
+    {
+        this.start = _start;
         return getThis();
     }
 }
