@@ -161,7 +161,6 @@ public abstract class Table_Base
                     }
                     final Map<String, Attribute> selAttr = new HashMap<String, Attribute>();
                     final List<Map<String, Object>> values = new ArrayList<Map<String, Object>>();
-
                     if (pageObject instanceof UITable) {
                         for (final UIRow row : ((UITable) pageObject).getValues()) {
                             final Map<String, Object> map = new HashMap<String, Object>();
@@ -378,8 +377,12 @@ public abstract class Table_Base
                         break;
                     }
                 } else if (_type.equals(Date.class)) {
-                    ret = false;
-                    break;
+                    if (object instanceof String) {
+                        map.put(_name, null);
+                    } else {
+                        ret = false;
+                        break;
+                    }
                 } else if (_type.equals(BigDecimal.class)) {
                     if (object == null) {
                         map.put(_name, BigDecimal.ZERO);
@@ -394,7 +397,6 @@ public abstract class Table_Base
                     break;
                 }
             }
-
         }
         return ret;
     }
