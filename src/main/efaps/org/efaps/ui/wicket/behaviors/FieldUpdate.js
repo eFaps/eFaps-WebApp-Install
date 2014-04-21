@@ -27,18 +27,33 @@
 
 function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue) {
 
-    require([ 'dojo/query', 'dojo/dom' ], function(query, dom) {
+    require([ 'dojo/query', 'dojo/dom', 'dijit/registry'], function(query, dom, registry) {
         var pos = 0;
         if (typeof (_referenceIdOrIdx) == 'number') {
             pos = _referenceIdOrIdx;
         } else {
-            // get the position in the field collection of the given
-            // reference
+            // get the position in the field collection of the given reference field
             var refField = dom.byId(_referenceIdOrIdx);
             var name = refField.getAttribute('name');
+            if (name == null) {
+                var widget = registry.byId(_referenceIdOrIdx)
+                if (typeof(widget) !== "undefined") {
+                    name = widget.name;
+                }
+            }
             var i = 0;
             query("*[name=" + name + "]").forEach(function(node) {
-                if (node.id == _referenceIdOrIdx) {
+                // if the node does not have an id check if his siblings has the one we search
+                if (node.id ==='') {
+                    var el = node;
+                    while (el) {
+                        if (el.id == _referenceIdOrIdx) {
+                            pos = i;
+                            break;
+                        }
+                        el = el.previousSibling;
+                    }
+                } else if (node.id == _referenceIdOrIdx) {
                     pos = i;
                 }
                 i++;
