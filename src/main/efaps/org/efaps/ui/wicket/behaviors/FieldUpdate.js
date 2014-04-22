@@ -25,9 +25,9 @@
  * @eFapsRevision $Rev$
  */
 
-function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue) {
+function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue, _fieldLabel) {
 
-    require([ 'dojo/query', 'dojo/dom', 'dijit/registry'], function(query, dom, registry) {
+    require([ 'dojo/query', 'dojo/dom', 'dijit/registry',"efaps/AutoComplete"], function(query, dom, registry, AutoComplete) {
         var pos = 0;
         if (typeof (_referenceIdOrIdx) == 'number') {
             pos = _referenceIdOrIdx;
@@ -87,8 +87,15 @@ function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue) {
                     option = new Option(_fieldValue[i + 1], _fieldValue[i], false, _fieldValue[i] == _fieldValue[0]);
                     sel.options[sel.length] = option;
                 }
+            } else if (typeof(_fieldLabel) !== "undefined") { // that means that a dojo widget must be search
+                var parentWidget = registry.getEnclosingWidget(fields[cp]);
+                if (typeof(parentWidget) !== "undefined") {
+                    if (parentWidget.isInstanceOf(AutoComplete)) {
+                        parentWidget.set("item",{id: _fieldValue, name:_fieldLabel, label: _fieldLabel});
+                    }
+                }
             } else {
-                // if it is an input, the value can be set directly, else the dom must be used
+                // if it is an input, the value can be set directly, else the DOM must be used
                 if (fields[cp].nodeName == 'INPUT' || fields[cp].nodeName == 'TEXTAREA'
                         || fields[cp].nodeName == 'SELECT') {
                     fields[cp].value = _fieldValue;
