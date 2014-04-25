@@ -54,8 +54,8 @@ public abstract class InterfaceUtils_Base
         if (!_append) {
             js.append(_script);
         }
-        if (_map.containsKey(_key)) {
-            js.append(_map.get(_key));
+        if (_map.containsKey(_key.getKey())) {
+            js.append(_map.get(_key.getKey()));
         }
         if (_append) {
             js.append(_script);
