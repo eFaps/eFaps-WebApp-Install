@@ -91,7 +91,11 @@ function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue, _fieldLa
                 var parentWidget = registry.getEnclosingWidget(fields[cp]);
                 if (typeof(parentWidget) !== "undefined") {
                     if (parentWidget.isInstanceOf(AutoComplete)) {
+                        // deactivate the onchange event
+                        parentWidget.set('_onChangeActive', false);
                         parentWidget.set("item",{id: _fieldValue, name:_fieldLabel, label: _fieldLabel});
+                        // reactivate the onchange event
+                        parentWidget.set('_onChangeActive',true);
                     }
                 }
             } else {
