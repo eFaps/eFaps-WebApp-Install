@@ -23,13 +23,22 @@ package org.efaps.esjp.common.util;
 
 import java.util.Map;
 
+import org.efaps.admin.event.Parameter;
+import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.db.QueryBuilder;
+
 
 /**
- * TODO comment!
+ * This class must be replaced for customization, therefore it is left empty.
+ * Functional description can be found in the related "<code>_Base</code>"
+ * class.
  *
  * @author The eFaps Team
  * @version $Id$
  */
+@EFapsUUID("c9af3b39-477f-4f21-917f-41065389d990")
+@EFapsRevision("$Rev$")
 public class InterfaceUtils
     extends InterfaceUtils_Base
 {
@@ -42,6 +51,16 @@ public class InterfaceUtils
                                                 final CharSequence _script)
     {
         InterfaceUtils_Base.appendScript4FieldUpdate(_map, _script);
+    }
+
+    /**
+     * @param _parameter
+     * @param _queryBldr
+     */
+    public static void addMaxResult2QueryBuilder4AutoComplete(final Parameter _parameter,
+                                                              final QueryBuilder _queryBldr)
+    {
+        InterfaceUtils_Base.addMaxResult2QueryBuilder4AutoComplete(_parameter, _queryBldr);
     }
 
 }
