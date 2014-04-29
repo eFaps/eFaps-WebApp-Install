@@ -45,6 +45,7 @@ import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
 import net.sf.jasperreports.engine.JRField;
 
+import org.apache.wicket.PageReference;
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.attributetype.BooleanType;
 import org.efaps.admin.datamodel.attributetype.DateTimeType;
@@ -114,21 +115,24 @@ public abstract class Table_Base
     {
         final Return ret = new Return();
         final Map<?, ?> properties = (Map<?, ?>) _parameter.get(ParameterValues.PROPERTIES);
-        final Object object = Context.getThreadContext().getSessionAttribute(UserInterface_Base.UIOBJECT_CACHEKEY);
+        final PageReference reference = (PageReference) Context.getThreadContext().getSessionAttribute(
+                        UserInterface_Base.UIOBJECT_CACHEKEY);
+        final AbstractUIPageObject object = (AbstractUIPageObject) reference.getPage().getDefaultModelObject();
         if (object instanceof AbstractUIPageObject) {
 
-            final AbstractUIPageObject pageObject = (AbstractUIPageObject) object;
+            final AbstractUIPageObject pageObject = object;
 
             if (pageObject instanceof UITable || pageObject instanceof UIStructurBrowser) {
                 String mime = (String) properties.get("Mime");
                 if (mime == null) {
                     mime = _parameter.getParameterValue("mime");
                 }
-                final boolean print = "pdf".equalsIgnoreCase(mime);
-                if (!print) {
-                    pageObject.resetModel();
-                    pageObject.setMode(TargetMode.PRINT);
-                    pageObject.execute();
+                final TargetMode mode = "xls".equalsIgnoreCase(mime) ? TargetMode.PRINT : TargetMode.VIEW;
+                final boolean print = mode.equals(TargetMode.VIEW);
+                if (!mode.equals(object.getMode())) {
+                    object.resetModel();
+                    object.setMode(mode);
+                    object.execute();
                 }
 
                 setFileName(pageObject.getTitle());

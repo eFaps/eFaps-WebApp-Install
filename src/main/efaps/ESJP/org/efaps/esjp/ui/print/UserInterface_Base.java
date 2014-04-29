@@ -29,6 +29,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.apache.wicket.Page;
+import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestHandler;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.cycle.RequestCycle;
@@ -49,6 +51,7 @@ import org.efaps.ui.wicket.models.objects.AbstractUIPageObject;
 import org.efaps.ui.wicket.models.objects.UIStructurBrowser;
 import org.efaps.ui.wicket.models.objects.UITable;
 import org.efaps.ui.wicket.models.objects.UITableHeader;
+import org.efaps.ui.wicket.util.EFapsKey;
 import org.efaps.util.EFapsException;
 
 /**
@@ -143,9 +146,10 @@ public abstract class UserInterface_Base extends StandartReport implements Event
 
         final IRequestHandler handler = RequestCycle.get().getRequestHandlerScheduledAfterCurrent();
         if (handler instanceof AjaxRequestHandler) {
-            final AbstractUIPageObject uiObject = (AbstractUIPageObject) ((AjaxRequestHandler) handler).getPage()
-                            .getDefaultModelObject();
-            Context.getThreadContext().setSessionAttribute(UserInterface_Base.UIOBJECT_CACHEKEY, uiObject);
+            final Page page = ((AjaxRequestHandler) handler).getPage();
+            final PageReference reference = page.getPageReference();
+            Context.getThreadContext().setSessionAttribute(UserInterface_Base.UIOBJECT_CACHEKEY, reference);
+            final AbstractUIPageObject uiObject = (AbstractUIPageObject) page.getDefaultModelObject();
             html.append(updateColumns(uiObject));
         }
         html.append("</span>");
@@ -160,24 +164,29 @@ public abstract class UserInterface_Base extends StandartReport implements Event
      * @return Return with javascript.
      * @throws EFapsException on error.
      */
-    public Return updateColumnsFieldValueUI(final Parameter _parameter) throws EFapsException {
+    public Return updateColumnsFieldValueUI(final Parameter _parameter)
+        throws EFapsException
+    {
         final Return ret = new Return();
         final List<Map<String, String>> list = new ArrayList<Map<String, String>>();
         final Map<String, String> map = new HashMap<String, String>();
         final String mime = _parameter.getParameterValue("mime");
         final TargetMode print = "xls".equalsIgnoreCase(mime) ? TargetMode.PRINT : TargetMode.VIEW;
 
-        final Object object = Context.getThreadContext().getSessionAttribute(UserInterface_Base.UIOBJECT_CACHEKEY);
-        final AbstractUIPageObject page = (AbstractUIPageObject) object;
-        page.resetModel();
-        page.setMode(print);
-        page.execute();
+        final PageReference reference = (PageReference) Context.getThreadContext().getSessionAttribute(
+                        UserInterface_Base.UIOBJECT_CACHEKEY);
 
-        final StringBuilder html = updateColumns(page);
+        final AbstractUIPageObject object = (AbstractUIPageObject) reference.getPage().getDefaultModelObject();
+        if (!print.equals(object.getMode())) {
+            object.resetModel();
+            object.setMode(print);
+            object.execute();
+        }
+
+        final StringBuilder html = updateColumns(object);
         final StringBuilder js = new StringBuilder();
         js.append("document.getElementById('eFapsColumns4Report').innerHTML='").append(html).append("';");
-
-        map.put("eFapsFieldUpdateJS", js.toString());
+        map.put(EFapsKey.FIELDUPDATE_JAVASCRIPT.getKey(), js.toString());
         list.add(map);
 
         ret.put(ReturnValues.VALUES, list);
