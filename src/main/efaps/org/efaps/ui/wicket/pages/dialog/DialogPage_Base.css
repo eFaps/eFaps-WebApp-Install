@@ -69,3 +69,22 @@ body {
 .eFapsValidateFieldValuesTable td {
     text-align: left;
 }
+
+.eFapsWarningTable {
+    margin-left: auto;
+    margin-right: auto;
+    border-collapse: collapse;
+}
+
+.eFapsWarningTable td {
+    border: 1px solid lightgrey;
+}
+
+.eFapsWarningTable td {
+   text-align: left;
+}
+
+.eFapsWarningTable td:first-child {
+    text-align: center;
+    font-style: italic;
+}
