@@ -198,94 +198,15 @@ public abstract class MultiPrint_Base
         if (properties.containsKey("Types")) {
             instances.addAll(tobeRemoved(_parameter));
         } else {
-            final Map<Integer, String> expands = analyseProperty(_parameter, "ExpandChildTypes");
-            final int i = expands.containsKey(0) ? 0 : 1;
-            for (final QueryBuilder queryBldr : getQueryBuilders(_parameter)) {
-                add2QueryBldr(_parameter, queryBldr);
-                if (!hasTable || analyzeTable(_parameter,
-                                            (Map<?, ?>) _parameter.get(ParameterValues.OTHERS), queryBldr)) {
-                    final InstanceQuery query = queryBldr.getQuery();
-                    query.setIncludeChildTypes(!"false".equalsIgnoreCase(expands.get(i)));
-                    instances.addAll(query.execute());
-                }
+            final QueryBuilder queryBldr = getQueryBldrFromProperties(_parameter);
+            add2QueryBldr(_parameter, queryBldr);
+            if (!hasTable || analyzeTable(_parameter,
+                            (Map<?, ?>) _parameter.get(ParameterValues.OTHERS), queryBldr)) {
+                final InstanceQuery query = queryBldr.getQuery();
+                instances.addAll(query.execute());
             }
         }
         return instances;
-    }
-
-    /**
-     * @param _parameter Parameter as passed by the eFaps API
-     * @return Return List with QueryBuilders
-     * @throws EFapsException on error
-     */
-    public List<QueryBuilder> getQueryBuilders(final Parameter _parameter)
-        throws EFapsException
-    {
-        final List<QueryBuilder> ret = new ArrayList<QueryBuilder>();
-
-        MultiPrint_Base.LOG.debug("analysing for QueryBuilders");
-        final Map<Integer, String> types = analyseProperty(_parameter, "Type");
-        final Map<Integer, String> linkFroms = analyseProperty(_parameter, "LinkFrom");
-        final Map<Integer, String> statusGrps = analyseProperty(_parameter, "StatusGrp");
-        final Map<Integer, String> status = analyseProperty(_parameter, "Status");
-
-        if (statusGrps.size() != status.size()) {
-            final AbstractUserInterfaceObject command = (AbstractUserInterfaceObject) _parameter
-                            .get(ParameterValues.UIOBJECT);
-            MultiPrint_Base.LOG.error("Map for StatusGrp and Status are of different size. Command: {}",
-                            command.getName());
-            throw new EFapsException(getClass(), "StatusSizes", statusGrps, status);
-        }
-
-        for (final Entry<Integer, String> typeEntry : types.entrySet()) {
-            final Type type = Type.get(typeEntry.getValue());
-            if (type == null) {
-                final AbstractUserInterfaceObject command = (AbstractUserInterfaceObject) _parameter
-                                .get(ParameterValues.UIOBJECT);
-                MultiPrint_Base.LOG.error("Type cannot be found for name: {}. Command: {}", typeEntry.getValue(),
-                                command.getName());
-                throw new EFapsException(getClass(), "type", typeEntry);
-            }
-            final QueryBuilder queryBldr = new QueryBuilder(type);
-            ret.add(queryBldr);
-
-            if (linkFroms.containsKey(typeEntry.getKey())) {
-                queryBldr.addWhereAttrEqValue(linkFroms.get(typeEntry.getKey()),
-                                getInstance4LinkFrom(_parameter).getId());
-            }
-            final List<Long> statusIds = new ArrayList<Long>();
-            for (int i = 0; i < 100; i++) {
-                if (statusGrps.containsKey(i)) {
-                    final Status stat = Status.find(statusGrps.get(i), status.get(i));
-                    if (stat == null) {
-                        final AbstractUserInterfaceObject command = (AbstractUserInterfaceObject) _parameter
-                                        .get(ParameterValues.UIOBJECT);
-                        MultiPrint_Base.LOG.error("Status Definition invalid. Command: {}, Index: {}",
-                                        command.getName(), i);
-                        throw new EFapsException(getClass(), "Status", typeEntry);
-                    } else {
-                        statusIds.add(stat.getId());
-                    }
-                } else if (i > 0) {
-                    break;
-                }
-            }
-            if (!statusIds.isEmpty()) {
-                queryBldr.addWhereAttrEqValue(getStatusAttribute4Type(_parameter, type), statusIds.toArray());
-            }
-        }
-        return ret;
-    }
-
-    /**
-     * @param _parameter Parameter as passed by the eFaps API
-     * @return Instance use for the whre on Linkfroms
-     * @throws EFapsException on error
-     */
-    protected Instance getInstance4LinkFrom(final Parameter _parameter)
-        throws EFapsException
-    {
-        return _parameter.getInstance();
     }
 
     /**
