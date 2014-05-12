@@ -63,4 +63,15 @@ public class InterfaceUtils
         InterfaceUtils_Base.addMaxResult2QueryBuilder4AutoComplete(_parameter, _queryBldr);
     }
 
+    /**
+     * Method to evaluate the selected row.
+     *
+     * @param _parameter paaremter
+     * @return number of selected row.
+     */
+    public static int getSelectedRow(final Parameter _parameter)
+    {
+        return InterfaceUtils_Base.getSelectedRow(_parameter);
+    }
+
 }

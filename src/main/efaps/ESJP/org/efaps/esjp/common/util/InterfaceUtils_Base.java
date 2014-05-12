@@ -28,6 +28,7 @@ import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.QueryBuilder;
+import org.efaps.ui.wicket.behaviors.SetSelectedRowBehavior;
 import org.efaps.ui.wicket.util.EFapsKey;
 
 
@@ -87,5 +88,21 @@ public abstract class InterfaceUtils_Base
         if (maxResult > 0) {
             _queryBldr.setLimit(maxResult);
         }
+    }
+
+    /**
+     * Method to evaluate the selected row.
+     *
+     * @param _parameter paaremter
+     * @return number of selected row.
+     */
+    public static int getSelectedRow(final Parameter _parameter)
+    {
+        int ret = 0;
+        final String value = _parameter.getParameterValue(SetSelectedRowBehavior.INPUT_ROW);
+        if (value != null && value.length() > 0) {
+            ret = Integer.parseInt(value);
+        }
+        return ret;
     }
 }
