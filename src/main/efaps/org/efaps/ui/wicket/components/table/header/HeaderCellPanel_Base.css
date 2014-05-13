@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2012 The eFaps Team
+ * Copyright 2003 - 2014 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -26,8 +26,7 @@
  */
 .eFapsHeaderSort,.eFapsHeaderSortAscending,.eFapsHeaderSortDescending {
     cursor: pointer;
-    float: left;
-    width: 100%;
+    width: 99%;
 }
 
 .eFapsHeaderSortAscending,.eFapsHeaderSortDescending {
@@ -39,8 +38,9 @@
     background-position: center;
     background-repeat: no-repeat;
     cursor: pointer;
+    float: left;
+    margin-left: -3px;
     width: 18px;
-    float: right;
 }
 
 .dojoDndAvatar {
@@ -62,7 +62,6 @@
     cursor: pointer;
 }
 
-.eFapsTableHeaderCell.dojoDndItemAnchor,.eFapsTableHeaderCell.dojoDndItemSelected
-    {
+.eFapsTableHeaderCell.dojoDndItemAnchor,.eFapsTableHeaderCell.dojoDndItemSelected {
     background-color: #005C00;
 }
