@@ -29,7 +29,7 @@
     <file-application>eFaps-webapp</file-application>
     <file-revision>$Rev$</file-revision>
     <definition>
-        <version-expression>(version==1)</version-expression>
+        <version-expression>(version==latest)</version-expression>
         <name>WebApp-Configuration</name>
         <attribute>
             <key>org.efaps.webapp.StaticContentCacheDuration</key>
