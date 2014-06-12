@@ -89,7 +89,7 @@ function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue, _fieldLa
                 }
             } else if (typeof(_fieldLabel) !== "undefined") { // that means that a dojo widget must be search
                 var parentWidget = registry.getEnclosingWidget(fields[cp]);
-                if (typeof(parentWidget) !== "undefined") {
+                if (parentWidget != null && typeof(parentWidget) !== "undefined") {
                     if (parentWidget.isInstanceOf(AutoComplete)) {
                         // deactivate the onchange event
                         parentWidget.set('_onChangeActive', false);
