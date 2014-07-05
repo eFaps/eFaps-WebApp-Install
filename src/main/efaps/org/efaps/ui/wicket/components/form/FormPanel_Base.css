@@ -118,3 +118,16 @@
 .eFapsReadOnly {
     color: grey;
 }
+
+.eFapsForm .field input[type=radio] {
+    float: left;
+}
+
+.eFapsForm .field input[type=radio]+label {
+    white-space: nowrap;
+    position: absolute;
+ }
+
+.eFapsForm .field input[type=radio]+label+br {
+  clear: left;
+}
