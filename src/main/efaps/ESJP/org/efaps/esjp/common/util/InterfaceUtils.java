@@ -54,6 +54,16 @@ public class InterfaceUtils
     }
 
     /**
+     * @param _map
+     * @param _script
+     */
+    public static void prependScript4FieldUpdate(final Map<String, Object> _map,
+                                                final CharSequence _script)
+    {
+        InterfaceUtils_Base.prependScript4FieldUpdate( _map, _script);
+    }
+
+    /**
      * @param _parameter
      * @param _queryBldr
      */

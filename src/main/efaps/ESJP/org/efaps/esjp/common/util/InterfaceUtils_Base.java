@@ -53,6 +53,16 @@ public abstract class InterfaceUtils_Base
         InterfaceUtils_Base.add2Script(EFapsKey.FIELDUPDATE_JAVASCRIPT, _map, _script, true);
     }
 
+    /**
+     * @param _map
+     * @param _script
+     */
+    public static void prependScript4FieldUpdate(final Map<String, Object> _map,
+                                                final CharSequence _script)
+    {
+        InterfaceUtils_Base.add2Script(EFapsKey.FIELDUPDATE_JAVASCRIPT, _map, _script, false);
+    }
+
     protected static void add2Script(final EFapsKey _key,
                                      final Map<String, Object> _map,
                                      final CharSequence _script,
