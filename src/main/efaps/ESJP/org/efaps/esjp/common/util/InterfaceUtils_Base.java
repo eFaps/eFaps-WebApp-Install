@@ -47,8 +47,8 @@ public abstract class InterfaceUtils_Base
      * @param _map
      * @param _script
      */
-    public static void appendScript4FieldUpdate(final Map<String, Object> _map,
-                                                final CharSequence _script)
+    protected static void appendScript4FieldUpdate(final Map<String, Object> _map,
+                                                   final CharSequence _script)
     {
         InterfaceUtils_Base.add2Script(EFapsKey.FIELDUPDATE_JAVASCRIPT, _map, _script, true);
     }
@@ -75,8 +75,8 @@ public abstract class InterfaceUtils_Base
      * @param _parameter Parameter as passed by the eFaps API
      * @param _queryBldr queryBuilder the MaxResult will be added to
      */
-    public static void addMaxResult2QueryBuilder4AutoComplete(final Parameter _parameter,
-                                                              final QueryBuilder _queryBldr)
+    protected static void addMaxResult2QueryBuilder4AutoComplete(final Parameter _parameter,
+                                                                 final QueryBuilder _queryBldr)
     {
         final Map<?, ?> properties = (Map<?, ?>) _parameter.get(ParameterValues.PROPERTIES);
         final int maxResult;
@@ -96,7 +96,7 @@ public abstract class InterfaceUtils_Base
      * @param _parameter paaremter
      * @return number of selected row.
      */
-    public static int getSelectedRow(final Parameter _parameter)
+    protected static int getSelectedRow(final Parameter _parameter)
     {
         int ret = 0;
         final String value = _parameter.getParameterValue(SetSelectedRowBehavior.INPUT_ROW);
@@ -104,5 +104,62 @@ public abstract class InterfaceUtils_Base
             ret = Integer.parseInt(value);
         }
         return ret;
+    }
+
+    /**
+     * @param _parameter Parameter as passed by the eFaps API
+     * @param _script   script to be wrapped
+     * @param _libraries libraries to be added
+     * @return wrapped script
+     */
+    protected static StringBuilder wrapInDojoRequire(final Parameter _parameter,
+                                                     final CharSequence _script,
+                                                     final DojoLibs... _libraries)
+    {
+        final StringBuilder ret = new StringBuilder()
+            .append("require([");
+        final StringBuilder paras = new StringBuilder();
+        boolean first = true;
+
+        for (int i = 0; i < _libraries.length; i++) {
+            final DojoLibs dojoLibs = _libraries[i];
+            if (first) {
+                first = false;
+            } else {
+                ret.append(",");
+                if (dojoLibs.paraName != null) {
+                    paras.append(",");
+                }
+            }
+            ret.append("\"").append(dojoLibs.libName).append("\"");
+            if (dojoLibs.paraName != null) {
+                paras.append(dojoLibs.paraName);
+            }
+        }
+        ret.append("],").append(" function(")
+            .append(paras)
+            .append(") {\n")
+            .append(_script).append("});");
+        return ret;
+    }
+
+    public enum DojoLibs
+    {
+        QUERY("dojo/query", "query"),
+        REGISTRY("dijit/registry", "registry"),
+        AUTOCOMP("efaps/AutoComplete", "AutoComplete"),
+        AUTOSUGG("efaps/AutoSuggestion", "AutoSuggestion"),
+        NLDOM("dojo/NodeList-dom", null),
+        DOMCLASS("dojo/dom-class", "domClass");
+
+        private final String libName;
+        private final String paraName;
+
+        private DojoLibs(final String _libName,
+                         final String _paraName)
+        {
+            this.libName = _libName;
+            this.paraName = _paraName;
+        }
     }
 }
