@@ -96,4 +96,17 @@ public class InterfaceUtils
     {
         return InterfaceUtils_Base.wrapInDojoRequire(_parameter, _script, _libraries);
     }
+
+    /**
+     * @param _parameter Parameter as passed by the eFaps API
+     * @param _script   script to be wrapped
+     * @param _libraries libraries to be added
+     * @return wrapped script
+     */
+    public static StringBuilder wrappInScriptTag(final Parameter _parameter,
+                                                 final CharSequence _script,
+                                                 final boolean _jsTag,
+                                                 final int _ready) {
+        return InterfaceUtils_Base.wrappInScriptTag(_script, _jsTag, _ready);
+    }
 }

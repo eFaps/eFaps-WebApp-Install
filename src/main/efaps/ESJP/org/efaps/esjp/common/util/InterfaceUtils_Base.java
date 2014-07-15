@@ -122,6 +122,32 @@ public abstract class InterfaceUtils_Base
      * @param _libraries libraries to be added
      * @return wrapped script
      */
+    protected static StringBuilder wrappInScriptTag(final CharSequence _script,
+                                                    final boolean _jsTag,
+                                                    final int _ready) {
+        final StringBuilder ret = new StringBuilder();
+        if (_jsTag) {
+            ret.append("<script type=\"text/javascript\">/*<![CDATA[*/\n");
+        }
+        if (_ready > 0) {
+            ret.append("require([\"dojo/ready\"], function(ready){ready(").append(_ready).append(", function(){\n");
+        }
+        ret.append(_script);
+        if (_ready > 0) {
+            ret.append("});});");
+        }
+        if (_jsTag) {
+            ret.append("\n/*]]>*/</script>");
+        }
+        return ret;
+    }
+
+    /**
+     * @param _parameter Parameter as passed by the eFaps API
+     * @param _script   script to be wrapped
+     * @param _libraries libraries to be added
+     * @return wrapped script
+     */
     protected static StringBuilder wrapInDojoRequire(final Parameter _parameter,
                                                      final CharSequence _script,
                                                      final DojoLibs... _libraries)
