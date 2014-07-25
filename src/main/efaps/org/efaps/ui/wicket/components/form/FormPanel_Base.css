@@ -30,6 +30,7 @@
 
 .eFapsFormRow {
     height: 24px;
+    border-collapse: collapse;
 }
 
 .eFapsFormLabel,.eFapsFormLabelRequired,.eFapsFormLabelRequiredForce,.eFapsFormLabelInvalidValue
