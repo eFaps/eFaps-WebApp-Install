@@ -34,6 +34,9 @@ import org.efaps.admin.datamodel.Classification;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.datamodel.Status.StatusGroup;
 import org.efaps.admin.datamodel.Type;
+import org.efaps.admin.datamodel.ui.DateTimeUI;
+import org.efaps.admin.datamodel.ui.DateUI;
+import org.efaps.admin.datamodel.ui.IUIProvider;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return;
@@ -514,13 +517,12 @@ public abstract class MultiPrint_Base
     {
         boolean ret = true;
         final Attribute attr = _type.getAttribute(_attrName);
-        final UUID attrTypeUUId = attr.getAttributeType().getUUID();
+        final IUIProvider uiProvider = attr.getAttributeType().getUIProvider();
         final Map<?, ?> inner = (Map<?, ?>) _entry.getValue();
         final String from = (String) inner.get("from");
         final String to = (String) inner.get("to");
         // Date or DateTime
-        if (UUID.fromString("68ce3aa6-e3e8-40bb-b48f-2a67948c2e7e").equals(attrTypeUUId)
-                        || UUID.fromString("e764db0f-70f2-4cd4-b2fe-d23d3da72f78").equals(attrTypeUUId)) {
+        if (uiProvider instanceof DateTimeUI || uiProvider instanceof DateUI) {
             DateTime dateFrom = null;
             DateTime dateTo = null;
             if (from == null || to == null ) {
