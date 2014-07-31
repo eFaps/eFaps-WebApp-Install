@@ -478,7 +478,7 @@ public abstract class MultiPrint_Base
                             || UUID.fromString("e764db0f-70f2-4cd4-b2fe-d23d3da72f78").equals(attrTypeUUId)) {
                 DateTime dateFrom = null;
                 DateTime dateTo = null;
-                if ((from == null) || (to == null)) {
+                if (from == null || to == null) {
                     final DateTime[] dates = (DateTime[]) getFilter(_field);
                     dateTo = dates[0];
                     dateFrom = dateTo.plusMinutes(2);
@@ -523,7 +523,7 @@ public abstract class MultiPrint_Base
                         || UUID.fromString("e764db0f-70f2-4cd4-b2fe-d23d3da72f78").equals(attrTypeUUId)) {
             DateTime dateFrom = null;
             DateTime dateTo = null;
-            if ((from == null || to == null) ) {
+            if (from == null || to == null ) {
                 final DateTime[] dates = (DateTime[]) getFilter(_field);
                 dateFrom = dates[0];
                 dateTo = dates[1];
@@ -596,8 +596,8 @@ public abstract class MultiPrint_Base
         final boolean validTo = to != null && !to.isEmpty() ? true : false;
         final Object[] filter = getFilter(_field);
 
-        if ((validFrom || (!validFrom && filter != null))
-                        || ((validFrom && validTo) || (!validFrom && !validTo && filter != null))) {
+        if (validFrom || !validFrom && filter != null
+                        || validFrom && validTo || !validFrom && !validTo && filter != null) {
             final String[] parts = _select.split("\\.");
             final List<String> lstParts = new ArrayList<String>();
             for (final String part : parts) {
@@ -726,6 +726,7 @@ public abstract class MultiPrint_Base
             DateTime dateTo = new DateTime();
             if (range != null) {
                 final FilterDefault def = FilterDefault.valueOf(range.toUpperCase());
+                // to get a timezone dependent DateTim
                 DateTime tmp = DateTimeUtil.translateFromUI(new DateTime()).withTimeAtStartOfDay();
                 switch (def) {
                     case TODAY:
@@ -734,21 +735,25 @@ public abstract class MultiPrint_Base
                         ret = new DateTime[] { dateFrom, dateTo };
                         break;
                     case WEEK:
+                        // the first of the current week
                         tmp = tmp.minusDays(tmp.getDayOfWeek() - 1);
-                        dateFrom = tmp.toDateTime().minusWeeks(fromSub).minusMinutes(1);
-                        dateTo = dateFrom.toDateTime().plusWeeks(rangeCount);
+                        dateFrom = tmp.minusWeeks(fromSub).minusMinutes(1);
+                        dateTo = tmp.plusWeeks(rangeCount);
                         ret = new DateTime[] { dateFrom, dateTo };
                         break;
                     case MONTH:
+                        // the first of the current month
                         tmp = tmp.minusDays(tmp.getDayOfMonth() - 1);
-                        dateFrom = tmp.toDateTime().minusMonths(fromSub).minusMinutes(1);
-                        dateTo = dateFrom.toDateTime().plusMonths(rangeCount);
+                        // substract the month and a minute before
+                        dateFrom = tmp.minusMonths(fromSub).minusMinutes(1);
+                        // add the month
+                        dateTo = tmp.plusMonths(rangeCount);
                         ret = new DateTime[] { dateFrom, dateTo };
                         break;
                     case YEAR:
                         tmp = tmp.minusDays(tmp.getDayOfYear() - 1);
-                        dateFrom = tmp.toDateTime().minusYears(fromSub).minusMinutes(1);
-                        dateTo = dateFrom.toDateTime().plusYears(rangeCount);
+                        dateFrom = tmp.minusYears(fromSub).minusMinutes(1);
+                        dateTo = tmp.plusYears(rangeCount);
                         ret = new DateTime[] { dateFrom, dateTo };
                         break;
                     case ALL:
