@@ -24,69 +24,115 @@
  * @eFapsUUID     a742d113-b1c7-4cd2-918d-87c8c522fa50
  * @eFapsRevision $Rev$
  */
-
 .eFapsButton {
-  background-color: transparent;
-  background-image: url(../../servlet/image/org.efaps.ui.wicket.components.button.button-rb.png);
-  background-position: right top;
-  background-repeat: no-repeat;
-  border-style: none;
-  border-width: 0pt;
-  display: block;
-  height: 28px;
-  line-height: normal;
-  margin-right: 6px;
-  padding-right: 18px;
-  text-decoration: none;
+    background-color: transparent;
+    background-image: url(../../servlet/image/org.efaps.ui.wicket.components.button.button-rb.png);
+    background-position: right top;
+    background-repeat: no-repeat;
+    border-style: none;
+    border-width: 0pt;
+    display: block;
+    height: 28px;
+    line-height: normal;
+    margin-right: 6px;
+    padding-right: 18px;
+    text-decoration: none;
 }
 
 .efapsButtonLeftBorder {
-  background-image: url(../../servlet/image/org.efaps.ui.wicket.components.button.button-lb.png);
-  background-position: left top;
-  background-repeat: no-repeat;
-  background-color: transparent;
-  height: 28px;
+    background-image: url(../../servlet/image/org.efaps.ui.wicket.components.button.button-lb.png);
+    background-position: left top;
+    background-repeat: no-repeat;
+    background-color: transparent;
+    height: 28px;
 }
 
 .eFapsButtonImage {
-  background-color: transparent;
-  border-style: none;
-  margin-left: 9px;
-  padding: 0;
-  margin-top: 5px;
-  float: left;
-  background: transparent;
-  height: 16px;
-  width: 16px;
+    background-color: transparent;
+    border-style: none;
+    margin-left: 9px;
+    padding: 0;
+    margin-top: 5px;
+    float: left;
+    background: transparent;
+    height: 16px;
+    width: 16px;
 }
 
 .eFapsButtonLabel {
-  background-color: transparent;
-  color: #00A000;
-  font-family: arial;
-  font-size: 11px;
-  line-height: 28px;
-  padding-bottom: 5px;
-  padding-left: 4px;
-  padding-top: 5px;
-  text-decoration: none;
-  font-weight: normal;
+    background-color: transparent;
+    color: #00A000;
+    font-family: arial;
+    font-size: 11px;
+    line-height: 28px;
+    padding-bottom: 5px;
+    padding-left: 4px;
+    padding-top: 5px;
+    text-decoration: none;
+    font-weight: normal;
 }
 
 .eFapsButton:active {
-  background-position: bottom right;
-  color: #000;
-  outline: none; /* hide dotted outline in Firefox */
+    background-position: bottom right;
+    color: #000;
+    outline: none; /* hide dotted outline in Firefox */
 }
 
 .eFapsButton:active .efapsButtonLeftBorder {
-  background-position: left bottom;
+    background-position: left bottom;
 }
 
 .eFapsButton:active .eFapsButtonImage {
-  margin-top: 7px;
+    margin-top: 7px;
 }
 
 .eFapsButton:active .eFapsButtonLabel {
-  padding-top: 6px;
+    padding-top: 6px;
+}
+
+.button {
+    background: #ece6e6;
+    background-image: -webkit-linear-gradient(top, #ece6e6, #9c8080);
+    background-image: -moz-linear-gradient(top, #ece6e6, #9c8080);
+    background-image: -ms-linear-gradient(top, #ece6e6, #9c8080);
+    background-image: -o-linear-gradient(top, #ece6e6, #9c8080);
+    background-image: linear-gradient(to bottom, #ece6e6, #9c8080);
+    -webkit-border-radius: 15;
+    -moz-border-radius: 15;
+    border-radius: 15px;
+    -webkit-box-shadow: 0px 1px 3px #666666;
+    -moz-box-shadow: 0px 1px 3px #666666;
+    box-shadow: 0px 1px 3px #666666;
+    font-family: Arial;
+    color: #00a000;
+    font-size: 11px;
+    padding: 3px 10px 5px 10px;
+    border: solid #755555 2px;
+    text-decoration: none;
+    height: 15px;
+    display: inline-block;
+    min-width: 40px;
+}
+
+.button:active {
+    outline: none; /* hide dotted outline in Firefox */
+    background: #4a3535;
+    background-image: -webkit-linear-gradient(top, #4a3535, #9c8080);
+    background-image: -moz-linear-gradient(top, #4a3535, #9c8080);
+    background-image: -ms-linear-gradient(top, #4a3535, #9c8080);
+    background-image: -o-linear-gradient(top, #4a3535, #9c8080);
+    background-image: linear-gradient(to bottom, #4a3535, #9c8080);
+}
+
+.button .image {
+    background-repeat:no-repeat;
+    display: inline-block;
+    height:16px;
+    vertical-align:bottom;
+    width:16px;
+}
+
+.button .btnlabel {
+    color: #00A000;
+    font-weight: normal;
 }
