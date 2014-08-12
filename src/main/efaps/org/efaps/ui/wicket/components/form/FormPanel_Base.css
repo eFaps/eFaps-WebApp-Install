@@ -120,6 +120,16 @@
     color: grey;
 }
 
+.eFapsForm .field {
+    background-color: white;
+    display: table-cell;
+    height: 25px;
+    padding-left: 4px;
+    padding-right: 4px;
+    vertical-align: middle;
+    width: 100%;
+}
+
 .eFapsForm .field input[type=radio] {
     float: left;
 }
@@ -132,3 +142,46 @@
 .eFapsForm .field input[type=radio]+label+br {
   clear: left;
 }
+
+.eFapsForm .field.invalid input{
+    background-color: #e5e591;
+}
+
+.eFapsForm .field.invalid input[type=radio]+label{
+    font-weight: bolder;
+}
+
+.eFapsForm .field.invalid input[type=checkbox]+label{
+    font-weight: bolder;
+}
+
+.eFapsForm .label {
+    background-color: #D0EDB8;
+    border: 2px solid #008800;
+    color: #008800;
+    display: table-cell;
+    font-weight: bold;
+    max-width: 153px;
+    min-width: 153px;
+    overflow: hidden;
+    padding: 2px;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    width: 153px;
+}
+
+.eFapsForm .label.required {
+    color: black;
+    font-style: italic;
+    border-style: double;
+    border-color: #008800;
+}
+
+.eFapsForm .label.required.error {
+    background-color: red;
+    color: black;
+    font-style: italic;
+    border-style: double;
+    border-color: black;
+}
+

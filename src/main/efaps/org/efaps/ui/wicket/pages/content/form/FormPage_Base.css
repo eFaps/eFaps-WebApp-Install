@@ -92,31 +92,6 @@
     width: 100%;
 }
 
-.eFapsForm .label {
-    background-color: #D0EDB8;
-    border: 2px solid #008800;
-    color: #008800;
-    display: table-cell;
-    font-weight: bold;
-    max-width: 150px;
-    min-width: 150px;
-    overflow: hidden;
-    padding: 2px;
-    text-overflow: ellipsis;
-    vertical-align: middle;
-    width: 150px;
-}
-
-.eFapsForm .field {
-    background-color: white;
-    display: table-cell;
-    height: 25px;
-    padding-left: 4px;
-    padding-right: 4px;
-    vertical-align: middle;
-    width: 100%;
-}
-
 .eFapsHiddenSection {
     display: none;
 }
@@ -135,3 +110,4 @@
 .eFapsCollapsedSection .eFapsCollapsible {
     background-image: url("../../servlet/image//org.efaps.ui.wicket.components.heading.Open.png");
 }
+
