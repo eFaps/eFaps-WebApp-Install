@@ -24,6 +24,7 @@ import java.util.Random;
 
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.api.ui.IEsjpSnipplet;
 import org.efaps.esjp.ui.html.dojo.charting.Axis;
 import org.efaps.esjp.ui.html.dojo.charting.Data;
 import org.efaps.esjp.ui.html.dojo.charting.LineChart;
@@ -32,7 +33,6 @@ import org.efaps.esjp.ui.html.dojo.charting.MouseIndicator;
 import org.efaps.esjp.ui.html.dojo.charting.Orientation;
 import org.efaps.esjp.ui.html.dojo.charting.Plot;
 import org.efaps.esjp.ui.html.dojo.charting.Serie;
-import org.efaps.ui.wicket.models.IEsjpSnipplet;
 import org.efaps.util.EFapsException;
 
 /**
