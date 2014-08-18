@@ -120,6 +120,12 @@
     color: grey;
 }
 
+.eFapsForm .labeled {
+    display: table;
+    height: 25px;
+    border-collapse: separate;
+}
+
 .eFapsForm .field {
     background-color: white;
     display: table-cell;
@@ -153,6 +159,17 @@
 
 .eFapsForm .field.invalid input[type=checkbox]+label{
     font-weight: bolder;
+}
+
+.eFapsForm SELECT.field {
+    font-family: arial, verdana, helvetica, sans-serif;
+    font-size: 9pt;
+    background-color: #E8E8E8;
+    border: 1px solid #CCCCCC;
+    border-radius: 2px 2px 2px 2px;
+    padding: 1px;
+    height: 21px;
+    margin-left: 5px;
 }
 
 .eFapsForm .label {
