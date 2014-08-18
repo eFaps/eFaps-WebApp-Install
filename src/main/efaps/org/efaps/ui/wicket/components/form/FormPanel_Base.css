@@ -121,9 +121,9 @@
 }
 
 .eFapsForm .labeled {
-    display: table;
-    height: 25px;
     border-collapse: separate;
+    border-spacing: 0;
+    display: table;
 }
 
 .eFapsForm .field {
