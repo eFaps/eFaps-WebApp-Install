@@ -124,12 +124,17 @@
     border-collapse: separate;
     border-spacing: 0;
     display: table;
+    width: 100%;
 }
 
 .eFapsForm .field {
     background-color: white;
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.components.form.dotted-line.png");
+    background-position: bottom;
+    background-repeat: repeat-x;
     display: table-cell;
     height: 25px;
+    min-width: 153px;
     padding-left: 4px;
     padding-right: 4px;
     vertical-align: middle;
