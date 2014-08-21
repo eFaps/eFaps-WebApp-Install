@@ -21,8 +21,10 @@
 
 package org.efaps.esjp.common.util;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.program.esjp.EFapsRevision;
@@ -43,6 +45,25 @@ import org.efaps.ui.wicket.util.EFapsKey;
 public abstract class InterfaceUtils_Base
 {
 
+
+
+    protected static String[] getRowKeys(final Parameter _parameter,
+                                         final String _currentkey,
+                                         final String... _keySequence)
+    {
+        final String[] rowKeys =_parameter.getParameterValues(EFapsKey.TABLEROW_NAME.getKey());
+        final Map<String, String[]> result = new HashMap<>();
+        int idx = 0;
+        for (final String key : _keySequence) {
+            final String[] keyArr = _parameter.getParameterValues(key);
+            result.put(key,ArrayUtils.subarray(rowKeys, idx, keyArr.length + idx));
+            idx = keyArr.length;
+        }
+        return result.get(_currentkey);
+    }
+
+
+
     /**
      * @param _map
      * @param _script
@@ -57,8 +78,8 @@ public abstract class InterfaceUtils_Base
      * @param _map
      * @param _script
      */
-    public static void prependScript4FieldUpdate(final Map<String, Object> _map,
-                                                final CharSequence _script)
+    protected static void prependScript4FieldUpdate(final Map<String, Object> _map,
+                                                    final CharSequence _script)
     {
         InterfaceUtils_Base.add2Script(EFapsKey.FIELDUPDATE_JAVASCRIPT, _map, _script, false);
     }

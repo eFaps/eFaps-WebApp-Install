@@ -43,6 +43,14 @@ public class InterfaceUtils
     extends InterfaceUtils_Base
 {
 
+    public static String[] getRowKeys(final Parameter _parameter,
+                                         final String _currentkey,
+                                         final String... _keySequence)
+    {
+        return InterfaceUtils_Base.getRowKeys(_parameter, _currentkey, _keySequence);
+    }
+
+
     /**
      * @param _map
      * @param _js
