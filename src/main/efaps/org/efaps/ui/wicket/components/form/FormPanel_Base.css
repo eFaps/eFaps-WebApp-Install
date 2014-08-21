@@ -175,7 +175,7 @@
     padding: 1px;
     height: 21px;
     margin-left: 5px;
-    width: inherit;
+    width: auto;
 }
 
 .eFapsForm .label {
