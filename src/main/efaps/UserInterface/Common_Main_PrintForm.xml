@@ -35,6 +35,7 @@
         <field name="mime">
             <property name="ModeCreate">EDITABLE</property>
             <property name="Label">Common_Main_PrintForm.mime.Label</property>
+            <property name="ClassNameUI">org.efaps.admin.datamodel.ui.StringUI</property>
             <trigger program="org.efaps.esjp.ui.print.UserInterface"
                 method="getMimeFieldValueUI"
                 name="Common_Main_PrintForm.mime.UI_FIELD_VALUE"
@@ -48,6 +49,7 @@
         <field name="columns">
             <property name="ModeCreate">READONLY</property>
             <property name="Label">Common_Main_PrintForm.columns.Label</property>
+            <property name="ClassNameUI">org.efaps.admin.datamodel.ui.StringUI</property>
             <trigger program="org.efaps.esjp.ui.print.UserInterface"
                 method="getColumnsFieldValueUI"
                 name="Common_Main_PrintForm.columns.UI_FIELD_VALUE"
