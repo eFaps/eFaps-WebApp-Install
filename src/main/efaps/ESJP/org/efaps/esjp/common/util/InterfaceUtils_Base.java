@@ -208,7 +208,8 @@ public abstract class InterfaceUtils_Base
         AUTOSUGG("efaps/AutoSuggestion", "AutoSuggestion"),
         NLDOM("dojo/NodeList-dom", null),
         DOMCLASS("dojo/dom-class", "domClass"),
-        DOMATTR("dojo/dom-attr", "domAttr");
+        DOMATTR("dojo/dom-attr", "domAttr"),
+        TOPIC("dojo/topic", "topic");
 
         private final String libName;
         private final String paraName;
