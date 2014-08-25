@@ -21,6 +21,7 @@
 
 package org.efaps.esjp.common.uiform;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -75,6 +76,44 @@ public abstract class Evaluate_Base
         ret.put(ReturnValues.INSTANCE, instance);
         return ret;
     }
+
+    /**
+    * Used to select one row of a table and sets the instance selected,
+    * so it can be used by a form.
+    * @param _parameter Parameter as passed by the eFaps API
+    * @return Return containing instance
+    * @throws EFapsException on error
+    */
+   public Return validateStatus(final Parameter _parameter)
+       throws EFapsException
+   {
+       final String oid = _parameter.getParameterValue("selectedRow");
+       final Instance instance = Instance.get(oid);
+
+       final List<Status> statusList = getStatusListFromProperties(_parameter);
+       final Attribute statusAttr = instance.getType().getStatusAttribute();
+       final PrintQuery print = new PrintQuery(instance);
+       print.addAttribute(statusAttr);
+       boolean valid = false;
+       if (print.execute()) {
+           final Long statusid = print.getAttribute(statusAttr);
+           for (final Status status : statusList) {
+               if (status.getId() == statusid) {
+                   valid = true;
+                   break;
+               }
+           }
+       }
+       final Return ret = new Return();
+       if (valid) {
+           if("true".equalsIgnoreCase(getProperty(_parameter, "SetInstance"))) {
+               ret.put(ReturnValues.INSTANCE, instance);
+           } else {
+               ret.put(ReturnValues.INSTANCE, _parameter.getInstance());
+           }
+       }
+       return ret;
+   }
 
     /**
      * To be overwritten by implementations.
