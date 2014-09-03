@@ -144,42 +144,48 @@
     width: 100%;
 }
 
-.eFapsForm .field input[type=radio] {
-    float: left;
-}
-
-.eFapsForm .field input[type=radio]+label {
-    white-space: nowrap;
-    position: absolute;
- }
-
-.eFapsForm .field input[type=radio]+label+br {
-  clear: left;
-}
-
 .eFapsForm .field.invalid input{
     background-color: #e5e591;
 }
 
-.eFapsForm .field.invalid input[type=radio]+label{
-    font-weight: bolder;
-}
-
-.eFapsForm .field.invalid input[type=checkbox]+label{
-    font-weight: bolder;
-}
-
-.eFapsForm SELECT.field {
+.eFapsForm input.field, .eFapsForm textarea.field, .eFapsForm select.field {
     font-family: arial, verdana, helvetica, sans-serif;
     font-size: 9pt;
     background-color: #E8E8E8;
     border: 1px solid #CCCCCC;
     border-radius: 2px 2px 2px 2px;
     padding: 1px;
+}
+
+.eFapsForm input.field {
+    width: auto;
+    min-width: inherit;
+    height: 21px;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    margin-left: 5px;
+}
+
+.eFapsForm textarea.field  {
+    height: auto;
+    width: auto;
+}
+
+.eFapsForm select.field {
+    border: 1px solid #CCCCCC;
+    padding: 1px;
     height: 21px;
     margin-left: 5px;
     width: auto;
 }
+
+.eFapsForm .field span.boolean {
+    display: table-cell;
+}
+.eFapsForm .field span.boolean span {
+   font-weight: bolder;
+}
+
 
 .eFapsForm .label {
     background-color: #D0EDB8;
