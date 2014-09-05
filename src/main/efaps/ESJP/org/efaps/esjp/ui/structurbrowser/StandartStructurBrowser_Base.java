@@ -113,6 +113,8 @@ public abstract class StandartStructurBrowser_Base
                     ret = getJavaScript4Target(_parameter);
                 }
             }
+        } else {
+            ret = ret.put(ReturnValues.INSTANCE, _parameter.getInstance());
         }
         return ret;
     }
