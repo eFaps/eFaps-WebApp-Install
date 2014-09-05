@@ -174,8 +174,9 @@
 .eFapsForm select.field {
     border: 1px solid #CCCCCC;
     padding: 1px;
-    height: 21px;
     margin-left: 5px;
+    margin-top: 2px;
+    margin-bottom: 2px;
     width: auto;
 }
 
