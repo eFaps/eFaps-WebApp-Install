@@ -64,6 +64,7 @@ import org.efaps.admin.ui.field.Field;
 import org.efaps.db.Context;
 import org.efaps.ui.wicket.models.cell.UIStructurBrowserTableCell;
 import org.efaps.ui.wicket.models.cell.UITableCell;
+import org.efaps.ui.wicket.models.field.IFilterable;
 import org.efaps.ui.wicket.models.objects.AbstractUIHeaderObject;
 import org.efaps.ui.wicket.models.objects.AbstractUIPageObject;
 import org.efaps.ui.wicket.models.objects.UIRow;
@@ -168,15 +169,18 @@ public abstract class Table_Base
                     if (pageObject instanceof UITable) {
                         for (final UIRow row : ((UITable) pageObject).getValues()) {
                             final Map<String, Object> map = new HashMap<String, Object>();
-                            for (final UITableCell cell : row.getValues()) {
-                                if (selCols.contains(cell.getName())) {
-                                    Object value = print ? cell.getCellTitle() : (cell.getCompareValue() != null
-                                                    ? cell.getCompareValue() : cell.getCellTitle());
-                                    if (value instanceof DateTime) {
-                                        value = ((DateTime) value).toDate();
+                            for (final IFilterable filterable : row.getCells()) {
+                                if (filterable instanceof UITableCell) {
+                                    final UITableCell cell = (UITableCell) filterable;
+                                    if (selCols.contains(cell.getName())) {
+                                        Object value = print ? cell.getCellTitle() : cell.getCompareValue() != null
+                                                        ? cell.getCompareValue() : cell.getCellTitle();
+                                        if (value instanceof DateTime) {
+                                            value = ((DateTime) value).toDate();
+                                        }
+                                        map.put(cell.getName(), value);
+                                        selAttr.put(cell.getName(), cell.getAttribute());
                                     }
-                                    map.put(cell.getName(), value);
-                                    selAttr.put(cell.getName(), cell.getAttribute());
                                 }
                             }
                             values.add(map);
@@ -192,7 +196,7 @@ public abstract class Table_Base
                             add = selCols.contains(header.getFieldName());
                         } else {
                             final Field field = Field.get(header.getFieldId());
-                            add = (field.isNoneDisplay(TargetMode.VIEW) && !field.isNoneDisplay(TargetMode.PRINT))
+                            add = field.isNoneDisplay(TargetMode.VIEW) && !field.isNoneDisplay(TargetMode.PRINT)
                                             || selCols.contains(header.getFieldName());
                             if (add && !selCols.contains(header.getFieldName())) {
                                 selCols.add(header.getFieldName());
@@ -285,8 +289,8 @@ public abstract class Table_Base
             final Map<String, Object> map = new HashMap<String, Object>();
             for (final UIStructurBrowserTableCell cell : cols) {
                 if (_selCols.contains(cell.getName())) {
-                    Object value = _print ? cell.getCellTitle() : (cell.getCompareValue() != null
-                                    ? cell.getCompareValue() : cell.getCellTitle());
+                    Object value = _print ? cell.getCellTitle() : cell.getCompareValue() != null
+                                    ? cell.getCompareValue() : cell.getCellTitle();
                     if (value instanceof DateTime) {
                         value = ((DateTime) value).toDate();
                     }
