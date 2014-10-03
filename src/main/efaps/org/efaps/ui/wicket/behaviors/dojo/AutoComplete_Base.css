@@ -40,3 +40,14 @@
     top: 2px;
     font-size: 9pt;
 }
+
+
+.eFapsForm .labeled .eFapsAutoComplete {
+    background-color: rgb(232, 232, 232);
+    margin-left: 5px;
+}
+
+.eFapsForm .labeled .eFapsAutoComplete .dijitInputInner {
+    height: 21px;
+    padding-left: 3px !important;
+}
