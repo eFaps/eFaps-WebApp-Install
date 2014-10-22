@@ -36,11 +36,11 @@
     width:100%;
 }
 
-.eFapsFormValue .eFapsAutoComplete .dijitPlaceHolder {
+.eFapsFormValue .eFapsAutoComplete .dijitPlaceHolder, .eFapsForm .labeled .eFapsAutoComplete .dijitPlaceHolder,
+    .eFapsForm .unlabeled .eFapsAutoComplete .dijitPlaceHolder {
     top: 2px;
     font-size: 9pt;
 }
-
 
 .eFapsForm .labeled .eFapsAutoComplete {
     background-color: rgb(232, 232, 232);
