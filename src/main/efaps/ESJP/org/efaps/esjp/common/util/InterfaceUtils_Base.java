@@ -202,13 +202,14 @@ public abstract class InterfaceUtils_Base
 
     public enum DojoLibs
     {
-        QUERY("dojo/query", "query"),
-        REGISTRY("dijit/registry", "registry"),
         AUTOCOMP("efaps/AutoComplete", "AutoComplete"),
         AUTOSUGG("efaps/AutoSuggestion", "AutoSuggestion"),
-        NLDOM("dojo/NodeList-dom", null),
-        DOMCLASS("dojo/dom-class", "domClass"),
         DOMATTR("dojo/dom-attr", "domAttr"),
+        DOMCLASS("dojo/dom-class", "domClass"),
+        DOMCONSTRUCT("dojo/dom-construct", "domConstruct"),
+        NLDOM("dojo/NodeList-dom", null),
+        QUERY("dojo/query", "query"),
+        REGISTRY("dijit/registry", "registry"),
         TOPIC("dojo/topic", "topic");
 
         private final String libName;
