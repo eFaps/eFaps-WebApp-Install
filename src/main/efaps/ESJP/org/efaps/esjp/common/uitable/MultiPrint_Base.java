@@ -21,6 +21,7 @@
 package org.efaps.esjp.common.uitable;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -205,8 +206,26 @@ public abstract class MultiPrint_Base
             add2QueryBldr(_parameter, queryBldr);
             if (!hasTable || analyzeTable(_parameter,
                             (Map<?, ?>) _parameter.get(ParameterValues.OTHERS), queryBldr)) {
-                final InstanceQuery query = queryBldr.getQuery();
-                instances.addAll(query.execute());
+                final Collection<String> selects = analyseProperty(_parameter, "InstanceSelect").values();
+                if (selects.isEmpty()) {
+                    final InstanceQuery query = queryBldr.getQuery();
+                    instances.addAll(query.execute());
+                } else {
+                    final MultiPrintQuery multi = queryBldr.getPrint();
+                    for (final String select : selects) {
+                        multi.addSelect(select);
+                    }
+                    multi.execute();
+                    while (multi.next()) {
+                        for (final String select : selects) {
+                            final Instance inst = multi.getSelect(select);
+                            if (inst != null && inst.isValid()) {
+                                instances.add(inst);
+                            }
+                        }
+                    }
+                }
+
             }
         }
         return instances;
