@@ -143,7 +143,8 @@ public abstract class InterfaceUtils_Base
      * @param _libraries libraries to be added
      * @return wrapped script
      */
-    protected static StringBuilder wrappInScriptTag(final CharSequence _script,
+    protected static StringBuilder wrappInScriptTag(final Parameter _parameter,
+                                                    final CharSequence _script,
                                                     final boolean _jsTag,
                                                     final int _ready) {
         final StringBuilder ret = new StringBuilder();
@@ -204,10 +205,12 @@ public abstract class InterfaceUtils_Base
     {
         AUTOCOMP("efaps/AutoComplete", "AutoComplete"),
         AUTOSUGG("efaps/AutoSuggestion", "AutoSuggestion"),
+        DOM( "dojo/dom", "dom"),
         DOMATTR("dojo/dom-attr", "domAttr"),
         DOMCLASS("dojo/dom-class", "domClass"),
         DOMCONSTRUCT("dojo/dom-construct", "domConstruct"),
         NLDOM("dojo/NodeList-dom", null),
+        ON("dojo/on", "on"),
         QUERY("dojo/query", "query"),
         REGISTRY("dijit/registry", "registry"),
         TOPIC("dojo/topic", "topic");

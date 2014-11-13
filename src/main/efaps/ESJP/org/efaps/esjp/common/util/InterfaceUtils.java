@@ -115,6 +115,6 @@ public class InterfaceUtils
                                                  final CharSequence _script,
                                                  final boolean _jsTag,
                                                  final int _ready) {
-        return InterfaceUtils_Base.wrappInScriptTag(_script, _jsTag, _ready);
+        return InterfaceUtils_Base.wrappInScriptTag(_parameter, _script, _jsTag, _ready);
     }
 }
