@@ -203,6 +203,11 @@
     width: 153px;
 }
 
+.eFapsForm .unlabeled .field {
+     display: block;
+}
+
+
 .eFapsForm .label.required {
     color: black;
     font-style: italic;
