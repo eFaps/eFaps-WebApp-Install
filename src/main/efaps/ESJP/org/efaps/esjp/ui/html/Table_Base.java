@@ -18,7 +18,6 @@
  * Last Changed By: $Author$
  */
 
-
 package org.efaps.esjp.ui.html;
 
 import java.math.BigDecimal;
@@ -28,7 +27,6 @@ import java.util.Stack;
 
 import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
-
 
 /**
  * TODO comment!
@@ -40,6 +38,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @EFapsRevision("$Rev$")
 public class Table_Base
 {
+
     private final List<Row> rows = new ArrayList<>();
 
     private Row currentRow;
@@ -80,6 +79,12 @@ public class Table_Base
         return this;
     }
 
+    public Table_Base addHeaderColumn()
+    {
+        addHeaderColumn(null);
+        return this;
+    }
+
     public Column getCurrentColumn()
     {
         return getCurrentRow().getCurrentColumn();
@@ -91,6 +96,15 @@ public class Table_Base
     public Table_Base addColumn(final CharSequence _innerHtml)
     {
         getCurrentRow().addColumn(_innerHtml);
+        return this;
+    }
+
+    /**
+     * @param _innerHtml
+     */
+    public Table_Base addHeaderColumn(final CharSequence _innerHtml)
+    {
+        getCurrentRow().addHeaderColumn(_innerHtml);
         return this;
     }
 
@@ -149,7 +163,6 @@ public class Table_Base
         }
     }
 
-
     public int getMaxColumns()
     {
         int ret = 0;
@@ -184,6 +197,7 @@ public class Table_Base
 
     public static class Row
     {
+
         private CharSequence style;
 
         private final List<Column> columns = new ArrayList<>();
@@ -192,7 +206,8 @@ public class Table_Base
 
         private final Table_Base table;
 
-        public Row(final Table_Base _table) {
+        public Row(final Table_Base _table)
+        {
             this.table = _table;
         }
 
@@ -202,9 +217,25 @@ public class Table_Base
             return this;
         }
 
+        public Row addHeaderColumn()
+        {
+            addHeaderColumn(null);
+            return this;
+        }
+
         public Row addColumn(final CharSequence _innerHtml)
         {
             this.currentColumn = new Column(this);
+            if (_innerHtml != null) {
+                this.currentColumn.setInnerHtml(_innerHtml);
+            }
+            this.columns.add(this.currentColumn);
+            return this;
+        }
+
+        public Row addHeaderColumn(final CharSequence _innerHtml)
+        {
+            this.currentColumn = new HeaderColumn(this);
             if (_innerHtml != null) {
                 this.currentColumn.setInnerHtml(_innerHtml);
             }
@@ -256,8 +287,8 @@ public class Table_Base
                 for (final Column column : getColumns()) {
                     if (!column.placeHolder && column.getRowSpan() == 1) {
                         final BigDecimal newColSpan = new BigDecimal(column.getColSpan()).setScale(2)
-                                    .divide(new BigDecimal(sum), BigDecimal.ROUND_HALF_UP)
-                                    .multiply(new BigDecimal(_maxColumns)).setScale(0, BigDecimal.ROUND_HALF_UP);
+                                        .divide(new BigDecimal(sum), BigDecimal.ROUND_HALF_UP)
+                                        .multiply(new BigDecimal(_maxColumns)).setScale(0, BigDecimal.ROUND_HALF_UP);
                         column.setColSpan(newColSpan.intValue());
                     }
                 }
@@ -292,7 +323,6 @@ public class Table_Base
             return ret;
         }
 
-
         public int[] getColSpans()
         {
             final int[] ret = new int[this.columns.size()];
@@ -325,13 +355,13 @@ public class Table_Base
         /**
          * Setter method for instance variable {@link #currentColumn}.
          *
-         * @param _currentColumn value for instance variable {@link #currentColumn}
+         * @param _currentColumn value for instance variable
+         *            {@link #currentColumn}
          */
         public void setCurrentColumn(final Column _currentColumn)
         {
             this.currentColumn = _currentColumn;
         }
-
 
         /**
          * Getter method for the instance variable {@link #style}.
@@ -342,7 +372,6 @@ public class Table_Base
         {
             return this.style;
         }
-
 
         /**
          * Setter method for instance variable {@link #style}.
@@ -355,7 +384,6 @@ public class Table_Base
             return this;
         }
 
-
         /**
          * Getter method for the instance variable {@link #table}.
          *
@@ -367,9 +395,28 @@ public class Table_Base
         }
     }
 
+    public static class HeaderColumn
+        extends Column
+    {
+
+        /**
+         * @param _row
+         */
+        public HeaderColumn(final Row _row)
+        {
+            super(_row);
+        }
+
+        @Override
+        protected String getTag()
+        {
+            return "th";
+        }
+    }
 
     public static class Column
     {
+
         private boolean placeHolder = false;
 
         private int position = 0;
@@ -384,11 +431,11 @@ public class Table_Base
 
         private Row row;
 
-
         public Column(final Row _row)
         {
             this.row = _row;
         }
+
         /**
          * Getter method for the instance variable {@link #innerHtml}.
          *
@@ -406,7 +453,7 @@ public class Table_Base
         {
             final StringBuilder ret = new StringBuilder();
             if (!isPlaceHolder()) {
-                ret.append("<td");
+                ret.append("<").append(getTag());
                 if (getColSpan() > 1) {
                     ret.append(" colspan=\"").append(getColSpan()).append("\"");
                 }
@@ -418,9 +465,14 @@ public class Table_Base
                 }
                 ret.append(">")
                     .append(getInnerHtml())
-                    .append("</td>");
+                    .append("</").append(getTag()).append(">");
             }
             return ret;
+        }
+
+        protected String getTag()
+        {
+            return "td";
         }
 
         /**
