@@ -53,13 +53,28 @@ public abstract class ColumnsChart_Base<S extends AbstractBarColChart<Data, S>>
                 addModule("dojox/charting/plot2d/Columns", "Columns");
                 break;
         }
-        addAxis(new Axis().setName("x"));
-        addAxis(new Axis().setName("y").setVertical(true).setMin(0));
+        boolean addXAxis = true;
+        boolean addYAxis = true;
+        for (final Axis axis : getAxis()) {
+            if (axis.getName().equals("x") && addXAxis) {
+                addXAxis =false;
+            }
+            if (axis.getName().equals("y") && addYAxis) {
+                addYAxis =false;
+            }
+        }
+        if (addXAxis) {
+            addAxis(new Axis().setName("x"));
+        }
+        if (addYAxis) {
+            addAxis(new Axis().setName("y").setVertical(true).setMin(0));
+        }
     }
 
     @Override
     protected void configurePlot(final Plot _plot)
     {
+        super.configurePlot(_plot);
         _plot.addConfig("type", "Columns");
     }
     /**

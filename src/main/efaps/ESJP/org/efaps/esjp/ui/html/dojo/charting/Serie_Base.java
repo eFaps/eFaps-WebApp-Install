@@ -88,6 +88,9 @@ public abstract class Serie_Base<T extends AbstractData<T>, S extends Serie_Base
         for (final T dat : getData()) {
             js.add(dat.getJavaScript());
         }
+        if (getData().isEmpty()) {
+            js.add("{}");
+        }
         return Util.collectionToObjectArray(js);
     }
 

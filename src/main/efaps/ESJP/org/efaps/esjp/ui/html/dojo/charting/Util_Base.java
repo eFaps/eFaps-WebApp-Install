@@ -18,13 +18,13 @@
  * Last Changed By: $Author$
  */
 
-
 package org.efaps.esjp.ui.html.dojo.charting;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-
 
 /**
  * TODO comment!
@@ -34,17 +34,18 @@ import java.util.Map.Entry;
  */
 public abstract class Util_Base
 {
+
     /**
      * @param _map map to be converted
      * @return StringBuilder conting the string elements
      */
-    public static CharSequence mapToObjectList(final Map<String,Object> _map)
+    protected static CharSequence mapToObjectList(final Map<String, Object> _map)
     {
         final StringBuilder ret = new StringBuilder();
         if (!_map.isEmpty()) {
             boolean first = true;
             ret.append("{");
-            for (final Entry<String,Object> entry : _map.entrySet()) {
+            for (final Entry<String, Object> entry : _map.entrySet()) {
                 if (first) {
                     first = false;
                 } else {
@@ -61,13 +62,13 @@ public abstract class Util_Base
      * @param _list Collection to be converted
      * @return StringBuilder conting the string elements
      */
-    public static CharSequence collectionToObjectArray(final Collection<CharSequence> _list)
+    protected static CharSequence collectionToObjectArray(final Collection<CharSequence> _list)
     {
         final StringBuilder ret = new StringBuilder();
         if (!_list.isEmpty()) {
             boolean first = true;
             ret.append("[");
-            for (final CharSequence entry :_list) {
+            for (final CharSequence entry : _list) {
                 if (first) {
                     first = false;
                 } else {
@@ -78,6 +79,28 @@ public abstract class Util_Base
             ret.append("]");
         }
         return ret;
+    }
+
+    /**
+     * @param _mapCollection
+     * @return
+     */
+    protected static CharSequence mapCollectionToObjectArray(final Collection<Map<String, Object>> _mapCollection)
+    {
+        final List<CharSequence> maps = new ArrayList<>();
+        for (final Map<String, Object> map : _mapCollection) {
+            maps.add(Util.mapToObjectList(map));
+        }
+        return Util.collectionToObjectArray(maps);
+    }
+
+    /**
+     * @param _mapCollection
+     * @return
+     */
+    protected static CharSequence wrap4String(final  Object _object)
+    {
+        return "\"" + _object + "\"";
     }
 
 }

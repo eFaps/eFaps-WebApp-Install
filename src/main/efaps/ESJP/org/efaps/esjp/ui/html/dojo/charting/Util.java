@@ -37,8 +37,23 @@ public class Util
     {
         return Util_Base.mapToObjectList(_map);
     }
+
     public static CharSequence collectionToObjectArray(final Collection<CharSequence> _list)
     {
         return Util_Base.collectionToObjectArray(_list);
+    }
+
+    public static CharSequence mapCollectionToObjectArray(final Collection<Map<String, Object>> _mapCollection)
+    {
+        return Util_Base.mapCollectionToObjectArray(_mapCollection);
+    }
+
+    /**
+     * @param _mapCollection
+     * @return
+     */
+    public static CharSequence wrap4String(final Object _object)
+    {
+        return Util_Base.wrap4String(_object);
     }
 }
