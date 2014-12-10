@@ -88,7 +88,14 @@ public abstract class Evaluate_Base
        throws EFapsException
    {
        final String oid = _parameter.getParameterValue("selectedRow");
-       final Instance instance = Instance.get(oid);
+       Instance instance = Instance.get(oid);
+       if (containsProperty(_parameter, "Select4Instance")) {
+           final String select = getProperty(_parameter, "Select4Instance");
+           final PrintQuery print = new PrintQuery(instance);
+           print.addSelect(select);
+           print.executeWithoutAccessCheck();
+           instance = print.getSelect(select);
+       }
 
        final List<Status> statusList = getStatusListFromProperties(_parameter);
        final Attribute statusAttr = instance.getType().getStatusAttribute();
