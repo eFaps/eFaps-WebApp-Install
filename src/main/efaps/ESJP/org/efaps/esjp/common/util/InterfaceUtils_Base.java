@@ -84,22 +84,30 @@ public abstract class InterfaceUtils_Base
         InterfaceUtils_Base.add2Script(EFapsKey.FIELDUPDATE_JAVASCRIPT, _map, _script, false);
     }
 
+    /**
+     * @param _key  key to add to
+     * @param _map  map
+     * @param _script   script to add
+     * @param _append append or prepend
+     */
     protected static void add2Script(final EFapsKey _key,
                                      final Map<String, Object> _map,
                                      final CharSequence _script,
                                      final boolean _append)
     {
-        final StringBuilder js = new StringBuilder();
-        if (!_append) {
-            js.append(_script);
+        if (_map != null) {
+            final StringBuilder js = new StringBuilder();
+            if (!_append) {
+                js.append(_script);
+            }
+            if (_map.containsKey(_key.getKey())) {
+                js.append(_map.get(_key.getKey()));
+            }
+            if (_append) {
+                js.append(_script);
+            }
+            _map.put(_key.getKey(), js.toString());
         }
-        if (_map.containsKey(_key.getKey())) {
-            js.append(_map.get(_key.getKey()));
-        }
-        if (_append) {
-            js.append(_script);
-        }
-        _map.put(_key.getKey(), js.toString());
     }
 
     /**
