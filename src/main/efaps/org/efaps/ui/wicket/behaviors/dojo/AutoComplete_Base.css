@@ -51,3 +51,37 @@
     height: 21px;
     padding-left: 3px !important;
 }
+
+.eFapsToken ul {
+    list-style: outside none none;
+    margin: 0;
+    padding: 0;
+    clear: left;
+    height: auto;
+}
+
+.eFapsToken li {
+    background-color: rgba(236, 235, 169, 0.3);
+    border: 1px solid;
+    border-radius: 10px;
+    display: block;
+    height: auto;
+    margin: 3px;
+    overflow: hidden;
+    padding: 2px 15px 2px 5px;
+    position: relative;
+}
+
+.eFapsToken p {
+
+}
+
+.eFapsToken span {
+    color: #777;
+    cursor: pointer;
+    font-size: 10pt;
+    height: 10px;
+    position: absolute;
+    right: 7px;
+    top: -1px;
+}
