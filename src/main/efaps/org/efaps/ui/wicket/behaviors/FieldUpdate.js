@@ -27,7 +27,8 @@
 
 function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue, _fieldLabel) {
 
-    require([ 'dojo/query', 'dojo/dom', 'dijit/registry',"efaps/AutoComplete"], function(query, dom, registry, AutoComplete) {
+    require([ 'dojo/query', 'dojo/dom', 'dijit/registry',"efaps/AutoComplete", 'efaps/AutoTokenInput'],
+            function(query, dom, registry, AutoComplete, AutoTokenInput) {
         var pos = 0;
         if (typeof (_referenceIdOrIdx) == 'number') {
             pos = _referenceIdOrIdx;
@@ -96,7 +97,17 @@ function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue, _fieldLa
                         parentWidget.set("item",{id: _fieldValue, name:_fieldLabel, label: _fieldLabel});
                         // reactivate the onchange event
                         parentWidget.set('_onChangeActive',true);
-                    }
+                    } else if (parentWidget.isInstanceOf(AutoTokenInput)) {
+                        // deactivate the onchange event
+                        parentWidget.set('_onChangeActive', false);
+                        if (_fieldValue) {
+                            parentWidget.addToken(_fieldValue, _fieldLabel);
+                        } else {
+                            parentWidget.clear();
+                        }
+                        // reactivate the onchange event
+                        parentWidget.set('_onChangeActive', true);
+                   }
                 }
             } else {
                 // if it is an input, the value can be set directly, else the DOM must be used
