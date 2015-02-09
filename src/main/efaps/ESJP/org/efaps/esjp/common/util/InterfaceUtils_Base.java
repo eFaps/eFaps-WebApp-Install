@@ -213,15 +213,19 @@ public abstract class InterfaceUtils_Base
     {
         AUTOCOMP("efaps/AutoComplete", "AutoComplete"),
         AUTOSUGG("efaps/AutoSuggestion", "AutoSuggestion"),
+        DATAGRID("dojox/grid/DataGrid", "DataGrid"),
+        ENHANCEDGRID("dojox/grid/EnhancedGrid", "EnhancedGrid"),
         DOM( "dojo/dom", "dom"),
         DOMATTR("dojo/dom-attr", "domAttr"),
         DOMCLASS("dojo/dom-class", "domClass"),
         DOMCONSTRUCT("dojo/dom-construct", "domConstruct"),
+        IFWSTORE("dojo/data/ItemFileWriteStore", "ItemFileWriteStore"),
         NLDOM("dojo/NodeList-dom", null),
         ON("dojo/on", "on"),
         QUERY("dojo/query", "query"),
         REGISTRY("dijit/registry", "registry"),
-        TOPIC("dojo/topic", "topic");
+        TOPIC("dojo/topic", "topic"),
+       ;
 
         private final String libName;
         private final String paraName;

@@ -429,6 +429,8 @@ public class Table_Base
 
         private CharSequence style;
 
+        private CharSequence CSSClass;
+
         private Row row;
 
         public Column(final Row _row)
@@ -462,6 +464,9 @@ public class Table_Base
                 }
                 if (getStyle() != null) {
                     ret.append(" style=\"").append(getStyle()).append("\"");
+                }
+                if (getCSSClass() != null) {
+                    ret.append(" class=\"").append(getCSSClass()).append("\"");
                 }
                 ret.append(">")
                     .append(getInnerHtml())
@@ -612,6 +617,27 @@ public class Table_Base
         public void setRow(final Row _row)
         {
             this.row = _row;
+        }
+
+        /**
+         * Getter method for the instance variable {@link #cssClass}.
+         *
+         * @return value of instance variable {@link #cssClass}
+         */
+        public CharSequence getCSSClass()
+        {
+            return this.CSSClass;
+        }
+
+        /**
+         * Setter method for instance variable {@link #cssClass}.
+         *
+         * @param _cssClass value for instance variable {@link #cssClass}
+         */
+        public Column setCSSClass(final CharSequence _cssClass)
+        {
+            this.CSSClass = _cssClass;
+            return this;
         }
     }
 }
