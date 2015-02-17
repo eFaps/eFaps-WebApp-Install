@@ -219,13 +219,14 @@ public abstract class InterfaceUtils_Base
         DOMATTR("dojo/dom-attr", "domAttr"),
         DOMCLASS("dojo/dom-class", "domClass"),
         DOMCONSTRUCT("dojo/dom-construct", "domConstruct"),
+        IFRSTORE("dojo/data/ItemFileReadStore", "ItemFileReadStore"),
         IFWSTORE("dojo/data/ItemFileWriteStore", "ItemFileWriteStore"),
+        FSELECT("dijit/form/FilteringSelect", "FilteringSelect"),
         NLDOM("dojo/NodeList-dom", null),
         ON("dojo/on", "on"),
         QUERY("dojo/query", "query"),
         REGISTRY("dijit/registry", "registry"),
-        TOPIC("dojo/topic", "topic"),
-       ;
+        TOPIC("dojo/topic", "topic");
 
         private final String libName;
         private final String paraName;
