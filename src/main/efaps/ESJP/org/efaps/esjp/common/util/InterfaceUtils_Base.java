@@ -226,7 +226,18 @@ public abstract class InterfaceUtils_Base
         ON("dojo/on", "on"),
         QUERY("dojo/query", "query"),
         REGISTRY("dijit/registry", "registry"),
-        TOPIC("dojo/topic", "topic");
+        TOPIC("dojo/topic", "topic"),
+        GXGRID("gridx/Grid", "Grid"),
+        GXCACHE("gridx/core/model/cache/Sync", "Cache"),
+        GXGRPHEADER("gridx/modules/GroupHeader", "GroupHeader"),
+        CLMLOCK("efaps/ColumnLock", "ColumnLock"),
+        GXEDIT("gridx/modules/Edit", "Edit"),
+        GXCELLWIDGET("gridx/modules/CellWidget", "CellWidget"),
+        SELECT("dijit/form/Select", "Select"),
+        NBRTEXTBOX("dijit/form/NumberTextBox", "NumberTextBox"),
+        MEMORY("dojo/store/Memory", "Memory"),
+        LANG("dojo/_base/lang", "lang")
+        ;
 
         private final String libName;
         private final String paraName;
