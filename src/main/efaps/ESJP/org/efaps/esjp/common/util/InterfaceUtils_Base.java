@@ -236,8 +236,9 @@ public abstract class InterfaceUtils_Base
         SELECT("dijit/form/Select", "Select"),
         NBRTEXTBOX("dijit/form/NumberTextBox", "NumberTextBox"),
         MEMORY("dojo/store/Memory", "Memory"),
-        LANG("dojo/_base/lang", "lang")
-        ;
+        LANG("dojo/_base/lang", "lang"),
+        TOGGLEBUTTON("dijit/form/ToggleButton", "ToggleButton");
+
 
         private final String libName;
         private final String paraName;
