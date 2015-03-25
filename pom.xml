@@ -89,9 +89,10 @@
 
     <!-- SubVersion Repository -->
     <scm>
-        <connection>scm:svn:http://efaps.googlecode.com/svn/eFaps-WebApp-Install</connection>
-        <developerConnection>scm:svn:https://efaps.googlecode.com/svn/eFaps-WebApp-Install</developerConnection>
-        <url>http://efaps.googlecode.com/svn/eFaps-WebApp-Install</url>
+        <connection>scm:git:git://github.com/eFaps/eFaps-WebApp-Install.git</connection>
+        <developerConnection>scm:git:git@github.com:eFaps/eFaps-WebApp-Install.git</developerConnection>
+        <url>https://github.com/eFaps/eFaps-WebApp-Install/</url>
+        <tag>HEAD</tag>
     </scm>
 
     <!-- Distribution Repository -->
