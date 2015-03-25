@@ -33,7 +33,7 @@
     <parent>
         <groupId>org.efaps</groupId>
         <artifactId>efaps-parent</artifactId>
-        <version>3.2.0</version>
+        <version>3.2.1-SNAPSHOT</version>
     </parent>
     <packaging>jar</packaging>
     <artifactId>efaps-webapp-install</artifactId>
@@ -90,7 +90,7 @@
         <connection>scm:git:git://github.com/eFaps/eFaps-WebApp-Install.git</connection>
         <developerConnection>scm:git:git@github.com:eFaps/eFaps-WebApp-Install.git</developerConnection>
         <url>https://github.com/eFaps/eFaps-WebApp-Install/</url>
-        <tag>V3.2.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <!-- Distribution Repository -->
@@ -175,19 +175,19 @@
         <dependency>
             <groupId>org.efaps</groupId>
             <artifactId>efaps-kernel-install</artifactId>
-            <version>3.2.0</version>
+            <version>3.2.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.efaps</groupId>
             <artifactId>efaps-webapp</artifactId>
-            <version>3.2.0</version>
+            <version>3.2.1-SNAPSHOT</version>
         </dependency>
 
         <dependency>
             <groupId>org.efaps</groupId>
             <artifactId>efaps-tests</artifactId>
-            <version>3.2.0</version>
+            <version>3.2.1-SNAPSHOT</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
