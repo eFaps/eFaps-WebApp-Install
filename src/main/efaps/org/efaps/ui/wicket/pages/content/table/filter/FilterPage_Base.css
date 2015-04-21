@@ -95,3 +95,7 @@ tr.eFapsTableRowOdd {
     width: 167px;
 }
 
+.eFapsFilterContent.FORM {
+    overflow: hidden;
+}
+
