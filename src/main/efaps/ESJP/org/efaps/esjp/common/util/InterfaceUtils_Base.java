@@ -211,7 +211,7 @@ public abstract class InterfaceUtils_Base
 
     public enum DojoLibs
     {
-        ARRAY("dojo/dom-attr", "array"),
+        ARRAY("dojo/_base/array", "array"),
         AUTOCOMP("efaps/AutoComplete", "AutoComplete"),
         AUTOSUGG("efaps/AutoSuggestion", "AutoSuggestion"),
         DATAGRID("dojox/grid/DataGrid", "DataGrid"),
