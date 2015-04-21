@@ -47,7 +47,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject;
 import org.efaps.admin.ui.field.Field;
-import org.efaps.admin.ui.field.Filter;
+import org.efaps.api.ui.FilterType;
 import org.efaps.db.AttributeQuery;
 import org.efaps.db.Instance;
 import org.efaps.db.InstanceQuery;
@@ -303,7 +303,7 @@ public abstract class MultiPrint_Base
             for (final Entry<?, ?> entry : _filter.entrySet()) {
                 final String fieldName = (String) entry.getKey();
                 final Field field = command.getTargetTable().getField(fieldName);
-                if (field.getFilter().getType().equals(Filter.Type.FREETEXT)) {
+                if (field.getFilter().getType().equals(FilterType.FREETEXT)) {
                     String attrName = field.getAttribute();
                     String[] attrNames = null;
                     if (field.getFilter().getAttributes() != null) {
@@ -325,9 +325,9 @@ public abstract class MultiPrint_Base
                     if (!exec) {
                         break;
                     }
-                } else if (field.getFilter().getType().equals(Filter.Type.CLASSIFICATION)) {
+                } else if (field.getFilter().getType().equals(FilterType.CLASSIFICATION)) {
                     exec = addClassFilter(entry, _queryBldr, _type, field);
-                } else if (field.getFilter().getType().equals(Filter.Type.STATUS)) {
+                } else if (field.getFilter().getType().equals(FilterType.STATUS)) {
                     exec = addStatusFilter(entry, _queryBldr, _type, field);
                 }
             }
