@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2014 The eFaps Team
+ * Copyright 2003 - 2015 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,25 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
-
 
 package org.efaps.esjp.common.uiform;
 
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 
+import org.efaps.admin.common.SystemConfiguration;
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.db.Instance;
@@ -47,10 +45,9 @@ import org.slf4j.LoggerFactory;
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
  */
 @EFapsUUID("6a38e185-4797-4a8a-8356-613d940404b7")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp-Install")
 public abstract class Evaluate_Base
     extends AbstractCommon
 {
@@ -96,8 +93,21 @@ public abstract class Evaluate_Base
            print.executeWithoutAccessCheck();
            instance = print.getSelect(select);
        }
+       final List<Status> statusList;
+       if (containsProperty(_parameter, "SystemConfig")) {
+           final String sysConfstr = getProperty(_parameter, "SystemConfig");
+           final SystemConfiguration config;
+           if (isUUID(sysConfstr)) {
+               config = SystemConfiguration.get(UUID.fromString(sysConfstr));
+           } else {
+               config = SystemConfiguration.get(sysConfstr);
+           }
+           statusList = getStatusListFromProperties(_parameter,
+                           config.getAttributeValueAsProperties(getProperty(_parameter,"Attribute")));
+       } else {
+           statusList = getStatusListFromProperties(_parameter);
+       }
 
-       final List<Status> statusList = getStatusListFromProperties(_parameter);
        final Attribute statusAttr = instance.getType().getStatusAttribute();
        final PrintQuery print = new PrintQuery(instance);
        print.addAttribute(statusAttr);
