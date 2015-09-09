@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2014 The eFaps Team
+ * Copyright 2003 - 2015 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,21 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 
 package org.efaps.esjp.ui.html.dojo.charting;
 
+import org.efaps.admin.program.esjp.EFapsApplication;
+import org.efaps.admin.program.esjp.EFapsUUID;
 
 /**
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
  */
+@EFapsUUID("b671b77d-0aa7-4dfa-8486-e2cc874f76b9")
+@EFapsApplication("eFaps-WebApp")
 public abstract class LineChart_Base <S extends AbstractCartesianChart<Data, S>>
     extends AbstractCartesianChart<Data, S>
 {
@@ -55,10 +55,24 @@ public abstract class LineChart_Base <S extends AbstractCartesianChart<Data, S>>
                 addModule("dojox/charting/plot2d/Lines", "Lines");
                 break;
         }
-
-        addAxis(new Axis().setName("x"));
-        addAxis(new Axis().setName("y").setVertical(true));
-        addPlot(new Plot().addConfig("type", "Lines"));
+        boolean hasXAxis = false;
+        boolean hasYAxis = false;
+        for (final Axis axis : getAxis()) {
+            if ("x".equals(axis.getName())) {
+                hasXAxis = true;
+            } else if ("y".equals(axis.getName())) {
+                hasYAxis = true;
+            }
+        }
+        if (!hasXAxis) {
+            addAxis(new Axis().setName("x"));
+        }
+        if (!hasYAxis) {
+            addAxis(new Axis().setName("y").setVertical(true));
+        }
+        if (!getPlots().containsKey("default")) {
+           addPlot(new Plot().addConfig("type", "Lines"));
+        }
     }
 
     /**
