@@ -22,13 +22,11 @@
  * @eFapsUUID     2330fc41-1133-4670-bd29-55158fcd5227
  * @eFapsRevision $Rev: 8254 $
  */
-
 .dashboard {
-    overflow:auto;
+    overflow: auto;
 }
 
-div.header
-{
+div.header {
     font-size: 10pt;
     font-weight: bold;
     padding-bottom: 2px;
@@ -38,6 +36,8 @@ div.header
 
 .dashboard .table {
     display: table;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 .dashboard .row {
@@ -54,4 +54,80 @@ div.header
     border-radius: 5px;
     margin: 2px;
     padding: 5px;
+}
+
+.tab-row ul {
+    line-height: 20px;
+    list-style: outside none none;
+    margin: 0;
+    padding: 0;
+    position: relative;
+    text-align: center;
+}
+
+.tab-row ul::after {
+    border-bottom: 1px solid grey;
+    bottom: 0;
+    content: "";
+    left: 0;
+    position: absolute;
+    width: 100%;
+    z-index: 1;
+}
+
+.tab-row ul::before {
+    z-index: 1;
+}
+
+.tab-row li {
+    background: linear-gradient(to bottom, #ECECEC 50%, #D1D1D1 100%);
+    text-shadow: 0 1px #FFF;
+    border: 1px solid grey;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    display: inline-block;
+    margin: 0 -5px;
+    padding: 0 20px;
+    position: relative;
+    z-index: 0;
+}
+
+.tab-row li.selected {
+    background: #fff none repeat scroll 0 0;
+    border-bottom-color: #fff;
+    z-index: 2;
+}
+
+.tab-row li::before, .tab-row li::after {
+    border: 1px solid grey;
+    position: absolute;
+    bottom: -1px;
+    width: 6px;
+    height: 6px;
+    content: " ";
+}
+
+.tab-row li::before {
+    border-width: 0 1px 1px 0;
+    left: -7px;
+}
+
+.tab-row li::after {
+    border-width: 0 0 1px 1px;
+    right: -7px;
+}
+
+.tab-row li.selected::before {
+    border-bottom-right-radius: 6px;
+    box-shadow: 2px 2px 0 #FFF;
+}
+.tab-row li.selected::after {
+    border-bottom-left-radius: 6px;
+    box-shadow: -2px 2px 0 #FFF;
+}
+
+.dashboard .tab-row a {
+    color: grey;
+    text-decoration: none;
+    font-size: 10pt;
 }
