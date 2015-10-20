@@ -220,6 +220,7 @@ public abstract class InterfaceUtils_Base
         DOMATTR("dojo/dom-attr", "domAttr"),
         DOMCLASS("dojo/dom-class", "domClass"),
         DOMCONSTRUCT("dojo/dom-construct", "domConstruct"),
+        DOMSTYLE("dojo/dom-style", "domStyle"),
         IFRSTORE("dojo/data/ItemFileReadStore", "ItemFileReadStore"),
         IFWSTORE("dojo/data/ItemFileWriteStore", "ItemFileWriteStore"),
         FSELECT("dijit/form/FilteringSelect", "FilteringSelect"),
