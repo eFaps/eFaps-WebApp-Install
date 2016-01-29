@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-
 <!--
 
-  Copyright 2003 - 2012 The eFaps Team
+  Copyright 2003 - 2016 The eFaps Team
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,20 +15,10 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-  Author:          The eFaps Team
-  Revision:        $Rev$
-  Last Changed:    $Date$
-  Last Changed By: $Author$
-
 -->
-
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
-
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-    <!-- ************************************************************************
-    * Module Definition
-    ************************************************************************* -->
     <parent>
         <groupId>org.efaps</groupId>
         <artifactId>efaps-parent</artifactId>
@@ -37,7 +26,6 @@
     </parent>
     <packaging>jar</packaging>
     <artifactId>efaps-webapp-install</artifactId>
-
     <name>eFaps WebApp Install</name>
     <description>
         eFaps WebApp Install provides a web interface as the User Interface for
@@ -111,7 +99,6 @@
             <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
         </repository>
     </distributionManagement>
-
     <properties>
         <!-- correct encoding -->
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -164,12 +151,15 @@
                     </suiteXmlFiles>
                 </configuration>
             </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-checkstyle-plugin</artifactId>
+                <configuration>
+                    <sourceDirectory>${basedir}/src/main/efaps/ESJP</sourceDirectory>
+                </configuration>
+            </plugin>
         </plugins>
     </build>
-
-    <!-- ************************************************************************
-    * Dependencies
-    ************************************************************************* -->
     <dependencies>
         <!-- eFaps kernel installation -->
         <dependency>
@@ -177,13 +167,11 @@
             <artifactId>efaps-kernel-install</artifactId>
             <version>5.0.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>org.efaps</groupId>
             <artifactId>efaps-webapp</artifactId>
             <version>5.0.0-SNAPSHOT</version>
         </dependency>
-
         <dependency>
             <groupId>org.efaps</groupId>
             <artifactId>efaps-tests</artifactId>
