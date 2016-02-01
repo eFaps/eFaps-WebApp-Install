@@ -232,3 +232,8 @@
     border-color: black;
 }
 
+.eFapsFilterContent .FORM .unlabeled .field {
+    min-height: 25px;
+    height: unset;
+}
+

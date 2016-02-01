@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2013 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 package org.efaps.esjp.common.uitable;
@@ -42,7 +39,7 @@ import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject;
@@ -164,7 +161,7 @@ import org.slf4j.LoggerFactory;
  * @version $Id$
  */
 @EFapsUUID("49c223e8-e500-4c91-a949-576b63c4fb31")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp")
 public abstract class MultiPrint_Base
     extends AbstractCommon
 {
@@ -303,7 +300,9 @@ public abstract class MultiPrint_Base
             for (final Entry<?, ?> entry : _filter.entrySet()) {
                 final String fieldName = (String) entry.getKey();
                 final Field field = command.getTargetTable().getField(fieldName);
-                if (field.getFilter().getType().equals(FilterType.FREETEXT)) {
+                if (field.getFilter().getType().equals(FilterType.FREETEXT)
+                                || field.getFilter().getType().equals(FilterType.FORM)
+                                                && field.getFilter().getAttributes() != null) {
                     String attrName = field.getAttribute();
                     String[] attrNames = null;
                     if (field.getFilter().getAttributes() != null) {
@@ -518,8 +517,9 @@ public abstract class MultiPrint_Base
     /**
      * Method to add a Filter for one attribute.
      *
+     * @param _parameter the _parameter
      * @param _entry entry to be evaluated
-     *@param _queryBldr QueryBuilder used to get the instances
+     * @param _queryBldr QueryBuilder used to get the instances
      * @param _type type for the query
      * @param _attrName name of the attribute
      * @param _field field the filter belongs to
@@ -556,11 +556,14 @@ public abstract class MultiPrint_Base
             _queryBldr.addWhereAttrLessValue(_attrName, dateTo);
         } else {
             if (from != null && !from.isEmpty()) {
-                addMatch(_parameter, _queryBldr, _attrName, inner, from);
+                addMatch(_parameter, _queryBldr, _attrName, inner, new String[] { from });
+            } else if (inner.containsKey(_field.getName())) {
+                final String[] filter = (String[]) inner.get(_field.getName());
+                addMatch(_parameter, _queryBldr, _attrName, inner, filter);
             } else {
                 final String[] filter = (String[]) getFilter(_field);
                 if (filter != null) {
-                    addMatch(_parameter, _queryBldr, _attrName, inner, filter[0]);
+                    addMatch(_parameter, _queryBldr, _attrName, inner, filter);
                 } else {
                     ret = false;
                 }
@@ -569,32 +572,45 @@ public abstract class MultiPrint_Base
         return ret;
     }
 
+    /**
+     * Adds the match.
+     *
+     * @param _parameter the _parameter
+     * @param _queryBldr the _query bldr
+     * @param _attrName the _attr name
+     * @param _filterMap the _filter map
+     * @param _criterias the _criterias
+     * @throws EFapsException the e faps exception
+     */
     protected void addMatch(final Parameter _parameter,
                             final QueryBuilder _queryBldr,
                             final String _attrName,
                             final Map<?, ?> _filterMap,
-                            final String _criteria)
+                            final String[] _criterias)
         throws EFapsException
     {
         boolean ignoreCase = true;
-        String value = _criteria;
+        final String[] value = _criterias;
         if (_filterMap.containsKey("expertMode")) {
             if (!(Boolean) _filterMap.get("expertMode")) {
-                value = "*" + value + "*";
+                for (int i = 0; i < value.length; i++) {
+                    value[i] = "*" + value[i] + "*";
+                }
             }
         }
         if (_filterMap.containsKey("ignoreCase")) {
             ignoreCase = (Boolean) _filterMap.get("ignoreCase");
         }
-        _queryBldr.addWhereAttrMatchValue(_attrName, value).setIgnoreCase(ignoreCase);
+        _queryBldr.addWhereAttrMatchValue(_attrName, (Object[]) value).setIgnoreCase(ignoreCase);
     }
 
 
     /**
      * Method to add a Filter for one select.
      *
+     * @param _parameter the _parameter
      * @param _entry entry to be evaluated
-     *@param _queryBldr QueryBuilder used to get the instances
+     * @param _queryBldr QueryBuilder used to get the instances
      * @param _type type for the query
      * @param _select of the field
      * @param _field field the filter belongs to
@@ -657,6 +673,20 @@ public abstract class MultiPrint_Base
         return ret;
     }
 
+    /**
+     * Evaluate filter select.
+     *
+     * @param _parameter the _parameter
+     * @param _filterMap the _filter map
+     * @param _lstParts the _lst parts
+     * @param _dir the _dir
+     * @param _type the _type
+     * @param _from the _from
+     * @param _to the _to
+     * @param _filter the _filter
+     * @return the attribute query
+     * @throws EFapsException the e faps exception
+     */
     protected AttributeQuery evaluateFilterSelect(final Parameter _parameter,
                                                   final Map<?, ?> _filterMap,
                                                   final List<String> _lstParts,
@@ -702,10 +732,10 @@ public abstract class MultiPrint_Base
                 attrQueryBldr.addWhereAttrLessValue(attrName, dateTo);
             } else {
                 if (_from != null && !_from.isEmpty()) {
-                    addMatch(_parameter, attrQueryBldr, attrName, _filterMap, _from);
+                    addMatch(_parameter, attrQueryBldr, attrName, _filterMap, new String[] { _from });
                 } else {
                     final String[] filter = (String[]) _filter;
-                    addMatch(_parameter, attrQueryBldr, attrName, _filterMap, filter[0]);
+                    addMatch(_parameter, attrQueryBldr, attrName, _filterMap, filter);
                 }
             }
 
