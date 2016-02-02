@@ -22,7 +22,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -58,10 +57,26 @@ public class StatusPanel_Base
     implements IEsjpSnipplet
 {
 
-    /**
-     *
-     */
+    /** The Constant serialVersionUID. */
     private static final long serialVersionUID = 1L;
+
+    /**
+     * Instantiates a new abstract status panel.
+     */
+    public StatusPanel_Base()
+    {
+        super();
+    }
+
+    /**
+     * Instantiates a new abstract status panel.
+     *
+     * @param _config the _config
+     */
+    public StatusPanel_Base(final String _config)
+    {
+        super(_config);
+    }
 
     /**
      * Gets the currency inst.
@@ -90,10 +105,12 @@ public class StatusPanel_Base
     public CharSequence getHtmlSnipplet()
         throws EFapsException
     {
-        final Map<LocalDate, Set<Long>> map = new TreeMap<>();
+        final Map<LocalDate, Set<Long>> values = new TreeMap<>();
+
+        final DateTime startDate = new DateTime().minusDays(getDays());
 
         final QueryBuilder queryBldr = new QueryBuilder(CICommon.HistoryLogin);
-        queryBldr.addWhereAttrGreaterValue(CICommon.HistoryLogin.Created, new DateTime().minusDays(getDays()));
+        queryBldr.addWhereAttrGreaterValue(CICommon.HistoryLogin.Created, startDate);
         queryBldr.addOrderByAttributeAsc(CICommon.HistoryLogin.Created);
         final MultiPrintQuery multi = queryBldr.getPrint();
         multi.addAttribute(CICommon.HistoryLogin.Created, CICommon.HistoryLogin.GeneralInstanceLink);
@@ -103,11 +120,11 @@ public class StatusPanel_Base
             final LocalDate date = created.toLocalDate();
             final Long gId = multi.getAttribute(CICommon.HistoryLogin.GeneralInstanceLink);
             Set<Long> set;
-            if (map.containsKey(date)) {
-                set = map.get(date);
+            if (values.containsKey(date)) {
+                set = values.get(date);
             } else {
                 set = new HashSet<>();
-                map.put(date, set);
+                values.put(date, set);
             }
             set.add(gId);
         }
@@ -118,7 +135,7 @@ public class StatusPanel_Base
         if (title != null && !title.isEmpty()) {
             chart.setTitle(getTitle());
         }
-        final Axis xAxis = new Axis().setName("x");
+        final Axis xAxis = new Axis().setName("x").addConfig("rotation", "-45");
         chart.addAxis(xAxis);
 
         final Serie<Data> serie = new Serie<Data>();
@@ -128,16 +145,24 @@ public class StatusPanel_Base
 
         final List<Map<String, Object>> labels = new ArrayList<>();
         int idx = 1;
-        for (final Entry<LocalDate, Set<Long>> entry : map.entrySet()) {
+        LocalDate current = startDate.toLocalDate();
+        while (current.isBefore(new DateTime().toLocalDate())) {
+            int yVal;
+            if (values.containsKey(current)) {
+                yVal = values.get(current).size();
+            } else {
+                yVal = 0;
+            }
             final Data data = new Data();
             serie.addData(data);
-            data.setYValue(entry.getValue().size()).setXValue(idx);
+            data.setYValue(yVal).setXValue(idx);
             final Map<String, Object> labelMap = new HashMap<>();
             labelMap.put("value", idx);
             labelMap.put("text", Util.wrap4String(
-                            entry.getKey().toString(getDateFormat(), Context.getThreadContext().getLocale())));
+                            current.toString(getDateFormat(), Context.getThreadContext().getLocale())));
             labels.add(labelMap);
             idx++;
+            current = current.plusDays(1);
         }
         xAxis.setLabels(Util.mapCollectionToObjectArray(labels));
         chart.setOrientation(Orientation.HORIZONTAL_LEGEND_CHART);
