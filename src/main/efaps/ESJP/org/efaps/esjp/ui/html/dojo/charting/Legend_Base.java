@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2014 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 
@@ -25,7 +22,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 
@@ -33,22 +30,28 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
  */
 @EFapsUUID("f155aac0-fa27-4cf8-bfd2-d02e4dd1c128")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp")
 public abstract class Legend_Base<S extends Legend_Base<S>>
 {
+
+    /** The vertical. */
     private boolean vertical = false;
 
+    /** The config map. */
     private final Map<String, Object> configMap = new LinkedHashMap<String, Object>();
 
+    /** The node id. */
     private String nodeId;
 
+    /** The horizontal count. */
     private  int horizontalCount = 5;
 
+    /** The chart var name. */
     private String chartVarName = "chart";
 
+    /** The selectable. */
     private boolean selectable = false;
 
     /**
@@ -58,11 +61,24 @@ public abstract class Legend_Base<S extends Legend_Base<S>>
     protected abstract S getThis();
 
 
+    /**
+     * Adds the legend js.
+     *
+     * @param _js the _js
+     */
     protected void addLegendJS(final StringBuilder _js)
     {
-        _js.append("new Legend(").append(getConfigJS()).append(",\n\"").append(getNodeId()).append("\");\n");
+        _js.append(" if(typeof registry.byId('").append(getNodeId()).append("') != \"undefined\"){\n")
+            .append("    registry.byId('").append(getNodeId()).append("').destroyRecursive();\n")
+            .append(" }")
+            .append("new Legend(").append(getConfigJS()).append(",\n\"").append(getNodeId()).append("\");\n");
     }
 
+    /**
+     * Gets the config js.
+     *
+     * @return the config js
+     */
     public CharSequence getConfigJS()
     {
         this.configMap.put("chart", getChartVarName());
@@ -184,6 +200,13 @@ public abstract class Legend_Base<S extends Legend_Base<S>>
         return getThis();
     }
 
+    /**
+     * Adds the config.
+     *
+     * @param _key the _key
+     * @param _value the _value
+     * @return the s
+     */
     public S addConfig(final String _key,
                        final Object _value)
     {

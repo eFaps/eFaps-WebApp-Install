@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2014 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 
@@ -28,7 +25,7 @@ import java.util.Map;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 
@@ -36,36 +33,47 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
  */
 @EFapsUUID("dfe47174-e442-4244-807b-5e11f56f0630")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp")
 public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends AbstractChart_Base<T,S>>
 {
+
+    /** The modules. */
     private final Map<CharSequence, String> modules = new LinkedHashMap<CharSequence, String>();
 
+    /** The plots. */
     private final Map<String, Plot_Base<?>> plots = new LinkedHashMap<String, Plot_Base<?>>();
 
+    /** The orientation. */
     private Orientation orientation = Orientation.VERTICAL_CHART_LEGEND;
 
+    /** The theme. */
     private Theme theme = Theme.JULIE;
 
+    /** The legend. */
     private Legend legend = new Legend();
 
+    /** The chart node id. */
     private String chartNodeId;
 
+    /** The height. */
     private int height = 300;
 
+    /** The width. */
     private int width = 450;
 
+    /** The series. */
     private final List<Serie<T>> series = new ArrayList<Serie<T>>();
 
+    /** The title. */
     private String title;
 
+    /** The title pos. */
     private TitlePos titlePos = TitlePos.top;
 
+    /** The initialized. */
     private boolean initialized = false;
-
 
     /**
      * "getThis" trick.
@@ -73,7 +81,9 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
      */
     protected abstract S getThis();
 
-
+    /**
+     * Initialize.
+     */
     protected void initialize()
     {
         this.initialized = true;
@@ -114,6 +124,11 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
         return ret;
     }
 
+    /**
+     * Adds the css.
+     *
+     * @param _js the _js
+     */
     protected void addCSS(final StringBuilder _js)
     {
         _js.append(".dojoxLegendNode Label {")
@@ -121,9 +136,15 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
             .append("}");
     }
 
+    /**
+     * Adds the java script.
+     *
+     * @param _js the _js
+     */
     protected void addJavaScript(final StringBuilder _js)
     {
         // to be sure that it is the last module, add now
+        addModule("dijit/registry", "registry");
         addModule("dojo/domReady!", null);
 
         _js.append("require(").append(Util.collectionToObjectArray(this.modules.keySet())).append(", ")
@@ -138,7 +159,10 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
             }
         }
         _js.append(")")
-            .append(" { \n");
+            .append(" { \n")
+            .append(" if(typeof registry.byId('").append(getChartNodeId()).append("') != \"undefined\"){\n")
+            .append("    registry.byId('").append(getChartNodeId()).append("').destroyRecursive();\n")
+            .append(" }");
 
         addFunctionJS(_js);
 
@@ -146,6 +170,11 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
     }
 
 
+    /**
+     * Adds the function js.
+     *
+     * @param _js the _js
+     */
     protected void addFunctionJS(final StringBuilder _js)
     {
         _js.append(" var chart = new Chart(\"").append(getChartNodeId()).append("\", {\n");
@@ -156,6 +185,12 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
         addAfterRenderJS(_js, "chart");
     }
 
+    /**
+     * Adds the before render js.
+     *
+     * @param _js the _js
+     * @param _chartVarName the _chart var name
+     */
     protected void addBeforeRenderJS(final StringBuilder _js,
                                      final String _chartVarName)
     {
@@ -165,24 +200,48 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
         _js.append(" new Tooltip(chart, \"default\");\n");
     }
 
+    /**
+     * Adds the render js.
+     *
+     * @param _js the _js
+     * @param _chartVarName the _chart var name
+     */
     protected void addRenderJS(final StringBuilder _js,
                                final String _chartVarName)
     {
         _js.append(" chart.render();\n");
     }
 
+    /**
+     * Adds the after render js.
+     *
+     * @param _js the _js
+     * @param _chartVarName the _chart var name
+     */
     protected void addAfterRenderJS(final StringBuilder _js,
                                     final String _chartVarName)
     {
         getLegend().addLegendJS(_js);
     }
 
+    /**
+     * Adds the chart js.
+     *
+     * @param _js the _js
+     * @param _chartVarName the _chart var name
+     */
     protected void addChartJS(final StringBuilder _js,
                               final String _chartVarName)
     {
         _js.append(getTitleJS());
     }
 
+    /**
+     * Adds the plot js.
+     *
+     * @param _js the _js
+     * @param _chartVarName the _chart var name
+     */
     protected void addPlotJS(final StringBuilder _js,
                              final String _chartVarName)
     {
@@ -191,6 +250,11 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
         }
     }
 
+    /**
+     * Gets the title js.
+     *
+     * @return the title js
+     */
     protected CharSequence getTitleJS()
     {
         final StringBuilder ret = new StringBuilder();
@@ -206,6 +270,12 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
         return ret;
     }
 
+    /**
+     * Adds the series js.
+     *
+     * @param _js the _js
+     * @param _chartVarName the _chart var name
+     */
     protected void addSeriesJS(final StringBuilder _js,
                                final String _chartVarName)
     {
@@ -214,6 +284,11 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
         }
     }
 
+    /**
+     * Adds the html nodes.
+     *
+     * @param _js the _js
+     */
     protected void addHtmlNodes(final StringBuilder _js)
     {
         switch (getOrientation()) {
@@ -412,7 +487,6 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
         return getThis();
     }
 
-
     /**
      * Getter method for the instance variable {@link #title}.
      *
@@ -445,7 +519,6 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
         return this.titlePos;
     }
 
-
     /**
      * Setter method for instance variable {@link #titlePos}.
      *
@@ -461,7 +534,6 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
                                               final String _var)
     {
         this.modules.put("\"" + _module + "\"", _var);
-
     }
 
     /**
