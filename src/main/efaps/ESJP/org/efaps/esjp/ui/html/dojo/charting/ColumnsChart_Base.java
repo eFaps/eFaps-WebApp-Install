@@ -21,21 +21,24 @@
 
 package org.efaps.esjp.ui.html.dojo.charting;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 
 /**
- * TODO comment!
+ * TODO comment!.
  *
  * @author The eFaps Team
  * @version $Id$
+ * @param <S> the generic type
  */
 @EFapsUUID("3613d031-fb22-4aad-80c6-b71755065f33")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp")
 public abstract class ColumnsChart_Base<S extends AbstractBarColChart<Data, S>>
     extends AbstractBarColChart<Data, S>
 {
+
+    /** The plot layout. */
     private PlotLayout plotLayout = PlotLayout.STANDART;
 
     @Override
@@ -57,10 +60,10 @@ public abstract class ColumnsChart_Base<S extends AbstractBarColChart<Data, S>>
         boolean addYAxis = true;
         for (final Axis axis : getAxis()) {
             if (axis.getName().equals("x") && addXAxis) {
-                addXAxis =false;
+                addXAxis = false;
             }
             if (axis.getName().equals("y") && addYAxis) {
-                addYAxis =false;
+                addYAxis = false;
             }
         }
         if (addXAxis) {
@@ -91,6 +94,7 @@ public abstract class ColumnsChart_Base<S extends AbstractBarColChart<Data, S>>
      * Setter method for instance variable {@link #plotLayout}.
      *
      * @param _plotLayout value for instance variable {@link #plotLayout}
+     * @return the s
      */
     public S setPlotLayout(final PlotLayout _plotLayout)
     {

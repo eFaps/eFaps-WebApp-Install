@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2015 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -22,16 +22,21 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 /**
- * TODO comment!
+ * TODO comment!.
  *
  * @author The eFaps Team
+ * @param <S> the generic type
  */
 @EFapsUUID("b671b77d-0aa7-4dfa-8486-e2cc874f76b9")
 @EFapsApplication("eFaps-WebApp")
 public abstract class LineChart_Base <S extends AbstractCartesianChart<Data, S>>
     extends AbstractCartesianChart<Data, S>
 {
+    /** The line layout. */
     private LineLayout lineLayout = LineLayout.LINES;
+
+    /** The magnify. */
+    private boolean magnify = true;
 
     @Override
     protected void initialize()
@@ -55,6 +60,9 @@ public abstract class LineChart_Base <S extends AbstractCartesianChart<Data, S>>
                 addModule("dojox/charting/plot2d/Lines", "Lines");
                 break;
         }
+        if (isMagnify()) {
+            addModule("dojox/charting/action2d/Magnify", "Magnify");
+        }
         boolean hasXAxis = false;
         boolean hasYAxis = false;
         for (final Axis axis : getAxis()) {
@@ -71,7 +79,17 @@ public abstract class LineChart_Base <S extends AbstractCartesianChart<Data, S>>
             addAxis(new Axis().setName("y").setVertical(true));
         }
         if (!getPlots().containsKey("default")) {
-           addPlot(new Plot().addConfig("type", "Lines"));
+            addPlot(new Plot().addConfig("type", "Lines"));
+        }
+    }
+
+    @Override
+    protected void addBeforeRenderJS(final StringBuilder _js,
+                                     final String _chartVarName)
+    {
+        super.addBeforeRenderJS(_js, _chartVarName);
+        if (isMagnify()) {
+            _js.append("new Magnify(chart, \"default\");\n");
         }
     }
 
@@ -89,10 +107,33 @@ public abstract class LineChart_Base <S extends AbstractCartesianChart<Data, S>>
      * Setter method for instance variable {@link #layout}.
      *
      * @param _layout value for instance variable {@link #layout}
+     * @return the s
      */
     public S setLineLayout(final LineLayout _layout)
     {
         this.lineLayout = _layout;
+        return getThis();
+    }
+
+    /**
+     * Getter method for the instance variable {@link #magnify}.
+     *
+     * @return value of instance variable {@link #magnify}
+     */
+    public boolean isMagnify()
+    {
+        return this.magnify;
+    }
+
+    /**
+     * Setter method for instance variable {@link #magnify}.
+     *
+     * @param _magnify value for instance variable {@link #magnify}
+     * @return the s
+     */
+    public S setMagnify(final boolean _magnify)
+    {
+        this.magnify = _magnify;
         return getThis();
     }
 }

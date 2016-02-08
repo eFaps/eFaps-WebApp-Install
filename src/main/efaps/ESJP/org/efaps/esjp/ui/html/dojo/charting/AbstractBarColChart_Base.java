@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2014 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,21 +13,23 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 
 package org.efaps.esjp.ui.html.dojo.charting;
 
+import org.efaps.admin.program.esjp.EFapsApplication;
+import org.efaps.admin.program.esjp.EFapsUUID;
 
 /**
- * TODO comment!
+ * TODO comment!.
  *
  * @author The eFaps Team
- * @version $Id$
+ * @param <T> the generic type
+ * @param <S> the generic type
  */
+@EFapsUUID("f5dac420-b326-499c-8fac-c9025728cb30")
+@EFapsApplication("eFaps-WebApp")
 public abstract class AbstractBarColChart_Base <T extends AbstractData<T>, S extends AbstractCartesianChart<T,S>>
     extends AbstractCartesianChart<T,S>
 {
@@ -46,6 +48,8 @@ public abstract class AbstractBarColChart_Base <T extends AbstractData<T>, S ext
      */
     private Integer maxBarSize;
 
+    /** The highlight. */
+    private boolean highlight = true;
 
     @Override
     protected void initialize()
@@ -55,8 +59,43 @@ public abstract class AbstractBarColChart_Base <T extends AbstractData<T>, S ext
         final Plot plot = new Plot();
         configurePlot(plot);
         addPlot(plot);
+
+        if (isHighlight()) {
+            addModule("dojox/charting/action2d/Highlight", "Highlight");
+        }
     }
 
+    @Override
+    protected void addBeforeRenderJS(final StringBuilder _js,
+                                     final String _chartVarName)
+    {
+        super.addBeforeRenderJS(_js, _chartVarName);
+        if (isHighlight()) {
+            _js.append("var hl = new Highlight(chart, \"default\");\n");
+
+            switch (getTheme()) {
+                case JULIE:
+                    _js.append("hl.process = function(o) {\n")
+                        .append("if(!o.shape || !(o.type in this.overOutEvents)){ return; }\n")
+                        .append("if(o.type == \"onmouseout\"){\n")
+                        .append("o.shape.setFill(o.oldFill );\n")
+                        .append("} else {\n")
+                        .append("o.oldFill = o.shape.getFill();\n")
+                        .append("o.shape.setFill(\"yellow\");\n")
+                        .append("}\n")
+                        .append("}\n");
+                    break;
+                default:
+                    break;
+            }
+        }
+    }
+
+    /**
+     * Configure plot.
+     *
+     * @param _plot the _plot
+     */
     protected void configurePlot(final Plot _plot)
     {
         if (getGap() != null) {
@@ -84,6 +123,7 @@ public abstract class AbstractBarColChart_Base <T extends AbstractData<T>, S ext
      * Setter method for instance variable {@link #gap}.
      *
      * @param _gap value for instance variable {@link #gap}
+     * @return the s
      */
     public S setGap(final Integer _gap)
     {
@@ -105,6 +145,7 @@ public abstract class AbstractBarColChart_Base <T extends AbstractData<T>, S ext
      * Setter method for instance variable {@link #minBarSize}.
      *
      * @param _minBarSize value for instance variable {@link #minBarSize}
+     * @return the s
      */
     public S setMinBarSize(final Integer _minBarSize)
     {
@@ -126,10 +167,34 @@ public abstract class AbstractBarColChart_Base <T extends AbstractData<T>, S ext
      * Setter method for instance variable {@link #maxBarSize}.
      *
      * @param _maxBarSize value for instance variable {@link #maxBarSize}
+     * @return the s
      */
     public S setMaxBarSize(final Integer _maxBarSize)
     {
         this.maxBarSize = _maxBarSize;
+        return getThis();
+    }
+
+
+    /**
+     * Getter method for the instance variable {@link #highlight}.
+     *
+     * @return value of instance variable {@link #highlight}
+     */
+    public boolean isHighlight()
+    {
+        return this.highlight;
+    }
+
+    /**
+     * Setter method for instance variable {@link #highlight}.
+     *
+     * @param _highlight value for instance variable {@link #highlight}
+     * @return the s
+     */
+    public S setHighlight(final boolean _highlight)
+    {
+        this.highlight = _highlight;
         return getThis();
     }
 }
