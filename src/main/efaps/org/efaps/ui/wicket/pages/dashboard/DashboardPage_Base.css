@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2013 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,14 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author:          The eFaps Team
- * Revision:        $Rev: 8254 $
- * Last Changed:    $Date: 2012-11-26 20:19:06 -0500 (Mon, 26 Nov 2012) $
- * Last Changed By: $Author: jan@moxter.net $
- *
  * @eFapsPackage  org.efaps.ui.wicket.pages.dashboard
  * @eFapsUUID     2330fc41-1133-4670-bd29-55158fcd5227
- * @eFapsRevision $Rev: 8254 $
  */
 .dashboard {
     overflow: auto;
@@ -135,4 +129,50 @@ div.header {
 .dashboard .eFapsCached {
     font-size: 7pt;
 }
+
+.dashboard .eFapsLink {
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.pages.content.information.png");
+    background-position: center center;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    display: block;
+    height: 16px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 16px;
+}
+
+.dashboard table {
+    border-color: darkgray;
+    border-radius: 3px;
+    border-style: solid;
+    border-width: 1px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.dashboard table td {
+    border-radius: 2px;
+    border-style: solid;
+    border-width: 1px;
+    font-size: 12px;
+    padding: 3px;
+}
+
+.dashboard table tr:nth-child(even){
+    background: #f2f2f2
+}
+
+.dashboard table tr:nth-child(odd){
+    background: #FFF
+}
+
+.dashboard table tr:hover {
+    background-color: #ddd
+}
+
+.dashboard .title {
+    font-size: 11pt;
+    font-weight: bold;
+    text-align: center;
 }
