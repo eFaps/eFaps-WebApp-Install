@@ -62,7 +62,7 @@ public abstract class AbstractTablePanel_Base
     {
         final List<Map<String, Object>> ds =  getDataSource();
         final StringBuilder html = new StringBuilder();
-        final Table table = new Table();
+        final Table table = new Table().setCssClass("dashboardtable");
         for (final Entry<String, Object> entry: ds.get(0).entrySet()) {
             if (entry.getValue() instanceof Instance) {
                 table.addHeaderColumn("");

@@ -25,8 +25,9 @@ import java.util.Stack;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
+// TODO: Auto-generated Javadoc
 /**
- * TODO comment!
+ * TODO comment!.
  *
  * @author The eFaps Team
  */
@@ -35,14 +36,22 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 public class Table_Base
 {
 
+    /** The rows. */
     private final List<Row> rows = new ArrayList<>();
 
+    /** The current row. */
     private Row currentRow;
 
+    /** The style. */
     private CharSequence style;
 
+    /** The css class. */
+    private CharSequence cssClass;
+
     /**
+     * Adds the row.
      *
+     * @return the table_ base
      */
     public Table_Base addRow()
     {
@@ -61,6 +70,11 @@ public class Table_Base
         return this.rows;
     }
 
+    /**
+     * Gets the current row.
+     *
+     * @return the current row
+     */
     public Row getCurrentRow()
     {
         if (this.currentRow == null) {
@@ -69,25 +83,43 @@ public class Table_Base
         return this.currentRow;
     }
 
+    /**
+     * Adds the column.
+     *
+     * @return the table_ base
+     */
     public Table_Base addColumn()
     {
         addColumn(null);
         return this;
     }
 
+    /**
+     * Adds the header column.
+     *
+     * @return the table_ base
+     */
     public Table_Base addHeaderColumn()
     {
         addHeaderColumn(null);
         return this;
     }
 
+    /**
+     * Gets the current column.
+     *
+     * @return the current column
+     */
     public Column getCurrentColumn()
     {
         return getCurrentRow().getCurrentColumn();
     }
 
     /**
-     * @param _innerHtml
+     * Adds the column.
+     *
+     * @param _innerHtml the inner html
+     * @return the table_ base
      */
     public Table_Base addColumn(final CharSequence _innerHtml)
     {
@@ -96,7 +128,10 @@ public class Table_Base
     }
 
     /**
-     * @param _innerHtml
+     * Adds the header column.
+     *
+     * @param _innerHtml the inner html
+     * @return the table_ base
      */
     public Table_Base addHeaderColumn(final CharSequence _innerHtml)
     {
@@ -104,6 +139,11 @@ public class Table_Base
         return this;
     }
 
+    /**
+     * To html.
+     *
+     * @return the char sequence
+     */
     public CharSequence toHtml()
     {
         final StringBuilder ret = new StringBuilder();
@@ -111,6 +151,9 @@ public class Table_Base
         ret.append("<table");
         if (getStyle() != null) {
             ret.append(" style=\"").append(getStyle()).append("\"");
+        }
+        if (getCssClass() != null) {
+            ret.append(" class=\"").append(getCssClass()).append("\"");
         }
         ret.append(">");
         for (final Row row : getRows()) {
@@ -120,6 +163,9 @@ public class Table_Base
         return ret;
     }
 
+    /**
+     * Prepare4html.
+     */
     public void prepare4html()
     {
         final Stack<Column> phs = new Stack<>();
@@ -159,6 +205,11 @@ public class Table_Base
         }
     }
 
+    /**
+     * Gets the max columns.
+     *
+     * @return the max columns
+     */
     public int getMaxColumns()
     {
         int ret = 0;
@@ -184,41 +235,94 @@ public class Table_Base
      * Setter method for instance variable {@link #style}.
      *
      * @param _style value for instance variable {@link #style}
+     * @return the table_ base
      */
-    public Table_Base setStyle(final CharSequence _style)
+    public Table setStyle(final CharSequence _style)
     {
         this.style = _style;
-        return this;
+        return (Table) this;
     }
 
+    /**
+     * Setter method for instance variable {@link #style}.
+     *
+     * @param _cssClass the css class
+     * @return the table_ base
+     */
+    public Table setCssClass(final CharSequence _cssClass)
+    {
+        this.cssClass = _cssClass;
+        return (Table) this;
+    }
+
+    /**
+     * Gets the css class.
+     *
+     * @return the css class
+     */
+    public CharSequence getCssClass()
+    {
+        return this.cssClass;
+    }
+
+
+    /**
+     * The Class Row.
+     *
+     */
     public static class Row
     {
 
+        /** The style. */
         private CharSequence style;
 
+        /** The columns. */
         private final List<Column> columns = new ArrayList<>();
 
+        /** The current column. */
         private Column currentColumn;
 
+        /** The table. */
         private final Table_Base table;
 
+        /**
+         * Instantiates a new row.
+         *
+         * @param _table the table
+         */
         public Row(final Table_Base _table)
         {
             this.table = _table;
         }
 
+        /**
+         * Adds the column.
+         *
+         * @return the row
+         */
         public Row addColumn()
         {
             addColumn(null);
             return this;
         }
 
+        /**
+         * Adds the header column.
+         *
+         * @return the row
+         */
         public Row addHeaderColumn()
         {
             addHeaderColumn(null);
             return this;
         }
 
+        /**
+         * Adds the column.
+         *
+         * @param _innerHtml the inner html
+         * @return the row
+         */
         public Row addColumn(final CharSequence _innerHtml)
         {
             this.currentColumn = new Column(this);
@@ -229,6 +333,12 @@ public class Table_Base
             return this;
         }
 
+        /**
+         * Adds the header column.
+         *
+         * @param _innerHtml the inner html
+         * @return the row
+         */
         public Row addHeaderColumn(final CharSequence _innerHtml)
         {
             this.currentColumn = new HeaderColumn(this);
@@ -239,11 +349,24 @@ public class Table_Base
             return this;
         }
 
+        /**
+         * Insert column.
+         *
+         * @param _index the index
+         * @return the column
+         */
         public Column insertColumn(final int _index)
         {
             return insertColumn(_index, null);
         }
 
+        /**
+         * Insert column.
+         *
+         * @param _index the index
+         * @param _innerHtml the inner html
+         * @return the column
+         */
         public Column insertColumn(final int _index,
                                    final CharSequence _innerHtml)
         {
@@ -256,7 +379,9 @@ public class Table_Base
         }
 
         /**
-         * @return
+         * To html.
+         *
+         * @return the char sequence
          */
         public CharSequence toHtml()
         {
@@ -274,7 +399,9 @@ public class Table_Base
         }
 
         /**
-         * @param _maxColumns
+         * Prepare4html.
+         *
+         * @param _maxColumns the max columns
          */
         public void prepare4html(final int _maxColumns)
         {
@@ -310,6 +437,11 @@ public class Table_Base
             }
         }
 
+        /**
+         * Gets the col sum.
+         *
+         * @return the col sum
+         */
         public int getColSum()
         {
             int ret = 0;
@@ -319,6 +451,11 @@ public class Table_Base
             return ret;
         }
 
+        /**
+         * Gets the col spans.
+         *
+         * @return the col spans
+         */
         public int[] getColSpans()
         {
             final int[] ret = new int[this.columns.size()];
@@ -330,6 +467,11 @@ public class Table_Base
             return ret;
         }
 
+        /**
+         * Gets the current column.
+         *
+         * @return the current column
+         */
         public Column getCurrentColumn()
         {
             if (this.currentColumn == null) {
@@ -373,6 +515,7 @@ public class Table_Base
          * Setter method for instance variable {@link #style}.
          *
          * @param _style value for instance variable {@link #style}
+         * @return the row
          */
         public Row setStyle(final CharSequence _style)
         {
@@ -391,12 +534,19 @@ public class Table_Base
         }
     }
 
+    /**
+     * The Class HeaderColumn.
+     *
+     * @author The eFaps Team
+     */
     public static class HeaderColumn
         extends Column
     {
 
         /**
-         * @param _row
+         * Instantiates a new header column.
+         *
+         * @param _row the row
          */
         public HeaderColumn(final Row _row)
         {
@@ -410,25 +560,43 @@ public class Table_Base
         }
     }
 
+    /**
+     * The Class Column.
+     *
+     * @author The eFaps Team
+     */
     public static class Column
     {
 
+        /** The place holder. */
         private boolean placeHolder = false;
 
+        /** The position. */
         private int position = 0;
 
+        /** The col span. */
         private int colSpan = 1;
 
+        /** The row span. */
         private int rowSpan = 1;
 
+        /** The inner html. */
         private CharSequence innerHtml;
 
+        /** The style. */
         private CharSequence style;
 
-        private CharSequence CSSClass;
+        /** The CSS class. */
+        private CharSequence cssClass;
 
+        /** The row. */
         private Row row;
 
+        /**
+         * Instantiates a new column.
+         *
+         * @param _row the row
+         */
         public Column(final Row _row)
         {
             this.row = _row;
@@ -445,7 +613,9 @@ public class Table_Base
         }
 
         /**
-         * @return
+         * To html.
+         *
+         * @return the char sequence
          */
         public CharSequence toHtml()
         {
@@ -471,6 +641,11 @@ public class Table_Base
             return ret;
         }
 
+        /**
+         * Gets the tag.
+         *
+         * @return the tag
+         */
         protected String getTag()
         {
             return "td";
@@ -500,6 +675,7 @@ public class Table_Base
          * Setter method for instance variable {@link #colspan}.
          *
          * @param _colspan value for instance variable {@link #colspan}
+         * @return the column
          */
         public Column setColSpan(final int _colspan)
         {
@@ -541,6 +717,7 @@ public class Table_Base
          * Setter method for instance variable {@link #placeHolder}.
          *
          * @param _placeHolder value for instance variable {@link #placeHolder}
+         * @return the column
          */
         public Column setPlaceHolder(final boolean _placeHolder)
         {
@@ -562,6 +739,7 @@ public class Table_Base
          * Setter method for instance variable {@link #position}.
          *
          * @param _position value for instance variable {@link #position}
+         * @return the column
          */
         public Column setPosition(final int _position)
         {
@@ -583,6 +761,7 @@ public class Table_Base
          * Setter method for instance variable {@link #style}.
          *
          * @param _style value for instance variable {@link #style}
+         * @return the column
          */
         public Column setStyle(final CharSequence _style)
         {
@@ -590,6 +769,11 @@ public class Table_Base
             return this;
         }
 
+        /**
+         * Gets the current table.
+         *
+         * @return the current table
+         */
         public Table_Base getCurrentTable()
         {
             return getRow().getTable();
@@ -622,17 +806,18 @@ public class Table_Base
          */
         public CharSequence getCSSClass()
         {
-            return this.CSSClass;
+            return this.cssClass;
         }
 
         /**
          * Setter method for instance variable {@link #cssClass}.
          *
          * @param _cssClass value for instance variable {@link #cssClass}
+         * @return the column
          */
         public Column setCSSClass(final CharSequence _cssClass)
         {
-            this.CSSClass = _cssClass;
+            this.cssClass = _cssClass;
             return this;
         }
     }

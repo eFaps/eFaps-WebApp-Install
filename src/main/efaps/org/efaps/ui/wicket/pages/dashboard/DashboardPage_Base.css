@@ -142,7 +142,7 @@ div.header {
     width: 16px;
 }
 
-.dashboard table {
+.dashboard table.dashboardtable {
     border-color: darkgray;
     border-radius: 3px;
     border-style: solid;
@@ -151,7 +151,7 @@ div.header {
     margin-right: auto;
 }
 
-.dashboard table td {
+.dashboard table.dashboardtable td {
     border-radius: 2px;
     border-style: solid;
     border-width: 1px;
@@ -159,15 +159,15 @@ div.header {
     padding: 3px;
 }
 
-.dashboard table tr:nth-child(even){
+.dashboard table.dashboardtable tr:nth-child(even){
     background: #f2f2f2
 }
 
-.dashboard table tr:nth-child(odd){
+.dashboard table.dashboardtable tr:nth-child(odd){
     background: #FFF
 }
 
-.dashboard table tr:hover {
+.dashboard table.dashboardtable tr:hover {
     background-color: #ddd
 }
 
