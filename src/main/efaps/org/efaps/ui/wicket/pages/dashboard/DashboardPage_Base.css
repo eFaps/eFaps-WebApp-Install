@@ -131,3 +131,8 @@ div.header {
     text-decoration: none;
     font-size: 10pt;
 }
+
+.dashboard .eFapsCached {
+    font-size: 7pt;
+}
+}
