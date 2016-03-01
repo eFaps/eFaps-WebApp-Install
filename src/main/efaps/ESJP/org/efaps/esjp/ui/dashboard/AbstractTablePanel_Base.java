@@ -62,25 +62,28 @@ public abstract class AbstractTablePanel_Base
     {
         final List<Map<String, Object>> ds =  getDataSource();
         final StringBuilder html = new StringBuilder();
+
         final Table table = new Table().setCssClass("dashboardtable");
-        for (final Entry<String, Object> entry: ds.get(0).entrySet()) {
-            if (entry.getValue() instanceof Instance) {
-                table.addHeaderColumn("");
-            } else {
-                table.addHeaderColumn(entry.getKey());
-            }
-        }
-        for (final Map<String, Object> map : ds) {
-            table.addRow();
-            for (final Entry<String, Object> entry : map.entrySet()) {
-                final Object value = entry.getValue();
-                if (value instanceof Instance) {
-                    final EmbeddedLink link = EmbeddedLink.getDashboardLink(((Instance) value).getOid(),
-                                    getIdentifier());
-                    EFapsSession.get().addEmbededLink(link);
-                    table.addColumn(link.getTag());
+        if (!ds.isEmpty()) {
+            for (final Entry<String, Object> entry: ds.get(0).entrySet()) {
+                if (entry.getValue() instanceof Instance) {
+                    table.addHeaderColumn("");
                 } else {
-                    table.addColumn(value.toString());
+                    table.addHeaderColumn(entry.getKey());
+                }
+            }
+            for (final Map<String, Object> map : ds) {
+                table.addRow();
+                for (final Entry<String, Object> entry : map.entrySet()) {
+                    final Object value = entry.getValue();
+                    if (value instanceof Instance) {
+                        final EmbeddedLink link = EmbeddedLink.getDashboardLink(((Instance) value).getOid(),
+                                        getIdentifier());
+                        EFapsSession.get().addEmbededLink(link);
+                        table.addColumn(link.getTag());
+                    } else {
+                        table.addColumn(value.toString());
+                    }
                 }
             }
         }
