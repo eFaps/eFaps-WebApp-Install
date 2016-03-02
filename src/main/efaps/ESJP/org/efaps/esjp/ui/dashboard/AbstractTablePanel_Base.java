@@ -89,7 +89,7 @@ public abstract class AbstractTablePanel_Base
         }
         html.append("<div style=\"width: ").append(getWidth())
             .append("px; height: ").append(getHeight())
-            .append("px;\">");
+            .append("px; overflow:auto \">");
 
         if (getTitle() != null) {
             html.append("<div class=\"title\">").append(getTitle()).append("</div>");
