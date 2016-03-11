@@ -15,22 +15,9 @@
  *
  */
 
-package org.efaps.esjp.ui.print;
-
-import org.efaps.admin.program.esjp.EFapsApplication;
-import org.efaps.admin.program.esjp.EFapsUUID;
-
 /**
- * This class must be replaced for customization, therefore it is left empty.
- * Functional description can be found in the related "<code>_Base</code>"
- * class.
+ * Classes used to print the UI.
  *
  * @author The eFaps Team
  */
-@EFapsUUID("ee38492f-b6db-454d-9c44-353699fb9077")
-@EFapsApplication("eFaps-Webapp")
-public class Table
-    extends Table_Base
-{
-
-}
+package org.efaps.esjp.ui.print;

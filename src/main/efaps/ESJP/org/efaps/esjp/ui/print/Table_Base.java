@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2012 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 package org.efaps.esjp.ui.print;
@@ -32,19 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
-import net.sf.dynamicreports.report.builder.DynamicReports;
-import net.sf.dynamicreports.report.builder.column.TextColumnBuilder;
-import net.sf.dynamicreports.report.builder.style.StyleBuilder;
-import net.sf.dynamicreports.report.builder.style.Styles;
-import net.sf.dynamicreports.report.constant.HorizontalAlignment;
-import net.sf.dynamicreports.report.constant.PageOrientation;
-import net.sf.dynamicreports.report.constant.PageType;
-import net.sf.dynamicreports.report.exception.DRException;
-import net.sf.jasperreports.engine.JRDataSource;
-import net.sf.jasperreports.engine.JRException;
-import net.sf.jasperreports.engine.JRField;
-
 import org.apache.wicket.PageReference;
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.attributetype.BooleanType;
@@ -57,7 +41,7 @@ import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.field.Field;
@@ -77,14 +61,26 @@ import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
+import net.sf.dynamicreports.report.builder.DynamicReports;
+import net.sf.dynamicreports.report.builder.column.TextColumnBuilder;
+import net.sf.dynamicreports.report.builder.style.StyleBuilder;
+import net.sf.dynamicreports.report.builder.style.Styles;
+import net.sf.dynamicreports.report.constant.HorizontalTextAlignment;
+import net.sf.dynamicreports.report.constant.PageOrientation;
+import net.sf.dynamicreports.report.constant.PageType;
+import net.sf.dynamicreports.report.exception.DRException;
+import net.sf.jasperreports.engine.JRDataSource;
+import net.sf.jasperreports.engine.JRException;
+import net.sf.jasperreports.engine.JRField;
+
 /**
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
  */
 @EFapsUUID("99ce434b-4177-4e65-99d1-0195434f628d")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-Webapp")
 public abstract class Table_Base
     extends UserInterface
 {
@@ -141,8 +137,8 @@ public abstract class Table_Base
                 final JasperReportBuilder jrb = DynamicReports.report()
                                 .addTitle(DynamicReports.cmp.horizontalList(
                                             DynamicReports.cmp.text(pageObject.getTitle()),
-                                            DynamicReports.cmp. text(new Date())
-                                            .setHorizontalAlignment(HorizontalAlignment.RIGHT)
+                                            DynamicReports.cmp.text(new Date())
+                                            .setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT)
                                             .setDataType(DynamicReports.type.dateYearToMinuteType())));
 
                 if (print) {
@@ -151,7 +147,7 @@ public abstract class Table_Base
                                     .setColumnHeaderStyle(getStyle(_parameter, Table_Base.Section.HEADER))
                                     .highlightDetailEvenRows()
                                     .pageFooter(DynamicReports.cmp.pageXofY().setStyle(DynamicReports.stl.style()
-                                                    .setHorizontalAlignment(HorizontalAlignment.CENTER)));
+                                                    .setHorizontalTextAlignment(HorizontalTextAlignment.CENTER)));
                 } else {
                     jrb.setIgnorePagination(true)
                                     .setPageMargin(DynamicReports.margin(0));
@@ -238,9 +234,9 @@ public abstract class Table_Base
                                                     DynamicReports.type.bigDecimalType());
                                 }
                             }
+
                             if (clbdr == null) {
-                                clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
-                                                DynamicReports.type.stringType());
+                                clbdr = getColumnBuilder4Values(values, header);
                             }
                             if (print) {
                                 clbdr.setWidth(header.isFixedWidth() ? header.getWidth() : width.intValue());
@@ -328,7 +324,7 @@ public abstract class Table_Base
                                     final Section _detail)
         throws EFapsException
     {
-        StyleBuilder ret;
+        final StyleBuilder ret;
         switch (_detail) {
             case TITLE:
                 ret = DynamicReports.stl.style().setBold(true);
@@ -350,6 +346,43 @@ public abstract class Table_Base
                                 .setFont(Styles.font().setFontSize(12))
                                 .setBorder(Styles.pen1Point());
                 break;
+        }
+        return ret;
+    }
+
+    /**
+     * Gets the column builder for values.
+     *
+     * @param _values the values
+     * @param _header the header
+     * @return the column builder4 values
+     */
+    protected TextColumnBuilder<?> getColumnBuilder4Values(final List<Map<String, Object>> _values,
+                                                           final UITableHeader _header)
+    {
+        TextColumnBuilder<?> ret = null;
+        final Class<?>[] clazzes = new Class[] { BigDecimal.class, Long.class, Integer.class, DateTime.class };
+        int idx = 0;
+        Iterator<Map<String, Object>> iter = _values.iterator();
+        while (iter.hasNext() && idx < clazzes.length) {
+            final Map<String, Object> map = iter.next();
+            final Object object = map.get(_header.getFieldName());
+            // ignore null values
+            if (object != null) {
+                // if not assignable swithc to next
+                if (!object.getClass().equals(clazzes[idx])) {
+                    iter = _values.iterator();
+                    idx++;
+                }
+            }
+        }
+        if (idx < clazzes.length) {
+            checkValues(_values, _header.getFieldName(), clazzes[idx]);
+            ret = DynamicReports.col.column(_header.getLabel(), _header.getFieldName(),
+                            clazzes[idx]);
+        } else {
+            ret = DynamicReports.col.column(_header.getLabel(), _header.getFieldName(),
+                            DynamicReports.type.stringType());
         }
         return ret;
     }
