@@ -2,7 +2,7 @@
 
 <!--
 
-  Copyright 2003 - 2012 The eFaps Team
+  Copyright 2003 - 2016 The eFaps Team
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,26 +16,19 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-  Author:          The eFaps Team
-  Revision:        $Rev$
-  Last Changed:    $Date$
-  Last Changed By: $Author$
-
 -->
 
-<ui-form xmlns="http://www.efaps.org/xsd"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<ui-form xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
     <uuid>4b5cb87a-d9d6-469a-a7cf-f282d1c0a965</uuid>
-    <file-application>eFaps-webapp</file-application>
-    <file-revision>$Rev$</file-revision>
+    <file-application>eFaps-WebApp</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>Common_Main_PrintForm</name>
         <field name="mime">
-            <property name="ModeCreate">EDITABLE</property>
+            <property name="ModeEdit">EDITABLE</property>
             <property name="Label">Common_Main_PrintForm.mime.Label</property>
-            <property name="ClassNameUI">org.efaps.admin.datamodel.ui.StringUI</property>
+            <property name="UIType">DROPDOWN</property>
             <trigger program="org.efaps.esjp.ui.print.UserInterface"
                 method="getMimeFieldValueUI"
                 name="Common_Main_PrintForm.mime.UI_FIELD_VALUE"
@@ -47,9 +40,9 @@
                 event="UI_FIELD_UPDATE"/>
         </field>
         <field name="columns">
-            <property name="ModeCreate">READONLY</property>
+            <property name="ModeEdit">EDITABLE</property>
             <property name="Label">Common_Main_PrintForm.columns.Label</property>
-            <property name="ClassNameUI">org.efaps.admin.datamodel.ui.StringUI</property>
+            <property name="UIType">SNIPPLET</property>
             <trigger program="org.efaps.esjp.ui.print.UserInterface"
                 method="getColumnsFieldValueUI"
                 name="Common_Main_PrintForm.columns.UI_FIELD_VALUE"

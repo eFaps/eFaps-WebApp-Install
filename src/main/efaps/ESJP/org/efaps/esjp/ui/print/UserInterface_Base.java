@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2012 The eFaps Team
+ * Copyright 2003 - 216 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 package org.efaps.esjp.ui.print;
@@ -34,19 +31,18 @@ import org.apache.wicket.PageReference;
 import org.apache.wicket.ajax.AjaxRequestHandler;
 import org.apache.wicket.request.IRequestHandler;
 import org.apache.wicket.request.cycle.RequestCycle;
-import org.efaps.admin.datamodel.ui.FieldValue;
-import org.efaps.admin.datamodel.ui.UIInterface;
 import org.efaps.admin.dbproperty.DBProperties;
 import org.efaps.admin.event.EventExecution;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.db.Context;
 import org.efaps.esjp.common.jasperreport.StandartReport;
+import org.efaps.esjp.common.uiform.Field_Base.DropDownPosition;
 import org.efaps.ui.wicket.models.objects.AbstractUIPageObject;
 import org.efaps.ui.wicket.models.objects.UIStructurBrowser;
 import org.efaps.ui.wicket.models.objects.UITable;
@@ -58,12 +54,14 @@ import org.efaps.util.EFapsException;
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
  */
 @EFapsUUID("1caa2277-7285-470f-976c-718df3363679")
-@EFapsRevision("$Rev$")
-public abstract class UserInterface_Base extends StandartReport implements EventExecution
+@EFapsApplication("eFaps-WebApp")
+public abstract class UserInterface_Base
+    extends StandartReport
+    implements EventExecution
 {
+
     /**
      * Key to the ui object stored in the context.
      */
@@ -78,6 +76,7 @@ public abstract class UserInterface_Base extends StandartReport implements Event
 
     /**
      * Execute the export.
+     *
      * @param _parameter Parameter as passed form the eFaps API
      * @return Return containing the file
      * @throws EFapsException on error
@@ -91,6 +90,7 @@ public abstract class UserInterface_Base extends StandartReport implements Event
 
     /**
      * Get the html for the mime field.
+     *
      * @param _parameter Parameter as passed form the eFaps API
      * @return html snipplet
      * @throws EFapsException on error
@@ -98,10 +98,9 @@ public abstract class UserInterface_Base extends StandartReport implements Event
     public Return getMimeFieldValueUI(final Parameter _parameter)
         throws EFapsException
     {
+        final List<DropDownPosition> values = new ArrayList<DropDownPosition>();
+
         final Map<?, ?> props = (Map<?, ?>) _parameter.get(ParameterValues.PROPERTIES);
-        final FieldValue fieldValue = (FieldValue) _parameter.get(ParameterValues.UIOBJECT);
-        final Return ret = new Return();
-        final StringBuilder html = new StringBuilder();
         final String defaultMime = (String) props.get("DefaultMime");
         final Set<String> ignoreSet = new HashSet<String>();
         if (props.containsKey("IgnoreMime")) {
@@ -112,27 +111,25 @@ public abstract class UserInterface_Base extends StandartReport implements Event
             }
         }
 
-        html.append("<select ").append(UIInterface.EFAPSTMPTAG).append(" name=\"")
-            .append(fieldValue.getField().getName()).append("\" size=\"1\">");
         for (final Entry<String, String> mimeEntry : UserInterface_Base.MIME_MAP.entrySet()) {
             if (!ignoreSet.contains(mimeEntry.getKey())) {
-                html.append("<option value=\"").append(mimeEntry.getKey()).append("\"");
+                final DropDownPosition position = new DropDownPosition(mimeEntry.getKey(),
+                                DBProperties.getProperty(mimeEntry.getValue()));
                 if (defaultMime != null && mimeEntry.getKey().equalsIgnoreCase(defaultMime)) {
-                    html.append(" selected=\"selected\">");
-                } else {
-                    html.append(">");
+                    position.setSelected(true);
                 }
-                html.append(DBProperties.getProperty(mimeEntry.getValue())).append("</option>");
+                values.add(position);
             }
         }
-        html.append("</select>");
 
-        ret.put(ReturnValues.SNIPLETT, html.toString());
+        final Return ret = new Return();
+        ret.put(ReturnValues.VALUES, values);
         return ret;
     }
 
     /**
      * Get the html for the columns field.
+     *
      * @param _parameter Parameter as passed form the eFaps API
      * @return html snipplet
      * @throws EFapsException on error
@@ -199,22 +196,22 @@ public abstract class UserInterface_Base extends StandartReport implements Event
      * @param uiObject with the data.
      * @return StringBuilder
      */
-    public StringBuilder updateColumns(final AbstractUIPageObject uiObject) {
+    public StringBuilder updateColumns(final AbstractUIPageObject uiObject)
+    {
         final StringBuilder html = new StringBuilder();
         List<UITableHeader> headers = null;
         if (uiObject instanceof UITable) {
             headers = ((UITable) uiObject).getHeaders();
         } else if (uiObject instanceof UIStructurBrowser) {
-            headers =  ((UIStructurBrowser) uiObject).getHeaders();
+            headers = ((UIStructurBrowser) uiObject).getHeaders();
         }
         if (headers != null) {
             int i = 1;
             for (final UITableHeader header : headers) {
-                html.append("<input type=\"checkbox\" ")
-                    .append(header.getLabel().length() < 1 ? "" : "checked=\"checked\"")
-                    .append(" name=\"")
-                    .append("columns").append("\" value=\"").append(header.getFieldName())
-                    .append("\">").append(i++).append(": ").append(header.getLabel()).append("<br/>");
+                html.append("<input type=\"checkbox\" ").append(header.getLabel().length() < 1 ? ""
+                                : "checked=\"checked\"").append(" name=\"").append("columns").append("\" value=\"")
+                                .append(header.getFieldName()).append("\">").append(i++).append(": ").append(header
+                                                .getLabel()).append("<br/>");
             }
         }
         return html;

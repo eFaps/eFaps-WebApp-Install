@@ -49,6 +49,7 @@ import org.efaps.db.Context;
 import org.efaps.ui.wicket.models.cell.UIStructurBrowserTableCell;
 import org.efaps.ui.wicket.models.cell.UITableCell;
 import org.efaps.ui.wicket.models.field.IFilterable;
+import org.efaps.ui.wicket.models.field.UIField;
 import org.efaps.ui.wicket.models.objects.AbstractUIHeaderObject;
 import org.efaps.ui.wicket.models.objects.AbstractUIPageObject;
 import org.efaps.ui.wicket.models.objects.UIRow;
@@ -176,6 +177,18 @@ public abstract class Table_Base
                                         }
                                         map.put(cell.getName(), value);
                                         selAttr.put(cell.getName(), cell.getAttribute());
+                                    }
+                                } else if (filterable instanceof UIField) {
+                                    final UIField uiField = (UIField) filterable;
+                                    if (selCols.contains(uiField.getFieldConfiguration().getName())) {
+                                        Object value = print ? uiField.getPickListValue()
+                                                        : uiField.getCompareValue() != null
+                                                            ? uiField.getCompareValue() : uiField.getPickListValue() ;
+                                        if (value instanceof DateTime) {
+                                            value = ((DateTime) value).toDate();
+                                        }
+                                        map.put(uiField.getFieldConfiguration().getName(), value);
+                                        selAttr.put(uiField.getFieldConfiguration().getName(), null);
                                     }
                                 }
                             }
