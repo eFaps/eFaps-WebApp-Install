@@ -81,8 +81,10 @@ public abstract class AbstractTablePanel_Base
                                         getIdentifier());
                         EFapsSession.get().addEmbededLink(link);
                         table.addColumn(link.getTag());
-                    } else {
+                    } else if (value != null) {
                         table.addColumn(value.toString());
+                    } else {
+                        table.addColumn("");
                     }
                 }
             }
