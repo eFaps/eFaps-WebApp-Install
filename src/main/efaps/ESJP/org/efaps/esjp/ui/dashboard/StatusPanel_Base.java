@@ -149,7 +149,7 @@ public class StatusPanel_Base
             final List<Map<String, Object>> labels = new ArrayList<>();
             int idx = 1;
             LocalDate current = startDate.toLocalDate();
-            while (current.isBefore(new DateTime().toLocalDate())) {
+            while (current.isBefore(new DateTime().plusDays(1).toLocalDate())) {
                 int yVal;
                 if (values.containsKey(current)) {
                     yVal = values.get(current).size();
