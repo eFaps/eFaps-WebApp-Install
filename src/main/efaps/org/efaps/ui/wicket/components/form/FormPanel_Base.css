@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2013 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,10 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author:          The eFaps Team
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 /*
@@ -97,6 +93,16 @@
     padding: 1px;
 }
 
+.eFapsFormValue SELECT {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20fill%3D%22%23555555%22%20%0A%09%20width%3D%2224px%22%20height%3D%2224px%22%20viewBox%3D%22-261%20145.2%2024%2024%22%20style%3D%22enable-background%3Anew%20-261%20145.2%2024%2024%3B%22%20xml%3Aspace%3D%22preserve%22%3E%0A%3Cpath%20d%3D%22M-245.3%2C156.1l-3.6-6.5l-3.7%2C6.5%20M-252.7%2C159l3.7%2C6.5l3.6-6.5%22%2F%3E%0A%3C%2Fsvg%3E");
+    background-position: right center;
+    background-repeat: no-repeat;
+    background-size: 12pt auto;
+}
+
 /* Input Field Appearance */
 .eFapsFormInputField {
     background-color: #eeeeee;
@@ -144,11 +150,11 @@
     width: 100%;
 }
 
-.eFapsForm input.field.invalid {
+.eFapsForm INPUT.field.invalid {
     background-color: #e5e591;
 }
 
-.eFapsForm input.field, .eFapsForm textarea.field, .eFapsForm select.field {
+.eFapsForm INPUT.field, .eFapsForm TEXTAREA.field, .eFapsForm SELECT.field {
     font-family: arial, verdana, helvetica, sans-serif;
     font-size: 9pt;
     background-color: #E8E8E8;
@@ -157,7 +163,7 @@
     padding: 1px;
 }
 
-.eFapsForm input.field {
+.eFapsForm INPUT.field {
     width: auto;
     min-width: inherit;
     height: 21px;
@@ -166,12 +172,19 @@
     margin-left: 5px;
 }
 
-.eFapsForm textarea.field  {
+.eFapsForm TEXTAREA.field  {
     height: auto;
     width: auto;
 }
 
-.eFapsForm select.field {
+.eFapsForm SELECT.field {
+    appearance: none;
+    -moz-appearance: none;
+    -webkit-appearance: none;
+    background-image: url("data:image/svg+xml;charset=utf-8,%3Csvg%20version%3D%221.1%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20xmlns%3Axlink%3D%22http%3A%2F%2Fwww.w3.org%2F1999%2Fxlink%22%20x%3D%220px%22%20y%3D%220px%22%20fill%3D%22%23555555%22%20%0A%09%20width%3D%2224px%22%20height%3D%2224px%22%20viewBox%3D%22-261%20145.2%2024%2024%22%20style%3D%22enable-background%3Anew%20-261%20145.2%2024%2024%3B%22%20xml%3Aspace%3D%22preserve%22%3E%0A%3Cpath%20d%3D%22M-245.3%2C156.1l-3.6-6.5l-3.7%2C6.5%20M-252.7%2C159l3.7%2C6.5l3.6-6.5%22%2F%3E%0A%3C%2Fsvg%3E");
+    background-position: right center;
+    background-repeat: no-repeat;
+    background-size: 12pt auto;
     border: 1px solid #CCCCCC;
     padding: 1px;
     margin-left: 5px;
@@ -180,13 +193,12 @@
     width: auto;
 }
 
-.eFapsForm .field span.boolean {
+.eFapsForm .field SPAN.boolean {
     display: table-cell;
 }
-.eFapsForm .field span.boolean span {
+.eFapsForm .field SPAN.boolean SPAN {
    font-weight: bolder;
 }
-
 
 .eFapsForm .label {
     background-color: #D0EDB8;
