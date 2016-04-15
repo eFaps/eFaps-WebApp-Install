@@ -154,7 +154,7 @@
     background-color: #e5e591;
 }
 
-.eFapsForm INPUT.field, .eFapsForm TEXTAREA.field, .eFapsForm SELECT.field {
+.eFapsForm INPUT.field, .eFapsForm TEXTAREA.field, .eFapsForm SELECT.field, .eFapsForm .labeled INPUT {
     font-family: arial, verdana, helvetica, sans-serif;
     font-size: 9pt;
     background-color: #E8E8E8;
