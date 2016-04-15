@@ -2,7 +2,7 @@
 
 <!--
 
-  Copyright 2003 - 2012 The eFaps Team
+  Copyright 2003 - 2016 The eFaps Team
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -16,26 +16,18 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-  Author:          jmox
-  Revision:        $Rev$
-  Last Changed:    $Date$
-  Last Changed By: $Author$
 
 -->
 
-<ui-menu xmlns="http://www.efaps.org/xsd"
-         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-
-  <uuid>abb7f23d-4675-4874-b76d-2fd8f5186075</uuid>
-  <file-application>eFaps-webapp</file-application>
-  <file-revision>$Rev$</file-revision>
-
-  <definition>
-    <version-expression>(version==latest)</version-expression>
-    <name>Common_Main_Default</name>
-    <childs>
-      <child>Common_Main_Default_PrintUI</child>
-    </childs>
-  </definition>
+<ui-menu xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    <uuid>abb7f23d-4675-4874-b76d-2fd8f5186075</uuid>
+    <file-application>eFaps-WebApp</file-application>
+    <definition>
+        <version-expression>(version==latest)</version-expression>
+        <name>Common_Main_Default</name>
+        <childs>
+            <child>Common_Main_Default_PrintUI</child>
+        </childs>
+    </definition>
 </ui-menu>

@@ -16,22 +16,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-  Author:          The eFaps Team
-  Revision:        $Rev$
-  Last Changed:    $Date$
-  Last Changed By: $Author$
-
 -->
 
 <ui-command xmlns="http://www.efaps.org/xsd"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-
-    <uuid>df7a3915-4f14-43fd-9dd5-4157831ed4f3</uuid>
-    <file-application>eFaps-webapp</file-application>
-    <file-revision>$Rev$</file-revision>
-
-    <definition>
+        <uuid>df7a3915-4f14-43fd-9dd5-4157831ed4f3</uuid>
+    <file-application>eFaps-WebApp</file-application>
+       <definition>
         <version-expression>(version==latest)</version-expression>
         <name>WebApp_ToggleDevUtil</name>
         <access>
