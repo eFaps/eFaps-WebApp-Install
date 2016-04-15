@@ -46,8 +46,8 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.db.Context;
-import org.efaps.ui.wicket.models.cell.UIStructurBrowserTableCell;
 import org.efaps.ui.wicket.models.cell.UITableCell;
+import org.efaps.ui.wicket.models.field.AbstractUIField;
 import org.efaps.ui.wicket.models.field.IFilterable;
 import org.efaps.ui.wicket.models.field.UIField;
 import org.efaps.ui.wicket.models.objects.AbstractUIHeaderObject;
@@ -291,20 +291,21 @@ public abstract class Table_Base
                                       final boolean _print,
                                       final List<Map<String, Object>> _values,
                                       final List<UIStructurBrowser> _children)
-        throws CacheReloadException
+        throws EFapsException
     {
         for (final UIStructurBrowser child : _children) {
-            final List<UIStructurBrowserTableCell> cols = child.getColumns();
+            final List<AbstractUIField> cols = child.getColumns();
             final Map<String, Object> map = new HashMap<String, Object>();
-            for (final UIStructurBrowserTableCell cell : cols) {
-                if (_selCols.contains(cell.getName())) {
-                    Object value = _print ? cell.getCellTitle() : cell.getCompareValue() != null
-                                    ? cell.getCompareValue() : cell.getCellTitle();
+            for (final AbstractUIField uiField : cols) {
+                if (_selCols.contains(uiField.getFieldConfiguration().getName())) {
+                    Object value = _print ? uiField.getPickListValue()
+                                    : uiField.getCompareValue() != null
+                                        ? uiField.getCompareValue() : uiField.getPickListValue() ;
                     if (value instanceof DateTime) {
                         value = ((DateTime) value).toDate();
                     }
-                    map.put(cell.getName(), value);
-                    _selAttr.put(cell.getName(), cell.getAttribute());
+                    map.put(uiField.getFieldConfiguration().getName(), value);
+                    _selAttr.put(uiField.getFieldConfiguration().getName(), null);
                 }
             }
             _values.add(map);
