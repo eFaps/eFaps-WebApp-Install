@@ -2,6 +2,7 @@
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
 <suite name="Suite" parallel="classes">
     <test name="CITests">
+         <parameter name="application" value="eFaps-Webapp"/>
         <parameter name="baseFolder" value="../../../main/efaps"></parameter>
         <packages>
             <package name="org.efaps.tests.ci.*"></package>
