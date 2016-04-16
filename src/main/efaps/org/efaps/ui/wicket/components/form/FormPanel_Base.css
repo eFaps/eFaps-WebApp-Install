@@ -77,10 +77,6 @@
     padding-right: 4px;
     white-space: nowrap;
     background-color: white;
-    background-image: url("../../servlet/image/org.efaps.ui.wicket.components.form.dotted-line.png");
-    background-repeat: repeat-x;
-    background-position: bottom;
-    border-right: 1px solid #ddd;
 }
 
 /* For firefox this must be set especially for input and textarea */
@@ -139,9 +135,6 @@
 
 .eFapsForm .field {
     background-color: white;
-    background-image: url("../../servlet/image/org.efaps.ui.wicket.components.form.dotted-line.png");
-    background-position: bottom;
-    background-repeat: repeat-x;
     display: table-cell;
     height: 25px;
     min-width: 153px;

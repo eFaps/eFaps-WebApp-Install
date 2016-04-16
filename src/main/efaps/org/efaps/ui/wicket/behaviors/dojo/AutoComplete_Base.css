@@ -43,13 +43,16 @@
 }
 
 .eFapsForm .labeled .eFapsAutoComplete {
-    background-color: rgb(232, 232, 232);
+    background-color: #e8e8e8;
+    border-radius: 2px;
+    margin-bottom: 1px;
     margin-left: 5px;
+    margin-top: 2px;
 }
 
 .eFapsForm .labeled .eFapsAutoComplete .dijitInputInner {
-    height: 21px;
     padding-left: 3px !important;
+    vertical-align: middle;
 }
 
 .eFapsToken ul {
