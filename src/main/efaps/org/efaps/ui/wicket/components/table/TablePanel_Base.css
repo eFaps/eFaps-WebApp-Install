@@ -89,6 +89,12 @@
     width: auto;
 }
 
+.eFapsTableCell SELECT {
+    min-width: 40px;
+    width: inherit;
+}
+
+
 .eFapsTableCheckBoxCell {
     padding-left: 0;
     float: left;
