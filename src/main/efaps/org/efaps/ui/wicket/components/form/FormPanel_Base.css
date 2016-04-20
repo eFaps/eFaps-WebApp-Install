@@ -126,6 +126,7 @@ SELECT {
     background-repeat: no-repeat;
     background-size: 8pt auto;
     border: 1px solid #ccc;
+    min-width: 30px;
     padding-right: 11px;
     width: auto;
 }

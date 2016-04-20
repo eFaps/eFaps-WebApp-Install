@@ -44,6 +44,8 @@
     margin-bottom: 1px;
     margin-left: 5px;
     margin-top: 2px;
+    margin-right: 5px;
+    width: 100%;
 }
 
 .eFapsForm .labeled .eFapsAutoComplete .dijitInputInner {
