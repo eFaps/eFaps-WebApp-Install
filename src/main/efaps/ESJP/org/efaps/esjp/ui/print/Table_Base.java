@@ -57,7 +57,6 @@ import org.efaps.ui.wicket.models.objects.UIStructurBrowser;
 import org.efaps.ui.wicket.models.objects.UITable;
 import org.efaps.ui.wicket.models.objects.UITableHeader;
 import org.efaps.util.EFapsException;
-import org.efaps.util.cache.CacheReloadException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -375,7 +374,7 @@ public abstract class Table_Base
                                                            final UITableHeader _header)
     {
         TextColumnBuilder<?> ret = null;
-        final Class<?>[] clazzes = new Class[] { BigDecimal.class, Long.class, Integer.class, DateTime.class };
+        final Class<?>[] clazzes = new Class[] { BigDecimal.class, Long.class, Integer.class, Date.class };
         int idx = 0;
         Iterator<Map<String, Object>> iter = _values.iterator();
         while (iter.hasNext() && idx < clazzes.length) {
