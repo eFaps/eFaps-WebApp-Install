@@ -78,27 +78,31 @@ public abstract class SysConfListener_Base
                     final IntegerSysConfAttribute attr = new IntegerSysConfAttribute()
                                     .sysConfUUID(Configuration.getSysConfig().getUUID())
                                     .key(val.getKey())
-                                    .defaultValue(Integer.valueOf(val.getDefaultvalue()));
+                                    .defaultValue(Integer.valueOf(val.getDefaultvalue()))
+                                    .description(val.getDescription());
                     attributes.add(attr);
                     LOG.info("    Found Attribute: {}", attr);
                 } else if (val.getAttrClass().isAssignableFrom(Boolean.class)) {
                     final BooleanSysConfAttribute attr = new BooleanSysConfAttribute()
                                     .sysConfUUID(Configuration.getSysConfig().getUUID())
                                     .key(val.getKey())
-                                    .defaultValue(Boolean.parseBoolean(val.getDefaultvalue()));
+                                    .defaultValue(Boolean.parseBoolean(val.getDefaultvalue()))
+                                    .description(val.getDescription());
                     attributes.add(attr);
                     LOG.info("    Found Attribute: {}", attr);
                 } else if (val.getAttrClass().isAssignableFrom(Properties.class)) {
                     final PropertiesSysConfAttribute attr = new PropertiesSysConfAttribute()
                                     .sysConfUUID(Configuration.getSysConfig().getUUID())
-                                    .key(val.getKey());
+                                    .key(val.getKey())
+                                    .description(val.getDescription());
                     attributes.add(attr);
                     LOG.info("    Found Attribute: {}", attr);
                 } else if (val.getAttrClass().isAssignableFrom(String.class)) {
                     final StringSysConfAttribute attr = new StringSysConfAttribute()
                                     .sysConfUUID(Configuration.getSysConfig().getUUID())
                                     .key(val.getKey())
-                                    .defaultValue(val.getDefaultvalue());
+                                    .defaultValue(val.getDefaultvalue())
+                                    .description(val.getDescription());
                     attributes.add(attr);
                     LOG.info("    Found Attribute: {}", attr);
                 }
