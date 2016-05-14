@@ -1,6 +1,7 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?><!--
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!--
 
-  Copyright 2003 - 2013 The eFaps Team
+  Copyright 2003 - 2016 The eFaps Team
 
   Licensed under the Apache License, Version 2.0 (the "License");
   you may not use this file except in compliance with the License.
@@ -14,25 +15,14 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 
-  Author:          The eFaps Team
-  Revision:        $Rev$
-  Last Changed:    $Date$
-  Last Changed By: $Author$
-
-  Original Author: Yusuke Kamiyamane.
-  Original Name:  cross-circle.png
-  Original Web:    Fugue Icons
-                  [ http://p.yusukekamiyamane.com/ ]
-  Original License:Creative Creative Commons Attribution 3.0 License.
-                  [ http://creativecommons.org/licenses/by/3.0/ ]
 -->
 <ui-image xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>ebced5fe-856e-4512-bda6-10967d58bd75</uuid>
+    <uuid>b5c303c0-18d2-4773-92b7-454fcf743f7c</uuid>
     <file-application>eFaps-WebApp</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>org.efaps.ui.wicket.pages.main.cross-circle.png</name>
-        <file>cross-circle.png</file>
+        <name>org.efaps.ui.wicket.pages.main.search.svg</name>
+        <file>search.svg</file>
     </definition>
 </ui-image>
