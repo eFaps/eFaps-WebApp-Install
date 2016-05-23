@@ -252,6 +252,24 @@ form.eFapsSearchForm {
     width: 15px;
 }
 
+.resultDimensionOverflow {
+    float: left;
+    margin-right: 15px;
+}
+
+.resultDimensionOverflow .dimValue {
+    float: right;
+    padding-left: 4px;
+    text-align: right;
+}
+
+.resultDimensionOverflow .dimValue::before {
+    content: "(";
+}
+.resultDimensionOverflow .dimValue::after {
+    content: ")";
+}
+
 .resultOverflow {
     display: inherit;
     overflow: auto;
