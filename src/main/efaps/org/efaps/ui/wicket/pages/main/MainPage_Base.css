@@ -255,6 +255,8 @@ form.eFapsSearchForm {
 .resultDimensionOverflow {
     float: left;
     margin-right: 15px;
+    height: 100%;
+    overflow: auto;
 }
 
 .resultDimensionOverflow .dimValue {
@@ -273,6 +275,7 @@ form.eFapsSearchForm {
 .resultOverflow {
     display: inherit;
     overflow: auto;
+    height: 100%;
 }
 
 .resulttable {
@@ -366,5 +369,49 @@ form.eFapsSearchForm button:focus {
     top: 0;
     width: 100%;
     z-index: 10;
+}
+
+.tristate {
+    margin: 2px;
+
+}
+.tristate button {
+    background-color: #C4C4C4;
+    border-radius: 11px;
+    border-style: solid;
+    border-width: 0;
+    cursor: pointer;
+    height: 21px;
+    width: 50px;
+    outline: none;
+}
+
+.tristate .handle {
+    background-color: white;
+    border-radius: 100%;
+    box-shadow: 0 2px grey;
+    display: inline-block;
+    height: 18px;
+    margin-left: auto;
+    margin-right: auto;
+    width: 18px;
+}
+
+.tristate.on button{
+    background-color: #4CAF50;
+}
+
+.tristate.off button{
+    background-color: #F44336;
+}
+
+.tristate.off .handle {
+    right: -12px;
+    position: relative;
+}
+
+.tristate.on .handle {
+    left: -12px;
+    position: relative;
 }
 
