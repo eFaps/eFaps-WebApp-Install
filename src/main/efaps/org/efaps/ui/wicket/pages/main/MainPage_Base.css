@@ -260,9 +260,9 @@ form.eFapsSearchForm {
 }
 
 .resultDimensionOverflow .dimValue {
-    float: right;
     padding-left: 4px;
     text-align: right;
+    right: 0px;
 }
 
 .resultDimensionOverflow .dimValue::before {
@@ -372,9 +372,29 @@ form.eFapsSearchForm button:focus {
 }
 
 .tristate {
+    display: flex;
+    flex: 1 1 100%;
+    flex-flow: row nowrap;
+    height: 21px;
+    justify-content: space-between;
     margin: 2px;
-
 }
+
+.tristate:hover {
+    background-color: gray;
+    color: white;
+}
+
+.tristate .dimLabel {
+    flex-grow: 2;
+    padding-left: 2px;
+}
+
+.tristate > span {
+    line-height: 21px;
+    vertical-align: middle;
+}
+
 .tristate button {
     background-color: #C4C4C4;
     border-radius: 11px;
