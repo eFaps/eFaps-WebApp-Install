@@ -246,3 +246,11 @@ SELECT {
     flex-grow: 1;
 }
 
+.eFapsForm .grid-cell .labeled {
+    margin: 1px;
+}
+
+.eFapsForm .grid-cell .field {
+    width: initial;
+}
+
