@@ -162,11 +162,13 @@ SELECT {
     margin-top: 2px;
     margin-bottom: 2px;
     margin-left: 5px;
+    background-color: #E8E8E8;
 }
 
 .eFapsForm TEXTAREA.field  {
     height: auto;
     width: auto;
+    background-color: #e8e8e8;
 }
 
 .eFapsForm SELECT.field {
@@ -229,5 +231,18 @@ SELECT {
 .eFapsFilterContent .FORM .unlabeled .field {
     min-height: 25px;
     height: unset;
+}
+
+.eFapsFormRow.grid {
+    align-items: stretch;
+    display: flex;
+    flex-flow: row nowrap;
+    height: unset;
+    min-height: 24px;
+}
+
+.eFapsFormRow .grid-cell {
+    display: flex;
+    flex-grow: 1;
 }
 

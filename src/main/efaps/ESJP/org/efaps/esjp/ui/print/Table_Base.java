@@ -46,7 +46,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.db.Context;
-import org.efaps.ui.wicket.models.cell.UITableCell;
 import org.efaps.ui.wicket.models.field.AbstractUIField;
 import org.efaps.ui.wicket.models.field.IFilterable;
 import org.efaps.ui.wicket.models.field.UIField;
@@ -57,6 +56,7 @@ import org.efaps.ui.wicket.models.objects.UIStructurBrowser;
 import org.efaps.ui.wicket.models.objects.UITable;
 import org.efaps.ui.wicket.models.objects.UITableHeader;
 import org.efaps.util.EFapsException;
+import org.efaps.util.cache.CacheReloadException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -166,23 +166,12 @@ public abstract class Table_Base
                         for (final UIRow row : ((UITable) pageObject).getValues()) {
                             final Map<String, Object> map = new HashMap<String, Object>();
                             for (final IFilterable filterable : row.getCells()) {
-                                if (filterable instanceof UITableCell) {
-                                    final UITableCell cell = (UITableCell) filterable;
-                                    if (selCols.contains(cell.getName())) {
-                                        Object value = print ? cell.getCellTitle() : cell.getCompareValue() != null
-                                                        ? cell.getCompareValue() : cell.getCellTitle();
-                                        if (value instanceof DateTime) {
-                                            value = ((DateTime) value).toDate();
-                                        }
-                                        map.put(cell.getName(), value);
-                                        selAttr.put(cell.getName(), cell.getAttribute());
-                                    }
-                                } else if (filterable instanceof UIField) {
+                                if (filterable instanceof UIField) {
                                     final UIField uiField = (UIField) filterable;
                                     if (selCols.contains(uiField.getFieldConfiguration().getName())) {
                                         Object value = print ? uiField.getPickListValue()
-                                                        : uiField.getCompareValue() != null
-                                                            ? uiField.getCompareValue() : uiField.getPickListValue() ;
+                                                    : uiField.getCompareValue() != null
+                                                        ? uiField.getCompareValue() : uiField.getPickListValue() ;
                                         if (value instanceof DateTime) {
                                             value = ((DateTime) value).toDate();
                                         }
