@@ -254,3 +254,6 @@ SELECT {
     width: initial;
 }
 
+.eFapsForm .grid-cell .button {
+    margin: 5px;
+}
