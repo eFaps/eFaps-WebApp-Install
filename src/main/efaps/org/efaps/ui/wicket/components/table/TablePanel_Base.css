@@ -90,6 +90,7 @@
 }
 
 .eFapsTableCell SELECT {
+    margin-left: -5px;
     min-width: 40px;
     width: inherit;
 }
@@ -171,4 +172,9 @@ for implementation purpose
 .eFapsTableCellClear {
     clear: both;
 }
+
+.eFapsTableCell .field > input {
+    width: 100%;
+}
+
 
