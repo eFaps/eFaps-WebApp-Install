@@ -261,6 +261,6 @@ SELECT {
 /* div containing DynamicJasper report*/
 .eFapsJR {
     margin-top: 20px;
-    position: absolute;
-    width: 99%;
+    margin-bottom: 20px;
+    width: calc(100vw - 38px)
 }
