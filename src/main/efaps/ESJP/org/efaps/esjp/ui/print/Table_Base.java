@@ -56,7 +56,6 @@ import org.efaps.ui.wicket.models.objects.UIStructurBrowser;
 import org.efaps.ui.wicket.models.objects.UITable;
 import org.efaps.ui.wicket.models.objects.UITableHeader;
 import org.efaps.util.EFapsException;
-import org.efaps.util.cache.CacheReloadException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,15 +155,15 @@ public abstract class Table_Base
                 try {
                     final int widthWeight = ((AbstractUIHeaderObject) pageObject).getWidthWeight();
                     final String[] columns = _parameter.getParameterValues("columns");
-                    final Set<String> selCols = new HashSet<String>();
+                    final Set<String> selCols = new HashSet<>();
                     for (final String col : columns) {
                         selCols.add(col);
                     }
-                    final Map<String, Attribute> selAttr = new HashMap<String, Attribute>();
-                    final List<Map<String, Object>> values = new ArrayList<Map<String, Object>>();
+                    final Map<String, Attribute> selAttr = new HashMap<>();
+                    final List<Map<String, Object>> values = new ArrayList<>();
                     if (pageObject instanceof UITable) {
                         for (final UIRow row : ((UITable) pageObject).getValues()) {
-                            final Map<String, Object> map = new HashMap<String, Object>();
+                            final Map<String, Object> map = new HashMap<>();
                             for (final IFilterable filterable : row.getCells()) {
                                 if (filterable instanceof UIField) {
                                     final UIField uiField = (UIField) filterable;
@@ -283,7 +282,7 @@ public abstract class Table_Base
     {
         for (final UIStructurBrowser child : _children) {
             final List<AbstractUIField> cols = child.getColumns();
-            final Map<String, Object> map = new HashMap<String, Object>();
+            final Map<String, Object> map = new HashMap<>();
             for (final AbstractUIField uiField : cols) {
                 if (_selCols.contains(uiField.getFieldConfiguration().getName())) {
                     Object value = _print ? uiField.getPickListValue()
@@ -363,7 +362,8 @@ public abstract class Table_Base
                                                            final UITableHeader _header)
     {
         TextColumnBuilder<?> ret = null;
-        final Class<?>[] clazzes = new Class[] { BigDecimal.class, Long.class, Integer.class, Date.class };
+        final Class<?>[] clazzes = new Class[] { BigDecimal.class, Long.class, Integer.class, Date.class,
+                        Boolean.class };
         int idx = 0;
         Iterator<Map<String, Object>> iter = _values.iterator();
         while (iter.hasNext() && idx < clazzes.length) {
