@@ -32,5 +32,7 @@
         <property name="TargetShowFile">true</property>
         <property name="TargetMode">edit</property>
         <property name="NoUpdateAfterCOMMAND">true</property>
+        <property name="SubmitSelectedRows">-1</property>
+        <property name="Submit">true</property>
     </definition>
 </ui-command>

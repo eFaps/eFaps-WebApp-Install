@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.wicket.PageReference;
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.attributetype.BooleanType;
@@ -38,7 +39,6 @@ import org.efaps.admin.datamodel.attributetype.IntegerType;
 import org.efaps.admin.datamodel.attributetype.LongType;
 import org.efaps.admin.datamodel.attributetype.RateType;
 import org.efaps.admin.event.Parameter;
-import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
@@ -110,7 +110,8 @@ public abstract class Table_Base
         throws EFapsException
     {
         final Return ret = new Return();
-        final Map<?, ?> properties = (Map<?, ?>) _parameter.get(ParameterValues.PROPERTIES);
+
+        final String[] oids = (String[]) Context.getThreadContext().getSessionAttribute("selectedOIDs4print");
         final PageReference reference = (PageReference) Context.getThreadContext().getSessionAttribute(
                         UserInterface_Base.UIOBJECT_CACHEKEY);
         final AbstractUIPageObject object = (AbstractUIPageObject) reference.getPage().getDefaultModelObject();
@@ -119,7 +120,7 @@ public abstract class Table_Base
             final AbstractUIPageObject pageObject = object;
 
             if (pageObject instanceof UITable || pageObject instanceof UIStructurBrowser) {
-                String mime = (String) properties.get("Mime");
+                String mime = getProperty(_parameter,"Mime");
                 if (mime == null) {
                     mime = _parameter.getParameterValue("mime");
                 }
@@ -163,23 +164,25 @@ public abstract class Table_Base
                     final List<Map<String, Object>> values = new ArrayList<>();
                     if (pageObject instanceof UITable) {
                         for (final UIRow row : ((UITable) pageObject).getValues()) {
-                            final Map<String, Object> map = new HashMap<>();
-                            for (final IFilterable filterable : row.getCells()) {
-                                if (filterable instanceof UIField) {
-                                    final UIField uiField = (UIField) filterable;
-                                    if (selCols.contains(uiField.getFieldConfiguration().getName())) {
-                                        Object value = print ? uiField.getPickListValue()
-                                                    : uiField.getCompareValue() != null
-                                                        ? uiField.getCompareValue() : uiField.getPickListValue() ;
-                                        if (value instanceof DateTime) {
-                                            value = ((DateTime) value).toDate();
+                            if (oids == null ||  ArrayUtils.contains(oids, row.getInstanceKey())) {
+                                final Map<String, Object> map = new HashMap<>();
+                                for (final IFilterable filterable : row.getCells()) {
+                                    if (filterable instanceof UIField) {
+                                        final UIField uiField = (UIField) filterable;
+                                        if (selCols.contains(uiField.getFieldConfiguration().getName())) {
+                                            Object value = print ? uiField.getPickListValue()
+                                                        : uiField.getCompareValue() != null
+                                                            ? uiField.getCompareValue() : uiField.getPickListValue() ;
+                                            if (value instanceof DateTime) {
+                                                value = ((DateTime) value).toDate();
+                                            }
+                                            map.put(uiField.getFieldConfiguration().getName(), value);
+                                            selAttr.put(uiField.getFieldConfiguration().getName(), null);
                                         }
-                                        map.put(uiField.getFieldConfiguration().getName(), value);
-                                        selAttr.put(uiField.getFieldConfiguration().getName(), null);
                                     }
                                 }
+                                values.add(map);
                             }
-                            values.add(map);
                         }
                     } else if (pageObject instanceof UIStructurBrowser) {
                         final List<UIStructurBrowser> roots = ((UIStructurBrowser) pageObject).getChildren();

@@ -25,6 +25,16 @@
     <definition>
         <version-expression>(version==latest)</version-expression>
         <name>Common_Main_PrintForm</name>
+        <field name="selectedOIDs4print">
+            <property name="ModeEdit">HIDDEN</property>
+            <property name="UIProvider">org.efaps.admin.datamodel.ui.StringUI</property>
+            <trigger program="org.efaps.esjp.common.uiform.Field"
+                method="getStoreOIDsFieldValue"
+                name="Common_Main_PrintForm.selectedOIDs4print.UI_FIELD_VALUE"
+                event="UI_FIELD_VALUE">
+                <property name="RemoveSessionAttr">true</property>
+            </trigger>
+        </field>
         <field name="mime">
             <property name="ModeEdit">EDITABLE</property>
             <property name="Label">Common_Main_PrintForm.mime.Label</property>
