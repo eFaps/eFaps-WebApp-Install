@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2014 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 package org.efaps.esjp.ui.html.dojo.charting;
@@ -23,34 +20,60 @@ package org.efaps.esjp.ui.html.dojo.charting;
 import java.util.Collection;
 import java.util.Map;
 
+import org.efaps.admin.program.esjp.EFapsApplication;
+import org.efaps.admin.program.esjp.EFapsUUID;
+
 /**
- * TODO comment!
+ * This class must be replaced for customization, therefore it is left empty.
+ * Functional description can be found in the related "<code>_base</code>"
+ * class.
  *
  * @author The eFaps Team
- * @version $Id$
  */
+@EFapsUUID("151ba09b-7384-48d4-a305-824915ade52e")
+@EFapsApplication("eFaps-WebApp")
 public class Util
     extends Util_Base
 {
 
+    /**
+     * Map to object list.
+     *
+     * @param _map the map
+     * @return the char sequence
+     */
     public static CharSequence mapToObjectList(final Map<String, Object> _map)
     {
         return Util_Base.mapToObjectList(_map);
     }
 
+    /**
+     * Collection to object array.
+     *
+     * @param _list the list
+     * @return the char sequence
+     */
     public static CharSequence collectionToObjectArray(final Collection<CharSequence> _list)
     {
         return Util_Base.collectionToObjectArray(_list);
     }
 
+    /**
+     * Map collection to object array.
+     *
+     * @param _mapCollection the map collection
+     * @return the char sequence
+     */
     public static CharSequence mapCollectionToObjectArray(final Collection<Map<String, Object>> _mapCollection)
     {
         return Util_Base.mapCollectionToObjectArray(_mapCollection);
     }
 
     /**
-     * @param _mapCollection
-     * @return
+     * Wrap 4 string.
+     *
+     * @param _object the object
+     * @return the char sequence
      */
     public static CharSequence wrap4String(final Object _object)
     {

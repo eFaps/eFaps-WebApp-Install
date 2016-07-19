@@ -40,10 +40,10 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
 {
 
     /** The modules. */
-    private final Map<CharSequence, String> modules = new LinkedHashMap<CharSequence, String>();
+    private final Map<CharSequence, String> modules = new LinkedHashMap<>();
 
     /** The plots. */
-    private final Map<String, Plot_Base<?>> plots = new LinkedHashMap<String, Plot_Base<?>>();
+    private final Map<String, Plot_Base<?>> plots = new LinkedHashMap<>();
 
     /** The orientation. */
     private Orientation orientation = Orientation.VERTICAL_CHART_LEGEND;
@@ -64,7 +64,7 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
     private int width = 450;
 
     /** The series. */
-    private final List<Serie<T>> series = new ArrayList<Serie<T>>();
+    private final List<Serie<T>> series = new ArrayList<>();
 
     /** The title. */
     private String title;
@@ -101,7 +101,9 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
     }
 
     /**
-     * @return
+     * Gets the html snipplet.
+     *
+     * @return the html snipplet
      */
     public CharSequence getHtmlSnipplet()
     {
@@ -554,5 +556,4 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
     {
         return this.plots;
     }
-
 }

@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2014 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 
@@ -24,18 +21,25 @@ package org.efaps.esjp.ui.html.dojo.charting;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.efaps.admin.program.esjp.EFapsApplication;
+import org.efaps.admin.program.esjp.EFapsUUID;
+
 
 /**
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
  */
+@EFapsUUID("d8bd4655-6c44-489f-a781-edc984890b41")
+@EFapsApplication("eFaps-WebApp")
 public abstract class MouseIndicator_Base<T extends MouseIndicator_Base<T>>
 {
+
+    /** The name. */
     private String name = "default";
 
-    private final Map<String, Object> configMap = new LinkedHashMap<String, Object>();
+    /** The config map. */
+    private final Map<String, Object> configMap = new LinkedHashMap<>();
 
     /**
      * Whether the label is rendered at the start or end of the indicator.
@@ -59,6 +63,13 @@ public abstract class MouseIndicator_Base<T extends MouseIndicator_Base<T>>
      */
     protected abstract T getThis();
 
+    /**
+     * Adds the mouse indicator JS.
+     *
+     * @param _js the js
+     * @param _chartVarName the chart var name
+     * @param _seriesName the series name
+     */
     protected void addMouseIndicatorJS(final StringBuilder _js,
                                        final String _chartVarName,
                                        final String _seriesName)
@@ -69,6 +80,11 @@ public abstract class MouseIndicator_Base<T extends MouseIndicator_Base<T>>
             .append(getConfigJS()).append(");\n");
     }
 
+    /**
+     * Gets the config JS.
+     *
+     * @return the config JS
+     */
     public CharSequence getConfigJS()
     {
         if (isMouseOver()) {

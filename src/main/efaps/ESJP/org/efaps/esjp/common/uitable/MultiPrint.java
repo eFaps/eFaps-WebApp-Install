@@ -21,7 +21,7 @@
 
 package org.efaps.esjp.common.uitable;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 
@@ -31,10 +31,9 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * class.
  *
  * @author The eFaps Team
- * @version $Id$
  */
 @EFapsUUID("cbab3ae6-fe28-4604-838c-4c6d260156fb")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp")
 public class MultiPrint
     extends MultiPrint_Base
 {

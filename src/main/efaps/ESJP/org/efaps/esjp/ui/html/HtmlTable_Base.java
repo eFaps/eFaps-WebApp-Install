@@ -21,7 +21,7 @@
 
 package org.efaps.esjp.ui.html;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.util.EFapsException;
 
@@ -30,10 +30,9 @@ import org.efaps.util.EFapsException;
  * Helper Class to build a Html Table.
  *
  * @author The eFaps Team
- * @version $Id$
  */
 @EFapsUUID("3a46c305-625f-4c05-a708-67fd25465620")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp")
 public abstract class HtmlTable_Base
 {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2014 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 
@@ -24,20 +21,28 @@ package org.efaps.esjp.ui.html.dojo.charting;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.efaps.admin.program.esjp.EFapsApplication;
+import org.efaps.admin.program.esjp.EFapsUUID;
+
 
 /**
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
  */
+@EFapsUUID("4ee21166-e1b3-4639-b1b5-5691a0d32e78")
+@EFapsApplication("eFaps-WebApp")
 public abstract class Axis_Base<T extends Axis_Base<T>>
 {
+
+    /** The name. */
     private String name;
 
+    /** The vertical. */
     private boolean vertical = false;
 
-    private final Map<String, Object> configMap = new LinkedHashMap<String, Object>();
+    /** The config map. */
+    private final Map<String, Object> configMap = new LinkedHashMap<>();
 
     /**
      * e.g. to get month<br/>
@@ -51,14 +56,17 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
      */
     private CharSequence labels;
 
+    /** The title. */
     private CharSequence title;
 
+    /** The left bottom. */
     private boolean leftBottom = true;
 
+    /** The min. */
     private Integer min;
 
+    /** The max. */
     private Integer max;
-
 
     /**
      * "getThis" trick.
@@ -67,6 +75,12 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
     protected abstract T getThis();
 
 
+    /**
+     * Adds the JS.
+     *
+     * @param _js the js
+     * @param _chartVarName the chart var name
+     */
     protected void addJS(final StringBuilder _js,
                          final String _chartVarName)
     {
@@ -81,7 +95,9 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
 
 
     /**
-     * @return
+     * Gets the config JS.
+     *
+     * @return the config JS
      */
     public CharSequence getConfigJS()
     {
@@ -149,7 +165,6 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
         return getThis();
     }
 
-
     /**
      * Getter method for the instance variable {@link #labels}.
      *
@@ -171,7 +186,6 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
         return getThis();
     }
 
-
     /**
      * Getter method for the instance variable {@link #leftBottom}.
      *
@@ -181,7 +195,6 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
     {
         return this.leftBottom;
     }
-
 
     /**
      * Setter method for instance variable {@link #leftBottom}.
@@ -194,6 +207,13 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
         return getThis();
     }
 
+    /**
+     * Adds the config.
+     *
+     * @param _key the key
+     * @param _value the value
+     * @return the t
+     */
     public T addConfig(final String _key,
                        final Object _value)
     {
@@ -210,8 +230,6 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
     {
         return this.configMap;
     }
-
-
 
     /**
      * Getter method for the instance variable {@link #title}.
@@ -244,8 +262,6 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
         return this.min;
     }
 
-
-
     /**
      * Setter method for instance variable {@link #min}.
      *
@@ -257,8 +273,6 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
         return getThis();
     }
 
-
-
     /**
      * Getter method for the instance variable {@link #max}.
      *
@@ -268,8 +282,6 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
     {
         return this.max;
     }
-
-
 
     /**
      * Setter method for instance variable {@link #max}.

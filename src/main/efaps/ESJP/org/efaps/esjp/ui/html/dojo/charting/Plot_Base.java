@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2014 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 package org.efaps.esjp.ui.html.dojo.charting;
@@ -23,21 +20,29 @@ package org.efaps.esjp.ui.html.dojo.charting;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.efaps.admin.program.esjp.EFapsApplication;
+import org.efaps.admin.program.esjp.EFapsUUID;
+
 /**
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
  */
+@EFapsUUID("f7fa3400-f713-4e87-9bc1-61b788fa77ec")
+@EFapsApplication("eFaps-WebApp")
 public abstract class Plot_Base<S extends Plot_Base<S>>
 {
 
+    /** The name. */
     private String name = "default";
 
-    private final Map<String, Object> configMap = new LinkedHashMap<String, Object>();
+    /** The config map. */
+    private final Map<String, Object> configMap = new LinkedHashMap<>();
 
+    /** The h axis. */
     private String hAxis;
 
+    /** The v axis. */
     private String vAxis;
 
     /**
@@ -47,6 +52,12 @@ public abstract class Plot_Base<S extends Plot_Base<S>>
      */
     protected abstract S getThis();
 
+    /**
+     * Adds the JS.
+     *
+     * @param _js the js
+     * @param _chartVarName the chart var name
+     */
     protected void addJS(final StringBuilder _js,
                          final String _chartVarName)
     {
@@ -54,6 +65,11 @@ public abstract class Plot_Base<S extends Plot_Base<S>>
                         .append(getConfigJS()).append(");\n");
     }
 
+    /**
+     * Gets the config JS.
+     *
+     * @return the config JS
+     */
     public CharSequence getConfigJS()
     {
         if (getvAxis() != null && !this.configMap.containsKey("vAxis")) {
@@ -104,7 +120,6 @@ public abstract class Plot_Base<S extends Plot_Base<S>>
         return this.hAxis;
     }
 
-
     /**
      * Setter method for instance variable {@link #hAxis}.
      *
@@ -116,7 +131,6 @@ public abstract class Plot_Base<S extends Plot_Base<S>>
         return getThis();
     }
 
-
     /**
      * Getter method for the instance variable {@link #vAxis}.
      *
@@ -126,7 +140,6 @@ public abstract class Plot_Base<S extends Plot_Base<S>>
     {
         return this.vAxis;
     }
-
 
     /**
      * Setter method for instance variable {@link #vAxis}.

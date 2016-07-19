@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2013 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
+ *
  */
 
 
@@ -28,7 +26,6 @@ import java.util.UUID;
 import org.apache.wicket.protocol.ws.api.IWebSocketConnection;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Return;
-import org.efaps.admin.program.esjp.EFapsRevision;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.user.AbstractUserObject;
 import org.efaps.admin.user.Group;
@@ -47,10 +44,9 @@ import org.efaps.util.EFapsException;
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
  */
 @EFapsUUID("d2c27870-19cc-411f-95db-8db817fae956")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp")
 public abstract class MessageSender_Base
     extends AbstractCommon
 {
@@ -73,7 +69,7 @@ public abstract class MessageSender_Base
             message = _parameter.getParameterValue("Message");
         }
         if (reciever != null && !reciever.isEmpty()) {
-            final List<Person> persons = new ArrayList<Person>();
+            final List<Person> persons = new ArrayList<>();
             AbstractUserObject user;
             if (isUUID(reciever)) {
                 user = AbstractUserObject.getUserObject(UUID.fromString(reciever));

@@ -21,7 +21,7 @@
 
 package org.efaps.esjp.ui.structurbrowser;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 
@@ -31,10 +31,9 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * class.
  *
  * @author The eFaps Team
- * @version $Id$
  */
 @EFapsUUID("d4ecdcaa-c087-485d-8c33-8ca7eb855e23")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp")
 public class StandartStructurBrowser
     extends StandartStructurBrowser_Base
 {

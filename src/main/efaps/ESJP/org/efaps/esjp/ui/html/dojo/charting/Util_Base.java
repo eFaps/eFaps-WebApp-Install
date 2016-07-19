@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2014 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 package org.efaps.esjp.ui.html.dojo.charting;
@@ -26,12 +23,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.efaps.admin.program.esjp.EFapsApplication;
+import org.efaps.admin.program.esjp.EFapsUUID;
+
 /**
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
  */
+@EFapsUUID("51e43121-c9b7-4cae-9ec6-df10aee7748b")
+@EFapsApplication("eFaps-WebApp")
 public abstract class Util_Base
 {
 
@@ -82,8 +83,10 @@ public abstract class Util_Base
     }
 
     /**
-     * @param _mapCollection
-     * @return
+     * Map collection to object array.
+     *
+     * @param _mapCollection the map collection
+     * @return the char sequence
      */
     protected static CharSequence mapCollectionToObjectArray(final Collection<Map<String, Object>> _mapCollection)
     {
@@ -95,12 +98,13 @@ public abstract class Util_Base
     }
 
     /**
-     * @param _mapCollection
-     * @return
+     * Wrap 4 string.
+     *
+     * @param _object the object
+     * @return the char sequence
      */
     protected static CharSequence wrap4String(final  Object _object)
     {
         return "\"" + _object + "\"";
     }
-
 }

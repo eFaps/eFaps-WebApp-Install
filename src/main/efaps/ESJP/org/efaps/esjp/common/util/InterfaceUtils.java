@@ -24,7 +24,7 @@ package org.efaps.esjp.common.util;
 import java.util.Map;
 
 import org.efaps.admin.event.Parameter;
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.QueryBuilder;
 
@@ -35,10 +35,9 @@ import org.efaps.db.QueryBuilder;
  * class.
  *
  * @author The eFaps Team
- * @version $Id$
  */
 @EFapsUUID("c9af3b39-477f-4f21-917f-41065389d990")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp")
 public class InterfaceUtils
     extends InterfaceUtils_Base
 {

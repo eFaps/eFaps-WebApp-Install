@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2014 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 
@@ -27,7 +24,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.RandomStringUtils;
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 
@@ -35,21 +32,26 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
  * @param <T> Data
  */
 @EFapsUUID("e1c7f4c7-9e0b-4681-bdcf-8cee80caea4b")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp")
 public abstract class Serie_Base<T extends AbstractData<T>, S extends Serie_Base<T,S>>
 {
+
+    /** The name. */
     private String name;
 
+    /** The plot. */
     private String plot;
 
-    private final Map<String, Object> configMap = new LinkedHashMap<String, Object>();
+    /** The config map. */
+    private final Map<String, Object> configMap = new LinkedHashMap<>();
 
-    private final List<T> data = new ArrayList<T>();
+    /** The data. */
+    private final List<T> data = new ArrayList<>();
 
+    /** The mouse indicator. */
     private MouseIndicator mouseIndicator;
 
     /**
@@ -80,11 +82,13 @@ public abstract class Serie_Base<T extends AbstractData<T>, S extends Serie_Base
     }
 
     /**
-     * @return
+     * Gets the data JS.
+     *
+     * @return the data JS
      */
     public CharSequence getDataJS()
     {
-        final List<CharSequence> js = new ArrayList<CharSequence>();
+        final List<CharSequence> js = new ArrayList<>();
         for (final T dat : getData()) {
             js.add(dat.getJavaScript());
         }
@@ -94,6 +98,11 @@ public abstract class Serie_Base<T extends AbstractData<T>, S extends Serie_Base
         return Util.collectionToObjectArray(js);
     }
 
+    /**
+     * Gets the config JS.
+     *
+     * @return the config JS
+     */
     public CharSequence getConfigJS()
     {
         if (this.plot != null && !this.configMap.containsKey("plot")) {

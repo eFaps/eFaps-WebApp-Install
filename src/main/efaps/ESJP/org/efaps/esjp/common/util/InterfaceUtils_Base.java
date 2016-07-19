@@ -27,7 +27,7 @@ import java.util.Map;
 import org.apache.commons.lang3.ArrayUtils;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Parameter.ParameterValues;
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.QueryBuilder;
 import org.efaps.ui.wicket.behaviors.SetSelectedRowBehavior;
@@ -38,10 +38,9 @@ import org.efaps.ui.wicket.util.EFapsKey;
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
  */
 @EFapsUUID("f5464f0e-c51c-4076-99fa-9992c1e3bdd0")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp")
 public abstract class InterfaceUtils_Base
 {
 

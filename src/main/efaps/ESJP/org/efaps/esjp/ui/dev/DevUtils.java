@@ -32,7 +32,7 @@ import org.apache.wicket.devutils.debugbar.VersionDebugContributor;
 import org.apache.wicket.protocol.http.WebApplication;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Return;
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.user.Role;
 import org.efaps.util.EFapsException;
@@ -44,10 +44,9 @@ import org.slf4j.LoggerFactory;
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
  */
 @EFapsUUID("977d266e-c1c1-41ab-ae74-6ff2b647daab")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp")
 public class DevUtils
 {
     /**

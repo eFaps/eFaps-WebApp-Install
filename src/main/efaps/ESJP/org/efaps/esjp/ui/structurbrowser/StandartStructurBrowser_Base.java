@@ -36,7 +36,7 @@ import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject;
@@ -59,10 +59,9 @@ import org.slf4j.LoggerFactory;
  * TODO description!
  *
  * @author The eFasp Team
- * @version $Id$
  */
 @EFapsUUID("d6548826-830b-4540-a46d-d861c3f21f15")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp")
 public abstract class StandartStructurBrowser_Base
     extends AbstractCommon
     implements EventExecution
@@ -151,7 +150,7 @@ public abstract class StandartStructurBrowser_Base
     {
         final Return ret = new Return();
         final Instance instance = _parameter.getInstance();
-        final Map<Instance, Boolean> tree = new LinkedHashMap<Instance, Boolean>();
+        final Map<Instance, Boolean> tree = new LinkedHashMap<>();
         final Map<?, ?> properties = (Map<?, ?>) _parameter.get(ParameterValues.PROPERTIES);
 
         final String typesStr = (String) properties.get("Types");
@@ -310,7 +309,7 @@ public abstract class StandartStructurBrowser_Base
                                                  final boolean _check)
         throws EFapsException
     {
-        final Map<Instance, Boolean> ret = new LinkedHashMap<Instance, Boolean>();
+        final Map<Instance, Boolean> ret = new LinkedHashMap<>();
 
         final Instance instance = _parameter.getInstance();
         final Map<?, ?> properties = (Map<?, ?>) _parameter.get(ParameterValues.PROPERTIES);
@@ -520,7 +519,7 @@ public abstract class StandartStructurBrowser_Base
             }
         }
         final String key = cmd.getUUID() + "-" + UIStructurBrowser.USERSESSIONKEY;
-        final Set<Instance> instances = new HashSet<Instance>();
+        final Set<Instance> instances = new HashSet<>();
         for (final String oid :oids) {
             final Instance inst = Instance.get(oid);
             instances.add(inst);
@@ -531,7 +530,7 @@ public abstract class StandartStructurBrowser_Base
         if (Context.getThreadContext().containsSessionAttribute(key)) {
             sessMap = (Map<String, Boolean>) Context.getThreadContext().getSessionAttribute(key);
         } else {
-            sessMap = new HashMap<String, Boolean>();
+            sessMap = new HashMap<>();
         }
 
         for (final Instance inst : instances) {
@@ -550,7 +549,7 @@ public abstract class StandartStructurBrowser_Base
     protected Set<Instance> getChildren4Expand(final Parameter _parameter)
         throws EFapsException
     {
-        final Set<Instance> ret = new HashSet<Instance>();
+        final Set<Instance> ret = new HashSet<>();
         final Map<Instance, Boolean> tmp = getChildren(_parameter, false);
         for (final Instance inst : tmp.keySet()) {
             ret.add(inst);

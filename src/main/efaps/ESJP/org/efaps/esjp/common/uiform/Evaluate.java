@@ -21,7 +21,7 @@
 
 package org.efaps.esjp.common.uiform;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 
@@ -31,10 +31,9 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * class.
  *
  * @author The eFaps Team
- * @version $Id$
  */
 @EFapsUUID("bc753cfc-3448-452e-ad96-48ed472e32d3")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp")
 public class Evaluate
     extends Evaluate_Base
 {

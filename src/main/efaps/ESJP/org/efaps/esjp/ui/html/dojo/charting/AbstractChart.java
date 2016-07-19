@@ -24,7 +24,9 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * Functional description can be found in the related "<code>_base</code>"
  * class.
  *
- * @author The eFaps Team @version $Id$
+ * @author The eFaps Team
+ * @param <T> the generic type
+ * @param <S> the generic type
  */
 @EFapsUUID("c1ecbcc0-3706-45ff-8242-b1e2227fcd3a")
 @EFapsApplication("eFaps-WebApp")

@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2014 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 
@@ -24,19 +21,25 @@ package org.efaps.esjp.ui.html.dojo.charting;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.efaps.admin.program.esjp.EFapsApplication;
+import org.efaps.admin.program.esjp.EFapsUUID;
+
 
 /**
- * TODO comment!
+ * TODO comment!.
  *
  * @author The eFaps Team
- * @version $Id$
+ * @param <T> the generic type
+ * @param <S> the generic type
  */
+@EFapsUUID("1b6525b1-44ac-45d5-8cea-38c2e8295f56")
+@EFapsApplication("eFaps-WebApp")
 public abstract class AbstractCartesianChart_Base<T extends AbstractData<T>, S extends AbstractChart_Base<T,S>>
     extends AbstractChart<T, S>
 {
-    private final List<Axis> axis = new ArrayList<Axis>();
 
-
+    /** The axis. */
+    private final List<Axis> axis = new ArrayList<>();
 
     @Override
     protected void initialize()
@@ -72,7 +75,9 @@ public abstract class AbstractCartesianChart_Base<T extends AbstractData<T>, S e
     }
 
     /**
-     * @param _serie
+     * Adds the axis.
+     *
+     * @param _axis the axis
      */
     public void addAxis(final Axis _axis)
     {

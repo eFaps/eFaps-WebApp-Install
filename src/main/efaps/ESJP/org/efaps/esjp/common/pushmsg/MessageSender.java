@@ -21,7 +21,7 @@
 
 package org.efaps.esjp.common.pushmsg;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 
@@ -31,10 +31,9 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * class.
  *
  * @author The eFaps Team
- * @version $Id$
  */
 @EFapsUUID("96bf2f5e-aff1-45b0-8a6b-98761277d135")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp")
 public class MessageSender
     extends MessageSender_Base
 {

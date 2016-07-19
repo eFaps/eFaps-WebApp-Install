@@ -25,7 +25,6 @@ import java.util.Stack;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
-// TODO: Auto-generated Javadoc
 /**
  * TODO comment!.
  *
@@ -33,7 +32,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  */
 @EFapsUUID("973d83d2-d019-4aee-a121-e5d4fe19755d")
 @EFapsApplication("eFaps-WebApp")
-public class Table_Base
+public abstract class Table_Base
 {
 
     /** The rows. */

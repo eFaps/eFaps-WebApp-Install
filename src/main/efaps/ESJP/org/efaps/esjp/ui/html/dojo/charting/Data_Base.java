@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2014 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,15 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 
 package org.efaps.esjp.ui.html.dojo.charting;
 
-import org.efaps.admin.program.esjp.EFapsRevision;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 
@@ -29,21 +26,21 @@ import org.efaps.admin.program.esjp.EFapsUUID;
  * TODO comment!
  *
  * @author The eFaps Team
- * @version $Id$
  */
 @EFapsUUID("63e02ff1-f75f-444a-8932-25af17159306")
-@EFapsRevision("$Rev$")
+@EFapsApplication("eFaps-WebApp")
 public abstract class Data_Base<S extends AbstractData_Base<S>>
     extends AbstractData<S>
 {
 
+    /** The simple. */
     private boolean simple = true;
 
     @Override
     public CharSequence getJavaScript()
     {
         final StringBuilder ret = new StringBuilder();
-        if (simple) {
+        if (this.simple) {
             ret.append(getYValue());
         } else {
             addConfig("x", getXValue());
@@ -54,11 +51,22 @@ public abstract class Data_Base<S extends AbstractData_Base<S>>
         return ret;
     }
 
+    /**
+     * Checks if is simple.
+     *
+     * @return the simple
+     */
     public boolean isSimple()
     {
-        return simple;
+        return this.simple;
     }
 
+    /**
+     * Sets the simple.
+     *
+     * @param simple the simple
+     * @return the s
+     */
     public S setSimple(final boolean simple)
     {
         this.simple = simple;
