@@ -56,6 +56,7 @@ import org.efaps.ui.wicket.models.objects.UIStructurBrowser;
 import org.efaps.ui.wicket.models.objects.UITable;
 import org.efaps.ui.wicket.models.objects.UITableHeader;
 import org.efaps.util.EFapsException;
+import org.efaps.util.cache.CacheReloadException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,7 +80,7 @@ import net.sf.jasperreports.engine.JRField;
  * @author The eFaps Team
  */
 @EFapsUUID("99ce434b-4177-4e65-99d1-0195434f628d")
-@EFapsApplication("eFaps-Webapp")
+@EFapsApplication("eFaps-WebApp")
 public abstract class Table_Base
     extends UserInterface
 {
