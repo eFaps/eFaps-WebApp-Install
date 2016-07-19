@@ -26,6 +26,7 @@ import java.util.UUID;
 import org.apache.wicket.protocol.ws.api.IWebSocketConnection;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Return;
+import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.user.AbstractUserObject;
 import org.efaps.admin.user.Group;
@@ -35,7 +36,6 @@ import org.efaps.ci.CIAdminUser;
 import org.efaps.db.MultiPrintQuery;
 import org.efaps.db.QueryBuilder;
 import org.efaps.esjp.common.AbstractCommon;
-import org.efaps.ui.wicket.EFapsApplication;
 import org.efaps.ui.wicket.models.PushMsg;
 import org.efaps.util.EFapsException;
 
@@ -89,8 +89,8 @@ public abstract class MessageSender_Base
                 }
             }
             for (final Person person : persons) {
-                final List<IWebSocketConnection> conns = EFapsApplication.get().getConnectionRegistry()
-                                .getConnections4User(person.getName());
+                final List<IWebSocketConnection> conns = org.efaps.ui.wicket.EFapsApplication.get()
+                                .getConnectionRegistry().getConnections4User(person.getName());
                 for (final IWebSocketConnection conn : conns) {
                     conn.sendMessage(new PushMsg(message));
                 }
