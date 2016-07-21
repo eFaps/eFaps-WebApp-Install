@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2012 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author:          The eFaps Team
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 /*
  * @eFapsPackage  org.efaps.ui.wicket.components.table.header
  * @eFapsUUID      62934dc5-42b0-48eb-8e5a-57e6c41a77a8
- * @eFapsRevision $Rev$
+ * @eFapsApplication eFaps-WebApp
  */
 
 var minWidth = 20;

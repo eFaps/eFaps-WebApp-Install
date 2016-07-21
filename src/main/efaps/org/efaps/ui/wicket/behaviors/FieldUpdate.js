@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2012 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author:          The eFaps Team
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 /*
  * @eFapsPackage  org.efaps.ui.wicket.behaviors
  * @eFapsUUID     9dae1678-6945-4141-bbe9-25d916250ae3
- * @eFapsRevision $Rev$
+ * @eFapsApplication eFaps-WebApp
  */
 
 function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue, _fieldLabel) {

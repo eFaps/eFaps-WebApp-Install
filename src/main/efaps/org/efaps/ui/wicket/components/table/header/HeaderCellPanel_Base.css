@@ -22,7 +22,7 @@
 /*
  * @eFapsPackage  org.efaps.ui.wicket.components.table.header
  * @eFapsUUID     e45e029b-d7d3-477f-89ce-529f84d4e894
- * @eFapsRevision $Rev$
+ * @eFapsApplication eFaps-WebApp
  */
 .eFapsHeaderSort,.eFapsHeaderSortAscending,.eFapsHeaderSortDescending {
     cursor: pointer;

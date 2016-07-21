@@ -22,7 +22,7 @@
 /* 
  * @eFapsPackage  org.efaps.ui.wicket.components.form
  * @eFapsUUID     b9aca56b-392a-4da8-98a6-886df32bb8d0
- * @eFapsRevision $Rev$
+ * @eFapsApplication eFaps-WebApp
  */
 
 /* 

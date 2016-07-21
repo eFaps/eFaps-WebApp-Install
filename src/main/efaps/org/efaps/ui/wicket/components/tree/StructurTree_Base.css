@@ -22,7 +22,7 @@
 /* 
  * @eFapsPackage  org.efaps.ui.wicket.components.tree
  * @eFapsUUID     9f4accae-350a-4fa1-802a-180bb67455c1
- * @eFapsRevision $Rev$
+ * @eFapsApplication eFaps-WebApp
  * @eFapsExtends  org.efaps.ui.wicket.components.tree.tree.css
  *
  * Extends the original from wicket to fit into eFaps.

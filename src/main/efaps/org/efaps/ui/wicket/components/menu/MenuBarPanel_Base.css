@@ -20,7 +20,7 @@
  */ /*
  * @eFapsPackage  org.efaps.ui.wicket.components.menu
  * @eFapsUUID     bb1718c4-5505-4991-803b-fa95fe94be7f
- * @eFapsRevision $Rev$
+ * @eFapsApplication eFaps-WebApp
  */
 .eFapsMenuBarPanel {
     min-height: 20px;

@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2012 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,16 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author:          The eFaps Team
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
-/* 
+/*
  * @eFapsPackage  org.efaps.ui.wicket.components.table
  * @eFapsUUID     a6b3e92d-a01c-4fa2-8c3e-1539c8b7f5bf
- * @eFapsRevision $Rev$
+ * @eFapsApplication eFaps-WebApp
  * @eFapsExtends  org.efaps.ui.wicket.components.table.TablePanel_Base.css
  *
  * This stylesheet must be replaced for customization, therefore it is left empty.
