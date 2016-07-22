@@ -5,7 +5,7 @@
          <parameter name="application" value="eFaps-WebApp"/>
         <parameter name="baseFolder" value="../../../main/efaps"></parameter>
         <packages>
-            <package name="org.efaps.tests.ci.*"></package>
+            <package name="org.efaps.tests.*"></package>
         </packages>
     </test>
 </suite>
