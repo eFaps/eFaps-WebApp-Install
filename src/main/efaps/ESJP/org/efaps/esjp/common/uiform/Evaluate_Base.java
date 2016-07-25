@@ -47,7 +47,7 @@ import org.slf4j.LoggerFactory;
  * @author The eFaps Team
  */
 @EFapsUUID("6a38e185-4797-4a8a-8356-613d940404b7")
-@EFapsApplication("eFaps-WebApp-Install")
+@EFapsApplication("eFaps-WebApp")
 public abstract class Evaluate_Base
     extends AbstractCommon
 {
