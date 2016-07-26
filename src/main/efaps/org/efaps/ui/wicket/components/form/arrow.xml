@@ -20,7 +20,7 @@
 
 <ui-image xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>07a50192-5d95-4d61-8189-0e91c3368e5c</uuid>
+    <uuid>74ff643d-a742-462c-a554-fc8bf662b2c5</uuid>
     <file-application>eFaps-WebApp</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
