@@ -23,8 +23,8 @@
 
 function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue, _fieldLabel) {
 
-    require([ 'dojo/query', 'dojo/dom', 'dijit/registry',"efaps/AutoComplete", 'efaps/AutoTokenInput'],
-            function(query, dom, registry, AutoComplete, AutoTokenInput) {
+    require([ 'dojo/query', 'dojo/dom', 'dojo/dom-attr', 'dijit/registry',"efaps/AutoComplete", 'efaps/AutoTokenInput'],
+            function(query, dom, domAttr, registry, AutoComplete, AutoTokenInput) {
         var pos = 0;
         if (typeof (_referenceIdOrIdx) == 'number') {
             pos = _referenceIdOrIdx;
@@ -110,7 +110,14 @@ function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue, _fieldLa
                     // if it is an input, the value can be set directly, else the DOM must be used
                     if (fields[cp].nodeName == 'INPUT' || fields[cp].nodeName == 'TEXTAREA'
                             || fields[cp].nodeName == 'SELECT') {
-                        fields[cp].value = _fieldValue;
+                        var typeStr = domAttr.get(fields[cp], "type");
+                        if ("radio" == typeStr) {
+                             query("input[name=" + _fieldName + "][value=" + _fieldValue + "]").forEach(function(node) {
+                                 domAttr.set(node, "checked", true);
+                             });
+                        } else {
+                            fields[cp].value = _fieldValue;
+                        }
                     } else {
                         if (fields[cp].hasChildNodes()) {
                             fields[cp].firstChild.data = _fieldValue;
