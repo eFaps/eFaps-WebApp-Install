@@ -177,4 +177,6 @@ for implementation purpose
     width: 100%;
 }
 
-
+.eFapsFiltered .gridxSortNode::before {
+    content: url("../../servlet/image/org.efaps.ui.wicket.components.table.header.FilterActive.gif");
+}
