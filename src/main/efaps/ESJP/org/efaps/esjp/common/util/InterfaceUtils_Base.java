@@ -213,6 +213,7 @@ public abstract class InterfaceUtils_Base
         ARRAY("dojo/_base/array", "array"),
         AUTOCOMP("efaps/AutoComplete", "AutoComplete"),
         AUTOSUGG("efaps/AutoSuggestion", "AutoSuggestion"),
+        CHECKBOX("dijit/form/CheckBox", "CheckBox"),
         DATAGRID("dojox/grid/DataGrid", "DataGrid"),
         ENHANCEDGRID("dojox/grid/EnhancedGrid", "EnhancedGrid"),
         DOM("dojo/dom", "dom"),
