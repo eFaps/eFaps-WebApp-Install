@@ -127,6 +127,21 @@ public abstract class Table_Base
     }
 
     /**
+     * Adds the column.
+     *
+     * @param _innerHtml the inner html
+     * @param _colSpan the col span
+     * @return the table_ base
+     */
+    public Table_Base addColumn(final CharSequence _innerHtml,
+                                final int _colSpan)
+    {
+        getCurrentRow().addColumn(_innerHtml);
+        getCurrentColumn().setColSpan(_colSpan);
+        return this;
+    }
+
+    /**
      * Adds the header column.
      *
      * @param _innerHtml the inner html
@@ -135,6 +150,21 @@ public abstract class Table_Base
     public Table_Base addHeaderColumn(final CharSequence _innerHtml)
     {
         getCurrentRow().addHeaderColumn(_innerHtml);
+        return this;
+    }
+
+    /**
+     * Adds the header column.
+     *
+     * @param _innerHtml the inner html
+     * @param _colSpan the col span
+     * @return the table_ base
+     */
+    public Table_Base addHeaderColumn(final CharSequence _innerHtml,
+                                      final int _colSpan)
+    {
+        getCurrentRow().addHeaderColumn(_innerHtml);
+        getCurrentColumn().setColSpan(_colSpan);
         return this;
     }
 
