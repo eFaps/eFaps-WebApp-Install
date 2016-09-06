@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2014 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 
@@ -35,7 +32,7 @@ import org.efaps.ui.wicket.util.EFapsKey;
 
 
 /**
- * TODO comment!
+ * Interface Utilities.
  *
  * @author The eFaps Team
  */
@@ -44,28 +41,34 @@ import org.efaps.ui.wicket.util.EFapsKey;
 public abstract class InterfaceUtils_Base
 {
 
-
-
+    /**
+     * Gets the row keys.
+     *
+     * @param _parameter Parameter as passed by the eFaps API
+     * @param _currentkey the currentkey
+     * @param _keySequence the key sequence
+     * @return the row keys
+     */
     protected static String[] getRowKeys(final Parameter _parameter,
                                          final String _currentkey,
                                          final String... _keySequence)
     {
-        final String[] rowKeys =_parameter.getParameterValues(EFapsKey.TABLEROW_NAME.getKey());
+        final String[] rowKeys = _parameter.getParameterValues(EFapsKey.TABLEROW_NAME.getKey());
         final Map<String, String[]> result = new HashMap<>();
         int idx = 0;
         for (final String key : _keySequence) {
             final String[] keyArr = _parameter.getParameterValues(key);
-            result.put(key,ArrayUtils.subarray(rowKeys, idx, keyArr.length + idx));
+            result.put(key, ArrayUtils.subarray(rowKeys, idx, keyArr.length + idx));
             idx = keyArr.length;
         }
         return result.get(_currentkey);
     }
 
-
-
     /**
-     * @param _map
-     * @param _script
+     * Append script for field update.
+     *
+     * @param _map the map
+     * @param _script the script
      */
     protected static void appendScript4FieldUpdate(final Map<String, Object> _map,
                                                    final CharSequence _script)
@@ -74,8 +77,10 @@ public abstract class InterfaceUtils_Base
     }
 
     /**
-     * @param _map
-     * @param _script
+     * Prepend script for field update.
+     *
+     * @param _map the map
+     * @param _script the script
      */
     protected static void prependScript4FieldUpdate(final Map<String, Object> _map,
                                                     final CharSequence _script)
@@ -145,15 +150,19 @@ public abstract class InterfaceUtils_Base
     }
 
     /**
+     * Wrapp in script tag.
+     *
      * @param _parameter Parameter as passed by the eFaps API
      * @param _script   script to be wrapped
-     * @param _libraries libraries to be added
+     * @param _jsTag the js tag
+     * @param _ready the ready
      * @return wrapped script
      */
     protected static StringBuilder wrappInScriptTag(final Parameter _parameter,
                                                     final CharSequence _script,
                                                     final boolean _jsTag,
-                                                    final int _ready) {
+                                                    final int _ready)
+    {
         final StringBuilder ret = new StringBuilder();
         if (_jsTag) {
             ret.append("<script type=\"text/javascript\">/*<![CDATA[*/\n");
@@ -208,6 +217,10 @@ public abstract class InterfaceUtils_Base
         return ret;
     }
 
+    /**
+     * The Enum DojoLibs.
+     */
+    @SuppressWarnings("checkstyle:javadocvariable")
     public enum DojoLibs
     {
         ARRAY("dojo/_base/array", "array"),
@@ -226,7 +239,9 @@ public abstract class InterfaceUtils_Base
         IFWSTORE("dojo/data/ItemFileWriteStore", "ItemFileWriteStore"),
         FSELECT("dijit/form/FilteringSelect", "FilteringSelect"),
         NLDOM("dojo/NodeList-dom", null),
+        NLTRAVERSE("dojo/NodeList-traverse", null),
         ON("dojo/on", "on"),
+        POPUP("dijit/popup", "popup"),
         QUERY("dojo/query", "query"),
         REGISTRY("dijit/registry", "registry"),
         TOPIC("dojo/topic", "topic"),
@@ -240,14 +255,23 @@ public abstract class InterfaceUtils_Base
         NBRTEXTBOX("dijit/form/NumberTextBox", "NumberTextBox"),
         MEMORY("dojo/store/Memory", "Memory"),
         LANG("dojo/_base/lang", "lang"),
-        TOGGLEBUTTON("dijit/form/ToggleButton", "ToggleButton");
+        TOGGLEBUTTON("dijit/form/ToggleButton", "ToggleButton"),
+        TOOLTIPDIALOG("dijit/TooltipDialog", "TooltipDialog");
 
-
+        /** The lib name. */
         private final String libName;
+
+        /** The para name. */
         private final String paraName;
 
-        private DojoLibs(final String _libName,
-                         final String _paraName)
+        /**
+         * Instantiates a new dojo libs.
+         *
+         * @param _libName the lib name
+         * @param _paraName the para name
+         */
+        DojoLibs(final String _libName,
+                 final String _paraName)
         {
             this.libName = _libName;
             this.paraName = _paraName;

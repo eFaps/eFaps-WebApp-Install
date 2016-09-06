@@ -186,3 +186,9 @@ for implementation purpose
 .eFapsFiltered .gridxSortNode::before {
     content: url("../../servlet/image/org.efaps.ui.wicket.components.table.header.FilterActive.gif");
 }
+
+.alternateIndividual:hover {
+    background-color: lightgray;
+    cursor: pointer;
+}
+

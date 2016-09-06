@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2014 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 
@@ -42,6 +39,14 @@ public class InterfaceUtils
     extends InterfaceUtils_Base
 {
 
+    /**
+     * Gets the row keys.
+     *
+     * @param _parameter Parameter as passed by the eFaps API
+     * @param _currentkey the currentkey
+     * @param _keySequence the key sequence
+     * @return the row keys
+     */
     public static String[] getRowKeys(final Parameter _parameter,
                                          final String _currentkey,
                                          final String... _keySequence)
@@ -51,8 +56,10 @@ public class InterfaceUtils
 
 
     /**
-     * @param _map
-     * @param _js
+     * Append script for field update.
+     *
+     * @param _map the map
+     * @param _script the script
      */
     public static void appendScript4FieldUpdate(final Map<String, Object> _map,
                                                 final CharSequence _script)
@@ -61,18 +68,22 @@ public class InterfaceUtils
     }
 
     /**
-     * @param _map
-     * @param _script
+     * Prepend script for field update.
+     *
+     * @param _map the map
+     * @param _script the script
      */
     public static void prependScript4FieldUpdate(final Map<String, Object> _map,
                                                 final CharSequence _script)
     {
-        InterfaceUtils_Base.prependScript4FieldUpdate( _map, _script);
+        InterfaceUtils_Base.prependScript4FieldUpdate(_map, _script);
     }
 
     /**
-     * @param _parameter
-     * @param _queryBldr
+     * Adds the max result to queryBuilder for AutoComplete.
+     *
+     * @param _parameter Parameter as passed by the eFaps API
+     * @param _queryBldr the query bldr
      */
     public static void addMaxResult2QueryBuilder4AutoComplete(final Parameter _parameter,
                                                               final QueryBuilder _queryBldr)
@@ -105,15 +116,19 @@ public class InterfaceUtils
     }
 
     /**
+     * Wrapp in script tag.
+     *
      * @param _parameter Parameter as passed by the eFaps API
      * @param _script   script to be wrapped
-     * @param _libraries libraries to be added
+     * @param _jsTag the js tag
+     * @param _ready the ready
      * @return wrapped script
      */
     public static StringBuilder wrappInScriptTag(final Parameter _parameter,
                                                  final CharSequence _script,
                                                  final boolean _jsTag,
-                                                 final int _ready) {
+                                                 final int _ready)
+    {
         return InterfaceUtils_Base.wrappInScriptTag(_parameter, _script, _jsTag, _ready);
     }
 }
