@@ -130,6 +130,21 @@ public abstract class Table_Base
      * Adds the column.
      *
      * @param _innerHtml the inner html
+     * @param _style the style
+     * @return the table_ base
+     */
+    public Table_Base addColumn(final CharSequence _innerHtml,
+                                final CharSequence _style)
+    {
+        getCurrentRow().addColumn(_innerHtml);
+        getCurrentColumn().setStyle(_style);
+        return this;
+    }
+
+    /**
+     * Adds the column.
+     *
+     * @param _innerHtml the inner html
      * @param _colSpan the col span
      * @return the table_ base
      */
@@ -138,6 +153,24 @@ public abstract class Table_Base
     {
         getCurrentRow().addColumn(_innerHtml);
         getCurrentColumn().setColSpan(_colSpan);
+        return this;
+    }
+
+    /**
+     * Adds the column.
+     *
+     * @param _innerHtml the inner html
+     * @param _style the style
+     * @param _colSpan the col span
+     * @return the table_ base
+     */
+    public Table_Base addColumn(final CharSequence _innerHtml,
+                                final CharSequence _style,
+                                final int _colSpan)
+    {
+        getCurrentRow().addColumn(_innerHtml);
+        getCurrentColumn().setColSpan(_colSpan);
+        getCurrentColumn().setStyle(_style);
         return this;
     }
 
@@ -157,6 +190,21 @@ public abstract class Table_Base
      * Adds the header column.
      *
      * @param _innerHtml the inner html
+     * @param _style the style
+     * @return the table_ base
+     */
+    public Table_Base addHeaderColumn(final CharSequence _innerHtml,
+                                      final CharSequence _style)
+    {
+        getCurrentRow().addHeaderColumn(_innerHtml);
+        getCurrentColumn().setStyle(_style);
+        return this;
+    }
+
+    /**
+     * Adds the header column.
+     *
+     * @param _innerHtml the inner html
      * @param _colSpan the col span
      * @return the table_ base
      */
@@ -165,6 +213,24 @@ public abstract class Table_Base
     {
         getCurrentRow().addHeaderColumn(_innerHtml);
         getCurrentColumn().setColSpan(_colSpan);
+        return this;
+    }
+
+    /**
+     * Adds the header column.
+     *
+     * @param _innerHtml the inner html
+     * @param _style the style
+     * @param _colSpan the col span
+     * @return the table_ base
+     */
+    public Table_Base addHeaderColumn(final CharSequence _innerHtml,
+                                      final CharSequence _style,
+                                      final int _colSpan)
+    {
+        getCurrentRow().addHeaderColumn(_innerHtml);
+        getCurrentColumn().setColSpan(_colSpan);
+        getCurrentColumn().setStyle(_style);
         return this;
     }
 
