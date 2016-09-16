@@ -62,7 +62,7 @@ function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue, _fieldLa
         if (fields.length > 0) {
             var cp = 0;
             if (fields.length > 1) {
-                var cp = pos;
+                cp = pos;
             }
             if (fields.length > cp) {
                 if (_fieldValue instanceof Array) {

@@ -44,6 +44,21 @@ function headerProperties() {
     this.tableName = "";
 }
 
+//function used to retrieve a Style Rule from a StyleSheet
+function getStyleRule(_styleIndex, _modelID) {
+  var selectorName = ".eFapsCellWidth" + _styleIndex;
+  for (i = 0; i < document.styleSheets.length; i++) {
+    var find = document.styleSheets[i].cssRules[0].cssText.indexOf("eFapsCSSId"+ _modelID)
+    if(find > -1){
+      for (j = 0; j < document.styleSheets[i].cssRules.length; j++) {
+        if (document.styleSheets[i].cssRules[j].selectorText == selectorName) {
+          return document.styleSheets[i].cssRules[j];
+        }
+      }
+    }
+  }
+}
+
 function positionTableColumns(_props) {
     require(["dojo/query", "dojo/dom","dojo/dom-geometry","dojo/dom-style","dojo/NodeList-dom"], function(query,dom,domGeom,style){
         var header = dom.byId(_props.headerID);
@@ -101,22 +116,6 @@ function positionTableColumns(_props) {
         });
     });
 }
-
-// function used to retrieve a Style Rule from a StyleSheet
-function getStyleRule(_styleIndex, _modelID) {
-  var selectorName = ".eFapsCellWidth" + _styleIndex;
-  for (i = 0; i < document.styleSheets.length; i++) {
-    var find = document.styleSheets[i].cssRules[0].cssText.indexOf("eFapsCSSId"+ _modelID)
-    if(find > -1){
-      for (j = 0; j < document.styleSheets[i].cssRules.length; j++) {
-        if (document.styleSheets[i].cssRules[j].selectorText == selectorName) {
-          return document.styleSheets[i].cssRules[j];
-        }
-      }
-    }
-  }
-}
-
 
 function getColumnWidths(_props) {
     var widths = "";

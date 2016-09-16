@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2012 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,36 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Author:          jmox
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
-/* 
+/*
  * @eFapsPackage  org.efaps.ui.wicket.components.form
  * @eFapsUUID     b9aca56b-392a-4da8-98a6-886df32bb8d0
  * @eFapsApplication eFaps-WebApp
  */
 
-/* 
- * This script is needed because when a AjaxSubmit is done with the script from 
- * wicket the elements are serialized and filtered. The Filter does not pass the 
- * values from inputs of type "file". Therefore this script creates hidden inputs 
- * with the same name and value as the filtered one. 
- * The script is executed as a precondition script for the ajaxsubmitbehavior 
+/*
+ * This script is needed because when a AjaxSubmit is done with the script from
+ * wicket the elements are serialized and filtered. The Filter does not pass the
+ * values from inputs of type "file". Therefore this script creates hidden inputs
+ * with the same name and value as the filtered one.
+ * The script is executed as a precondition script for the ajaxsubmitbehavior
  * from wicket, therefore it must return true to allow the ajaxcall to advance.
  */
 
 function eFapsFileInput(){
   var ins = document.getElementsByTagName("input");
-  
+
   for (var i = 0; i < ins.length; ++i) {
-    if(ins[i].type.toLowerCase() == "file"){
+    if(ins[i].type.toLowerCase() === "file"){
       var fileNode = ins[i];
       var parent = fileNode.parentNode;
-      var  node = fileNode.nextSibling; 
-      var add = true; 
+      var  node = fileNode.nextSibling;
+      var add = true;
       while (node != null) {
         if(node.nodeName == "INPUT"){
           if(node.type == "hidden" && node.name == fileNode.name){
@@ -60,6 +56,6 @@ function eFapsFileInput(){
         parent.appendChild(newinput);
       }
     }
-  }  
+  }
   return true;
 }
