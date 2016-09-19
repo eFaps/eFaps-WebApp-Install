@@ -192,3 +192,18 @@ for implementation purpose
     cursor: pointer;
 }
 
+.gridxFilterBar .dijitButton {
+    height: 15px !important;
+}
+
+.gridxQuickFilterInput {
+    height: 18px;
+}
+
+.gridxQuickFilterInput .dijitInputInner {
+    height: 18px;
+}
+
+.gridxQuickFilterInput .dijitPlaceHolder {
+    font-size: 14pt;
+}
