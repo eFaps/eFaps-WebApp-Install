@@ -18,9 +18,14 @@
 
 package org.efaps.esjp.common.util;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.comparators.ComparatorChain;
 import org.apache.commons.lang3.ArrayUtils;
 import org.efaps.admin.event.Parameter;
 import org.efaps.admin.event.Parameter.ParameterValues;
@@ -194,9 +199,33 @@ public abstract class InterfaceUtils_Base
             .append("require([");
         final StringBuilder paras = new StringBuilder();
         boolean first = true;
+        final List<DojoLibs> libs = Arrays.asList(_libraries);
 
-        for (int i = 0; i < _libraries.length; i++) {
-            final DojoLibs dojoLibs = _libraries[i];
+        final ComparatorChain<DojoLibs> comparator = new ComparatorChain<>();
+        comparator.addComparator(new Comparator<DojoLibs>()
+        {
+
+            @Override
+            public int compare(final DojoLibs _arg0,
+                               final DojoLibs _arg1)
+            {
+                return _arg0.paraName == null && _arg1.paraName == null
+                                ||  _arg0.paraName != null && _arg1.paraName != null
+                                    ? 0 : (_arg0.paraName == null ? 1 : -1);
+            }
+        });
+        comparator.addComparator(new Comparator<DojoLibs>()
+        {
+
+            @Override
+            public int compare(final DojoLibs _arg0,
+                               final DojoLibs _arg1)
+            {
+                return _arg0.libName.compareTo(_arg1.libName);
+            }
+        });
+        Collections.sort(libs, comparator);
+        for (final DojoLibs dojoLibs : libs) {
             if (first) {
                 first = false;
             } else {
@@ -227,36 +256,37 @@ public abstract class InterfaceUtils_Base
         AUTOCOMP("efaps/AutoComplete", "AutoComplete"),
         AUTOSUGG("efaps/AutoSuggestion", "AutoSuggestion"),
         CHECKBOX("dijit/form/CheckBox", "CheckBox"),
+        CLMLOCK("efaps/ColumnLock", "ColumnLock"),
         DATAGRID("dojox/grid/DataGrid", "DataGrid"),
-        ENHANCEDGRID("dojox/grid/EnhancedGrid", "EnhancedGrid"),
         DOM("dojo/dom", "dom"),
         DOMATTR("dojo/dom-attr", "domAttr"),
         DOMCLASS("dojo/dom-class", "domClass"),
         DOMCONSTRUCT("dojo/dom-construct", "domConstruct"),
         DOMSTYLE("dojo/dom-style", "domStyle"),
+        ENHANCEDGRID("dojox/grid/EnhancedGrid", "EnhancedGrid"),
+        FSELECT("dijit/form/FilteringSelect", "FilteringSelect"),
+        GXGRID("gridx/Grid", "Grid"),
+        GXCACHE("gridx/core/model/cache/Sync", "Cache"),
+        GXGRPHEADER("gridx/modules/GroupHeader", "GroupHeader"),
+        GXEDIT("gridx/modules/Edit", "Edit"),
+        GXCELLWIDGET("gridx/modules/CellWidget", "CellWidget"),
         HTML("dojo/html", "html"),
         IFRSTORE("dojo/data/ItemFileReadStore", "ItemFileReadStore"),
         IFWSTORE("dojo/data/ItemFileWriteStore", "ItemFileWriteStore"),
-        FSELECT("dijit/form/FilteringSelect", "FilteringSelect"),
+        LANG("dojo/_base/lang", "lang"),
+        MEMORY("dojo/store/Memory", "Memory"),
+        NBRTEXTBOX("dijit/form/NumberTextBox", "NumberTextBox"),
+        NUMBER("dojo/number", "number"),
         NLDOM("dojo/NodeList-dom", null),
         NLTRAVERSE("dojo/NodeList-traverse", null),
         ON("dojo/on", "on"),
         POPUP("dijit/popup", "popup"),
         QUERY("dojo/query", "query"),
         REGISTRY("dijit/registry", "registry"),
-        TOPIC("dojo/topic", "topic"),
-        GXGRID("gridx/Grid", "Grid"),
-        GXCACHE("gridx/core/model/cache/Sync", "Cache"),
-        GXGRPHEADER("gridx/modules/GroupHeader", "GroupHeader"),
-        CLMLOCK("efaps/ColumnLock", "ColumnLock"),
-        GXEDIT("gridx/modules/Edit", "Edit"),
-        GXCELLWIDGET("gridx/modules/CellWidget", "CellWidget"),
         SELECT("dijit/form/Select", "Select"),
-        NBRTEXTBOX("dijit/form/NumberTextBox", "NumberTextBox"),
-        MEMORY("dojo/store/Memory", "Memory"),
-        LANG("dojo/_base/lang", "lang"),
         TOGGLEBUTTON("dijit/form/ToggleButton", "ToggleButton"),
-        TOOLTIPDIALOG("dijit/TooltipDialog", "TooltipDialog");
+        TOOLTIPDIALOG("dijit/TooltipDialog", "TooltipDialog"),
+        TOPIC("dojo/topic", "topic");
 
         /** The lib name. */
         private final String libName;
