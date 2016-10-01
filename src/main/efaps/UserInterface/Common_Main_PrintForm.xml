@@ -58,5 +58,13 @@
                 name="Common_Main_PrintForm.columns.UI_FIELD_VALUE"
                 event="UI_FIELD_VALUE"/>
         </field>
+        <field name="javascript">
+            <property name="ModeEdit">HIDDEN</property>
+            <property name="UIType">SNIPPLET</property>
+            <trigger program="org.efaps.esjp.ui.print.Table"
+                method="getScript4Gridx"
+                name="Common_Main_PrintForm.javascript.UI_FIELD_VALUE"
+                event="UI_FIELD_VALUE"/>
+        </field>
     </definition>
 </ui-form>

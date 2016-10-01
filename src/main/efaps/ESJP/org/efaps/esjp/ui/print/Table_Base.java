@@ -21,6 +21,7 @@ import java.awt.Color;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -29,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.wicket.PageReference;
 import org.efaps.admin.datamodel.Attribute;
@@ -46,6 +49,8 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.db.Context;
+import org.efaps.esjp.common.util.InterfaceUtils;
+import org.efaps.esjp.common.util.InterfaceUtils_Base.DojoLibs;
 import org.efaps.ui.wicket.models.field.AbstractUIField;
 import org.efaps.ui.wicket.models.field.IFilterable;
 import org.efaps.ui.wicket.models.field.UIField;
@@ -56,7 +61,6 @@ import org.efaps.ui.wicket.models.objects.UIStructurBrowser;
 import org.efaps.ui.wicket.models.objects.UITable;
 import org.efaps.ui.wicket.models.objects.UITableHeader;
 import org.efaps.util.EFapsException;
-import org.efaps.util.cache.CacheReloadException;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,6 +73,7 @@ import net.sf.dynamicreports.report.builder.style.Styles;
 import net.sf.dynamicreports.report.constant.HorizontalTextAlignment;
 import net.sf.dynamicreports.report.constant.PageOrientation;
 import net.sf.dynamicreports.report.constant.PageType;
+import net.sf.dynamicreports.report.constant.VerticalTextAlignment;
 import net.sf.dynamicreports.report.exception.DRException;
 import net.sf.jasperreports.engine.JRDataSource;
 import net.sf.jasperreports.engine.JRException;
@@ -112,145 +117,26 @@ public abstract class Table_Base
     {
         final Return ret = new Return();
 
-        final String[] oids = (String[]) Context.getThreadContext().getSessionAttribute("selectedOIDs4print");
         final PageReference reference = (PageReference) Context.getThreadContext().getSessionAttribute(
                         UserInterface_Base.UIOBJECT_CACHEKEY);
-        final AbstractUIPageObject object = (AbstractUIPageObject) reference.getPage().getDefaultModelObject();
+        final Object object = reference.getPage().getDefaultModelObject();
         if (object instanceof AbstractUIPageObject) {
-
-            final AbstractUIPageObject pageObject = object;
-
-            if (pageObject instanceof UITable || pageObject instanceof UIStructurBrowser) {
-                String mime = getProperty(_parameter,"Mime");
-                if (mime == null) {
-                    mime = _parameter.getParameterValue("mime");
-                }
-                final TargetMode mode = "xls".equalsIgnoreCase(mime) ? TargetMode.PRINT : TargetMode.VIEW;
-                final boolean print = mode.equals(TargetMode.VIEW);
-                if (!mode.equals(object.getMode())) {
-                    object.resetModel();
-                    object.setMode(mode);
-                    object.execute();
-                }
-
-                setFileName(pageObject.getTitle());
-
-                final JasperReportBuilder jrb = DynamicReports.report()
-                                .addTitle(DynamicReports.cmp.horizontalList(
-                                            DynamicReports.cmp.text(pageObject.getTitle()),
-                                            DynamicReports.cmp.text(new Date())
-                                            .setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT)
-                                            .setDataType(DynamicReports.type.dateYearToMinuteType())));
-
-                if (print) {
-                    jrb.setPageMargin(DynamicReports.margin(20))
-                                    .setPageFormat(PageType.A4, PageOrientation.LANDSCAPE)
-                                    .setColumnHeaderStyle(getStyle(_parameter, Table_Base.Section.HEADER))
-                                    .highlightDetailEvenRows()
-                                    .pageFooter(DynamicReports.cmp.pageXofY().setStyle(DynamicReports.stl.style()
-                                                    .setHorizontalTextAlignment(HorizontalTextAlignment.CENTER)));
-                } else {
-                    jrb.setIgnorePagination(true)
-                                    .setPageMargin(DynamicReports.margin(0));
-                }
-
+            String mime = getProperty(_parameter, "Mime");
+            if (mime == null) {
+                mime = _parameter.getParameterValue("mime");
+            }
+            setFileName(((AbstractUIPageObject) object).getTitle());
+            if (object instanceof UITable && ((UITable) object).isGrid()) {
                 try {
-                    final int widthWeight = ((AbstractUIHeaderObject) pageObject).getWidthWeight();
-                    final String[] columns = _parameter.getParameterValues("columns");
-                    final Set<String> selCols = new HashSet<>();
-                    for (final String col : columns) {
-                        selCols.add(col);
-                    }
-                    final Map<String, Attribute> selAttr = new HashMap<>();
-                    final List<Map<String, Object>> values = new ArrayList<>();
-                    if (pageObject instanceof UITable) {
-                        for (final UIRow row : ((UITable) pageObject).getValues()) {
-                            if (oids == null ||  ArrayUtils.contains(oids, row.getInstanceKey())) {
-                                final Map<String, Object> map = new HashMap<>();
-                                for (final IFilterable filterable : row.getCells()) {
-                                    if (filterable instanceof UIField) {
-                                        final UIField uiField = (UIField) filterable;
-                                        if (selCols.contains(uiField.getFieldConfiguration().getName())) {
-                                            Object value = print ? uiField.getPickListValue()
-                                                        : uiField.getCompareValue() != null
-                                                            ? uiField.getCompareValue() : uiField.getPickListValue() ;
-                                            if (value instanceof DateTime) {
-                                                value = ((DateTime) value).toDate();
-                                            }
-                                            map.put(uiField.getFieldConfiguration().getName(), value);
-                                            selAttr.put(uiField.getFieldConfiguration().getName(), null);
-                                        }
-                                    }
-                                }
-                                values.add(map);
-                            }
-                        }
-                    } else if (pageObject instanceof UIStructurBrowser) {
-                        final List<UIStructurBrowser> roots = ((UIStructurBrowser) pageObject).getChildren();
-                        add2Values4StrBrws(selCols, selAttr, print, values, roots);
-                    }
-
-                    for (final UITableHeader header : ((AbstractUIHeaderObject) pageObject).getHeaders()) {
-                        final boolean add;
-                        if (print) {
-                            add = selCols.contains(header.getFieldName());
-                        } else {
-                            final Field field = Field.get(header.getFieldId());
-                            add = field.isNoneDisplay(TargetMode.VIEW) && !field.isNoneDisplay(TargetMode.PRINT)
-                                            || selCols.contains(header.getFieldName());
-                            if (add && !selCols.contains(header.getFieldName())) {
-                                selCols.add(header.getFieldName());
-                            }
-                        }
-                        if (add) {
-                            final BigDecimal width = new BigDecimal(header.getWidth()).setScale(2)
-                                            .divide(new BigDecimal(widthWeight), BigDecimal.ROUND_HALF_UP)
-                                            .multiply(new BigDecimal(555));
-
-                            TextColumnBuilder<?> clbdr = null;
-                            final Attribute attr = selAttr.get(header.getFieldName());
-                            if (attr != null && !print) {
-                                if (attr.getAttributeType().getDbAttrType() instanceof LongType) {
-                                    if (checkValues(values, header.getFieldName(), Long.class)) {
-                                        clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
-                                                        DynamicReports.type.longType());
-                                    }
-                                } else if (attr.getAttributeType().getDbAttrType() instanceof DecimalType) {
-                                    if (checkValues(values, header.getFieldName(), BigDecimal.class)) {
-                                        clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
-                                                        DynamicReports.type.bigDecimalType());
-                                    }
-                                } else if (attr.getAttributeType().getDbAttrType() instanceof IntegerType) {
-                                    clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
-                                                    DynamicReports.type.integerType());
-                                } else if (attr.getAttributeType().getDbAttrType() instanceof BooleanType) {
-                                    if (checkValues(values, header.getFieldName(), Boolean.class)) {
-                                        clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
-                                                        DynamicReports.type.booleanType());
-                                    }
-                                } else if (attr.getAttributeType().getDbAttrType() instanceof DateTimeType) {
-                                    if (checkValues(values, header.getFieldName(), Date.class)) {
-                                        clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
-                                                        DynamicReports.type.dateType());
-                                    }
-                                } else if (attr.getAttributeType().getDbAttrType() instanceof RateType) {
-                                    clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
-                                                    DynamicReports.type.bigDecimalType());
-                                }
-                            }
-
-                            if (clbdr == null) {
-                                clbdr = getColumnBuilder4Values(values, header);
-                            }
-                            if (print) {
-                                clbdr.setWidth(header.isFixedWidth() ? header.getWidth() : width.intValue());
-                            }
-                            jrb.addColumn(clbdr);
-                        }
-                    }
-
-                    jrb.setLocale(Context.getThreadContext().getLocale()).setDataSource(getSource(_parameter, values));
-
+                    final JasperReportBuilder jrb = execute4GridX(_parameter, (UITable) object, mime);
+                    ret.put(ReturnValues.VALUES, super.getFile(jrb.toJasperPrint(), mime));
+                    ret.put(ReturnValues.TRUE, true);
+                } catch (final IOException | JRException | DRException e) {
+                    throw new EFapsException(Table_Base.class, "GRIDX", e);
+                }
+            } else if (object instanceof UITable || object instanceof UIStructurBrowser) {
+                try {
+                    final JasperReportBuilder jrb = execute4Table(_parameter, (AbstractUIPageObject) object, mime);
                     ret.put(ReturnValues.VALUES, super.getFile(jrb.toJasperPrint(), mime));
                     ret.put(ReturnValues.TRUE, true);
                 } catch (final JRException e) {
@@ -268,6 +154,251 @@ public abstract class Table_Base
     }
 
     /**
+     * Execute for gridx.
+     *
+     * @param _parameter Parameter as passed by the eFaps API
+     * @param _uiTable the ui table
+     * @param _mime the mime
+     * @return the jasper report builder
+     * @throws EFapsException on error
+     */
+    protected JasperReportBuilder execute4GridX(final Parameter _parameter,
+                                                final UITable _uiTable,
+                                                final String _mime)
+        throws EFapsException
+    {
+        final JasperReportBuilder ret = getBuilder(_parameter, _uiTable, _mime);
+        final String[] oidArr = (String[]) Context.getThreadContext().getSessionAttribute("selectedOIDs4print");
+        final Set<String> oids = ArrayUtils.isEmpty(oidArr) ? SetUtils.emptySet()
+                        : new HashSet<>(Arrays.asList(oidArr));
+        final String[] visibles = _parameter.getParameterValues("visibleRow");
+        final String[] columns = _parameter.getParameterValues("column");
+        final boolean isPdf = "pdf".equalsIgnoreCase(_mime);
+
+        final List<Map<String, Object>> values = new ArrayList<>();
+        if (ArrayUtils.isNotEmpty(visibles)) {
+            final List<UIRow> uirows = _uiTable.getValues();
+            final UIRow[] rowsArray = uirows.toArray(new UIRow[uirows.size()]);
+            for (final String visible : visibles) {
+                final UIRow row = rowsArray[Integer.valueOf(visible)];
+                if (CollectionUtils.isEmpty(oids) || oids.contains(row.getInstance().getOid())) {
+                    final Map<String, Object> map = new HashMap<>();
+                    values.add(map);
+                    for (final String column : columns) {
+                        for (final IFilterable cell : row.getCells()) {
+                            if (cell.belongsTo(Long.valueOf(column))) {
+                                if (cell instanceof UIField) {
+                                    final UIField uiField = (UIField) cell;
+                                    Object value = isPdf ? uiField.getPickListValue()
+                                                    : (uiField.getCompareValue() != null
+                                                        ? uiField.getCompareValue() : uiField.getPickListValue());
+                                    if (value instanceof DateTime) {
+                                        value = ((DateTime) value).toDate();
+                                    }
+                                    map.put(uiField.getFieldConfiguration().getName(), value);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            for (final String column : columns) {
+                for (final UITableHeader header: _uiTable.getHeaders()) {
+                    if (Long.valueOf(column) == header.getFieldId()) {
+                        final TextColumnBuilder<?> cb = getColumnBuilder4Values(values, header);
+                        if (isPdf) {
+                            final StyleBuilder colStyle = getStyle(_parameter, Section.COLUMN);
+                            if ("right".equalsIgnoreCase(header.getFieldConfig().getAlign())) {
+                                colStyle.setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT);
+                            }
+                            cb.setStyle(colStyle)
+                                .setTitleStyle(getStyle(_parameter, Section.COLUMNHEADER));
+                        }
+                        ret.addColumn(cb);
+                        break;
+                    }
+                }
+            }
+        }
+
+        if (isPdf) {
+            ret.setPageMargin(DynamicReports.margin(20))
+                .setPageFormat(PageType.A4, PageOrientation.LANDSCAPE)
+                .setColumnHeaderStyle(getStyle(_parameter, Table_Base.Section.COLUMNHEADER))
+                .highlightDetailEvenRows()
+                .pageFooter(DynamicReports.cmp.pageXofY().setStyle(DynamicReports.stl.style()
+                            .setHorizontalTextAlignment(HorizontalTextAlignment.CENTER)));
+        } else {
+            ret.setIgnorePagination(true)
+                .setPageMargin(DynamicReports.margin(0));
+        }
+        ret.setLocale(Context.getThreadContext().getLocale()).setDataSource(getSource(_parameter, values));
+        return ret;
+    }
+
+    /**
+     * Execute for table.
+     *
+     * @param _parameter Parameter as passed by the eFaps API
+     * @param _object the object
+     * @param _mime the mime
+     * @return the jasper report builder
+     * @throws EFapsException on error
+     */
+    protected JasperReportBuilder execute4Table(final Parameter _parameter,
+                                                final AbstractUIPageObject _object,
+                                                final String _mime)
+        throws EFapsException
+    {
+        final String[] oids = (String[]) Context.getThreadContext().getSessionAttribute("selectedOIDs4print");
+
+        final TargetMode mode = "xls".equalsIgnoreCase(_mime) ? TargetMode.PRINT : TargetMode.VIEW;
+        final boolean print = mode.equals(TargetMode.VIEW);
+        if (!mode.equals(_object.getMode())) {
+            _object.resetModel();
+            _object.setMode(mode);
+            _object.execute();
+        }
+
+        final JasperReportBuilder jrb = getBuilder(_parameter, _object, _mime);
+        if (print) {
+            jrb.setPageMargin(DynamicReports.margin(20))
+                            .setPageFormat(PageType.A4, PageOrientation.LANDSCAPE)
+                            .setColumnHeaderStyle(getStyle(_parameter, Table_Base.Section.HEADER))
+                            .highlightDetailEvenRows()
+                            .pageFooter(DynamicReports.cmp.pageXofY().setStyle(DynamicReports.stl.style()
+                                            .setHorizontalTextAlignment(HorizontalTextAlignment.CENTER)));
+        } else {
+            jrb.setIgnorePagination(true)
+                            .setPageMargin(DynamicReports.margin(0));
+        }
+        final int widthWeight = ((AbstractUIHeaderObject) _object).getWidthWeight();
+        final String[] columns = _parameter.getParameterValues("columns");
+        final Set<String> selCols = new HashSet<>();
+        for (final String col : columns) {
+            selCols.add(col);
+        }
+        final Map<String, Attribute> selAttr = new HashMap<>();
+        final List<Map<String, Object>> values = new ArrayList<>();
+        if (_object instanceof UITable) {
+            for (final UIRow row : ((UITable) _object).getValues()) {
+                if (oids == null ||  ArrayUtils.contains(oids, row.getInstanceKey())) {
+                    final Map<String, Object> map = new HashMap<>();
+                    for (final IFilterable filterable : row.getCells()) {
+                        if (filterable instanceof UIField) {
+                            final UIField uiField = (UIField) filterable;
+                            if (selCols.contains(uiField.getFieldConfiguration().getName())) {
+                                Object value = print ? uiField.getPickListValue()
+                                            : uiField.getCompareValue() != null
+                                                ? uiField.getCompareValue() : uiField.getPickListValue();
+                                if (value instanceof DateTime) {
+                                    value = ((DateTime) value).toDate();
+                                }
+                                map.put(uiField.getFieldConfiguration().getName(), value);
+                                selAttr.put(uiField.getFieldConfiguration().getName(), null);
+                            }
+                        }
+                    }
+                    values.add(map);
+                }
+            }
+        } else if (_object instanceof UIStructurBrowser) {
+            final List<UIStructurBrowser> roots = ((UIStructurBrowser) _object).getChildren();
+            add2Values4StrBrws(selCols, selAttr, print, values, roots);
+        }
+
+        for (final UITableHeader header : ((AbstractUIHeaderObject) _object).getHeaders()) {
+            final boolean add;
+            if (print) {
+                add = selCols.contains(header.getFieldName());
+            } else {
+                final Field field = Field.get(header.getFieldId());
+                add = field.isNoneDisplay(TargetMode.VIEW) && !field.isNoneDisplay(TargetMode.PRINT)
+                                || selCols.contains(header.getFieldName());
+                if (add && !selCols.contains(header.getFieldName())) {
+                    selCols.add(header.getFieldName());
+                }
+            }
+            if (add) {
+                final BigDecimal width = new BigDecimal(header.getWidth()).setScale(2)
+                                .divide(new BigDecimal(widthWeight), BigDecimal.ROUND_HALF_UP)
+                                .multiply(new BigDecimal(555));
+
+                TextColumnBuilder<?> clbdr = null;
+                final Attribute attr = selAttr.get(header.getFieldName());
+                if (attr != null && !print) {
+                    if (attr.getAttributeType().getDbAttrType() instanceof LongType) {
+                        if (checkValues(values, header.getFieldName(), Long.class)) {
+                            clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
+                                            DynamicReports.type.longType());
+                        }
+                    } else if (attr.getAttributeType().getDbAttrType() instanceof DecimalType) {
+                        if (checkValues(values, header.getFieldName(), BigDecimal.class)) {
+                            clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
+                                            DynamicReports.type.bigDecimalType());
+                        }
+                    } else if (attr.getAttributeType().getDbAttrType() instanceof IntegerType) {
+                        clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
+                                        DynamicReports.type.integerType());
+                    } else if (attr.getAttributeType().getDbAttrType() instanceof BooleanType) {
+                        if (checkValues(values, header.getFieldName(), Boolean.class)) {
+                            clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
+                                            DynamicReports.type.booleanType());
+                        }
+                    } else if (attr.getAttributeType().getDbAttrType() instanceof DateTimeType) {
+                        if (checkValues(values, header.getFieldName(), Date.class)) {
+                            clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
+                                            DynamicReports.type.dateType());
+                        }
+                    } else if (attr.getAttributeType().getDbAttrType() instanceof RateType) {
+                        clbdr = DynamicReports.col.column(header.getLabel(), header.getFieldName(),
+                                        DynamicReports.type.bigDecimalType());
+                    }
+                }
+
+                if (clbdr == null) {
+                    clbdr = getColumnBuilder4Values(values, header);
+                }
+                if (print) {
+                    clbdr.setWidth(header.isFixedWidth() ? header.getWidth() : width.intValue());
+                }
+                jrb.addColumn(clbdr);
+            }
+        }
+        jrb.setLocale(Context.getThreadContext().getLocale()).setDataSource(getSource(_parameter, values));
+        return jrb;
+    }
+
+    /**
+     * Gets the builder.
+     *
+     * @param _parameter Parameter as passed by the eFaps API
+     * @param _object the object
+     * @param _mime the mime
+     * @return the builder
+     */
+    protected JasperReportBuilder getBuilder(final Parameter _parameter,
+                                             final AbstractUIPageObject _object,
+                                             final String _mime)
+    {
+
+        final JasperReportBuilder ret = DynamicReports.report();
+        if ("pdf".equalsIgnoreCase(_mime)) {
+            ret.addPageHeader(DynamicReports.cmp.horizontalList(DynamicReports.cmp.text(_object.getTitle()),
+                            DynamicReports.cmp.text(new Date()).setHorizontalTextAlignment(
+                                            HorizontalTextAlignment.RIGHT).setDataType(DynamicReports.type
+                                                            .dateYearToMinuteType())));
+        } else {
+            ret.addPageHeader(DynamicReports.cmp.verticalList(DynamicReports.cmp.text(_object.getTitle()),
+                            DynamicReports.cmp.text(new Date())
+                                .setDataType(DynamicReports.type.dateYearToMinuteType())
+                                .setHorizontalTextAlignment(HorizontalTextAlignment.LEFT)));
+        }
+        return ret;
+    }
+
+    /**
      * Recursive Method to add to the values map for StructurBrowser.
      *
      * @param _selCols selected Columns
@@ -275,7 +406,7 @@ public abstract class Table_Base
      * @param _print print mode
      * @param _values values to be added to
      * @param _children children to be evaluated for values
-     * @throws CacheReloadException on error
+     * @throws EFapsException on error
      */
     protected void add2Values4StrBrws(final Set<String> _selCols,
                                       final Map<String, Attribute> _selAttr,
@@ -291,7 +422,7 @@ public abstract class Table_Base
                 if (_selCols.contains(uiField.getFieldConfiguration().getName())) {
                     Object value = _print ? uiField.getPickListValue()
                                     : uiField.getCompareValue() != null
-                                        ? uiField.getCompareValue() : uiField.getPickListValue() ;
+                                        ? uiField.getCompareValue() : uiField.getPickListValue();
                     if (value instanceof DateTime) {
                         value = ((DateTime) value).toDate();
                     }
@@ -335,20 +466,21 @@ public abstract class Table_Base
                 ret = DynamicReports.stl.style().setBold(true);
                 break;
             case COLUMN:
-                ret = DynamicReports.stl.style().setFont(Styles.font().bold()
-                                .setFontSize(12))
-                                .setBorder(Styles.pen1Point());
+                ret = DynamicReports.stl.style()
+                                .setFontSize(8)
+                                .setBorder(Styles.penThin())
+                                .setPadding(2);
                 break;
             case COLUMNHEADER:
                 ret = DynamicReports.stl.style()
-                                .setFont(Styles.font().bold().setFontSize(12))
-                                .setBorder(Styles.pen1Point())
-                                .setBackgroundColor(Color.gray)
-                                .setForegroundColor(Color.white);
+                                .setFont(Styles.font().bold().setFontSize(8))
+                                .setBorder(Styles.penThin())
+                                .setTextAlignment(HorizontalTextAlignment.CENTER, VerticalTextAlignment.MIDDLE)
+                                .setBackgroundColor(Color.LIGHT_GRAY);
                 break;
             default:
                 ret = DynamicReports.stl.style()
-                                .setFont(Styles.font().setFontSize(12))
+                                .setFont(Styles.font().setFontSize(8))
                                 .setBorder(Styles.pen1Point());
                 break;
         }
@@ -367,7 +499,7 @@ public abstract class Table_Base
     {
         TextColumnBuilder<?> ret = null;
         final Class<?>[] clazzes = new Class[] { BigDecimal.class, Long.class, Integer.class, Date.class,
-                        Boolean.class };
+                                                   Boolean.class };
         int idx = 0;
         Iterator<Map<String, Object>> iter = _values.iterator();
         while (iter.hasNext() && idx < clazzes.length) {
@@ -445,6 +577,55 @@ public abstract class Table_Base
                 }
             }
         }
+        return ret;
+    }
+
+    /**
+     * Check access for grid X.
+     *
+     * @param _parameter Parameter as passed by the eFaps API
+     * @return the return
+     * @throws EFapsException on error
+     */
+    public Return getScript4Gridx(final Parameter _parameter)
+        throws EFapsException
+    {
+        final Return ret = new Return();
+        final StringBuilder js = new StringBuilder()
+                        .append("var fr = top.frames['eFapsContentFrame'];\n")
+                        .append("if (typeof fr != 'undefined') {\n")
+                        .append("var freg = fr.contentWindow.dijit.registry;\n")
+                        .append("var grid = freg.byId('grid');\n")
+                        .append("if (typeof grid != 'undefined') {\n")
+                        .append("query(dom.byId('eFapsColumns4Report')).parents('.eFapsFormRow')")
+                            .append(".forEach(function (node) {\n")
+                        .append(" domConstruct.destroy(node);\n")
+                        .append("});\n")
+                        .append("var form = query(\"form\")[0]\n")
+
+                        .append("for (i = 0; i < grid.rowCount(); i++) {\n")
+                        .append("domConstruct.create('input', {\n")
+                        .append("type: 'hidden',\n")
+                        .append("name:'visibleRow',\n")
+                        .append("value: grid.row(i).id\n")
+                        .append("},form);\n")
+                        .append("}\n")
+
+                        .append("array.forEach(grid._columns, function(item) {\n")
+                        .append("domConstruct.create('input', {\n")
+                        .append("type: 'hidden',\n")
+                        .append("name:'column',\n")
+                        .append("value: item.id\n")
+                        .append("},form);\n")
+                        .append("});\n")
+
+                        .append("}\n")
+                        .append("}\n");
+
+        ret.put(ReturnValues.SNIPLETT, InterfaceUtils.wrappInScriptTag(_parameter,
+                        InterfaceUtils.wrapInDojoRequire(_parameter, js, DojoLibs.QUERY, DojoLibs.DOM,
+                                        DojoLibs.REGISTRY, DojoLibs.DOMCONSTRUCT, DojoLibs.NLTRAVERSE, DojoLibs.ARRAY),
+                        true, 100).toString());
         return ret;
     }
 

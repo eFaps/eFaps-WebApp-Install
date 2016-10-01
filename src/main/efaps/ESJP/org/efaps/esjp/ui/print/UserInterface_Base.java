@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 216 The eFaps Team
+ * Copyright 2003 - 2016 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -67,11 +67,11 @@ public abstract class UserInterface_Base
      */
     public static final String UIOBJECT_CACHEKEY = "eFaps_UIObject4PrintCacheKey";
 
-    private static final Map<String, String> MIME_MAP = new LinkedHashMap<String, String>();
+    /** The Constant MIME_MAP. */
+    private static final Map<String, String> MIME_MAP = new LinkedHashMap<>();
     static {
         UserInterface_Base.MIME_MAP.put("pdf", "org.efaps.esjp.ui.print.PDF");
         UserInterface_Base.MIME_MAP.put("xls", "org.efaps.esjp.ui.print.XLS");
-        UserInterface_Base.MIME_MAP.put("txt", "org.efaps.esjp.ui.print.TXT");
     };
 
     /**
@@ -98,11 +98,11 @@ public abstract class UserInterface_Base
     public Return getMimeFieldValueUI(final Parameter _parameter)
         throws EFapsException
     {
-        final List<DropDownPosition> values = new ArrayList<DropDownPosition>();
+        final List<DropDownPosition> values = new ArrayList<>();
 
         final Map<?, ?> props = (Map<?, ?>) _parameter.get(ParameterValues.PROPERTIES);
         final String defaultMime = (String) props.get("DefaultMime");
-        final Set<String> ignoreSet = new HashSet<String>();
+        final Set<String> ignoreSet = new HashSet<>();
         if (props.containsKey("IgnoreMime")) {
             final String ignoreMime = (String) props.get("IgnoreMime");
             final String[] ignoreMimeStr = ignoreMime.split(";");
@@ -165,45 +165,47 @@ public abstract class UserInterface_Base
         throws EFapsException
     {
         final Return ret = new Return();
-        final List<Map<String, String>> list = new ArrayList<Map<String, String>>();
-        final Map<String, String> map = new HashMap<String, String>();
-        final String mime = _parameter.getParameterValue("mime");
-        final TargetMode print = "xls".equalsIgnoreCase(mime) ? TargetMode.PRINT : TargetMode.VIEW;
+        if (_parameter.getParameterValue("columns") != null) {
+            final List<Map<String, String>> list = new ArrayList<>();
+            final Map<String, String> map = new HashMap<>();
+            final String mime = _parameter.getParameterValue("mime");
+            final TargetMode print = "xls".equalsIgnoreCase(mime) ? TargetMode.PRINT : TargetMode.VIEW;
 
-        final PageReference reference = (PageReference) Context.getThreadContext().getSessionAttribute(
-                        UserInterface_Base.UIOBJECT_CACHEKEY);
+            final PageReference reference = (PageReference) Context.getThreadContext().getSessionAttribute(
+                            UserInterface_Base.UIOBJECT_CACHEKEY);
 
-        final AbstractUIPageObject object = (AbstractUIPageObject) reference.getPage().getDefaultModelObject();
-        if (!print.equals(object.getMode())) {
-            object.resetModel();
-            object.setMode(print);
-            object.execute();
+            final AbstractUIPageObject object = (AbstractUIPageObject) reference.getPage().getDefaultModelObject();
+            if (!print.equals(object.getMode())) {
+                object.resetModel();
+                object.setMode(print);
+                object.execute();
+            }
+
+            final StringBuilder html = updateColumns(object);
+            final StringBuilder js = new StringBuilder();
+            js.append("document.getElementById('eFapsColumns4Report').innerHTML='").append(html).append("';");
+            map.put(EFapsKey.FIELDUPDATE_JAVASCRIPT.getKey(), js.toString());
+            list.add(map);
+
+            ret.put(ReturnValues.VALUES, list);
         }
-
-        final StringBuilder html = updateColumns(object);
-        final StringBuilder js = new StringBuilder();
-        js.append("document.getElementById('eFapsColumns4Report').innerHTML='").append(html).append("';");
-        map.put(EFapsKey.FIELDUPDATE_JAVASCRIPT.getKey(), js.toString());
-        list.add(map);
-
-        ret.put(ReturnValues.VALUES, list);
         return ret;
     }
 
     /**
      * Method to get the columns of the table.
      *
-     * @param uiObject with the data.
+     * @param _uiObject the ui object
      * @return StringBuilder
      */
-    public StringBuilder updateColumns(final AbstractUIPageObject uiObject)
+    public StringBuilder updateColumns(final AbstractUIPageObject _uiObject)
     {
         final StringBuilder html = new StringBuilder();
         List<UITableHeader> headers = null;
-        if (uiObject instanceof UITable) {
-            headers = ((UITable) uiObject).getHeaders();
-        } else if (uiObject instanceof UIStructurBrowser) {
-            headers = ((UIStructurBrowser) uiObject).getHeaders();
+        if (_uiObject instanceof UITable) {
+            headers = ((UITable) _uiObject).getHeaders();
+        } else if (_uiObject instanceof UIStructurBrowser) {
+            headers = ((UIStructurBrowser) _uiObject).getHeaders();
         }
         if (headers != null) {
             int i = 1;
