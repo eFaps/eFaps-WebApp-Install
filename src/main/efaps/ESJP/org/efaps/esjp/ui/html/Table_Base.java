@@ -19,7 +19,10 @@ package org.efaps.esjp.ui.html;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Stack;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
@@ -47,16 +50,33 @@ public abstract class Table_Base
     /** The css class. */
     private CharSequence cssClass;
 
+    /** The attributes. */
+    private final Map<String,String> attributes = new HashMap<>();
+
+    /**
+     * Adds the attribute.
+     *
+     * @param _key the key
+     * @param _value the value
+     * @return the table
+     */
+    public Table addAttribute(final String _key,
+                              final String _value)
+    {
+        this.attributes.put(_key, _value);
+        return (Table) this;
+    }
+
     /**
      * Adds the row.
      *
      * @return the table_ base
      */
-    public Table_Base addRow()
+    public Table addRow()
     {
         this.currentRow = new Row(this);
         this.rows.add(this.currentRow);
-        return this;
+        return (Table) this;
     }
 
     /**
@@ -87,10 +107,10 @@ public abstract class Table_Base
      *
      * @return the table_ base
      */
-    public Table_Base addColumn()
+    public Table addColumn()
     {
         addColumn(null);
-        return this;
+        return (Table) this;
     }
 
     /**
@@ -98,10 +118,10 @@ public abstract class Table_Base
      *
      * @return the table_ base
      */
-    public Table_Base addHeaderColumn()
+    public Table addHeaderColumn()
     {
         addHeaderColumn(null);
-        return this;
+        return (Table) this;
     }
 
     /**
@@ -120,10 +140,10 @@ public abstract class Table_Base
      * @param _innerHtml the inner html
      * @return the table_ base
      */
-    public Table_Base addColumn(final CharSequence _innerHtml)
+    public Table addColumn(final CharSequence _innerHtml)
     {
         getCurrentRow().addColumn(_innerHtml);
-        return this;
+        return (Table) this;
     }
 
     /**
@@ -133,12 +153,12 @@ public abstract class Table_Base
      * @param _style the style
      * @return the table_ base
      */
-    public Table_Base addColumn(final CharSequence _innerHtml,
-                                final CharSequence _style)
+    public Table addColumn(final CharSequence _innerHtml,
+                           final CharSequence _style)
     {
         getCurrentRow().addColumn(_innerHtml);
         getCurrentColumn().setStyle(_style);
-        return this;
+        return (Table) this;
     }
 
     /**
@@ -148,12 +168,12 @@ public abstract class Table_Base
      * @param _colSpan the col span
      * @return the table_ base
      */
-    public Table_Base addColumn(final CharSequence _innerHtml,
-                                final int _colSpan)
+    public Table addColumn(final CharSequence _innerHtml,
+                           final int _colSpan)
     {
         getCurrentRow().addColumn(_innerHtml);
         getCurrentColumn().setColSpan(_colSpan);
-        return this;
+        return (Table) this;
     }
 
     /**
@@ -164,14 +184,14 @@ public abstract class Table_Base
      * @param _colSpan the col span
      * @return the table_ base
      */
-    public Table_Base addColumn(final CharSequence _innerHtml,
-                                final CharSequence _style,
-                                final int _colSpan)
+    public Table addColumn(final CharSequence _innerHtml,
+                           final CharSequence _style,
+                           final int _colSpan)
     {
         getCurrentRow().addColumn(_innerHtml);
         getCurrentColumn().setColSpan(_colSpan);
         getCurrentColumn().setStyle(_style);
-        return this;
+        return (Table) this;
     }
 
     /**
@@ -180,10 +200,10 @@ public abstract class Table_Base
      * @param _innerHtml the inner html
      * @return the table_ base
      */
-    public Table_Base addHeaderColumn(final CharSequence _innerHtml)
+    public Table addHeaderColumn(final CharSequence _innerHtml)
     {
         getCurrentRow().addHeaderColumn(_innerHtml);
-        return this;
+        return (Table) this;
     }
 
     /**
@@ -193,12 +213,12 @@ public abstract class Table_Base
      * @param _style the style
      * @return the table_ base
      */
-    public Table_Base addHeaderColumn(final CharSequence _innerHtml,
-                                      final CharSequence _style)
+    public Table addHeaderColumn(final CharSequence _innerHtml,
+                                 final CharSequence _style)
     {
         getCurrentRow().addHeaderColumn(_innerHtml);
         getCurrentColumn().setStyle(_style);
-        return this;
+        return (Table) this;
     }
 
     /**
@@ -208,12 +228,12 @@ public abstract class Table_Base
      * @param _colSpan the col span
      * @return the table_ base
      */
-    public Table_Base addHeaderColumn(final CharSequence _innerHtml,
-                                      final int _colSpan)
+    public Table addHeaderColumn(final CharSequence _innerHtml,
+                                 final int _colSpan)
     {
         getCurrentRow().addHeaderColumn(_innerHtml);
         getCurrentColumn().setColSpan(_colSpan);
-        return this;
+        return (Table) this;
     }
 
     /**
@@ -224,14 +244,14 @@ public abstract class Table_Base
      * @param _colSpan the col span
      * @return the table_ base
      */
-    public Table_Base addHeaderColumn(final CharSequence _innerHtml,
-                                      final CharSequence _style,
-                                      final int _colSpan)
+    public Table addHeaderColumn(final CharSequence _innerHtml,
+                                 final CharSequence _style,
+                                 final int _colSpan)
     {
         getCurrentRow().addHeaderColumn(_innerHtml);
         getCurrentColumn().setColSpan(_colSpan);
         getCurrentColumn().setStyle(_style);
-        return this;
+        return (Table) this;
     }
 
     /**
@@ -244,6 +264,11 @@ public abstract class Table_Base
         final StringBuilder ret = new StringBuilder();
         prepare4html();
         ret.append("<table");
+
+        for (final Entry<String, String> entry : this.attributes.entrySet()) {
+            ret.append(" ").append(entry.getKey()).append("=\"").append(entry.getValue()).append("\"");
+        }
+
         if (getStyle() != null) {
             ret.append(" style=\"").append(getStyle()).append("\"");
         }
