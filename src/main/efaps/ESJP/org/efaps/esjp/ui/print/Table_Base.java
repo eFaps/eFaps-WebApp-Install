@@ -33,6 +33,7 @@ import java.util.Set;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.PageReference;
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.attributetype.BooleanType;
@@ -294,6 +295,9 @@ public abstract class Table_Base
                                                 ? uiField.getCompareValue() : uiField.getPickListValue();
                                 if (value instanceof DateTime) {
                                     value = ((DateTime) value).toDate();
+                                } else if (uiField.getFactoryKey().endsWith("DateUIFactory")
+                                                && value instanceof String && StringUtils.isEmpty((String) value)) {
+                                    value = null;
                                 }
                                 map.put(uiField.getFieldConfiguration().getName(), value);
                                 selAttr.put(uiField.getFieldConfiguration().getName(), null);
