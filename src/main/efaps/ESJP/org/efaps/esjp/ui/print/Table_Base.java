@@ -295,7 +295,8 @@ public abstract class Table_Base
                                                 ? uiField.getCompareValue() : uiField.getPickListValue();
                                 if (value instanceof DateTime) {
                                     value = ((DateTime) value).toDate();
-                                } else if (uiField.getFactoryKey().endsWith("DateUIFactory")
+                                } else if (uiField.getFactory() != null &&
+                                                uiField.getFactoryKey().endsWith("DateUIFactory")
                                                 && value instanceof String && StringUtils.isEmpty((String) value)) {
                                     value = null;
                                 }
