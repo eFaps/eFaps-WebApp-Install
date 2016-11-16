@@ -92,6 +92,8 @@ function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue, _fieldLa
                             // deactivate the onchange event
                             parentWidget.set('_onChangeActive', false);
                             parentWidget.set("item",{id: _fieldValue, name:_fieldLabel, label: _fieldLabel});
+                            parentWidget.set('_pendingOnChange', false);
+                            parentWidget.set('_lastValueReported', parentWidget.get('value'));
                             // reactivate the onchange event
                             parentWidget.set('_onChangeActive',true);
                         } else if (parentWidget.isInstanceOf(AutoTokenInput)) {
@@ -102,6 +104,8 @@ function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue, _fieldLa
                             } else {
                                 parentWidget.clear();
                             }
+                            parentWidget.set('_pendingOnChange', false);
+                            parentWidget.set('_lastValueReported', parentWidget.get('value'));
                             // reactivate the onchange event
                             parentWidget.set('_onChangeActive', true);
                        }
