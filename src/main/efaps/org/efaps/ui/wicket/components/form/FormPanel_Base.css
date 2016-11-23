@@ -264,3 +264,20 @@ SELECT {
     margin-bottom: 20px;
     width: calc(100vw - 38px)
 }
+
+.groupByFilter ol {
+    border-color: lightgray;
+    border-style: solid;
+    border-width: thin;
+    min-height: 40px;
+    min-width: 100px;
+}
+
+.groupByContainer {
+    float: left;
+    margin-right: 20px;
+}
+
+.groupByContainer h3 {
+    font-size: 100%;
+}
