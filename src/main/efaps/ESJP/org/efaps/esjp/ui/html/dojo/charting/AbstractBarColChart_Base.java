@@ -51,14 +51,18 @@ public abstract class AbstractBarColChart_Base <T extends AbstractData<T>, S ext
     /** The highlight. */
     private boolean highlight = true;
 
+    public AbstractBarColChart_Base()
+    {
+        addPlot(new Plot());
+    }
+
+
     @Override
     protected void initialize()
     {
         super.initialize();
 
-        final Plot plot = new Plot();
-        configurePlot(plot);
-        addPlot(plot);
+        configurePlot((Plot) getPlots().get("default"));
 
         if (isHighlight()) {
             addModule("dojox/charting/action2d/Highlight", "Highlight");

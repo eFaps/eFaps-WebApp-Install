@@ -68,12 +68,14 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
     /** The max. */
     private Integer max;
 
+    /** The minor ticks. */
+    private boolean minorTicks = true;
+
     /**
      * "getThis" trick.
      * @return this
      */
     protected abstract T getThis();
-
 
     /**
      * Adds the JS.
@@ -92,7 +94,6 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
         _js.append(configjs.length() > 0 ? ("," + configjs) : "")
             .append(");\n");
     }
-
 
     /**
      * Gets the config JS.
@@ -119,6 +120,9 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
         }
         if(getMax() != null) {
             confMap.put("max", getMax());
+        }
+        if(!isMinorTicks()) {
+            confMap.put("minorTicks", false);
         }
         return Util.mapToObjectList(confMap);
     }
@@ -291,6 +295,27 @@ public abstract class Axis_Base<T extends Axis_Base<T>>
     public T setMax(final Integer _max)
     {
         this.max = _max;
+        return getThis();
+    }
+
+    /**
+     * Checks if is minor ticks.
+     *
+     * @return the minor ticks
+     */
+    public boolean isMinorTicks()
+    {
+        return this.minorTicks;
+    }
+
+    /**
+     * Sets the minor ticks.
+     *
+     * @param _minorTicks the new minor ticks
+     */
+    public T setMinorTicks(final boolean _minorTicks)
+    {
+        this.minorTicks = _minorTicks;
         return getThis();
     }
 

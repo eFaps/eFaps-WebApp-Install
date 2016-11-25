@@ -43,11 +43,14 @@ public abstract class Data_Base<S extends AbstractData_Base<S>>
         if (this.simple) {
             ret.append(getYValue());
         } else {
-            addConfig("x", getXValue());
-            addConfig("y", getYValue());
+            if (getXValue() != null) {
+                addConfig("x", getXValue());
+            }
+            if (getYValue() != null) {
+                addConfig("y", getYValue());
+            }
             ret.append(getConfigJS());
         }
-
         return ret;
     }
 
