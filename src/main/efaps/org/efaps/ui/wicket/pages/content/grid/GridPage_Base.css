@@ -28,3 +28,19 @@ div.gridxBar {
 .gridxHeader .dijitMenuBar {
     border: none;
 }
+
+.gridxHeader .gridxFilterBarStatus {
+	height: 16px;
+}
+
+.gridxMain .gridxBody {
+	white-space: pre-line;
+}
+
+.gridxMain .gridxBody.eFapsNoWrap {
+    white-space: nowrap;
+}
+
+.gridxRow .gridxRowTable .gridxCell {
+    text-overflow: ellipsis;
+}
