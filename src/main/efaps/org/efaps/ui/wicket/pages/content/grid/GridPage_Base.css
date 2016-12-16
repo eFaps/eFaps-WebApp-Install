@@ -44,3 +44,13 @@ div.gridxBar {
 .gridxRow .gridxRowTable .gridxCell {
     text-overflow: ellipsis;
 }
+
+.eFapsFiltered .gridxSortNode::before {
+    content: url("../../servlet/image/org.efaps.ui.wicket.components.table.header.FilterActive.gif");
+}
+
+.eFapsListFilter label::after {
+    content: "\A";
+    white-space: pre;
+}
+
