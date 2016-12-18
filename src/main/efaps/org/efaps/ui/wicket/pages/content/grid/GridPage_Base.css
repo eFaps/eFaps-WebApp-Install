@@ -54,3 +54,15 @@ div.gridxBar {
     white-space: pre;
 }
 
+.gridxQuickFilterInput {
+    border-radius: 4px;
+}
+.gridxQuickFilterInput .dijitInputInner {
+    height: 21px;
+}
+
+.gridxQuickFilterInput .dijitInputField {
+    font-size: 12pt;
+    top: 1px;
+    left: 1px;
+}
