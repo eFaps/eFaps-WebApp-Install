@@ -30,11 +30,11 @@ div.gridxBar {
 }
 
 .gridxHeader .gridxFilterBarStatus {
-	height: 16px;
+    height: 16px;
 }
 
 .gridxMain .gridxBody {
-	white-space: pre-line;
+    white-space: pre-line;
 }
 
 .gridxMain .gridxBody.eFapsNoWrap {
@@ -66,3 +66,23 @@ div.gridxBar {
     top: 1px;
     left: 1px;
 }
+
+.gridConfig .dijitDisabled {
+    cursor: pointer;
+}
+
+.eFapsMenuIcon {
+    background-repeat: no-repeat;
+    width: 18px;
+    height: 18px;
+    text-align: center;
+}
+
+.eFapsMenuIconPDF {
+    background-image: url("../../servlet/image/Document_PDF");
+}
+
+.eFapsMenuIconXLS {
+    background-image: url("../../servlet/image/Document_Excel");
+}
+

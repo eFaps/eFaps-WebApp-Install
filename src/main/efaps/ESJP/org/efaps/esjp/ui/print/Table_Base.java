@@ -127,15 +127,7 @@ public abstract class Table_Base
                 mime = _parameter.getParameterValue("mime");
             }
             setFileName(((AbstractUIPageObject) object).getTitle());
-            if (object instanceof UITable && ((UITable) object).isGrid()) {
-                try {
-                    final JasperReportBuilder jrb = execute4GridX(_parameter, (UITable) object, mime);
-                    ret.put(ReturnValues.VALUES, super.getFile(jrb.toJasperPrint(), mime));
-                    ret.put(ReturnValues.TRUE, true);
-                } catch (final IOException | JRException | DRException e) {
-                    throw new EFapsException(Table_Base.class, "GRIDX", e);
-                }
-            } else if (object instanceof UITable || object instanceof UIStructurBrowser) {
+            if (object instanceof UITable || object instanceof UIStructurBrowser) {
                 try {
                     final JasperReportBuilder jrb = execute4Table(_parameter, (AbstractUIPageObject) object, mime);
                     ret.put(ReturnValues.VALUES, super.getFile(jrb.toJasperPrint(), mime));
@@ -151,90 +143,6 @@ public abstract class Table_Base
                 Table_Base.LOG.error("Not implemented!");
             }
         }
-        return ret;
-    }
-
-    /**
-     * Execute for gridx.
-     *
-     * @param _parameter Parameter as passed by the eFaps API
-     * @param _uiTable the ui table
-     * @param _mime the mime
-     * @return the jasper report builder
-     * @throws EFapsException on error
-     */
-    protected JasperReportBuilder execute4GridX(final Parameter _parameter,
-                                                final UITable _uiTable,
-                                                final String _mime)
-        throws EFapsException
-    {
-        final JasperReportBuilder ret = getBuilder(_parameter, _uiTable, _mime);
-        final String[] oidArr = (String[]) Context.getThreadContext().getSessionAttribute("selectedOIDs4print");
-        final Set<String> oids = ArrayUtils.isEmpty(oidArr) ? SetUtils.emptySet()
-                        : new HashSet<>(Arrays.asList(oidArr));
-        final String[] visibles = _parameter.getParameterValues("visibleRow");
-        final String[] columns = _parameter.getParameterValues("column");
-        final boolean isPdf = "pdf".equalsIgnoreCase(_mime);
-
-        final List<Map<String, Object>> values = new ArrayList<>();
-        if (ArrayUtils.isNotEmpty(visibles)) {
-            final List<UIRow> uirows = _uiTable.getValues();
-            final UIRow[] rowsArray = uirows.toArray(new UIRow[uirows.size()]);
-            for (final String visible : visibles) {
-                final UIRow row = rowsArray[Integer.valueOf(visible)];
-                if (CollectionUtils.isEmpty(oids) || oids.contains(row.getInstance().getOid())) {
-                    final Map<String, Object> map = new HashMap<>();
-                    values.add(map);
-                    for (final String column : columns) {
-                        for (final IFilterable cell : row.getCells()) {
-                            if (cell.belongsTo(Long.valueOf(column))) {
-                                if (cell instanceof UIField) {
-                                    final UIField uiField = (UIField) cell;
-                                    Object value = isPdf ? uiField.getPickListValue()
-                                                    : (uiField.getCompareValue() != null
-                                                        ? uiField.getCompareValue() : uiField.getPickListValue());
-                                    if (value instanceof DateTime) {
-                                        value = ((DateTime) value).toDate();
-                                    }
-                                    map.put(uiField.getFieldConfiguration().getName(), value);
-                                }
-                                break;
-                            }
-                        }
-                    }
-                }
-            }
-            for (final String column : columns) {
-                for (final UITableHeader header: _uiTable.getHeaders()) {
-                    if (Long.valueOf(column) == header.getFieldId()) {
-                        final TextColumnBuilder<?> cb = getColumnBuilder4Values(values, header);
-                        if (isPdf) {
-                            final StyleBuilder colStyle = getStyle(_parameter, Section.COLUMN);
-                            if ("right".equalsIgnoreCase(header.getFieldConfig().getAlign())) {
-                                colStyle.setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT);
-                            }
-                            cb.setStyle(colStyle)
-                                .setTitleStyle(getStyle(_parameter, Section.COLUMNHEADER));
-                        }
-                        ret.addColumn(cb);
-                        break;
-                    }
-                }
-            }
-        }
-
-        if (isPdf) {
-            ret.setPageMargin(DynamicReports.margin(20))
-                .setPageFormat(PageType.A4, PageOrientation.LANDSCAPE)
-                .setColumnHeaderStyle(getStyle(_parameter, Table_Base.Section.COLUMNHEADER))
-                .highlightDetailEvenRows()
-                .pageFooter(DynamicReports.cmp.pageXofY().setStyle(DynamicReports.stl.style()
-                            .setHorizontalTextAlignment(HorizontalTextAlignment.CENTER)));
-        } else {
-            ret.setIgnorePagination(true)
-                .setPageMargin(DynamicReports.margin(0));
-        }
-        ret.setLocale(Context.getThreadContext().getLocale()).setDataSource(getSource(_parameter, values));
         return ret;
     }
 
