@@ -21,7 +21,6 @@ import java.awt.Color;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,8 +29,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.collections4.SetUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.wicket.PageReference;
@@ -50,8 +47,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.db.Context;
-import org.efaps.esjp.common.util.InterfaceUtils;
-import org.efaps.esjp.common.util.InterfaceUtils_Base.DojoLibs;
 import org.efaps.ui.wicket.models.field.AbstractUIField;
 import org.efaps.ui.wicket.models.field.IFilterable;
 import org.efaps.ui.wicket.models.field.UIField;
@@ -490,55 +485,6 @@ public abstract class Table_Base
                 }
             }
         }
-        return ret;
-    }
-
-    /**
-     * Check access for grid X.
-     *
-     * @param _parameter Parameter as passed by the eFaps API
-     * @return the return
-     * @throws EFapsException on error
-     */
-    public Return getScript4Gridx(final Parameter _parameter)
-        throws EFapsException
-    {
-        final Return ret = new Return();
-        final StringBuilder js = new StringBuilder()
-                        .append("var fr = top.frames['eFapsContentFrame'];\n")
-                        .append("if (typeof fr != 'undefined') {\n")
-                        .append("var freg = fr.contentWindow.dijit.registry;\n")
-                        .append("var grid = freg.byId('grid');\n")
-                        .append("if (typeof grid != 'undefined') {\n")
-                        .append("query(dom.byId('eFapsColumns4Report')).parents('.eFapsFormRow')")
-                            .append(".forEach(function (node) {\n")
-                        .append(" domConstruct.destroy(node);\n")
-                        .append("});\n")
-                        .append("var form = query(\"form\")[0]\n")
-
-                        .append("for (i = 0; i < grid.rowCount(); i++) {\n")
-                        .append("domConstruct.create('input', {\n")
-                        .append("type: 'hidden',\n")
-                        .append("name:'visibleRow',\n")
-                        .append("value: grid.row(i).id\n")
-                        .append("},form);\n")
-                        .append("}\n")
-
-                        .append("array.forEach(grid._columns, function(item) {\n")
-                        .append("domConstruct.create('input', {\n")
-                        .append("type: 'hidden',\n")
-                        .append("name:'column',\n")
-                        .append("value: item.id\n")
-                        .append("},form);\n")
-                        .append("});\n")
-
-                        .append("}\n")
-                        .append("}\n");
-
-        ret.put(ReturnValues.SNIPLETT, InterfaceUtils.wrappInScriptTag(_parameter,
-                        InterfaceUtils.wrapInDojoRequire(_parameter, js, DojoLibs.QUERY, DojoLibs.DOM,
-                                        DojoLibs.REGISTRY, DojoLibs.DOMCONSTRUCT, DojoLibs.NLTRAVERSE, DojoLibs.ARRAY),
-                        true, 100).toString());
         return ret;
     }
 
