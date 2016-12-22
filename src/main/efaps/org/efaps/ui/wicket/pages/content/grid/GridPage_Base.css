@@ -86,3 +86,7 @@ div.gridxBar {
     background-image: url("../../servlet/image/Document_Excel");
 }
 
+.eFapsMenuIconReload {
+    background-image: url("../../servlet/image/Admin_Common_ReloadCache");
+    background-size: 18px 18px;
+}
