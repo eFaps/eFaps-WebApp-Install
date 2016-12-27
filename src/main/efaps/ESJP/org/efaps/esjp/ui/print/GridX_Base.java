@@ -137,9 +137,14 @@ public abstract class GridX_Base
                 final TextColumnBuilder<String> col = DynamicReports.col.column(column.getLabel(), column
                                 .getFieldName(), String.class);
                 if ("right".equals(column.getFieldConfig().getAlign())) {
-                    final StyleBuilder rightStyle = DynamicReports.stl.style().setHorizontalTextAlignment(
-                                    HorizontalTextAlignment.RIGHT);
-                    col.setStyle(rightStyle);
+                    final StyleBuilder colStyle;
+                    if (ExportType.PDF.equals(getExType())) {
+                        colStyle = getColumnStyle4Pdf(_parameter);
+                    } else {
+                        colStyle = getColumnStyle4Excel(_parameter);
+                    }
+                    colStyle.setHorizontalTextAlignment(HorizontalTextAlignment.RIGHT);
+                    col.setStyle(colStyle);
                 }
                 _builder.addColumn(col);
             }
