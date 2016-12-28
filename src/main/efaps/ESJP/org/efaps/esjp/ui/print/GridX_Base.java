@@ -110,11 +110,13 @@ public abstract class GridX_Base
         final Object[] rows = uiGrid.getValues().toArray();
         final List<Map<String, ?>> values = new ArrayList<>();
         for (final String sr : srs) {
-            final Map<String, Object> map = new HashMap<>();
-            values.add(map);
-            final Row row = (Row) rows[Integer.parseInt(sr)];
-            for (final Cell cell : row) {
-                map.put(cell.getFieldConfig().getName(), cell.getValue());
+            if (!sr.isEmpty()) {
+                final Map<String, Object> map = new HashMap<>();
+                values.add(map);
+                final Row row = (Row) rows[Integer.parseInt(sr)];
+                for (final Cell cell : row) {
+                    map.put(cell.getFieldConfig().getName(), cell.getValue());
+                }
             }
         }
         return new JRMapCollectionDataSource(values);
