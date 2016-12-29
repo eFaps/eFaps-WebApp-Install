@@ -22,6 +22,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.UUID;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.efaps.admin.common.SystemConfiguration;
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.Status;
@@ -167,7 +168,9 @@ public abstract class Evaluate_Base
                 }
             }
             if (!access) {
-                uiForm.setMode(TargetMode.PRINT);
+                final TargetMode targetMode = EnumUtils.getEnum(TargetMode.class, getProperty(_parameter, "TargetMode",
+                                "PRINT"));
+                uiForm.setMode(targetMode);
             }
         }
     }
