@@ -71,6 +71,11 @@ div.gridxBar {
     cursor: pointer;
 }
 
+.dijitToolbar.gridConfig {
+    background: none;
+    border: none;
+}
+
 .eFapsMenuIcon {
     background-repeat: no-repeat;
     width: 18px;
@@ -90,3 +95,8 @@ div.gridxBar {
     background-image: url("../../servlet/image/Admin_Common_ReloadCache");
     background-size: 18px 18px;
 }
+
+.gridx .eFapsCheckout  {
+    cursor: pointer;
+}
+
