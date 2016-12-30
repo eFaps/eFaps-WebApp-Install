@@ -100,3 +100,7 @@ div.gridxBar {
     cursor: pointer;
 }
 
+.efapsFormFilter {
+    font-size: 8pt;
+    overflow: auto;
+}
