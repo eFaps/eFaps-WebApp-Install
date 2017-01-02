@@ -39,6 +39,8 @@ import org.efaps.ui.wicket.models.objects.UIGrid.Cell;
 import org.efaps.ui.wicket.models.objects.UIGrid.Column;
 import org.efaps.ui.wicket.models.objects.UIGrid.Row;
 import org.efaps.util.EFapsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import net.sf.dynamicreports.jasper.builder.JasperReportBuilder;
 import net.sf.dynamicreports.report.builder.DynamicReports;
@@ -61,6 +63,10 @@ public abstract class GridX_Base
     extends AbstractDynamicReport
     implements EventExecution
 {
+    /**
+     * Logger for this class.
+     */
+    public static final Logger LOG = LoggerFactory.getLogger(GridX.class);
 
     @Override
     public Return execute(final Parameter _parameter)
