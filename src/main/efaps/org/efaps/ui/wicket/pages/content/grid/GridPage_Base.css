@@ -102,6 +102,24 @@ div.gridxBar {
 }
 
 
+.eFapsDropDownIconLockColumns {
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.pages.content.grid.lockColumns");
+    background-size: 18px 18px;
+}
+
+.eFapsMenuIconLockColumns {
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.pages.content.grid.lock");
+    background-size: 18px 18px;
+}
+
+.eFapsMenuIconUnlockColumns {
+    background-image: url("../../servlet/image/org.efaps.ui.wicket.pages.content.grid.unlock");
+    background-size: 18px 18px;
+}
+
+
+
+
 .gridx .eFapsCheckout  {
     cursor: pointer;
 }

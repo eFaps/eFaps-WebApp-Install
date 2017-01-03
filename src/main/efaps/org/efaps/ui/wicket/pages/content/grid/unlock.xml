@@ -15,19 +15,19 @@
   limitations under the License.
 
   Original Author: Mark James (mjames at gmail.com)
-  Original Name:   1483418498_table_select_column.png
+  Original Name:   1483427309_lock_delete.png
   Original Web:    Iconfinder , Iconset: fatcow
                    [ www.iconfinder.com ]
   Original License:Creative Commons Attribution 3.0 License
                    [ http://creativecommons.org/licenses/by/3.0/ ]
 -->
 <ui-image xmlns="http://www.efaps.org/xsd" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
-    <uuid>7d33c961-f223-4d22-8457-3d099b793010</uuid>
+    xsi:schemaLocation="http://www.efaps.org/xsd http://www.efaps.org/xsd/eFaps_1.0.xsd">
+    <uuid>240371e3-6bf2-4d5e-a581-d801fd82da2d</uuid>
     <file-application>eFaps-WebApp</file-application>
     <definition>
         <version-expression>(version==latest)</version-expression>
-        <name>org.efaps.ui.wicket.pages.content.grid.columns</name>
-        <file>columns.png</file>
+        <name>org.efaps.ui.wicket.pages.content.grid.unlock</name>
+        <file>unlock.png</file>
     </definition>
 </ui-image>
