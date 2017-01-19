@@ -116,7 +116,7 @@ function eFapsSetFieldValue(_referenceIdOrIdx, _fieldName, _fieldValue, _fieldLa
                             || fields[cp].nodeName == 'SELECT') {
                         var typeStr = domAttr.get(fields[cp], "type");
                         if ("radio" == typeStr || "checkbox" == typeStr) {
-                             query("input[name=" + _fieldName + "][value=" + _fieldValue + "]").forEach(function(node) {
+                             query("input[name=\'" + _fieldName + "\'][value=\'" + _fieldValue + "\']").forEach(function(node) {
                                  domAttr.set(node, "checked", true);
                              });
                         } else {
