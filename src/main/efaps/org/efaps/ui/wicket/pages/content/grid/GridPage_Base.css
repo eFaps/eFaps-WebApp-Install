@@ -21,6 +21,10 @@
  * @eFapsApplication eFaps-WebApp
  */
 
+div.gridx.gridxDesktop {
+    height: 800px;
+}
+
 div.gridxBar {
     background: #f7f7f7;
 }
