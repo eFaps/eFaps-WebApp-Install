@@ -133,16 +133,23 @@ div.gridxBar {
     overflow: auto;
 }
 
-.gridSum {
+.gridAggregate {
     height: 20px;
 }
 
-.gridSum .gridxCell {
+.gridAggregate .gridxCell {
     border-width: 1px;
     border-style: solid;
     border-color: transparent #ccc transparent transparent;
     padding: 3px;
-    text-align: left;
+    text-align: right;
     overflow: hidden;
+}
+
+.gridAggregateInner {
+    overflow: hidden;
+    border-style: solid;
+    border-color: #ccc;
+    border-width: 0 1px 0 0;
 }
 
