@@ -132,3 +132,17 @@ div.gridxBar {
     font-size: 8pt;
     overflow: auto;
 }
+
+.gridSum {
+    height: 20px;
+}
+
+.gridSum .gridxCell {
+    border-width: 1px;
+    border-style: solid;
+    border-color: transparent #ccc transparent transparent;
+    padding: 3px;
+    text-align: left;
+    overflow: hidden;
+}
+
