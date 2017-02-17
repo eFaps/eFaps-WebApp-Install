@@ -121,9 +121,6 @@ div.gridxBar {
     background-size: 18px 18px;
 }
 
-
-
-
 .gridx .eFapsCheckout  {
     cursor: pointer;
 }
@@ -153,3 +150,15 @@ div.gridxBar {
     border-width: 0 1px 0 0;
 }
 
+.eFapsFormFilterBtn {
+    bottom: 0px;
+    width: 100%;
+    display: flex;
+    padding-top: 5px;
+    padding-bottom: 5px;
+}
+
+.eFapsFormFilterBtn a {
+    margin-left: auto;
+    margin-right: auto;
+}
