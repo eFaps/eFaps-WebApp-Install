@@ -436,3 +436,10 @@ form.eFapsSearchForm button:focus {
     position: relative;
 }
 
+div.help {
+    margin: 20px;
+    min-width: 200px;
+    display: block;
+    position: relative;
+    min-height: 200px;
+}
