@@ -438,8 +438,4 @@ form.eFapsSearchForm button:focus {
 
 div.help {
     margin: 20px;
-    min-width: 200px;
-    display: block;
-    position: relative;
-    min-height: 200px;
 }
