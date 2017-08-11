@@ -42,3 +42,18 @@
     line-height: 30px;
     margin-left: 5px;
 }
+
+.eFapsSlideIn .circle {
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    background-color: #a79292;
+    border-radius: 50%;
+    line-height: 30px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    border-color: #454447;
+    border-width: 1px;
+    border-style: solid;
+}
