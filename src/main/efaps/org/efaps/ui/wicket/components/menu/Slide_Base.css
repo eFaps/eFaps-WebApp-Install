@@ -33,6 +33,7 @@
 }
 
 .eFapsSlideIn .menueentry .title {
+    cursor: pointer;
     height: 30px;
     display: flex;
     width: 180px;
@@ -57,3 +58,45 @@
     border-width: 1px;
     border-style: solid;
 }
+
+
+.eFapsSlideIn .circle.A {
+    background-color: #40696299;
+    color: black;
+}
+
+.eFapsSlideIn .circle.C {
+    background-color: #000000b3;
+    color: white;
+}
+
+.eFapsSlideIn .circle.P {
+    background-color: #6e6e8a99;
+    color: black;
+}
+
+.eFapsSlideIn .closed::after {
+    content: "\21e7";
+    position: relative;
+    right: 2px;
+    color: grey;
+    transition: all;
+    transition-duration: 0.6s;
+    font-size: 14pt;
+    top: 4px;
+    left: 2px;
+}
+
+.eFapsSlideIn .open::after {
+    content: "\21e7";
+    position: relative;
+    right: 2px;
+    color: grey;
+    transform: rotate(180deg);
+    transition: all;
+    transition-duration: 0.6s;
+    font-size: 14pt;
+    top: -4px;
+    left: 2px;
+}
+
