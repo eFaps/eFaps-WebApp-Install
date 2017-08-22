@@ -100,3 +100,40 @@
     left: 2px;
 }
 
+#slideinCollapse {
+    display: block;
+    height: 30px;
+    cursor: pointer;
+}
+
+#slideinCollapse.collapse::before {
+    background-color: red;
+    height: 30px;
+    width: 30px;
+    position: absolute;
+    display: block;
+    content: "\21ef";
+    font-size: 22pt;
+    border-radius: 50%;
+    left: 5px;
+    text-align: center;
+    transform: rotate(-90deg);
+    transition: all;
+    transition-duration: 0.6s;
+}
+
+#slideinCollapse.expand::before {
+    background-color: red;
+    height: 30px;
+    width: 30px;
+    position: absolute;
+    display: block;
+    content: "\21ef";
+    font-size: 22pt;
+    border-radius: 50%;
+    left: 5px;
+    text-align: center;
+    transform: rotate(90deg);
+    transition: all;
+    transition-duration: 0.6s;
+}
