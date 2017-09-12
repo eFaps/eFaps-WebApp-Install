@@ -360,7 +360,7 @@ form.eFapsSearchForm button:focus {
     z-index: 20;
 }
 
-.searchOverlay {
+.searchOverlay, .preferencesOverlay {
     background-color: rgba(245, 245, 245, 0.7);
     display: block;
     height: 100%;
