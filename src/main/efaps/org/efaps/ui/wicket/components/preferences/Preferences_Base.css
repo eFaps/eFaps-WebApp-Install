@@ -1,0 +1,53 @@
+/*
+ * Copyright 2003 - 2017 The eFaps Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+/*
+ * @eFapsPackage  org.efaps.ui.wicket.components.preferences
+ * @eFapsUUID     5d1c98de-c776-4ec5-bcfa-90c27fa60344
+ * @eFapsApplication eFaps-WebApp
+ */
+
+.eFapsPreferences .mblSwitch {
+    float: right;
+}
+
+.eFapsPreferences .mblSwitch,
+.eFapsPreferences .mblSwitch .mblSwitchInner,
+.eFapsPreferences .mblSwitch .mblSwitchInner .mblSwitchBg,
+.eFapsPreferences .mblSwitch .mblSwitchInner .mblSwitchKnob,
+.eFapsPreferences .mblSwitch .mblSwitchInner .mblSwitchText
+{
+    height: 20px;
+    line-height: 20px;
+}
+
+.eFapsPreferences .mblSwDefaultShape .mblSwitchBg {
+    border-radius: 10px;
+}
+
+.eFapsPreferences .mblSwDefaultShape .mblSwitchKnob {
+    width: 20px;
+}
+
+.eFapsPreferences form > div {
+    height: 25px;
+    border-bottom: 1px solid lightgray;
+    margin-bottom: 5px;
+}
+.eFapsPreferences form > div > label {
+    display: inline-block;
+    vertical-align: middle;
+}
