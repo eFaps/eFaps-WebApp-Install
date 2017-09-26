@@ -180,5 +180,6 @@
     top: 10px;
     vertical-align: middle;
     position: relative;
-    right: 5px;
+    right: calc(50% - 20px);
+    font-size: 15px;
 }
