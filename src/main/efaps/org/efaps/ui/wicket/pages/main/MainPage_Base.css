@@ -229,6 +229,15 @@ form.eFapsSearchForm {
     text-align: center;
 }
 
+.eFapsSearch.slideinSearch {
+    left: unset;
+    right: 11px;
+    margin-left: unset;
+    position: absolute;
+    top: 4px;
+    width: unset;
+}
+
 .resulttable .eFapsLink {
     background-image: url("../../servlet/image/org.efaps.ui.wicket.pages.content.information.png");
     background-repeat: no-repeat;
@@ -312,10 +321,23 @@ form.eFapsSearchForm input {
     z-index: 20;
 }
 
+.slideinSearch > form.eFapsSearchForm input {
+    font-size: 10pt;
+    height: 18px;
+    width: 85px;
+}
+
 form.eFapsSearchForm input:focus {
     border-color: #aaa;
     box-shadow: 0 1px 1px #bbb inset;
     outline: 0 none;
+}
+
+.slideinSearch > form.eFapsSearchForm input:focus {
+    font-size: 12pt;
+    height: 23px;
+    width: unset;
+    transition: width .35s ease-in-out;
 }
 
 form.eFapsSearchForm button {
@@ -334,6 +356,14 @@ form.eFapsSearchForm button {
     text-decoration: none;
     position: relative;
     z-index: 20;
+}
+
+.slideinSearch > form.eFapsSearchForm button {
+    font-size: 10pt;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 4px;
+    padding-right: 4px;
 }
 
 form.eFapsSearchForm button:hover {
