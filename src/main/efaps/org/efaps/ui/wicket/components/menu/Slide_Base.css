@@ -183,3 +183,25 @@
     right: calc(50% - 20px);
     font-size: 15px;
 }
+
+.eFapsSlideIn .icon {
+    height: 35px;
+    width: 35px;
+}
+
+.eFapsSlideIn .icon-color {
+    fill: #036c35;
+}
+
+.eFapsSlideIn .icon-background, .eFapsSlideIn .icon-border {
+    display: none
+}
+
+.eFapsSlideIn .icon:hover .icon-border {
+    display: unset;
+}
+
+.eFapsSlideIn .icon:hover .icon-background {
+    display: unset;
+    fill: #c3cf92;
+}
