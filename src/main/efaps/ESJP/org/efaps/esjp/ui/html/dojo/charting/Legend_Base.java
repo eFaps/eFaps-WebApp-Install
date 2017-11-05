@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2016 The eFaps Team
+ * Copyright 2003 - 2017 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -21,9 +21,9 @@ package org.efaps.esjp.ui.html.dojo.charting;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.util.RandomUtil;
 
 
 /**
@@ -40,7 +40,7 @@ public abstract class Legend_Base<S extends Legend_Base<S>>
     private boolean vertical = false;
 
     /** The config map. */
-    private final Map<String, Object> configMap = new LinkedHashMap<String, Object>();
+    private final Map<String, Object> configMap = new LinkedHashMap<>();
 
     /** The node id. */
     private String nodeId;
@@ -98,7 +98,7 @@ public abstract class Legend_Base<S extends Legend_Base<S>>
     public String getNodeId()
     {
         if (this.nodeId == null) {
-            this.nodeId = RandomStringUtils.randomAlphabetic(8);
+            this.nodeId = RandomUtil.randomAlphabetic(8);
         }
         return this.nodeId;
     }

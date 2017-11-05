@@ -23,10 +23,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringEscapeUtils;
+import org.apache.commons.text.StringEscapeUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.util.RandomUtil;
 
 
 /**
@@ -345,7 +345,7 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
     public String getChartNodeId()
     {
         if (this.chartNodeId == null) {
-            this.chartNodeId = RandomStringUtils.randomAlphabetic(8);
+            this.chartNodeId = RandomUtil.randomAlphabetic(8);
         }
         return this.chartNodeId;
     }

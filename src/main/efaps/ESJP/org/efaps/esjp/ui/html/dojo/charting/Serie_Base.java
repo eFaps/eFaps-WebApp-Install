@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2016 The eFaps Team
+ * Copyright 2003 - 2017 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -23,9 +23,9 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.apache.commons.lang3.RandomStringUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.util.RandomUtil;
 
 
 /**
@@ -119,7 +119,7 @@ public abstract class Serie_Base<T extends AbstractData<T>, S extends Serie_Base
     public String getName()
     {
         if (this.name == null) {
-            this.name = RandomStringUtils.randomAlphabetic(8);
+            this.name = RandomUtil.randomAlphabetic(8);
         }
         return this.name;
     }
