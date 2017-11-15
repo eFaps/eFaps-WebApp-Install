@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2016 The eFaps Team
+ * Copyright 2003 - 2017 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -129,8 +129,8 @@ public abstract class GridX_Base
     }
 
     @Override
-    protected void addColumnDefintion(final Parameter _parameter,
-                                      final JasperReportBuilder _builder)
+    protected void addColumnDefinition(final Parameter _parameter,
+                                       final JasperReportBuilder _builder)
         throws EFapsException
     {
         final UIGrid uiGrid = (UIGrid) _parameter.get(ParameterValues.CLASS);
