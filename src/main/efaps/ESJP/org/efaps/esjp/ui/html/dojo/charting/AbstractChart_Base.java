@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2016 The eFaps Team
+ * Copyright 2003 - 2017 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,17 +15,22 @@
  *
  */
 
-
 package org.efaps.esjp.ui.html.dojo.charting;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.text.StringEscapeUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.ui.wicket.util.DojoClass;
+import org.efaps.ui.wicket.util.DojoClasses;
+import org.efaps.ui.wicket.util.DojoWrapper;
 import org.efaps.util.RandomUtil;
 
 
@@ -38,18 +43,14 @@ import org.efaps.util.RandomUtil;
 @EFapsApplication("eFaps-WebApp")
 public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends AbstractChart_Base<T,S>>
 {
-
-    /** The modules. */
-    private final Map<CharSequence, String> modules = new LinkedHashMap<>();
+    /** The clazzes. */
+    private final Set<DojoClass> dojoClasses = new HashSet<>();
 
     /** The plots. */
     private final Map<String, Plot_Base<?>> plots = new LinkedHashMap<>();
 
     /** The orientation. */
     private Orientation orientation = Orientation.VERTICAL_CHART_LEGEND;
-
-    /** The theme. */
-    private Theme theme = Theme.JULIE;
 
     /** The legend. */
     private Legend legend = new Legend();
@@ -87,17 +88,15 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
     protected void initialize()
     {
         this.initialized = true;
-        addModule("dojox/charting/Chart", "Chart");
-        addModule(getTheme().getAmd(), "theme");
-
+        addDojoClass(DojoClasses.Tooltip, DojoClasses.Julie, DojoClasses.Chart, DojoClasses.registry,
+                        DojoClasses.domReady);
         if (getLegend() != null) {
             if (getLegend().isSelectable()) {
-                addModule("dojox/charting/widget/SelectableLegend", "Legend");
+                addDojoClass(DojoClasses.SelectableLegend);
             } else {
-                addModule("dojox/charting/widget/Legend", "Legend");
+                addDojoClass(DojoClasses.Legend);
             }
         }
-        addModule("dojox/charting/action2d/Tooltip", "Tooltip");
     }
 
     /**
@@ -127,6 +126,15 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
     }
 
     /**
+     * Adds the dojo class.
+     *
+     * @param _dojoClasses the dojo classes to add
+     */
+    protected void addDojoClass(final DojoClass... _dojoClasses) {
+        CollectionUtils.addAll( this.dojoClasses, _dojoClasses);
+    }
+
+    /**
      * Adds the css.
      *
      * @param _js the _js
@@ -141,36 +149,17 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
     /**
      * Adds the java script.
      *
-     * @param _js the _js
+     * @param _html the _html
      */
-    protected void addJavaScript(final StringBuilder _js)
+    protected void addJavaScript(final StringBuilder _html)
     {
-        // to be sure that it is the last module, add now
-        addModule("dijit/registry", "registry");
-        addModule("dojo/domReady!", null);
-
-        _js.append("require(").append(Util.collectionToObjectArray(this.modules.keySet())).append(", ")
-            .append("function(");
-        boolean first = true;
-        for (final String para : this.modules.values()) {
-            if (first) {
-                first = false;
-                _js.append(para);
-            } else if (para != null) {
-                _js.append(",").append(para);
-            }
-        }
-        _js.append(")")
-            .append(" { \n")
-            .append(" if(typeof registry.byId('").append(getChartNodeId()).append("') != \"undefined\"){\n")
+        final StringBuilder js = new StringBuilder();
+        addFunctionJS(js);
+        js.append(" if(typeof registry.byId('").append(getChartNodeId()).append("') != \"undefined\"){\n")
             .append("    registry.byId('").append(getChartNodeId()).append("').destroyRecursive();\n")
             .append(" }");
-
-        addFunctionJS(_js);
-
-        _js.append(" });");
+        _html.append(DojoWrapper.require(js, getDojoClasses().toArray(new DojoClass[getDojoClasses().size()])));
     }
-
 
     /**
      * Adds the function js.
@@ -338,6 +327,16 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
     }
 
     /**
+     * Gets the clazzes.
+     *
+     * @return the clazzes
+     */
+    public Set<DojoClass> getDojoClasses()
+    {
+        return this.dojoClasses;
+    }
+
+    /**
      * Getter method for the instance variable {@link #charNodeId}.
      *
      * @return value of instance variable {@link #charNodeId}
@@ -419,27 +418,6 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
     public S addSerie(final Serie<T> _serie)
     {
         this.series.add(_serie);
-        return getThis();
-    }
-
-    /**
-     * Getter method for the instance variable {@link #theme}.
-     *
-     * @return value of instance variable {@link #theme}
-     */
-    public Theme getTheme()
-    {
-        return this.theme;
-    }
-
-    /**
-     * Setter method for instance variable {@link #theme}.
-     *
-     * @param _theme value for instance variable {@link #theme}
-     */
-    public S setTheme(final Theme _theme)
-    {
-        this.theme = _theme;
         return getThis();
     }
 
@@ -530,12 +508,6 @@ public abstract class AbstractChart_Base<T extends AbstractData<T>, S extends Ab
     {
         this.titlePos = _titlePos;
         return getThis();
-    }
-
-    protected void addModule(final String _module,
-                                              final String _var)
-    {
-        this.modules.put("\"" + _module + "\"", _var);
     }
 
     /**

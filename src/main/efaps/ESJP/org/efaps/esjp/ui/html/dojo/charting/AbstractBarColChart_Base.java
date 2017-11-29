@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2016 The eFaps Team
+ * Copyright 2003 - 2017 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,6 +20,7 @@ package org.efaps.esjp.ui.html.dojo.charting;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.ui.wicket.util.DojoClasses;
 
 /**
  * TODO comment!.
@@ -56,7 +57,6 @@ public abstract class AbstractBarColChart_Base <T extends AbstractData<T>, S ext
         addPlot(new Plot());
     }
 
-
     @Override
     protected void initialize()
     {
@@ -65,7 +65,7 @@ public abstract class AbstractBarColChart_Base <T extends AbstractData<T>, S ext
         configurePlot((Plot) getPlots().get("default"));
 
         if (isHighlight()) {
-            addModule("dojox/charting/action2d/Highlight", "Highlight");
+            addDojoClass(DojoClasses.Highlight);
         }
     }
 
@@ -77,8 +77,7 @@ public abstract class AbstractBarColChart_Base <T extends AbstractData<T>, S ext
         if (isHighlight()) {
             _js.append("var hl = new Highlight(chart, \"default\");\n");
 
-            switch (getTheme()) {
-                case JULIE:
+            if (getDojoClasses().contains(DojoClasses.Julie)) {
                     _js.append("hl.process = function(o) {\n")
                         .append("if(!o.shape || !(o.type in this.overOutEvents)){ return; }\n")
                         .append("if(o.type == \"onmouseout\"){\n")
@@ -88,9 +87,6 @@ public abstract class AbstractBarColChart_Base <T extends AbstractData<T>, S ext
                         .append("o.shape.setFill(\"yellow\");\n")
                         .append("}\n")
                         .append("}\n");
-                    break;
-                default:
-                    break;
             }
         }
     }

@@ -71,7 +71,7 @@ public abstract class Legend_Base<S extends Legend_Base<S>>
         _js.append(" if(typeof registry.byId('").append(getNodeId()).append("') != \"undefined\"){\n")
             .append("    registry.byId('").append(getNodeId()).append("').destroyRecursive();\n")
             .append(" }")
-            .append("new Legend(").append(getConfigJS()).append(",\n\"").append(getNodeId()).append("\");\n");
+            .append("new Legend(").append(getConfigJS()).append(",\"").append(getNodeId()).append("\");\n");
     }
 
     /**

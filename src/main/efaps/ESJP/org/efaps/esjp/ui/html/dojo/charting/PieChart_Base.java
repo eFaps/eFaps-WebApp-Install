@@ -20,6 +20,7 @@ package org.efaps.esjp.ui.html.dojo.charting;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.ui.wicket.util.DojoClasses;
 
 
 /**
@@ -36,8 +37,8 @@ public abstract class PieChart_Base<S extends AbstractChart_Base<PieData, S>>
     protected void initialize()
     {
         super.initialize();
-        addModule("dojox/charting/plot2d/Pie", "PiePlot");
-        addModule("dojox/charting/action2d/MoveSlice", "MoveSlice");
+        addDojoClass(DojoClasses.PiePlot);
+        addDojoClass(DojoClasses.MoveSlice);
 
         final Plot plot = new Plot().addConfig("type", "PiePlot");
         addPlot(plot);

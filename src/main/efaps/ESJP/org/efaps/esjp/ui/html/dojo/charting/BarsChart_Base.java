@@ -19,6 +19,7 @@ package org.efaps.esjp.ui.html.dojo.charting;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.ui.wicket.util.DojoClasses;
 
 /**
  * TODO comment!
@@ -38,13 +39,13 @@ public abstract class BarsChart_Base<S extends AbstractBarColChart<Data, S>>
         super.initialize();
         switch (getPlotLayout()) {
             case STACKED:
-                addModule("dojox/charting/plot2d/StackedBars", "Bars");
+                addDojoClass(DojoClasses.StackedBars);
                 break;
             case CLUSTERED:
-                addModule("dojox/charting/plot2d/ClusteredBars", "Bars");
+                addDojoClass(DojoClasses.ClusteredBars);
                 break;
             default:
-                addModule("dojox/charting/plot2d/Bars", "Bars");
+                addDojoClass(DojoClasses.Bars);
                 break;
         }
         boolean addXAxis = true;

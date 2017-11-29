@@ -20,6 +20,7 @@ package org.efaps.esjp.ui.html.dojo.charting;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.ui.wicket.util.DojoClasses;
 
 /**
  * TODO comment!.
@@ -44,24 +45,22 @@ public abstract class LineChart_Base <S extends AbstractCartesianChart<Data, S>>
         super.initialize();
 
         switch (getLineLayout()) {
-            case LINES:
-                addModule("dojox/charting/plot2d/Lines", "Lines");
-                break;
             case STACKEDLINES:
-                addModule("dojox/charting/plot2d/StackedLines", "Lines");
+                addDojoClass(DojoClasses.StackedLines);
                 break;
             case AREAS:
-                addModule("dojox/charting/plot2d/Areas", "Lines");
+                addDojoClass(DojoClasses.Areas);
                 break;
             case STACKEDAREAS:
-                addModule("dojox/charting/plot2d/StackedAreas", "Lines");
+                addDojoClass(DojoClasses.StackedAreas);
                 break;
+            case LINES:
             default:
-                addModule("dojox/charting/plot2d/Lines", "Lines");
+                addDojoClass(DojoClasses.Lines);
                 break;
         }
         if (isMagnify()) {
-            addModule("dojox/charting/action2d/Magnify", "Magnify");
+            addDojoClass(DojoClasses.Magnify);
         }
         boolean hasXAxis = false;
         boolean hasYAxis = false;
