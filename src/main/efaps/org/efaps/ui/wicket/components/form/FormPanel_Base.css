@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2016 The eFaps Team
+ * Copyright 2003 - 2018 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -155,7 +155,7 @@ SELECT {
 }
 
 
-.eFapsForm INPUT.field {
+.eFapsForm INPUT.field, .eFapsForm INPUT.nwufValue {
     width: auto;
     min-width: inherit;
     height: 21px;
@@ -175,7 +175,12 @@ SELECT {
     background-color: #e8e8e8;
     width: auto;
 }
-
+.eFapsForm INPUT.nwufValue {
+    text-align: right;
+}
+.eFapsForm SELECT.nwufUoM {
+    height: 25px;
+}
 
 .eFapsForm .field SPAN.boolean {
     display: table-cell;
