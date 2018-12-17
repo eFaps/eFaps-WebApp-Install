@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2017 The eFaps Team
+ * Copyright 2003 - 2018 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -34,10 +34,10 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.esjp.common.jasperreport.AbstractDynamicReport;
 import org.efaps.esjp.common.parameter.ParameterUtil;
-import org.efaps.ui.wicket.models.objects.UIGrid;
-import org.efaps.ui.wicket.models.objects.UIGrid.Cell;
-import org.efaps.ui.wicket.models.objects.UIGrid.Column;
-import org.efaps.ui.wicket.models.objects.UIGrid.Row;
+import org.efaps.ui.wicket.models.objects.grid.GridCell;
+import org.efaps.ui.wicket.models.objects.grid.GridColumn;
+import org.efaps.ui.wicket.models.objects.grid.GridRow;
+import org.efaps.ui.wicket.models.objects.grid.UIGrid;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -119,8 +119,8 @@ public abstract class GridX_Base
             if (!sr.isEmpty()) {
                 final Map<String, Object> map = new HashMap<>();
                 values.add(map);
-                final Row row = (Row) rows[Integer.parseInt(sr)];
-                for (final Cell cell : row) {
+                final GridRow row = (GridRow) rows[Integer.parseInt(sr)];
+                for (final GridCell cell : row) {
                     map.put(cell.getFieldConfig().getName(), cell.getValue());
                 }
             }
@@ -136,11 +136,11 @@ public abstract class GridX_Base
         final UIGrid uiGrid = (UIGrid) _parameter.get(ParameterValues.CLASS);
         final String[] cms = _parameter.getParameterValue("cm").split(",");
 
-        final Map<Long, Column> id2colum = uiGrid.getColumns().stream().collect(Collectors.toMap(c -> c.getField()
+        final Map<Long, GridColumn> id2colum = uiGrid.getColumns().stream().collect(Collectors.toMap(c -> c.getField()
                         .getId(), Function.identity()));
 
         for (final String colId : cms) {
-            final Column column = id2colum.get(Long.valueOf(colId));
+            final GridColumn column = id2colum.get(Long.valueOf(colId));
             if (column != null) {
                 final TextColumnBuilder<String> col = DynamicReports.col.column(column.getLabel(), column
                                 .getFieldName(), String.class);

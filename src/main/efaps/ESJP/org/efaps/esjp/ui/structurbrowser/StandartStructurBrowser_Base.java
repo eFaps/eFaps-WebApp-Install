@@ -20,6 +20,8 @@
 
 package org.efaps.esjp.ui.structurbrowser;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -29,6 +31,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.event.EventExecution;
@@ -42,15 +45,20 @@ import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject;
 import org.efaps.admin.ui.Command;
 import org.efaps.admin.ui.Menu;
+import org.efaps.api.ui.ITree;
 import org.efaps.db.AttributeQuery;
 import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.db.InstanceQuery;
 import org.efaps.db.QueryBuilder;
+import org.efaps.db.stmt.selection.Evaluator;
+import org.efaps.eql.EQL;
+import org.efaps.eql.builder.Query;
 import org.efaps.esjp.common.AbstractCommon;
 import org.efaps.ui.wicket.models.field.AbstractUIField;
 import org.efaps.ui.wicket.models.objects.UIStructurBrowser;
 import org.efaps.ui.wicket.models.objects.UIStructurBrowser.ExecutionStatus;
+import org.efaps.ui.wicket.models.objects.grid.UIGrid;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -112,10 +120,91 @@ public abstract class StandartStructurBrowser_Base
                     ret = getJavaScript4Target(_parameter);
                 }
             }
+        } else if (object instanceof UIGrid) {
+            ret = executeForGrid(_parameter);
         } else {
             ret = ret.put(ReturnValues.INSTANCE, _parameter.getInstance());
         }
         return ret;
+    }
+
+
+    protected Return executeForGrid(final Parameter _parameter)
+        throws EFapsException
+    {
+        final Return ret = new Return();
+
+        final StructureTree tree = new StructureTree();
+
+        final Map<Integer, String> types = analyseProperty(_parameter, "Type");
+        final Evaluator eval = EQL.printQuery(types.values().toArray(new String[types.size()]))
+            .instance()
+            .stmt()
+            .evaluate();
+        while(eval.next()) {
+            tree.addChild(StructureTree.of(eval.inst()));
+        }
+        loadChildren(_parameter, tree.getChildren());
+        ret.put(ReturnValues.VALUES, tree);
+        return ret;
+    }
+
+    protected void loadChildren(final Parameter _parameter, final Collection<ITree<Instance>> _collection)
+        throws EFapsException
+    {
+        final Map<Integer, String> types = analyseProperty(_parameter, "Child_Type");
+        final Map<Integer, String> linkFroms = analyseProperty(_parameter, "Child_LinkFrom");
+        final Map<Instance, ITree<Instance>> instances = _collection.stream()
+                        .collect(Collectors.toMap(ITree::getNode, tree -> tree));
+        for (final Entry<Integer, String> entry : types.entrySet()) {
+            final Query query = EQL.query(types.values().toArray(new String[types.size()]))
+                .where(EQL.where()
+                            .attribute(linkFroms.get(entry.getKey())).in(instances.keySet()));
+
+            final Evaluator eval = EQL.print(query)
+                        .linkto(linkFroms.get(entry.getKey())).instance().as("1")
+                        .stmt()
+                        .evaluate();
+            while(eval.next()) {
+                final Instance childInstance = eval.inst();
+                final Instance parentInstance = eval.get("1");
+                instances.get(parentInstance).getChildren().add(StructureTree.of(childInstance));
+            }
+        }
+    }
+
+    public static class StructureTree
+        implements ITree<Instance>
+    {
+
+        private static final long serialVersionUID = 1L;
+
+        private Instance node;
+
+        private final Collection<ITree<Instance>> children = new ArrayList<>();
+
+        @Override
+        public Instance getNode()
+        {
+            return this.node;
+        }
+
+        public void addChild(final StructureTree _child)
+        {
+            this.children.add(_child);
+        }
+
+        @Override
+        public Collection<ITree<Instance>> getChildren()
+        {
+            return this.children;
+        }
+
+        public static StructureTree of(final Instance _instance) {
+            final StructureTree ret = new StructureTree();
+            ret.node = _instance;
+            return ret;
+        }
     }
 
     /**
