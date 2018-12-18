@@ -27,6 +27,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -51,9 +52,11 @@ import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.db.InstanceQuery;
 import org.efaps.db.QueryBuilder;
-import org.efaps.db.stmt.selection.Evaluator;
-import org.efaps.eql.EQL;
-import org.efaps.eql.builder.Query;
+import org.efaps.eql2.IEql2Factory;
+import org.efaps.eql2.IPrintQueryStatement;
+import org.efaps.eql2.IQuery;
+import org.efaps.eql2.SimpleSelectElement;
+import org.efaps.eql2.impl.Eql2Factory;
 import org.efaps.esjp.common.AbstractCommon;
 import org.efaps.ui.wicket.models.field.AbstractUIField;
 import org.efaps.ui.wicket.models.objects.UIStructurBrowser;
@@ -121,7 +124,12 @@ public abstract class StandartStructurBrowser_Base
                 }
             }
         } else if (object instanceof UIGrid) {
-            ret = executeForGrid(_parameter);
+            if (_parameter.get(ParameterValues.REQUEST_INSTANCES) != null) {
+                ret = evalChildrenQuery(_parameter,
+                                (Collection<Instance>) _parameter.get(ParameterValues.REQUEST_INSTANCES));
+            } else {
+                ret = evalMainQuery(_parameter);
+            }
         } else {
             ret = ret.put(ReturnValues.INSTANCE, _parameter.getInstance());
         }
@@ -129,6 +137,48 @@ public abstract class StandartStructurBrowser_Base
     }
 
 
+    protected Return evalMainQuery(final Parameter _parameter)
+        throws EFapsException
+    {
+        final Return ret = new Return();
+        final Map<Integer, String> types = analyseProperty(_parameter, "Type");
+        final IEql2Factory factory = Eql2Factory.eINSTANCE;
+        final IQuery query = factory.createQuery();
+        query.setTypes(types.values().stream().toArray(String[]::new));
+        final IPrintQueryStatement print = factory.createPrintQueryStatement().query(query);
+        ret.put(ReturnValues.VALUES, print.eqlStmt());
+        return ret;
+    }
+
+    protected Return evalChildrenQuery(final Parameter _parameter, final Collection<Instance> _instances)
+        throws EFapsException
+    {
+        final Return ret = new Return();
+        final List<String> values = _instances.stream()
+                        .map(inst -> String.valueOf(inst.getId()))
+                        .collect(Collectors.toList());
+
+        final Map<Integer, String> types = analyseProperty(_parameter, "Child_Type");
+        final Map<Integer, String> linkFroms = analyseProperty(_parameter, "Child_LinkFrom");
+
+        final IEql2Factory factory = Eql2Factory.eINSTANCE;
+
+        final IQuery query = factory.createQuery();
+        query.setTypes(types.values().stream().toArray(String[]::new));
+        query.setWhereC(factory.createWhere().addTerm(
+                        factory.createWhereElementTerm().element(
+                                        factory.createWhereElement()
+                            .attribute(linkFroms.get(0)).in().values(values))));
+
+        final IPrintQueryStatement print = factory.createPrintQueryStatement().query(query);
+        print.setSelectionC(factory.createSelection().addSelect(factory.createSelect()
+                        .addElement(factory.createLinktoSelectElement().name(linkFroms.get(0)))
+                        .addElement(factory.createBaseSelectElement().setElementC(SimpleSelectElement.INSTANCE))
+                        .alias("ParentInstance")));
+        ret.put(ReturnValues.VALUES, print.eqlStmt());
+        return ret;
+    }
+    /**
     protected Return executeForGrid(final Parameter _parameter)
         throws EFapsException
     {
@@ -172,7 +222,7 @@ public abstract class StandartStructurBrowser_Base
             }
         }
     }
-
+**/
     public static class StructureTree
         implements ITree<Instance>
     {
