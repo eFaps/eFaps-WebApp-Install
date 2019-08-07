@@ -185,7 +185,7 @@ div.header {
     height:100%
 }
 
-.dashboard .tabpanel svg > rect {
+.dashboard .tabpanel div > div > div > div > svg > rect {
     fill: none;
 }
 
