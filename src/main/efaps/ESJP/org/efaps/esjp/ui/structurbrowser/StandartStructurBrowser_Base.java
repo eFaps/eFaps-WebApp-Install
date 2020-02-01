@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2012 The eFaps Team
+ * Copyright 2003 - 2020 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  *
- * Revision:        $Rev$
- * Last Changed:    $Date$
- * Last Changed By: $Author$
  */
 
 package org.efaps.esjp.ui.structurbrowser;
@@ -27,12 +24,10 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.event.EventExecution;
@@ -52,11 +47,8 @@ import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.db.InstanceQuery;
 import org.efaps.db.QueryBuilder;
-import org.efaps.eql2.IEql2Factory;
-import org.efaps.eql2.IPrintQueryStatement;
-import org.efaps.eql2.IQuery;
-import org.efaps.eql2.SimpleSelectElement;
-import org.efaps.eql2.impl.Eql2Factory;
+import org.efaps.eql.EQL;
+import org.efaps.eql.builder.Print;
 import org.efaps.esjp.common.AbstractCommon;
 import org.efaps.ui.wicket.models.field.AbstractUIField;
 import org.efaps.ui.wicket.models.objects.UIStructurBrowser;
@@ -67,8 +59,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * TODO description!
- *
  * @author The eFasp Team
  */
 @EFapsUUID("d6548826-830b-4540-a46d-d861c3f21f15")
@@ -87,6 +77,7 @@ public abstract class StandartStructurBrowser_Base
      * @throws EFapsException on error
      * @return Return
      */
+    @SuppressWarnings("unchecked")
     @Override
     public Return execute(final Parameter _parameter)
         throws EFapsException
@@ -136,48 +127,50 @@ public abstract class StandartStructurBrowser_Base
         return ret;
     }
 
-
     protected Return evalMainQuery(final Parameter _parameter)
         throws EFapsException
     {
         final Return ret = new Return();
         final Map<Integer, String> types = analyseProperty(_parameter, "Type");
-        final IEql2Factory factory = Eql2Factory.eINSTANCE;
-        final IQuery query = factory.createQuery();
-        query.setTypes(types.values().stream().toArray(String[]::new));
-        final IPrintQueryStatement print = factory.createPrintQueryStatement().query(query);
-        ret.put(ReturnValues.VALUES, print.eqlStmt());
+
+        final Print print = EQL.builder()
+                        .print()
+                        .query(types.values().stream().toArray(String[]::new))
+                        .select();
+        add2MainQuery(print);
+        ret.put(ReturnValues.VALUES, print.build());
         return ret;
     }
+
+    protected void add2MainQuery(final Print _print) {
+        // to be used by implementations
+    }
+
 
     protected Return evalChildrenQuery(final Parameter _parameter, final Collection<Instance> _instances)
         throws EFapsException
     {
         final Return ret = new Return();
-        final List<String> values = _instances.stream()
-                        .map(inst -> String.valueOf(inst.getId()))
-                        .collect(Collectors.toList());
-
         final Map<Integer, String> types = analyseProperty(_parameter, "Child_Type");
         final Map<Integer, String> linkFroms = analyseProperty(_parameter, "Child_LinkFrom");
 
-        final IEql2Factory factory = Eql2Factory.eINSTANCE;
+        final Print print = EQL.builder()
+                        .print()
+                        .query(types.values().stream().toArray(String[]::new))
+                        .where()
+                        .attribute(linkFroms.get(0)).in(_instances)
+                        .select()
+                        .linkto(linkFroms.get(0)).instance().as("ParentInstance");
 
-        final IQuery query = factory.createQuery();
-        query.setTypes(types.values().stream().toArray(String[]::new));
-        query.setWhereC(factory.createWhere().addTerm(
-                        factory.createWhereElementTerm().element(
-                                        factory.createWhereElement()
-                            .attribute(linkFroms.get(0)).in().values(values))));
-
-        final IPrintQueryStatement print = factory.createPrintQueryStatement().query(query);
-        print.setSelectionC(factory.createSelection().addSelect(factory.createSelect()
-                        .addElement(factory.createLinktoSelectElement().name(linkFroms.get(0)))
-                        .addElement(factory.createBaseSelectElement().setElementC(SimpleSelectElement.INSTANCE))
-                        .alias("ParentInstance")));
-        ret.put(ReturnValues.VALUES, print.eqlStmt());
+        add2ChildrenQuery(print);
+        ret.put(ReturnValues.VALUES, print.build());
         return ret;
     }
+
+    protected void add2ChildrenQuery(final Print _print) {
+
+    }
+
     /**
     protected Return executeForGrid(final Parameter _parameter)
         throws EFapsException
@@ -236,18 +229,18 @@ public abstract class StandartStructurBrowser_Base
         @Override
         public Instance getNode()
         {
-            return this.node;
+            return node;
         }
 
         public void addChild(final StructureTree _child)
         {
-            this.children.add(_child);
+            children.add(_child);
         }
 
         @Override
         public Collection<ITree<Instance>> getChildren()
         {
-            return this.children;
+            return children;
         }
 
         public static StructureTree of(final Instance _instance) {
