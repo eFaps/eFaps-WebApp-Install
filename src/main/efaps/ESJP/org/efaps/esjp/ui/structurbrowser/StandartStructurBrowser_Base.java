@@ -137,15 +137,15 @@ public abstract class StandartStructurBrowser_Base
                         .print()
                         .query(types.values().stream().toArray(String[]::new))
                         .select();
-        add2MainQuery(print);
+        add2MainQuery(_parameter, print);
         ret.put(ReturnValues.VALUES, print.build());
         return ret;
     }
 
-    protected void add2MainQuery(final Print _print) {
+    protected void add2MainQuery(final Parameter _parameter, final Print _print)
+    {
         // to be used by implementations
     }
-
 
     protected Return evalChildrenQuery(final Parameter _parameter, final Collection<Instance> _instances)
         throws EFapsException
@@ -162,13 +162,14 @@ public abstract class StandartStructurBrowser_Base
                         .select()
                         .linkto(linkFroms.get(0)).instance().as("ParentInstance");
 
-        add2ChildrenQuery(print);
+        add2ChildrenQuery(_parameter, print);
         ret.put(ReturnValues.VALUES, print.build());
         return ret;
     }
 
-    protected void add2ChildrenQuery(final Print _print) {
-
+    protected void add2ChildrenQuery(final Parameter _parameter, final Print _print)
+    {
+        // to be used by implementations
     }
 
     /**
