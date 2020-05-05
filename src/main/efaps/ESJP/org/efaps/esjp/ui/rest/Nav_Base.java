@@ -30,7 +30,7 @@ import org.efaps.admin.ui.Menu;
 import org.efaps.esjp.ui.rest.dto.ActionDto;
 import org.efaps.esjp.ui.rest.dto.ActionType;
 import org.efaps.esjp.ui.rest.dto.NavItemDTO;
-import org.efaps.ui.wicket.util.Configuration;
+import org.efaps.esjp.ui.util.WebApp;
 import org.efaps.util.EFapsException;
 
 @EFapsUUID("addb3347-919d-455a-8a82-39e0180471d8")
@@ -41,7 +41,7 @@ public abstract class Nav_Base
     public Response getMyDesk()
         throws EFapsException
     {
-        final var toolbarUUID =  Configuration.getSysConfig().getAttributeValue("org.efaps.webapp.MainToolBar");
+        final var toolbarUUID = WebApp.MAINTOOLBAR.get();
         final var menu = Menu.get(UUID.fromString(toolbarUUID));
         final List<NavItemDTO> navItems = new ArrayList<>();
         for (final var command : menu.getCommands()) {
@@ -72,6 +72,8 @@ public abstract class Nav_Base
                 ActionType actionType = null;
                 if (command.getTargetTable() != null) {
                     actionType = ActionType.GRID;
+                } else if (command.getTargetForm() != null) {
+                    actionType = ActionType.FORM;
                 }
                 ret.add(NavItemDTO.builder()
                             .withId(command.getUUID().toString())
