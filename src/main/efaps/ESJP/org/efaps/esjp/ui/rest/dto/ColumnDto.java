@@ -16,27 +16,25 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
-import java.util.List;
-
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-@EFapsUUID("8999d621-02d9-4ec6-9f3e-7571a485142b")
+@EFapsUUID("035f280d-7634-477c-a7a6-b01d665b3088")
 @EFapsApplication("eFaps-WebApp")
-@JsonDeserialize(builder = TableDto.Builder.class)
-public class TableDto
+@JsonDeserialize(builder = ColumnDto.Builder.class)
+public class ColumnDto
 {
 
     private final String header;
-    private final List<ColumnDto> columns;
+    private final String field;
 
-    private TableDto(final Builder _builder)
+    private ColumnDto(final Builder _builder)
     {
         header = _builder.header;
-        columns = _builder.columns;
+        field = _builder.field;
     }
 
     public String getHeader()
@@ -44,9 +42,9 @@ public class TableDto
         return header;
     }
 
-    public List<ColumnDto> getColumns()
+    public String getField()
     {
-        return columns;
+        return field;
     }
 
     @Override
@@ -64,7 +62,7 @@ public class TableDto
     {
 
         private String header;
-        private List<ColumnDto> columns;
+        private String field;
 
         public Builder withHeader(final String _header)
         {
@@ -72,15 +70,15 @@ public class TableDto
             return this;
         }
 
-        public Builder withColumns(final List<ColumnDto> _columns)
+        public Builder withField(final String _field)
         {
-            columns = _columns;
+            field = _field;
             return this;
         }
 
-        public TableDto build()
+        public ColumnDto build()
         {
-            return new TableDto(this);
+            return new ColumnDto(this);
         }
     }
 }

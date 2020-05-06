@@ -16,6 +16,8 @@
  */
 package org.efaps.esjp.ui.rest;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import javax.ws.rs.core.Response;
@@ -28,6 +30,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.Command;
 import org.efaps.eql.EQL;
+import org.efaps.esjp.ui.rest.dto.ColumnDto;
 import org.efaps.esjp.ui.rest.dto.TableDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -71,6 +74,7 @@ public abstract class Table_Base
 
         final var dto = TableDto.builder()
                         .withHeader(getHeader(cmd))
+                        .withColumns(getColumns(table))
                         .build();
 
         final Response ret = Response.ok()
@@ -81,10 +85,23 @@ public abstract class Table_Base
 
     protected String getHeader(final AbstractCommand _cmd)
     {
-        final String key = _cmd.getTargetTitle() == null
+        final var key = _cmd.getTargetTitle() == null
                         ? _cmd.getName() + ".Title"
                         : _cmd.getTargetTitle();
         return DBProperties.getProperty(key);
+    }
+
+    protected List<ColumnDto> getColumns(final org.efaps.admin.ui.Table _table)
+    {
+        final var ret = new ArrayList<ColumnDto>();
+        for (final var field : _table.getFields()) {
+
+            ret.add(ColumnDto.builder()
+                            .withField(field.getName())
+                            .withHeader(field.getLabel() == null ? "" : DBProperties.getProperty(field.getLabel()))
+                            .build());
+        }
+        return ret;
     }
 
 }
