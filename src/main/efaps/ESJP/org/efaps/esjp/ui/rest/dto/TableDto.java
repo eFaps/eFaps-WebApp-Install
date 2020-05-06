@@ -16,7 +16,9 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.efaps.admin.program.esjp.EFapsApplication;
@@ -32,11 +34,13 @@ public class TableDto
 
     private final String header;
     private final List<ColumnDto> columns;
+    private final Collection<Map<String, ?>> values;
 
     private TableDto(final Builder _builder)
     {
         header = _builder.header;
         columns = _builder.columns;
+        values = _builder.values;
     }
 
     public String getHeader()
@@ -47,6 +51,11 @@ public class TableDto
     public List<ColumnDto> getColumns()
     {
         return columns;
+    }
+
+    public Collection<Map<String, ?>> getValues()
+    {
+        return values;
     }
 
     @Override
@@ -65,6 +74,7 @@ public class TableDto
 
         private String header;
         private List<ColumnDto> columns;
+        private Collection<Map<String, ?>> values;
 
         public Builder withHeader(final String _header)
         {
@@ -75,6 +85,12 @@ public class TableDto
         public Builder withColumns(final List<ColumnDto> _columns)
         {
             columns = _columns;
+            return this;
+        }
+
+        public Builder withValues(final Collection<Map<String, ?>> _values)
+        {
+            values = _values;
             return this;
         }
 

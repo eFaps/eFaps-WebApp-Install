@@ -70,11 +70,11 @@ public abstract class Table_Base
             }
         }
         final var values = select.evaluate().getData();
-        LOG.info("values: {} ", values);
 
         final var dto = TableDto.builder()
                         .withHeader(getHeader(cmd))
                         .withColumns(getColumns(table))
+                        .withValues(values)
                         .build();
 
         final Response ret = Response.ok()
