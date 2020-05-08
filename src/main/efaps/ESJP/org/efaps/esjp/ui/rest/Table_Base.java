@@ -18,10 +18,13 @@ package org.efaps.esjp.ui.rest;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
+import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.dbproperty.DBProperties;
 import org.efaps.admin.event.EventType;
 import org.efaps.admin.event.Parameter.ParameterValues;
@@ -30,9 +33,11 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.Command;
 import org.efaps.eql.EQL;
+import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.ui.rest.dto.ColumnDto;
 import org.efaps.esjp.ui.rest.dto.TableDto;
 import org.efaps.util.EFapsException;
+import org.efaps.util.UUIDUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,11 +61,11 @@ public abstract class Table_Base
                         ParameterValues.OTHERS, null);
 
         final var properties = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
-        final var type = properties.get("Type");
+        final var types = evalTypes(properties);
 
         final var select = EQL.builder()
                         .print()
-                        .query(type)
+                        .query(types)
                         .select();
         for (final var field : table.getFields()) {
             if (field.getAttribute() != null) {
@@ -102,6 +107,31 @@ public abstract class Table_Base
                             .build());
         }
         return ret;
+    }
+
+    protected String[] evalTypes(final Map<String, String> _propertiesMap)
+        throws EFapsException
+    {
+        final var typeList = new ArrayList<Type>();
+        final var properties = new Properties();
+        properties.putAll(_propertiesMap);
+        final var types = PropertiesUtil.analyseProperty(properties, "Type", 0);
+        final var expandChildTypes = PropertiesUtil.analyseProperty(properties, "ExpandChildTypes", 0);
+
+        for (final var typeEntry : types.entrySet()) {
+            Type type;
+            if (UUIDUtil.isUUID(typeEntry.getValue())) {
+                type = Type.get(UUID.fromString(typeEntry.getValue()));
+            } else {
+                type = Type.get(typeEntry.getValue());
+            }
+            typeList.add(type);
+            if (expandChildTypes.containsKey(typeEntry.getKey())
+                            && Boolean.parseBoolean(expandChildTypes.get(typeEntry.getKey()))) {
+                type.getChildTypes().forEach(at -> typeList.add(at));
+            }
+        }
+        return typeList.stream().map(Type::getName).toArray(String[]::new);
     }
 
 }

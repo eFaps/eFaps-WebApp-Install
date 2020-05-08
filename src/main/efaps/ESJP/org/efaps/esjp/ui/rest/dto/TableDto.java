@@ -25,6 +25,7 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
 @EFapsUUID("8999d621-02d9-4ec6-9f3e-7571a485142b")
 @EFapsApplication("eFaps-WebApp")
@@ -52,7 +53,7 @@ public class TableDto
     {
         return columns;
     }
-
+    @JsonSerialize(contentUsing = ValueSerializer.class)
     public Collection<Map<String, ?>> getValues()
     {
         return values;
