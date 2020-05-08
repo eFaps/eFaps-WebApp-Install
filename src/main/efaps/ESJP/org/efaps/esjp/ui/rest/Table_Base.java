@@ -24,7 +24,9 @@ import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
+import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.Type;
+import org.efaps.admin.datamodel.attributetype.StatusType;
 import org.efaps.admin.dbproperty.DBProperties;
 import org.efaps.admin.event.EventType;
 import org.efaps.admin.event.Parameter.ParameterValues;
@@ -32,7 +34,9 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.Command;
+import org.efaps.admin.ui.field.Field;
 import org.efaps.eql.EQL;
+import org.efaps.eql.builder.Print;
 import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.ui.rest.dto.ColumnDto;
 import org.efaps.esjp.ui.rest.dto.TableDto;
@@ -61,20 +65,21 @@ public abstract class Table_Base
                         ParameterValues.OTHERS, null);
 
         final var properties = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
-        final var types = evalTypes(properties);
+        final var typeList = evalTypes(properties);
+        final var types = typeList.stream().map(Type::getName).toArray(String[]::new);
 
-        final var select = EQL.builder()
+        final var print = EQL.builder()
                         .print()
                         .query(types)
                         .select();
         for (final var field : table.getFields()) {
             if (field.getAttribute() != null) {
-                select.attribute(field.getAttribute()).as(field.getName());
+                add2Select4Attribute(print, field, typeList);
             } else if (field.getSelect() != null) {
-                select.select(field.getSelect()).as(field.getName());
+                print.select(field.getSelect()).as(field.getName());
             }
         }
-        final var values = select.evaluate().getData();
+        final var values = print.evaluate().getData();
 
         final var dto = TableDto.builder()
                         .withHeader(getHeader(cmd))
@@ -86,6 +91,24 @@ public abstract class Table_Base
                         .entity(dto)
                         .build();
         return ret;
+    }
+
+    protected void add2Select4Attribute(final Print _print, final Field _field, final List<Type> _types)
+    {
+        Attribute attr = null;
+        for (final var type : _types) {
+            attr = type.getAttribute(_field.getAttribute());
+            if (attr != null) {
+                break;
+            }
+        }
+        if (attr == null) {
+            _print.attribute(_field.getAttribute()).as(_field.getName());
+        } else if (attr.getAttributeType().getDbAttrType() instanceof StatusType) {
+            _print.select("status.label").as(_field.getName());
+        } else {
+            _print.attribute(_field.getAttribute()).as(_field.getName());
+        }
     }
 
     protected String getHeader(final AbstractCommand _cmd)
@@ -109,7 +132,7 @@ public abstract class Table_Base
         return ret;
     }
 
-    protected String[] evalTypes(final Map<String, String> _propertiesMap)
+    protected List<Type> evalTypes(final Map<String, String> _propertiesMap)
         throws EFapsException
     {
         final var typeList = new ArrayList<Type>();
@@ -131,7 +154,7 @@ public abstract class Table_Base
                 type.getChildTypes().forEach(at -> typeList.add(at));
             }
         }
-        return typeList.stream().map(Type::getName).toArray(String[]::new);
+        return typeList;
     }
 
 }
