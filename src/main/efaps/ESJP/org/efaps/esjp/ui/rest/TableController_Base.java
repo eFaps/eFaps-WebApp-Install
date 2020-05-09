@@ -175,12 +175,14 @@ public abstract class TableController_Base
                 type = Type.get(typeEntry.getValue());
             }
             typeList.add(type);
-            if (expandChildTypes.containsKey(typeEntry.getKey())
-                            && Boolean.parseBoolean(expandChildTypes.get(typeEntry.getKey()))) {
+            if (expandChildTypes.containsKey(0) && Boolean.parseBoolean(expandChildTypes.get(0))
+                            || expandChildTypes.containsKey(typeEntry.getKey())
+                                            && Boolean.parseBoolean(expandChildTypes.get(typeEntry.getKey()))
+
+            ) {
                 type.getChildTypes().forEach(at -> typeList.add(at));
             }
         }
         return typeList;
     }
-
 }

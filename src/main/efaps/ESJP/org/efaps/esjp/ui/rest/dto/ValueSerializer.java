@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.user.Person;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -27,6 +28,9 @@ public class ValueSerializer
         for (final var entry : _value.entrySet()) {
             if (entry.getValue() instanceof Type) {
                 final var objValue = ((Type) entry.getValue()).getLabel();
+                _gen.writeObjectField(entry.getKey(), objValue);
+            } else if (entry.getValue() instanceof Person) {
+                final var objValue = ((Person) entry.getValue()).getName();
                 _gen.writeObjectField(entry.getKey(), objValue);
             } else {
                 _gen.writeObjectField(entry.getKey(), entry.getValue());
