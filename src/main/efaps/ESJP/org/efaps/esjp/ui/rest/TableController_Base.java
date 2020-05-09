@@ -37,6 +37,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
+import org.efaps.admin.ui.Menu;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.eql.EQL;
 import org.efaps.eql.builder.Print;
@@ -61,7 +62,10 @@ public abstract class TableController_Base
     public Response getTable(final String _id)
         throws EFapsException
     {
-        final var cmd = Command.get(UUID.fromString(_id));
+        AbstractCommand cmd = Command.get(UUID.fromString(_id));
+        if (cmd == null) {
+            cmd = Menu.get(UUID.fromString(_id));
+        }
         final var table = cmd.getTargetTable();
         LOG.info("Get TABLE {} ", table);
         cmd.executeEvents(EventType.UI_TABLE_EVALUATE,
