@@ -20,6 +20,8 @@ import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.db.Context;
+import org.efaps.esjp.ui.rest.dto.UserDto;
 import org.efaps.util.EFapsException;
 
 @EFapsUUID("001b5b92-6389-4a0b-9b57-0ee415f8bd8b")
@@ -30,7 +32,16 @@ public abstract class UserController_Base
     public Response getCurrent()
         throws EFapsException
     {
+        final var person = Context.getThreadContext().getPerson();
+        final var company = Context.getThreadContext().getCompany();
+        final var dto = UserDto.builder()
+                        .withFirstName(person.getFirstName())
+                        .withLastName(person.getLastName())
+                        .withCompany(company.getName())
+                        .build();
+
         final Response ret = Response.ok()
+                        .entity(dto)
                         .build();
         return ret;
     }
