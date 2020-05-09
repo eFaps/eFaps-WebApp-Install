@@ -26,7 +26,7 @@ public class ValueSerializer
         _gen.writeStartObject(_value);
         for (final var entry : _value.entrySet()) {
             if (entry.getValue() instanceof Type) {
-                final var objValue = ((Type) entry.getValue()).getName();
+                final var objValue = ((Type) entry.getValue()).getLabel();
                 _gen.writeObjectField(entry.getKey(), objValue);
             } else {
                 _gen.writeObjectField(entry.getKey(), entry.getValue());
