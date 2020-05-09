@@ -21,9 +21,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.StringUtils;
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.datamodel.attributetype.StatusType;
@@ -33,6 +35,7 @@ import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
+import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.eql.EQL;
@@ -47,13 +50,13 @@ import org.slf4j.LoggerFactory;
 
 @EFapsUUID("708d3d0d-e230-44e1-99f4-aadb45f70be9")
 @EFapsApplication("eFaps-WebApp")
-public abstract class Table_Base
+public abstract class TableController_Base
 {
 
     /**
      * Logging instance used in this class.
      */
-    private static final Logger LOG = LoggerFactory.getLogger(Table.class);
+    private static final Logger LOG = LoggerFactory.getLogger(TableController.class);
 
     public Response getTable(final String _id)
         throws EFapsException
@@ -68,22 +71,26 @@ public abstract class Table_Base
         final var typeList = evalTypes(properties);
         final var types = typeList.stream().map(Type::getName).toArray(String[]::new);
 
+        final var fields = getFields(table);
+
         final var print = EQL.builder()
                         .print()
                         .query(types)
                         .select();
-        for (final var field : table.getFields()) {
+        for (final var field : fields) {
             if (field.getAttribute() != null) {
                 add2Select4Attribute(print, field, typeList);
             } else if (field.getSelect() != null) {
                 print.select(field.getSelect()).as(field.getName());
+            } else if (field.getMsgPhrase() != null) {
+                print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName());
             }
         }
         final var values = print.evaluate().getData();
 
         final var dto = TableDto.builder()
                         .withHeader(getHeader(cmd))
-                        .withColumns(getColumns(table))
+                        .withColumns(getColumns(fields))
                         .withValues(values)
                         .build();
 
@@ -91,6 +98,26 @@ public abstract class Table_Base
                         .entity(dto)
                         .build();
         return ret;
+    }
+
+    protected String getBaseSelect4MsgPhrase(final Field _field)
+    {
+        String ret = "";
+        if (_field.getSelectAlternateOID() != null) {
+            ret = StringUtils.removeEnd(_field.getSelectAlternateOID(), ".oid");
+        }
+        return ret;
+    }
+
+    protected List<Field> getFields(final org.efaps.admin.ui.Table _table) {
+        return _table.getFields().stream().filter(field ->  {
+            try {
+                return field.hasAccess(TargetMode.VIEW, null) && !field.isNoneDisplay(TargetMode.VIEW);
+            } catch (final EFapsException e) {
+                LOG.error("Catched error while evaluation access for Field: {}", field);
+            }
+            return false;
+        }).collect(Collectors.toList());
     }
 
     protected void add2Select4Attribute(final Print _print, final Field _field, final List<Type> _types)
@@ -119,11 +146,10 @@ public abstract class Table_Base
         return DBProperties.getProperty(key);
     }
 
-    protected List<ColumnDto> getColumns(final org.efaps.admin.ui.Table _table)
+    protected List<ColumnDto> getColumns(final List<Field> _fields)
     {
         final var ret = new ArrayList<ColumnDto>();
-        for (final var field : _table.getFields()) {
-
+        for (final var field : _fields) {
             ret.add(ColumnDto.builder()
                             .withField(field.getName())
                             .withHeader(field.getLabel() == null ? "" : DBProperties.getProperty(field.getLabel()))

@@ -16,30 +16,22 @@
  */
 package org.efaps.esjp.ui.rest;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.util.EFapsException;
 
-@EFapsUUID("eaa16cf5-09d5-43aa-8c15-c8e758cfd9c2")
+@EFapsUUID("001b5b92-6389-4a0b-9b57-0ee415f8bd8b")
 @EFapsApplication("eFaps-WebApp")
-@Path("/ui/table")
-public class Table
-    extends Table_Base
+public abstract class UserController_Base
 {
-    @Override
-    @Path("/{id}")
-    @GET
-    @Produces({ MediaType.APPLICATION_JSON })
-    public Response getTable(@PathParam("id") final String _id)
+
+    public Response getCurrent()
         throws EFapsException
     {
-        return super.getTable(_id);
+        final Response ret = Response.ok()
+                        .build();
+        return ret;
     }
 }

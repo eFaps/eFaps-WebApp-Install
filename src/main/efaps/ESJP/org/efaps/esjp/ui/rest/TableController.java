@@ -18,6 +18,7 @@ package org.efaps.esjp.ui.rest;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -26,18 +27,19 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.util.EFapsException;
 
-@EFapsUUID("3a58631d-3170-4044-8aa2-1717f675867a")
+@EFapsUUID("eaa16cf5-09d5-43aa-8c15-c8e758cfd9c2")
 @EFapsApplication("eFaps-WebApp")
-@Path("/ui/nav")
-public class Nav
-    extends Nav_Base
+@Path("/ui/table")
+public class TableController
+    extends TableController_Base
 {
     @Override
+    @Path("/{id}")
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response getMyDesk()
+    public Response getTable(@PathParam("id") final String _id)
         throws EFapsException
     {
-        return super.getMyDesk();
+        return super.getTable(_id);
     }
 }

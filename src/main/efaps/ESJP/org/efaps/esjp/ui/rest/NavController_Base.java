@@ -35,7 +35,7 @@ import org.efaps.util.EFapsException;
 
 @EFapsUUID("addb3347-919d-455a-8a82-39e0180471d8")
 @EFapsApplication("eFaps-WebApp")
-public abstract class Nav_Base
+public abstract class NavController_Base
 {
 
     public Response getMyDesk()
