@@ -30,11 +30,13 @@ public class ColumnDto
 
     private final String header;
     private final String field;
+    private final boolean ref;
 
     private ColumnDto(final Builder _builder)
     {
         header = _builder.header;
         field = _builder.field;
+        ref = _builder.ref;
     }
 
     public String getHeader()
@@ -45,6 +47,11 @@ public class ColumnDto
     public String getField()
     {
         return field;
+    }
+
+    public boolean isRef()
+    {
+        return ref;
     }
 
     @Override
@@ -63,6 +70,7 @@ public class ColumnDto
 
         private String header;
         private String field;
+        private boolean ref;
 
         public Builder withHeader(final String _header)
         {
@@ -73,6 +81,12 @@ public class ColumnDto
         public Builder withField(final String _field)
         {
             field = _field;
+            return this;
+        }
+
+        public Builder withRef(final boolean _ref)
+        {
+            ref = _ref;
             return this;
         }
 

@@ -157,6 +157,7 @@ public abstract class TableController_Base
             ret.add(ColumnDto.builder()
                             .withField(field.getName())
                             .withHeader(field.getLabel() == null ? "" : DBProperties.getProperty(field.getLabel()))
+                            .withRef(field.getReference() != null)
                             .build());
         }
         return ret;
