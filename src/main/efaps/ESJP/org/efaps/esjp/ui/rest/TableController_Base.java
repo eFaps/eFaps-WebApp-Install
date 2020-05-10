@@ -81,6 +81,10 @@ public abstract class TableController_Base
                         .print()
                         .query(types)
                         .select();
+
+        if (fields.stream().anyMatch(field -> field.getReference() != null)) {
+            print.oid().as("OID");
+        }
         for (final var field : fields) {
             if (field.getAttribute() != null) {
                 add2Select4Attribute(print, field, typeList);
@@ -88,6 +92,10 @@ public abstract class TableController_Base
                 print.select(field.getSelect()).as(field.getName());
             } else if (field.getMsgPhrase() != null) {
                 print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName());
+            }
+
+            if (field.getSelectAlternateOID() != null) {
+                print.select(field.getSelectAlternateOID()).as(field.getName() + "_AOID");
             }
         }
         final var values = print.evaluate().getData();
