@@ -29,7 +29,7 @@ import org.efaps.admin.ui.AbstractMenu;
 import org.efaps.admin.ui.Menu;
 import org.efaps.esjp.ui.rest.dto.ActionDto;
 import org.efaps.esjp.ui.rest.dto.ActionType;
-import org.efaps.esjp.ui.rest.dto.NavItemDTO;
+import org.efaps.esjp.ui.rest.dto.NavItemDto;
 import org.efaps.esjp.ui.util.WebApp;
 import org.efaps.util.EFapsException;
 
@@ -43,13 +43,13 @@ public abstract class NavController_Base
     {
         final var toolbarUUID = WebApp.MAINTOOLBAR.get();
         final var menu = Menu.get(UUID.fromString(toolbarUUID));
-        final List<NavItemDTO> navItems = new ArrayList<>();
+        final List<NavItemDto> navItems = new ArrayList<>();
         for (final var command : menu.getCommands()) {
             ActionType actionType = null;
             if (command.getTargetTable() != null) {
                 actionType = ActionType.GRID;
             }
-            navItems.add(NavItemDTO.builder()
+            navItems.add(NavItemDto.builder()
                             .withId(command.getUUID().toString())
                             .withLabel(command.getLabelProperty())
                             .withChildren(addChildren(command))
@@ -64,9 +64,9 @@ public abstract class NavController_Base
         return ret;
     }
 
-    protected List<NavItemDTO> addChildren(final AbstractCommand _command)
+    protected List<NavItemDto> addChildren(final AbstractCommand _command)
     {
-        final List<NavItemDTO> ret = new ArrayList<>();
+        final List<NavItemDto> ret = new ArrayList<>();
         if (_command instanceof AbstractMenu) {
             for (final var command : ((AbstractMenu ) _command).getCommands()) {
                 ActionType actionType = null;
@@ -75,7 +75,7 @@ public abstract class NavController_Base
                 } else if (command.getTargetForm() != null) {
                     actionType = ActionType.FORM;
                 }
-                ret.add(NavItemDTO.builder()
+                ret.add(NavItemDto.builder()
                             .withId(command.getUUID().toString())
                             .withLabel(command.getLabelProperty())
                             .withChildren(addChildren(command))

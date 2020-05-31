@@ -26,16 +26,16 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @EFapsUUID("aec663fc-2fe7-4a67-8b6e-891f6eaf07c5")
 @EFapsApplication("eFaps-WebApp")
-@JsonDeserialize(builder = NavItemDTO.Builder.class)
-public class NavItemDTO
+@JsonDeserialize(builder = NavItemDto.Builder.class)
+public class NavItemDto
 {
 
     private final String id;
     private final String label;
-    private final List<NavItemDTO> children;
+    private final List<NavItemDto> children;
     private final ActionDto action;
 
-    private NavItemDTO(final Builder _builder)
+    private NavItemDto(final Builder _builder)
     {
         id = _builder.id;
         label = _builder.label;
@@ -53,9 +53,14 @@ public class NavItemDTO
         return label;
     }
 
-    public List<NavItemDTO> getChildren()
+    public List<NavItemDto> getChildren()
     {
         return children;
+    }
+
+    public ActionDto getAction()
+    {
+        return action;
     }
 
     @Override
@@ -74,7 +79,7 @@ public class NavItemDTO
 
         private String id;
         private String label;
-        private List<NavItemDTO> children;
+        private List<NavItemDto> children;
         private ActionDto action;
 
         public Builder withId(final String _id)
@@ -89,7 +94,7 @@ public class NavItemDTO
             return this;
         }
 
-        public Builder withChildren(final List<NavItemDTO> _children)
+        public Builder withChildren(final List<NavItemDto> _children)
         {
             children = _children;
             return this;
@@ -101,14 +106,9 @@ public class NavItemDTO
             return this;
         }
 
-        public NavItemDTO build()
+        public NavItemDto build()
         {
-            return new NavItemDTO(this);
+            return new NavItemDto(this);
         }
-    }
-
-    public ActionDto getAction()
-    {
-        return action;
     }
 }
