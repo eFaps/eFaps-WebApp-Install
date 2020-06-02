@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang3.StringUtils;
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.datamodel.attributetype.StatusType;
@@ -52,6 +51,7 @@ import org.slf4j.LoggerFactory;
 @EFapsUUID("708d3d0d-e230-44e1-99f4-aadb45f70be9")
 @EFapsApplication("eFaps-WebApp")
 public abstract class TableController_Base
+    extends AbstractController
 {
 
     /**
@@ -109,15 +109,6 @@ public abstract class TableController_Base
         final Response ret = Response.ok()
                         .entity(dto)
                         .build();
-        return ret;
-    }
-
-    protected String getBaseSelect4MsgPhrase(final Field _field)
-    {
-        String ret = "";
-        if (_field.getSelectAlternateOID() != null) {
-            ret = StringUtils.removeEnd(_field.getSelectAlternateOID(), ".oid");
-        }
         return ret;
     }
 

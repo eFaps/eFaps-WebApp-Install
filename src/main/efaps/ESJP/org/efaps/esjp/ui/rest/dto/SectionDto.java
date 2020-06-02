@@ -22,38 +22,33 @@ import java.util.List;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
-@EFapsUUID("43ce6e45-afd4-40a8-92db-0944dc859570")
+@EFapsUUID("e9d8679f-d8d1-4340-b04b-0ffc9150779d")
 @EFapsApplication("eFaps-WebApp")
-public class OutlineDto
+public class SectionDto
 {
-    private final String oid;
-    private final String header;
-    private final List<SectionDto> sections;
 
-    private OutlineDto(final Builder builder)
+    private final SectionType type;
+    private final List<Object> items;
+
+    private SectionDto(final Builder builder)
     {
-        oid = builder.oid;
-        header = builder.header;
-        sections = builder.sections;
+        type = builder.type;
+        items = builder.items;
     }
 
-    public String getOid()
+    public SectionType getType()
     {
-        return oid;
+        return type;
     }
 
-    public String getHeader()
+    public List<Object> getItems()
     {
-        return header;
-    }
-
-    public List<SectionDto> getSections()
-    {
-        return sections;
+        return items;
     }
 
     /**
-     * Creates builder to build {@link OutlineDto}.
+     * Creates builder to build {@link SectionDto}.
+     *
      * @return created builder
      */
     public static Builder builder()
@@ -62,40 +57,33 @@ public class OutlineDto
     }
 
     /**
-     * Builder to build {@link OutlineDto}.
+     * Builder to build {@link SectionDto}.
      */
     public static final class Builder
     {
 
-        private String oid;
-        private String header;
-        private List<SectionDto> sections = Collections.emptyList();
+        private SectionType type;
+        private List<Object> items = Collections.emptyList();
 
         private Builder()
         {
         }
 
-        public Builder withOid(final String oid)
+        public Builder withType(final SectionType type)
         {
-            this.oid = oid;
+            this.type = type;
             return this;
         }
 
-        public Builder withHeader(final String header)
+        public Builder withItems(final List<Object> items)
         {
-            this.header = header;
+            this.items = items;
             return this;
         }
 
-        public Builder withSections(final List<SectionDto> sections)
+        public SectionDto build()
         {
-            this.sections = sections;
-            return this;
-        }
-
-        public OutlineDto build()
-        {
-            return new OutlineDto(this);
+            return new SectionDto(this);
         }
     }
 }

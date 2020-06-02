@@ -16,44 +16,39 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
-@EFapsUUID("43ce6e45-afd4-40a8-92db-0944dc859570")
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
+@EFapsUUID("5b98f5dd-366b-41e3-8402-f26afbbf2240")
 @EFapsApplication("eFaps-WebApp")
-public class OutlineDto
+public class ValueDto
 {
-    private final String oid;
-    private final String header;
-    private final List<SectionDto> sections;
+    private final ValueType type;
+    private final String label;
+    private final Object value;
 
-    private OutlineDto(final Builder builder)
+    private ValueDto(final Builder builder)
     {
-        oid = builder.oid;
-        header = builder.header;
-        sections = builder.sections;
+        type = builder.type;
+        label = builder.label;
+        value = builder.value;
     }
 
-    public String getOid()
+    public String getLabel()
     {
-        return oid;
+        return label;
     }
 
-    public String getHeader()
+    @JsonSerialize(using = ValueSerializer.class)
+    public Object getValue()
     {
-        return header;
-    }
-
-    public List<SectionDto> getSections()
-    {
-        return sections;
+        return value;
     }
 
     /**
-     * Creates builder to build {@link OutlineDto}.
+     * Creates builder to build {@link ValueDto}.
      * @return created builder
      */
     public static Builder builder()
@@ -62,40 +57,40 @@ public class OutlineDto
     }
 
     /**
-     * Builder to build {@link OutlineDto}.
+     * Builder to build {@link ValueDto}.
      */
     public static final class Builder
     {
 
-        private String oid;
-        private String header;
-        private List<SectionDto> sections = Collections.emptyList();
+        private ValueType type;
+        private String label;
+        private Object value;
 
         private Builder()
         {
         }
 
-        public Builder withOid(final String oid)
+        public Builder withType(final ValueType type)
         {
-            this.oid = oid;
+            this.type = type;
             return this;
         }
 
-        public Builder withHeader(final String header)
+        public Builder withLabel(final String label)
         {
-            this.header = header;
+            this.label = label;
             return this;
         }
 
-        public Builder withSections(final List<SectionDto> sections)
+        public Builder withValue(final Object value)
         {
-            this.sections = sections;
+            this.value = value;
             return this;
         }
 
-        public OutlineDto build()
+        public ValueDto build()
         {
-            return new OutlineDto(this);
+            return new ValueDto(this);
         }
     }
 }

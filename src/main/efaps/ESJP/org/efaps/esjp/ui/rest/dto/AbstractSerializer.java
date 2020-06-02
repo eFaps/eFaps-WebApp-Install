@@ -16,34 +16,30 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
-import java.io.IOException;
-
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.user.Person;
 
-import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.SerializerProvider;
+import com.fasterxml.jackson.databind.JsonSerializer;
 
-@EFapsUUID("0537bca7-83aa-4ca2-b82a-fe876f79b4f1")
+@EFapsUUID("6da7182e-208a-4787-aa43-26f2d29ccb1f")
 @EFapsApplication("eFaps-WebApp")
-public class ValueSerializer extends AbstractSerializer<Object>
+public abstract class AbstractSerializer<T>
+    extends JsonSerializer<T>
 {
 
-    @Override
-    public void serialize(final Object _value, final JsonGenerator _gen, final SerializerProvider _serializers)
-        throws IOException, JsonProcessingException
+    public Object getObjectValue(final Object _object)
     {
-        if (_value instanceof Type) {
-            final var objValue = ((Type) _value).getLabel();
-            _gen.writeObject(objValue);
-        } else if (_value instanceof Person) {
-            final var objValue = ((Person) _value).getName();
-            _gen.writeObject(objValue);
+        Object ret;
+        if (_object instanceof Type) {
+            ret = ((Type) _object).getLabel();
+        } else if (_object instanceof Person) {
+            ret = ((Person) _object).getName();
         } else {
-            _gen.writeObject(_value);
+            ret = _object;
         }
+        return ret;
     }
+
 }

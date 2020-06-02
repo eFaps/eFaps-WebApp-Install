@@ -17,33 +17,30 @@
 package org.efaps.esjp.ui.rest.dto;
 
 import java.io.IOException;
+import java.util.LinkedHashMap;
 
-import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
-import org.efaps.admin.user.Person;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.SerializerProvider;
 
-@EFapsUUID("0537bca7-83aa-4ca2-b82a-fe876f79b4f1")
+@EFapsUUID("a0fd34e3-89bf-4bc6-a8c9-49b7b9a8eecd")
 @EFapsApplication("eFaps-WebApp")
-public class ValueSerializer extends AbstractSerializer<Object>
+public class TableValueSerializer
+    extends AbstractSerializer<LinkedHashMap<String, Object>>
 {
 
     @Override
-    public void serialize(final Object _value, final JsonGenerator _gen, final SerializerProvider _serializers)
+    public void serialize(final LinkedHashMap<String, Object> _value, final JsonGenerator _gen,
+                          final SerializerProvider _serializers)
         throws IOException, JsonProcessingException
     {
-        if (_value instanceof Type) {
-            final var objValue = ((Type) _value).getLabel();
-            _gen.writeObject(objValue);
-        } else if (_value instanceof Person) {
-            final var objValue = ((Person) _value).getName();
-            _gen.writeObject(objValue);
-        } else {
-            _gen.writeObject(_value);
+        _gen.writeStartObject(_value);
+        for (final var entry : _value.entrySet()) {
+           _gen.writeObjectField(entry.getKey(), getObjectValue(entry.getValue()));
         }
+        _gen.writeEndObject();
     }
 }

@@ -53,7 +53,7 @@ public class TableDto
     {
         return columns;
     }
-    @JsonSerialize(contentUsing = ValueSerializer.class)
+    @JsonSerialize(contentUsing = TableValueSerializer.class)
     public Collection<Map<String, ?>> getValues()
     {
         return values;

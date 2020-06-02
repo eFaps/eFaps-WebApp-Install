@@ -27,24 +27,36 @@ import org.apache.wicket.RestartResponseException;
 import org.efaps.admin.dbproperty.DBProperties;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
+import org.efaps.admin.ui.field.Field;
+import org.efaps.admin.ui.field.FieldClassification;
+import org.efaps.admin.ui.field.FieldGroup;
+import org.efaps.admin.ui.field.FieldHeading;
+import org.efaps.admin.ui.field.FieldTable;
 import org.efaps.beans.ValueList;
 import org.efaps.beans.valueparser.ParseException;
 import org.efaps.beans.valueparser.ValueParser;
 import org.efaps.db.Instance;
 import org.efaps.db.PrintQuery;
+import org.efaps.eql.EQL;
 import org.efaps.esjp.ui.rest.dto.ActionDto;
 import org.efaps.esjp.ui.rest.dto.ActionType;
 import org.efaps.esjp.ui.rest.dto.ContentDto;
 import org.efaps.esjp.ui.rest.dto.NavItemDto;
 import org.efaps.esjp.ui.rest.dto.OutlineDto;
+import org.efaps.esjp.ui.rest.dto.SectionDto;
+import org.efaps.esjp.ui.rest.dto.SectionType;
+import org.efaps.esjp.ui.rest.dto.ValueDto;
+import org.efaps.esjp.ui.rest.dto.ValueType;
 import org.efaps.ui.wicket.pages.error.ErrorPage;
 import org.efaps.util.EFapsException;
 
 @EFapsUUID("da1c680f-8219-4a93-ab64-d6dbd261dc56")
 @EFapsApplication("eFaps-WebApp")
 public abstract class ContentController_Base
+    extends AbstractController
 {
 
     public Response getContent(final String _oid)
@@ -84,6 +96,7 @@ public abstract class ContentController_Base
             final var outline = OutlineDto.builder()
                             .withOid(_oid)
                             .withHeader(header)
+                            .withSections(evalSections(instance, currentCmd))
                             .build();
             dto = ContentDto.builder()
                             .withOutline(outline)
@@ -94,6 +107,112 @@ public abstract class ContentController_Base
         return Response.ok()
                         .entity(dto)
                         .build();
+    }
+
+    public List<SectionDto> evalSections(final Instance _instance, final AbstractCommand _cmd)
+        throws EFapsException
+    {
+        final var ret = new ArrayList<SectionDto>();
+        final var sections = new ArrayList<Section>();
+        final var form = _cmd.getTargetForm();
+        if (form != null) {
+            final var print = EQL.builder().print(_instance);
+            for (final Field field : form.getFields()) {
+                if (field.hasAccess(TargetMode.VIEW, _instance, _cmd, _instance)
+                                && !field.isNoneDisplay(TargetMode.VIEW)) {
+                    if (field.getSelect() != null) {
+                        print.select(field.getSelect()).as(field.getName());
+                    } else if (field.getAttribute() != null) {
+                        print.attribute(field.getAttribute()).as(field.getName());
+                    } else if (field.getPhrase() != null) {
+                        // print.addPhrase(field.getName(), field.getPhrase());
+                    } else if (field.getMsgPhrase() != null) {
+                        print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName())
+                                        .as(field.getName());
+                    }
+                    if (field.getSelectAlternateOID() != null) {
+                        print.select(field.getSelectAlternateOID()).as(field.getName() + "_AOID");
+                    }
+                }
+            }
+            final var eval = print.execute().evaluate();
+
+            Section currentSection = null;
+            var groupCount = 0;
+            var currentValues = new ArrayList<ValueDto>();
+            for (final Field field : form.getFields()) {
+                if (field.hasAccess(TargetMode.VIEW, _instance, _cmd, _instance)
+                                && !field.isNoneDisplay(TargetMode.VIEW)) {
+                    if (field instanceof FieldGroup) {
+                        final FieldGroup group = (FieldGroup) field;
+                        groupCount = group.getGroupCount();
+                    } else if (field instanceof FieldTable) {
+
+                    } else if (field instanceof FieldHeading) {
+
+                    } else if (field instanceof FieldClassification) {
+
+                    } else {
+                        if (currentSection == null) {
+                            currentSection = new Section();
+                            currentSection.type = SectionType.FORM;
+                            sections.add(currentSection);
+                        }
+                        if (groupCount > 0) {
+                            groupCount--;
+                        }
+                        final var fieldValue = eval.get(field.getName());
+
+                        final var value = ValueDto.builder()
+                                        .withLabel(getLabel(_instance, field))
+                                        .withValue(fieldValue)
+                                        .withType(ValueType.READ_ONLY)
+                                        .build();
+                        currentValues.add(value);
+
+                        if (groupCount < 1) {
+                            currentSection.addValue(currentValues);
+                            currentValues = new ArrayList<ValueDto>();
+                        }
+
+                    }
+                }
+            }
+        }
+        sections.stream().forEach(section -> {
+            ret.add(SectionDto.builder()
+                            .withType(section.type)
+                            .withItems(section.values)
+                            .build());
+        });
+        return ret;
+    }
+
+    private String getLabel(final Instance _instance, final Field _field)
+    {
+        String ret = null;
+        if (_field.getLabel() != null) {
+            ret = DBProperties.getProperty(_field.getLabel());
+        } else if (_field.getAttribute() != null) {
+            final var attr = _instance.getType().getAttribute(_field.getAttribute());
+            if (attr != null) {
+                ret = DBProperties.getProperty(attr.getLabelKey());
+            }
+        }
+        return ret;
+    }
+
+    private class Section {
+        SectionType type;
+        List<Object> values = new ArrayList<>();
+        public void addValue(final List<ValueDto> _value)
+        {
+           if (_value.size() == 1) {
+               values.add(_value.get(0));
+           } else {
+               values.add(_value);
+           }
+        }
     }
 
     public String getLabel(final Instance _instance, final String _propertyKey)
