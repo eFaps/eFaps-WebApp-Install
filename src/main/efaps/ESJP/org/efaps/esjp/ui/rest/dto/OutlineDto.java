@@ -28,7 +28,7 @@ public class OutlineDto
 {
     private final String oid;
     private final String header;
-    private final List<SectionDto> sections;
+    private final List<ISection> sections;
 
     private OutlineDto(final Builder builder)
     {
@@ -47,7 +47,7 @@ public class OutlineDto
         return header;
     }
 
-    public List<SectionDto> getSections()
+    public List<ISection> getSections()
     {
         return sections;
     }
@@ -69,7 +69,7 @@ public class OutlineDto
 
         private String oid;
         private String header;
-        private List<SectionDto> sections = Collections.emptyList();
+        private List<ISection> sections = Collections.emptyList();
 
         private Builder()
         {
@@ -87,7 +87,7 @@ public class OutlineDto
             return this;
         }
 
-        public Builder withSections(final List<SectionDto> sections)
+        public Builder withSections(final List<ISection> sections)
         {
             this.sections = sections;
             return this;

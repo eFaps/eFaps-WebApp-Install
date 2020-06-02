@@ -23,5 +23,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @EFapsApplication("eFaps-WebApp")
 public enum SectionType
 {
-    FORM
+    FORM,
+    TABLE
 }

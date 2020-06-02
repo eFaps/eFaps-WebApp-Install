@@ -18,13 +18,18 @@ package org.efaps.esjp.ui.rest;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
+import java.util.Map;
+import java.util.Properties;
 import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
 import org.apache.wicket.RestartResponseException;
+import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.dbproperty.DBProperties;
+import org.efaps.admin.event.EventType;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
@@ -41,17 +46,21 @@ import org.efaps.beans.valueparser.ValueParser;
 import org.efaps.db.Instance;
 import org.efaps.db.PrintQuery;
 import org.efaps.eql.EQL;
+import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.ui.rest.dto.ActionDto;
 import org.efaps.esjp.ui.rest.dto.ActionType;
 import org.efaps.esjp.ui.rest.dto.ContentDto;
+import org.efaps.esjp.ui.rest.dto.FormSectionDto;
+import org.efaps.esjp.ui.rest.dto.ISection;
 import org.efaps.esjp.ui.rest.dto.NavItemDto;
 import org.efaps.esjp.ui.rest.dto.OutlineDto;
-import org.efaps.esjp.ui.rest.dto.SectionDto;
 import org.efaps.esjp.ui.rest.dto.SectionType;
+import org.efaps.esjp.ui.rest.dto.TableSectionDto;
 import org.efaps.esjp.ui.rest.dto.ValueDto;
 import org.efaps.esjp.ui.rest.dto.ValueType;
 import org.efaps.ui.wicket.pages.error.ErrorPage;
 import org.efaps.util.EFapsException;
+import org.efaps.util.UUIDUtil;
 
 @EFapsUUID("da1c680f-8219-4a93-ab64-d6dbd261dc56")
 @EFapsApplication("eFaps-WebApp")
@@ -109,12 +118,13 @@ public abstract class ContentController_Base
                         .build();
     }
 
-    public List<SectionDto> evalSections(final Instance _instance, final AbstractCommand _cmd)
+    public List<ISection> evalSections(final Instance _instance, final AbstractCommand _cmd)
         throws EFapsException
     {
-        final var ret = new ArrayList<SectionDto>();
-        final var sections = new ArrayList<Section>();
+        final var ret = new ArrayList<ISection>();
+        final var sections = new ArrayList<Object>();
         final var form = _cmd.getTargetForm();
+        final var table = _cmd.getTargetTable();
         if (form != null) {
             final var print = EQL.builder().print(_instance);
             for (final Field field : form.getFields()) {
@@ -137,7 +147,7 @@ public abstract class ContentController_Base
             }
             final var eval = print.execute().evaluate();
 
-            Section currentSection = null;
+            FormSection currentSection = null;
             var groupCount = 0;
             var currentValues = new ArrayList<ValueDto>();
             for (final Field field : form.getFields()) {
@@ -154,7 +164,7 @@ public abstract class ContentController_Base
 
                     } else {
                         if (currentSection == null) {
-                            currentSection = new Section();
+                            currentSection = new FormSection();
                             currentSection.type = SectionType.FORM;
                             sections.add(currentSection);
                         }
@@ -180,11 +190,20 @@ public abstract class ContentController_Base
             }
         }
         sections.stream().forEach(section -> {
-            ret.add(SectionDto.builder()
-                            .withType(section.type)
-                            .withItems(section.values)
-                            .build());
+            if (section instanceof FormSection) {
+                ret.add(FormSectionDto.builder()
+                                .withItems(((FormSection) section).values)
+                                .build());
+            }
         });
+
+        if (table != null) {
+            final var columns = getColumns(table);
+            ret.add(TableSectionDto.builder()
+                            .withColumns(columns)
+                            .withValues(getValues(_cmd, table, _instance))
+                            .build());
+        }
         return ret;
     }
 
@@ -202,16 +221,19 @@ public abstract class ContentController_Base
         return ret;
     }
 
-    private class Section {
+    private class FormSection
+    {
+
         SectionType type;
         List<Object> values = new ArrayList<>();
+
         public void addValue(final List<ValueDto> _value)
         {
-           if (_value.size() == 1) {
-               values.add(_value.get(0));
-           } else {
-               values.add(_value);
-           }
+            if (_value.size() == 1) {
+                values.add(_value.get(0));
+            } else {
+                values.add(_value);
+            }
         }
     }
 
@@ -251,11 +273,76 @@ public abstract class ContentController_Base
             dto = OutlineDto.builder()
                             .withOid(_oid)
                             .withHeader(header)
+                            .withSections(evalSections(instance, cmd))
                             .build();
         }
         return Response.ok()
                         .entity(dto)
                         .build();
+    }
+
+    public Collection<Map<String, ?>> getValues(final AbstractCommand _cmd, final org.efaps.admin.ui.Table _table,
+                                                final Instance _instance)
+        throws EFapsException
+    {
+        final var fields = getFields(_table);
+        final var typeList = evalTypes(_cmd);
+        final var types = typeList.stream().map(Type::getName).toArray(String[]::new);
+
+        final var propertiesMap = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
+        final var query = EQL.builder()
+                        .print()
+                        .query(types);
+
+        if (propertiesMap.containsKey("LinkFrom")) {
+            final var linkfromAttr = propertiesMap.get("LinkFrom");
+            query.where().attr(linkfromAttr).eq(_instance);
+        }
+        final var print = query.select();
+
+        if (fields.stream().anyMatch(field -> field.getReference() != null)) {
+            print.oid().as("OID");
+        }
+        for (final var field : fields) {
+            if (field.getAttribute() != null) {
+                add2Select4Attribute(print, field, typeList);
+            } else if (field.getSelect() != null) {
+                print.select(field.getSelect()).as(field.getName());
+            } else if (field.getMsgPhrase() != null) {
+                print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName());
+            }
+            if (field.getSelectAlternateOID() != null) {
+                print.select(field.getSelectAlternateOID()).as(field.getName() + "_AOID");
+            }
+        }
+        return print.evaluate().getData();
+    }
+
+    protected List<Type> evalTypes(final AbstractCommand _cmd)
+        throws EFapsException
+    {
+        final var propertiesMap = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
+        final var typeList = new ArrayList<Type>();
+        final var properties = new Properties();
+        properties.putAll(propertiesMap);
+        final var types = PropertiesUtil.analyseProperty(properties, "Type", 0);
+        final var expandChildTypes = PropertiesUtil.analyseProperty(properties, "ExpandChildTypes", 0);
+
+        for (final var typeEntry : types.entrySet()) {
+            Type type;
+            if (UUIDUtil.isUUID(typeEntry.getValue())) {
+                type = Type.get(UUID.fromString(typeEntry.getValue()));
+            } else {
+                type = Type.get(typeEntry.getValue());
+            }
+            typeList.add(type);
+            if (expandChildTypes.containsKey(0) && Boolean.parseBoolean(expandChildTypes.get(0))
+                            || expandChildTypes.containsKey(typeEntry.getKey())
+                                            && Boolean.parseBoolean(expandChildTypes.get(typeEntry.getKey()))) {
+                type.getChildTypes().forEach(at -> typeList.add(at));
+            }
+        }
+        return typeList;
     }
 
 }

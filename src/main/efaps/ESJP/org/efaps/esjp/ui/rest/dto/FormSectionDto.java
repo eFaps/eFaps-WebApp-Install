@@ -24,21 +24,21 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 
 @EFapsUUID("e9d8679f-d8d1-4340-b04b-0ffc9150779d")
 @EFapsApplication("eFaps-WebApp")
-public class SectionDto
+public class FormSectionDto
+    implements ISection
 {
 
-    private final SectionType type;
     private final List<Object> items;
 
-    private SectionDto(final Builder builder)
+    private FormSectionDto(final Builder builder)
     {
-        type = builder.type;
         items = builder.items;
     }
 
+    @Override
     public SectionType getType()
     {
-        return type;
+        return SectionType.FORM;
     }
 
     public List<Object> getItems()
@@ -47,8 +47,7 @@ public class SectionDto
     }
 
     /**
-     * Creates builder to build {@link SectionDto}.
-     *
+     * Creates builder to build {@link FormSectionDto}.
      * @return created builder
      */
     public static Builder builder()
@@ -57,22 +56,15 @@ public class SectionDto
     }
 
     /**
-     * Builder to build {@link SectionDto}.
+     * Builder to build {@link FormSectionDto}.
      */
     public static final class Builder
     {
 
-        private SectionType type;
         private List<Object> items = Collections.emptyList();
 
         private Builder()
         {
-        }
-
-        public Builder withType(final SectionType type)
-        {
-            this.type = type;
-            return this;
         }
 
         public Builder withItems(final List<Object> items)
@@ -81,9 +73,9 @@ public class SectionDto
             return this;
         }
 
-        public SectionDto build()
+        public FormSectionDto build()
         {
-            return new SectionDto(this);
+            return new FormSectionDto(this);
         }
     }
 }

@@ -25,6 +25,7 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 @EFapsApplication("eFaps-WebApp")
 public class ValueDto
 {
+
     private final ValueType type;
     private final String label;
     private final Object value;
@@ -34,6 +35,11 @@ public class ValueDto
         type = builder.type;
         label = builder.label;
         value = builder.value;
+    }
+
+    public ValueType getType()
+    {
+        return type;
     }
 
     public String getLabel()
@@ -49,6 +55,7 @@ public class ValueDto
 
     /**
      * Creates builder to build {@link ValueDto}.
+     *
      * @return created builder
      */
     public static Builder builder()
