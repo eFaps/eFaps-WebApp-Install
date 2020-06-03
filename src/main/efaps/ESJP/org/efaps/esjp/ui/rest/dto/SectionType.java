@@ -24,5 +24,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 public enum SectionType
 {
     FORM,
-    TABLE
+    TABLE,
+    HEADING
 }
