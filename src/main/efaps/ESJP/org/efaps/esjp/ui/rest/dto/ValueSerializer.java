@@ -18,10 +18,8 @@ package org.efaps.esjp.ui.rest.dto;
 
 import java.io.IOException;
 
-import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
-import org.efaps.admin.user.Person;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -36,14 +34,6 @@ public class ValueSerializer extends AbstractSerializer<Object>
     public void serialize(final Object _value, final JsonGenerator _gen, final SerializerProvider _serializers)
         throws IOException, JsonProcessingException
     {
-        if (_value instanceof Type) {
-            final var objValue = ((Type) _value).getLabel();
-            _gen.writeObject(objValue);
-        } else if (_value instanceof Person) {
-            final var objValue = ((Person) _value).getName();
-            _gen.writeObject(objValue);
-        } else {
-            _gen.writeObject(_value);
-        }
+        _gen.writeObject(getObjectValue(_value));
     }
 }

@@ -8,6 +8,8 @@ import java.util.Map;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+
 @EFapsUUID("c7445c98-2a27-4143-9202-02bb341e0838")
 @EFapsApplication("eFaps-WebApp")
 public class TableSectionDto
@@ -34,6 +36,7 @@ public class TableSectionDto
         return columns;
     }
 
+    @JsonSerialize(contentUsing = TableValueSerializer.class)
     public Collection<Map<String, ?>> getValues()
     {
         return values;
