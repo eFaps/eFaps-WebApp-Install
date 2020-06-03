@@ -36,6 +36,7 @@ import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
+import org.efaps.admin.ui.Menu;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.admin.ui.field.FieldClassification;
 import org.efaps.admin.ui.field.FieldGroup;
@@ -286,8 +287,10 @@ public abstract class ContentController_Base
         OutlineDto dto = null;
         final var instance = Instance.get(_oid);
         if (instance.isValid()) {
-            final var cmd = Command.get(UUID.fromString(_cmdId));
-
+            AbstractCommand cmd = Command.get(UUID.fromString(_cmdId));
+            if (cmd == null) {
+                cmd = Menu.get(UUID.fromString(_cmdId));
+            }
             final var header = getLabel(instance, cmd.getLabel());
             dto = OutlineDto.builder()
                             .withOid(_oid)
