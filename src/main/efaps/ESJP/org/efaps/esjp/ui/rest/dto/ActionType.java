@@ -24,5 +24,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 public enum ActionType
 {
     GRID,
-    FORM
+    FORM,
+    SEARCH
 }

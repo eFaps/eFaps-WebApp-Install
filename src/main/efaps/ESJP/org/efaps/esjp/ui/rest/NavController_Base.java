@@ -74,6 +74,8 @@ public abstract class NavController_Base
                     actionType = ActionType.GRID;
                 } else if (command.getTargetForm() != null) {
                     actionType = ActionType.FORM;
+                } else if (command.getTargetSearch() != null) {
+                    actionType = ActionType.SEARCH;
                 }
                 ret.add(NavItemDto.builder()
                             .withId(command.getUUID().toString())
