@@ -30,7 +30,7 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @EFapsApplication("eFaps-WebApp")
 public class SearchDto
 {
-
+    private final String id;
     private final List<SearchDto> children;
     private final String label;
     private final boolean selected;
@@ -38,10 +38,16 @@ public class SearchDto
 
     private SearchDto(final Builder builder)
     {
+        id = builder.id;
         children = builder.children;
         label = builder.label;
         selected = builder.selected;
         formSection = builder.formSection;
+    }
+
+    public String getId()
+    {
+        return id;
     }
 
     public List<SearchDto> getChildren()
@@ -82,6 +88,7 @@ public class SearchDto
     public static final class Builder
     {
 
+        private String id;
         private List<SearchDto> children = Collections.emptyList();
         private String label;
         private boolean selected;
@@ -89,6 +96,12 @@ public class SearchDto
 
         private Builder()
         {
+        }
+
+        public Builder withId(final String id)
+        {
+            this.id = id;
+            return this;
         }
 
         public Builder withChildren(final List<SearchDto> children)

@@ -17,10 +17,16 @@
 package org.efaps.esjp.ui.rest;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.Properties;
 import java.util.UUID;
 
+import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.dbproperty.DBProperties;
@@ -28,16 +34,21 @@ import org.efaps.admin.event.EventType;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
+import org.efaps.admin.ui.AbstractUserInterfaceObject;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
 import org.efaps.admin.ui.Menu;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.admin.ui.field.FieldGroup;
+import org.efaps.eql.EQL;
+import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.ui.rest.dto.FormSectionDto;
 import org.efaps.esjp.ui.rest.dto.SearchDto;
+import org.efaps.esjp.ui.rest.dto.TableDto;
 import org.efaps.esjp.ui.rest.dto.ValueDto;
 import org.efaps.esjp.ui.rest.dto.ValueType;
 import org.efaps.util.EFapsException;
+import org.efaps.util.UUIDUtil;
 import org.efaps.util.cache.CacheReloadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -45,6 +56,7 @@ import org.slf4j.LoggerFactory;
 @EFapsUUID("b8efbce5-c5cf-495d-855d-aff75f171f9b")
 @EFapsApplication("eFaps-WebApp")
 public abstract class SearchController_Base
+    extends AbstractController
 {
     private static final Logger LOG = LoggerFactory.getLogger(SearchController.class);
 
@@ -64,6 +76,7 @@ public abstract class SearchController_Base
                 section = null;
                 for (final var ele : ((Menu) child).getCommands()) {
                     children.add(SearchDto.builder()
+                                    .withId(ele.getUUID().toString())
                                     .withLabel(ele.getLabelProperty())
                                     .withSelected(ele.equals(defaultCmd))
                                     .withFormSection(evalSection(ele))
@@ -73,6 +86,7 @@ public abstract class SearchController_Base
                 section = evalSection(child);
             }
             dtos.add(SearchDto.builder()
+                            .withId(child.getUUID().toString())
                             .withLabel(child.getLabelProperty())
                             .withChildren(children)
                             .withSelected(child.equals(defaultCmd))
@@ -102,6 +116,7 @@ public abstract class SearchController_Base
                         groupCount--;
                     }
                     currentValues.add(ValueDto.builder()
+                                    .withName(field.getName())
                                     .withLabel(getLabel(_cmd, field))
                                     .withType(ValueType.INPUT)
                                     .build());
@@ -137,6 +152,84 @@ public abstract class SearchController_Base
             }
         }
         return ret;
+    }
+
+    public Response search(final String _cmdId, final UriInfo _uriInfo)
+        throws EFapsException
+    {
+        final var cmd = Command.get(UUID.fromString(_cmdId));
+        final var table = cmd.getTargetTable();
+
+        final MultivaluedMap<String, String> queryParameters = _uriInfo.getQueryParameters();
+        LOG.debug("", queryParameters);
+        final var dto = TableDto.builder()
+                        .withHeader(getHeader(cmd))
+                        .withColumns(getColumns(table))
+                        .withValues(getValues(cmd, table))
+                        .build();
+
+        final Response ret = Response.ok()
+                        .entity(dto)
+                        .build();
+        return ret;
+    }
+
+
+    public Collection<Map<String, ?>> getValues(final AbstractUserInterfaceObject _cmd, final org.efaps.admin.ui.Table _table)
+        throws EFapsException
+    {
+        final var fields = getFields(_table);
+        final var typeList = evalTypes(_cmd);
+        final var types = typeList.stream().map(Type::getName).toArray(String[]::new);
+        final var query = EQL.builder()
+                        .print()
+                        .query(types);
+
+        final var print = query.select();
+
+        if (fields.stream().anyMatch(field -> field.getReference() != null)) {
+            print.oid().as("OID");
+        }
+        for (final var field : fields) {
+            if (field.getAttribute() != null) {
+                add2Select4Attribute(print, field, typeList);
+            } else if (field.getSelect() != null) {
+                print.select(field.getSelect()).as(field.getName());
+            } else if (field.getMsgPhrase() != null) {
+                print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName());
+            }
+            if (field.getSelectAlternateOID() != null) {
+                print.select(field.getSelectAlternateOID()).as(field.getName() + "_AOID");
+            }
+        }
+        return print.evaluate().getData();
+    }
+
+    protected List<Type> evalTypes(final AbstractUserInterfaceObject _cmd)
+        throws EFapsException
+    {
+        final var propertiesMap = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
+        final var typeList = new ArrayList<Type>();
+        final var properties = new Properties();
+        properties.putAll(propertiesMap);
+        final var types = PropertiesUtil.analyseProperty(properties, "Type", 0);
+        final var expandChildTypes = PropertiesUtil.analyseProperty(properties, "ExpandChildTypes", 0);
+
+        for (final var typeEntry : types.entrySet()) {
+            Type type;
+            if (UUIDUtil.isUUID(typeEntry.getValue())) {
+                type = Type.get(UUID.fromString(typeEntry.getValue()));
+            } else {
+                type = Type.get(typeEntry.getValue());
+            }
+            typeList.add(type);
+            if (expandChildTypes.containsKey(0) && Boolean.parseBoolean(expandChildTypes.get(0))
+                            || expandChildTypes.containsKey(typeEntry.getKey())
+                                            && Boolean.parseBoolean(expandChildTypes.get(typeEntry.getKey()))) {
+                type.getChildTypes().forEach(at -> typeList.add(at));
+            }
+        }
+        return typeList;
     }
 
 }

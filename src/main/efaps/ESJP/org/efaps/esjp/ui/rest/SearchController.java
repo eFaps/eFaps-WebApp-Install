@@ -16,12 +16,15 @@
  */
 package org.efaps.esjp.ui.rest;
 
+import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
@@ -41,5 +44,16 @@ public class SearchController
         throws EFapsException
     {
         return super.getSearch(_cmdId);
+    }
+
+    @Override
+    @GET
+    @Path("/{cmdId}/query")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    public Response search(@PathParam("cmdId") final String _cmdId, @Context final UriInfo _uriInfo)
+        throws EFapsException
+    {
+        return super.search(_cmdId, _uriInfo);
     }
 }

@@ -19,20 +19,24 @@ package org.efaps.esjp.ui.rest.dto;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+@JsonDeserialize(builder = ValueDto.Builder.class)
 @EFapsUUID("5b98f5dd-366b-41e3-8402-f26afbbf2240")
 @EFapsApplication("eFaps-WebApp")
 public class ValueDto
 {
 
     private final ValueType type;
+    private final String name;
     private final String label;
     private final Object value;
 
     private ValueDto(final Builder builder)
     {
         type = builder.type;
+        name = builder.name;
         label = builder.label;
         value = builder.value;
     }
@@ -40,6 +44,11 @@ public class ValueDto
     public ValueType getType()
     {
         return type;
+    }
+
+    public String getName()
+    {
+        return name;
     }
 
     public String getLabel()
@@ -70,6 +79,7 @@ public class ValueDto
     {
 
         private ValueType type;
+        private String name;
         private String label;
         private Object value;
 
@@ -80,6 +90,12 @@ public class ValueDto
         public Builder withType(final ValueType type)
         {
             this.type = type;
+            return this;
+        }
+
+        public Builder withName(final String name)
+        {
+            this.name = name;
             return this;
         }
 
