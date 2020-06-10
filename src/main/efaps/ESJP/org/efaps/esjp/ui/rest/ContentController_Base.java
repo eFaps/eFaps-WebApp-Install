@@ -26,10 +26,13 @@ import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.wicket.RestartResponseException;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.dbproperty.DBProperties;
 import org.efaps.admin.event.EventType;
+import org.efaps.admin.event.Parameter.ParameterValues;
+import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
@@ -43,6 +46,8 @@ import org.efaps.admin.ui.field.FieldGroup;
 import org.efaps.admin.ui.field.FieldHeading;
 import org.efaps.admin.ui.field.FieldSet;
 import org.efaps.admin.ui.field.FieldTable;
+import org.efaps.api.ci.UIFormFieldProperty;
+import org.efaps.api.ui.UIType;
 import org.efaps.beans.ValueList;
 import org.efaps.beans.valueparser.ParseException;
 import org.efaps.beans.valueparser.ValueParser;
@@ -133,6 +138,7 @@ public abstract class ContentController_Base
         final var form = _cmd.getTargetForm();
         final var table = _cmd.getTargetTable();
         if (form != null) {
+            boolean executable = false;
             final var print = EQL.builder().print(_instance);
             for (final Field field : form.getFields()) {
                 if (field.hasAccess(TargetMode.VIEW, _instance, _cmd, _instance)
@@ -142,21 +148,25 @@ public abstract class ContentController_Base
                     } else {
                         if (field.getSelect() != null) {
                             print.select(field.getSelect()).as(field.getName());
+                            executable = true;
                         } else if (field.getAttribute() != null) {
                             print.attribute(field.getAttribute()).as(field.getName());
+                            executable = true;
                         } else if (field.getPhrase() != null) {
                             // print.addPhrase(field.getName(), field.getPhrase());
                         } else if (field.getMsgPhrase() != null) {
                             print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName())
                                             .as(field.getName());
+                            executable = true;
                         }
                     }
                     if (field.getSelectAlternateOID() != null) {
                         print.select(field.getSelectAlternateOID()).as(field.getName() + "_AOID");
+                        executable = true;
                     }
                 }
             }
-            final var eval = print.execute().evaluate();
+            final var eval = executable ? print.execute().evaluate() : null;
 
             FormSection currentSection = null;
             var groupCount = 0;
@@ -191,12 +201,17 @@ public abstract class ContentController_Base
                         if (groupCount > 0) {
                             groupCount--;
                         }
-                        final var fieldValue = eval.get(field.getName());
-
+                        var valueType = ValueType.READ_ONLY;
+                        var fieldValue = executable ? eval.get(field.getName()) : null;
+                        final UIType uiType = getUIType(field);
+                        if (UIType.SNIPPLET.equals(uiType)) {
+                            fieldValue = getSnipplet(_instance, field);
+                            valueType = ValueType.SNIPPLET;
+                        }
                         final var value = ValueDto.builder()
                                         .withLabel(getLabel(_instance, field))
                                         .withValue(fieldValue)
-                                        .withType(ValueType.READ_ONLY)
+                                        .withType(valueType)
                                         .build();
                         currentValues.add(value);
                         if (groupCount < 1) {
@@ -205,6 +220,7 @@ public abstract class ContentController_Base
                         }
                     }
                 }
+
             }
         }
         sections.stream().forEach(section -> {
@@ -367,4 +383,29 @@ public abstract class ContentController_Base
         return typeList;
     }
 
+
+    public UIType getUIType(final Field _field)
+    {
+        final UIType ret;
+        final String uiTypeStr = _field.getProperty(UIFormFieldProperty.UI_TYPE);
+        if (EnumUtils.isValidEnum(UIType.class, uiTypeStr)) {
+            ret = UIType.valueOf(uiTypeStr);
+        } else {
+            ret = UIType.DEFAULT;
+        }
+        return ret;
+    }
+
+    private CharSequence getSnipplet(final Instance _instance, final Field _field)
+        throws EFapsException
+    {
+        CharSequence ret = null;
+        if (_field.hasEvents(EventType.UI_FIELD_VALUE)) {
+            final var values = _field.executeEvents(EventType.UI_FIELD_VALUE, ParameterValues.INSTANCE, _instance);
+            for (final var entry : values) {
+                ret = (CharSequence) entry.get(ReturnValues.SNIPLETT);
+            }
+        }
+        return ret;
+    }
 }
