@@ -17,6 +17,7 @@
 package org.efaps.esjp.ui.rest.dto;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -27,21 +28,28 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+@JsonDeserialize(builder = TableDto.Builder.class)
 @EFapsUUID("8999d621-02d9-4ec6-9f3e-7571a485142b")
 @EFapsApplication("eFaps-WebApp")
-@JsonDeserialize(builder = TableDto.Builder.class)
 public class TableDto
 {
 
+    private final List<NavItemDto> menu;
     private final String header;
     private final List<ColumnDto> columns;
     private final Collection<Map<String, ?>> values;
 
-    private TableDto(final Builder _builder)
+    private TableDto(final Builder builder)
     {
-        header = _builder.header;
-        columns = _builder.columns;
-        values = _builder.values;
+        menu = builder.menu;
+        header = builder.header;
+        columns = builder.columns;
+        values = builder.values;
+    }
+
+    public List<NavItemDto> getMenu()
+    {
+        return menu;
     }
 
     public String getHeader()
@@ -53,6 +61,7 @@ public class TableDto
     {
         return columns;
     }
+
     @JsonSerialize(contentUsing = TableValueSerializer.class)
     public Collection<Map<String, ?>> getValues()
     {
@@ -65,33 +74,52 @@ public class TableDto
         return ToStringBuilder.reflectionToString(this);
     }
 
+    /**
+     * Creates builder to build {@link TableDto}.
+     *
+     * @return created builder
+     */
     public static Builder builder()
     {
         return new Builder();
     }
 
+    /**
+     * Builder to build {@link TableDto}.
+     */
     public static final class Builder
     {
 
+        private List<NavItemDto> menu = Collections.emptyList();
         private String header;
-        private List<ColumnDto> columns;
-        private Collection<Map<String, ?>> values;
+        private List<ColumnDto> columns = Collections.emptyList();
+        private Collection<Map<String, ?>> values = Collections.emptyList();
 
-        public Builder withHeader(final String _header)
+        private Builder()
         {
-            header = _header;
+        }
+
+        public Builder withMenu(final List<NavItemDto> menu)
+        {
+            this.menu = menu;
             return this;
         }
 
-        public Builder withColumns(final List<ColumnDto> _columns)
+        public Builder withHeader(final String header)
         {
-            columns = _columns;
+            this.header = header;
             return this;
         }
 
-        public Builder withValues(final Collection<Map<String, ?>> _values)
+        public Builder withColumns(final List<ColumnDto> columns)
         {
-            values = _values;
+            this.columns = columns;
+            return this;
+        }
+
+        public Builder withValues(final Collection<Map<String, ?>> values)
+        {
+            this.values = values;
             return this;
         }
 

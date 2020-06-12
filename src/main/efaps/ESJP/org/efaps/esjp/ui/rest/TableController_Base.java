@@ -35,6 +35,7 @@ import org.efaps.admin.ui.Command;
 import org.efaps.admin.ui.Menu;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.common.properties.PropertiesUtil;
+import org.efaps.esjp.ui.rest.dto.NavItemDto;
 import org.efaps.esjp.ui.rest.dto.TableDto;
 import org.efaps.util.EFapsException;
 import org.efaps.util.UUIDUtil;
@@ -69,7 +70,12 @@ public abstract class TableController_Base
 
         final var values = getValues(table, types);
 
+        final var menu = cmd.getTargetMenu();
+
+        final List<NavItemDto> menus = menu == null ? null : new NavItemEvaluator().getMenu(menu);
+
         final var dto = TableDto.builder()
+                        .withMenu(menus)
                         .withHeader(getHeader(cmd))
                         .withColumns(getColumns(table))
                         .withValues(values)
