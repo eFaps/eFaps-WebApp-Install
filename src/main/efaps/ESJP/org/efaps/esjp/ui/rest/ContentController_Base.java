@@ -87,21 +87,23 @@ public abstract class ContentController_Base
         final var instance = Instance.get(_oid);
         if (instance.isValid()) {
 
-            final var menu = instance.getType().getTypeMenu();
-            final var defaultSelected = menu.getCommands().stream().filter(cmd -> cmd.isDefaultSelected()).findFirst();
-            final var currentCmd = defaultSelected.isPresent() ? defaultSelected.get() : menu;
+            final var typeMenu = instance.getType().getTypeMenu();
+            final var defaultSelected = typeMenu.getCommands().stream().filter(cmd -> cmd.isDefaultSelected()).findFirst();
+            final var currentCmd = defaultSelected.isPresent() ? defaultSelected.get() : typeMenu;
 
+            final var targetMenu = currentCmd.getTargetMenu();
+            final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu);
             final var header = getLabel(instance, currentCmd.getTargetTitle());
 
             final List<NavItemDto> navItems = new ArrayList<>();
             navItems.add(NavItemDto.builder()
-                            .withId(menu.getUUID().toString())
-                            .withLabel(getLabel(instance, menu.getLabel()))
+                            .withId(typeMenu.getUUID().toString())
+                            .withLabel(getLabel(instance, typeMenu.getLabel()))
                             .withAction(ActionDto.builder()
                                             .withType(ActionType.GRID)
                                             .build())
                             .build());
-            for (final var command : menu.getCommands()) {
+            for (final var command : typeMenu.getCommands()) {
                 ActionType actionType = null;
                 if (command.getTargetTable() != null) {
                     actionType = ActionType.GRID;
@@ -116,6 +118,7 @@ public abstract class ContentController_Base
             }
             final var outline = OutlineDto.builder()
                             .withOid(_oid)
+                            .withMenu(menus)
                             .withHeader(header)
                             .withSections(evalSections(instance, currentCmd))
                             .build();
@@ -307,9 +310,13 @@ public abstract class ContentController_Base
             if (cmd == null) {
                 cmd = Menu.get(UUID.fromString(_cmdId));
             }
+            final var targetMenu = cmd.getTargetMenu();
+
+            final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu);
             final var header = getLabel(instance, cmd.getLabel());
             dto = OutlineDto.builder()
                             .withOid(_oid)
+                            .withMenu(menus)
                             .withHeader(header)
                             .withSections(evalSections(instance, cmd))
                             .build();

@@ -22,17 +22,22 @@ import java.util.List;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+@JsonDeserialize(builder = OutlineDto.Builder.class)
 @EFapsUUID("43ce6e45-afd4-40a8-92db-0944dc859570")
 @EFapsApplication("eFaps-WebApp")
 public class OutlineDto
 {
     private final String oid;
+    private final List<NavItemDto> menu;
     private final String header;
     private final List<ISection> sections;
 
     private OutlineDto(final Builder builder)
     {
         oid = builder.oid;
+        menu = builder.menu;
         header = builder.header;
         sections = builder.sections;
     }
@@ -40,6 +45,11 @@ public class OutlineDto
     public String getOid()
     {
         return oid;
+    }
+
+    public List<NavItemDto> getMenu()
+    {
+        return menu;
     }
 
     public String getHeader()
@@ -68,6 +78,7 @@ public class OutlineDto
     {
 
         private String oid;
+        private List<NavItemDto> menu = Collections.emptyList();
         private String header;
         private List<ISection> sections = Collections.emptyList();
 
@@ -78,6 +89,12 @@ public class OutlineDto
         public Builder withOid(final String oid)
         {
             this.oid = oid;
+            return this;
+        }
+
+        public Builder withMenu(final List<NavItemDto> menu)
+        {
+            this.menu = menu;
             return this;
         }
 
