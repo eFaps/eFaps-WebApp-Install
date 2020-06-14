@@ -55,6 +55,7 @@ import org.efaps.db.Instance;
 import org.efaps.db.PrintQuery;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.common.properties.PropertiesUtil;
+import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.ui.rest.dto.ActionDto;
 import org.efaps.esjp.ui.rest.dto.ActionType;
 import org.efaps.esjp.ui.rest.dto.ContentDto;
@@ -138,14 +139,23 @@ public abstract class ContentController_Base
     {
         final var ret = new ArrayList<ISection>();
         final var sections = new ArrayList<Object>();
+        final var targetMode = TargetMode.UNKNOWN.equals(_cmd.getTargetMode()) ? TargetMode.VIEW : _cmd.getTargetMode();
+
+        final Instance sectionInstance;
+        if (TargetMode.CREATE.equals(targetMode) && _cmd.getTargetCreateType() != null) {
+            sectionInstance = Instance.get(_cmd.getTargetCreateType(), null);
+        } else {
+            sectionInstance = _instance;
+        }
+
         final var form = _cmd.getTargetForm();
         final var table = _cmd.getTargetTable();
         if (form != null) {
             boolean executable = false;
-            final var print = EQL.builder().print(_instance);
+            final var print = EQL.builder().print(sectionInstance);
             for (final Field field : form.getFields()) {
-                if (field.hasAccess(TargetMode.VIEW, _instance, _cmd, _instance)
-                                && !field.isNoneDisplay(TargetMode.VIEW)) {
+                if (sectionInstance.isValid() && field.isNoneDisplay(targetMode)
+                                && field.hasAccess(targetMode, sectionInstance, _cmd, sectionInstance)) {
                     if (field instanceof FieldSet) {
                         LOG.debug("FieldSet {}", field);
                     } else {
@@ -156,7 +166,8 @@ public abstract class ContentController_Base
                             print.attribute(field.getAttribute()).as(field.getName());
                             executable = true;
                         } else if (field.getPhrase() != null) {
-                            // print.addPhrase(field.getName(), field.getPhrase());
+                            // print.addPhrase(field.getName(),
+                            // field.getPhrase());
                         } else if (field.getMsgPhrase() != null) {
                             print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName())
                                             .as(field.getName());
@@ -175,8 +186,8 @@ public abstract class ContentController_Base
             var groupCount = 0;
             var currentValues = new ArrayList<ValueDto>();
             for (final Field field : form.getFields()) {
-                if (field.hasAccess(TargetMode.VIEW, _instance, _cmd, _instance)
-                                && !field.isNoneDisplay(TargetMode.VIEW)) {
+                if (!field.isNoneDisplay(targetMode)
+                                && field.hasAccess(targetMode, sectionInstance, _cmd, sectionInstance)) {
                     if (field instanceof FieldGroup) {
                         final FieldGroup group = (FieldGroup) field;
                         groupCount = group.getGroupCount();
@@ -186,7 +197,7 @@ public abstract class ContentController_Base
                         final var columns = getColumns(fieldTable);
                         sections.add(TableSectionDto.builder()
                                         .withColumns(columns)
-                                        .withValues(getValues(field, fieldTable, _instance))
+                                        .withValues(getValues(field, fieldTable, sectionInstance))
                                         .build());
                     } else if (field instanceof FieldHeading) {
                         sections.add(HeaderSectionDto.builder()
@@ -208,11 +219,13 @@ public abstract class ContentController_Base
                         var fieldValue = executable ? eval.get(field.getName()) : null;
                         final UIType uiType = getUIType(field);
                         if (UIType.SNIPPLET.equals(uiType)) {
-                            fieldValue = getSnipplet(_instance, field);
+                            fieldValue = getSnipplet(sectionInstance, field);
                             valueType = ValueType.SNIPPLET;
+                        } else if (TargetMode.CREATE.equals(targetMode) && field.isEditableDisplay(targetMode)) {
+                            valueType = ValueType.INPUT;
                         }
                         final var value = ValueDto.builder()
-                                        .withLabel(getLabel(_instance, field))
+                                        .withLabel(getLabel(sectionInstance, field))
                                         .withValue(fieldValue)
                                         .withType(valueType)
                                         .build();
@@ -281,17 +294,15 @@ public abstract class ContentController_Base
         String ret = "";
         try {
             ret = DBProperties.getProperty(_propertyKey);
-
             final ValueParser parser = new ValueParser(new StringReader(ret));
             final ValueList list = parser.ExpressionString();
-            if (list.getExpressions().size() > 0) {
+            if (InstanceUtils.isValid(_instance) && list.getExpressions().size() > 0) {
                 final PrintQuery print = new PrintQuery(_instance);
                 list.makeSelect(print);
                 if (print.execute()) {
                     ret = list.makeString(_instance, print, TargetMode.VIEW);
                 }
             }
-
         } catch (final EFapsException e) {
             throw new RestartResponseException(new ErrorPage(e));
         } catch (final ParseException e) {
@@ -305,15 +316,14 @@ public abstract class ContentController_Base
     {
         OutlineDto dto = null;
         final var instance = Instance.get(_oid);
-        if (instance.isValid()) {
-            AbstractCommand cmd = Command.get(UUID.fromString(_cmdId));
-            if (cmd == null) {
-                cmd = Menu.get(UUID.fromString(_cmdId));
-            }
+        AbstractCommand cmd = Command.get(UUID.fromString(_cmdId));
+        if (cmd == null) {
+            cmd = Menu.get(UUID.fromString(_cmdId));
+        }
+        if (instance.isValid() || cmd.getTargetMode().equals(TargetMode.CREATE)) {
             final var targetMenu = cmd.getTargetMenu();
-
             final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu);
-            final var header = getLabel(instance, cmd.getLabel());
+            final var header = getLabel(instance, cmd.getTargetTitle());
             dto = OutlineDto.builder()
                             .withOid(_oid)
                             .withMenu(menus)
@@ -389,7 +399,6 @@ public abstract class ContentController_Base
         }
         return typeList;
     }
-
 
     public UIType getUIType(final Field _field)
     {

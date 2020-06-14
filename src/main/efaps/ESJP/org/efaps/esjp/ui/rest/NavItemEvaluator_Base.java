@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.ui.AbstractCommand.Target;
 import org.efaps.admin.ui.AbstractMenu;
 import org.efaps.esjp.ui.rest.dto.ActionDto;
 import org.efaps.esjp.ui.rest.dto.ActionType;
@@ -36,7 +37,9 @@ public abstract class NavItemEvaluator_Base
         final var ret = new ArrayList<NavItemDto>();
         for (final var command : _menu.getCommands()) {
             ActionType actionType = null;
-            if (command.getTargetTable() != null) {
+            if (command.getTarget() == Target.MODAL) {
+                actionType = ActionType.MODAL;
+            } else if (command.getTargetTable() != null) {
                 actionType = ActionType.GRID;
             }
 
