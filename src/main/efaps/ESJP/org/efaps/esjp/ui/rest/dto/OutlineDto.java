@@ -33,6 +33,7 @@ public class OutlineDto
     private final List<NavItemDto> menu;
     private final String header;
     private final List<ISection> sections;
+    private final ActionDto action;
 
     private OutlineDto(final Builder builder)
     {
@@ -40,6 +41,7 @@ public class OutlineDto
         menu = builder.menu;
         header = builder.header;
         sections = builder.sections;
+        action = builder.action;
     }
 
     public String getOid()
@@ -62,6 +64,11 @@ public class OutlineDto
         return sections;
     }
 
+    public ActionDto getAction()
+    {
+        return action;
+    }
+
     /**
      * Creates builder to build {@link OutlineDto}.
      * @return created builder
@@ -81,6 +88,7 @@ public class OutlineDto
         private List<NavItemDto> menu = Collections.emptyList();
         private String header;
         private List<ISection> sections = Collections.emptyList();
+        private ActionDto action;
 
         private Builder()
         {
@@ -107,6 +115,12 @@ public class OutlineDto
         public Builder withSections(final List<ISection> sections)
         {
             this.sections = sections;
+            return this;
+        }
+
+        public Builder withAction(final ActionDto action)
+        {
+            this.action = action;
             return this;
         }
 

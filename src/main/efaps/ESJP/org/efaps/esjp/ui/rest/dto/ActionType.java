@@ -26,5 +26,6 @@ public enum ActionType
     GRID,
     SEARCH,
     FORM,
-    MODAL
+    MODAL,
+    EXEC
 }

@@ -22,22 +22,29 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+@JsonDeserialize(builder = ActionDto.Builder.class)
 @EFapsUUID("271067ff-2afc-4c25-93b8-372ffb5eddda")
 @EFapsApplication("eFaps-WebApp")
-@JsonDeserialize(builder = ActionDto.Builder.class)
 public class ActionDto
 {
 
     private final ActionType type;
+    private final String label;
 
-    private ActionDto(final Builder _builder)
+    private ActionDto(final Builder builder)
     {
-        type = _builder.type;
+        type = builder.type;
+        label = builder.label;
     }
 
     public ActionType getType()
     {
         return type;
+    }
+
+    public String getLabel()
+    {
+        return label;
     }
 
     @Override
@@ -46,19 +53,37 @@ public class ActionDto
         return ToStringBuilder.reflectionToString(this);
     }
 
+    /**
+     * Creates builder to build {@link ActionDto}.
+     * @return created builder
+     */
     public static Builder builder()
     {
         return new Builder();
     }
 
+    /**
+     * Builder to build {@link ActionDto}.
+     */
     public static final class Builder
     {
 
         private ActionType type;
+        private String label;
 
-        public Builder withType(final ActionType _type)
+        private Builder()
         {
-            type = _type;
+        }
+
+        public Builder withType(final ActionType type)
+        {
+            this.type = type;
+            return this;
+        }
+
+        public Builder withLabel(final String label)
+        {
+            this.label = label;
             return this;
         }
 

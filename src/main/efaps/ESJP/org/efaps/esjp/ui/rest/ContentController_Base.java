@@ -324,11 +324,19 @@ public abstract class ContentController_Base
             final var targetMenu = cmd.getTargetMenu();
             final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu);
             final var header = getLabel(instance, cmd.getTargetTitle());
+            ActionDto action = null;
+            if (cmd.getTargetMode().equals(TargetMode.CREATE) && cmd.hasEvents(EventType.UI_COMMAND_EXECUTE)) {
+                action = ActionDto.builder()
+                                .withLabel(DBProperties.getProperty("default.Button.Create"))
+                                .build();
+            }
+
             dto = OutlineDto.builder()
                             .withOid(_oid)
                             .withMenu(menus)
                             .withHeader(header)
                             .withSections(evalSections(instance, cmd))
+                            .withAction(action)
                             .build();
         }
         return Response.ok()
