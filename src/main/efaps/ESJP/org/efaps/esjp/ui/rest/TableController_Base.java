@@ -74,11 +74,16 @@ public abstract class TableController_Base
 
         final List<NavItemDto> menus = menu == null ? null : new NavItemEvaluator().getMenu(menu);
 
+        final String selectionMode = cmd.isTargetShowCheckBoxes()
+                        ? cmd.getSubmitSelectedRows() == 1 ? "single" : "multiple"
+                        : null;
+
         final var dto = TableDto.builder()
                         .withMenu(menus)
                         .withHeader(getHeader(cmd))
                         .withColumns(getColumns(table))
                         .withValues(values)
+                        .withSelectionMode(selectionMode)
                         .build();
 
         final Response ret = Response.ok()

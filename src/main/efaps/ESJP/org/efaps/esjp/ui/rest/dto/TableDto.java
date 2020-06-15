@@ -38,6 +38,7 @@ public class TableDto
     private final String header;
     private final List<ColumnDto> columns;
     private final Collection<Map<String, ?>> values;
+    private final String selectionMode;
 
     private TableDto(final Builder builder)
     {
@@ -45,6 +46,7 @@ public class TableDto
         header = builder.header;
         columns = builder.columns;
         values = builder.values;
+        selectionMode = builder.selectionMode;
     }
 
     public List<NavItemDto> getMenu()
@@ -66,6 +68,11 @@ public class TableDto
     public Collection<Map<String, ?>> getValues()
     {
         return values;
+    }
+
+    public String getSelectionMode()
+    {
+        return selectionMode;
     }
 
     @Override
@@ -94,6 +101,7 @@ public class TableDto
         private String header;
         private List<ColumnDto> columns = Collections.emptyList();
         private Collection<Map<String, ?>> values = Collections.emptyList();
+        private String selectionMode;
 
         private Builder()
         {
@@ -120,6 +128,12 @@ public class TableDto
         public Builder withValues(final Collection<Map<String, ?>> values)
         {
             this.values = values;
+            return this;
+        }
+
+        public Builder withSelectionMode(final String selectionMode)
+        {
+            this.selectionMode = selectionMode;
             return this;
         }
 
