@@ -154,7 +154,7 @@ public abstract class ContentController_Base
             boolean executable = false;
             final var print = EQL.builder().print(sectionInstance);
             for (final Field field : form.getFields()) {
-                if (sectionInstance.isValid() && field.isNoneDisplay(targetMode)
+                if (sectionInstance.isValid() && !field.isNoneDisplay(targetMode)
                                 && field.hasAccess(targetMode, sectionInstance, _cmd, sectionInstance)) {
                     if (field instanceof FieldSet) {
                         LOG.debug("FieldSet {}", field);
@@ -226,6 +226,7 @@ public abstract class ContentController_Base
                         }
                         final var value = ValueDto.builder()
                                         .withLabel(getLabel(sectionInstance, field))
+                                        .withName(field.getName())
                                         .withValue(fieldValue)
                                         .withType(valueType)
                                         .build();
