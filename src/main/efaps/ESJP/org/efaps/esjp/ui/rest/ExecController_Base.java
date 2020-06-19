@@ -37,11 +37,16 @@ import org.efaps.api.ui.UIType;
 import org.efaps.db.Context;
 import org.efaps.util.EFapsException;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @EFapsUUID("29e9c73d-a4ec-4f20-a8ad-b213b0db1afe")
 @EFapsApplication("eFaps-WebApp")
-public abstract class ExecController_Base extends AbstractController
+public abstract class ExecController_Base
+    extends AbstractController
 {
+
+    private static final Logger LOG = LoggerFactory.getLogger(ExecController.class);
 
     public Response exec(final String _cmdId, final FormDataMultiPart _formData)
         throws EFapsException
@@ -52,7 +57,7 @@ public abstract class ExecController_Base extends AbstractController
             final var fieldName = entry.getKey();
             final var values = entry.getValue().stream().map(part -> {
                 return part.getValue();
-            }).toArray(String[]::new) ;
+            }).toArray(String[]::new);
             parameters.put(fieldName, values);
         }
 
@@ -65,7 +70,8 @@ public abstract class ExecController_Base extends AbstractController
         return ret;
     }
 
-    protected void evalUpload(final AbstractCommand _cmd, final Map<String, String[]> _parameters) {
+    protected void evalUpload(final AbstractCommand _cmd, final Map<String, String[]> _parameters)
+    {
         final var form = _cmd.getTargetForm();
         if (form != null) {
             form.getFields().stream().filter(field -> {
@@ -80,7 +86,7 @@ public abstract class ExecController_Base extends AbstractController
     protected void registerFileParameter(final Field _field, final Map<String, String[]> _parameters)
     {
         final var keys = _parameters.get(_field.getName());
-        int idx = 0;
+        int idx = -1;
         for (final String key : keys) {
             final var file = UploadController_Base.MAP.get(key);
             if (file != null && file.exists()) {
@@ -88,11 +94,11 @@ public abstract class ExecController_Base extends AbstractController
                     final var filePara = new FilePara()
                                     .setParameterName(_field.getName())
                                     .setFile(file);
-                    Context.getThreadContext().getFileParameters().put(_field.getName() + "_" + idx, filePara);
+                    final var fieldKey = idx > -1 ? _field.getName() + "_" + idx : _field.getName();
+                    Context.getThreadContext().getFileParameters().put(fieldKey, filePara);
                     idx++;
                 } catch (final EFapsException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
+                    LOG.error("Catched", e);
                 }
             }
         }
@@ -101,6 +107,7 @@ public abstract class ExecController_Base extends AbstractController
     public static class FilePara
         implements Context.FileParameter
     {
+
         private String parameterName;
         private File file;
         private InputStream inputStream;
