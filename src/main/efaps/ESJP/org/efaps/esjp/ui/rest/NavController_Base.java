@@ -25,6 +25,7 @@ import javax.ws.rs.core.Response;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
+import org.efaps.admin.ui.AbstractCommand.Target;
 import org.efaps.admin.ui.AbstractMenu;
 import org.efaps.admin.ui.Menu;
 import org.efaps.esjp.ui.rest.dto.ActionDto;
@@ -73,7 +74,11 @@ public abstract class NavController_Base
                 if (command.getTargetTable() != null) {
                     actionType = ActionType.GRID;
                 } else if (command.getTargetForm() != null) {
-                    actionType = ActionType.FORM;
+                    if (command.getTarget() == Target.MODAL) {
+                        actionType = ActionType.MODAL;
+                    } else {
+                        actionType = ActionType.FORM;
+                    }
                 } else if (command.getTargetSearch() != null) {
                     actionType = ActionType.SEARCH;
                 }
