@@ -14,18 +14,33 @@
  * limitations under the License.
  *
  */
-package org.efaps.esjp.ui.rest.dto;
+package org.efaps.esjp.ui.rest;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.util.EFapsException;
+import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
-@EFapsUUID("32c1f972-30c2-414f-8a48-a0cd29362ab9")
+@EFapsUUID("81f84eb6-e6f7-45d3-9f9a-ef9bfc3e52e8")
 @EFapsApplication("eFaps-WebApp")
-public enum ValueType
+@Path("/ui/upload")
+public class UploadController
+    extends UploadController_Base
 {
-    READ_ONLY,
-    INPUT,
-    SNIPPLET,
-    UPLOAD,
-    UPLOADMULTIPLE
+    @Override
+    @POST
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_FORM_URLENCODED})
+    public Response upload(final FormDataMultiPart _formData)
+        throws EFapsException
+    {
+        return super.upload(_formData);
+    }
 }

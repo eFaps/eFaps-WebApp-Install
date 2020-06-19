@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.Type;
@@ -30,6 +31,8 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.field.Field;
+import org.efaps.api.ci.UIFormFieldProperty;
+import org.efaps.api.ui.UIType;
 import org.efaps.eql.builder.Print;
 import org.efaps.esjp.ui.rest.dto.ColumnDto;
 import org.efaps.util.EFapsException;
@@ -102,4 +105,15 @@ public abstract class AbstractController_Base
         }
     }
 
+    protected UIType getUIType(final Field _field)
+    {
+        final UIType ret;
+        final String uiTypeStr = _field.getProperty(UIFormFieldProperty.UI_TYPE);
+        if (EnumUtils.isValidEnum(UIType.class, uiTypeStr)) {
+            ret = UIType.valueOf(uiTypeStr);
+        } else {
+            ret = UIType.DEFAULT;
+        }
+        return ret;
+    }
 }

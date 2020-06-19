@@ -26,7 +26,6 @@ import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.lang3.EnumUtils;
 import org.apache.wicket.RestartResponseException;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.dbproperty.DBProperties;
@@ -46,7 +45,6 @@ import org.efaps.admin.ui.field.FieldGroup;
 import org.efaps.admin.ui.field.FieldHeading;
 import org.efaps.admin.ui.field.FieldSet;
 import org.efaps.admin.ui.field.FieldTable;
-import org.efaps.api.ci.UIFormFieldProperty;
 import org.efaps.api.ui.UIType;
 import org.efaps.beans.ValueList;
 import org.efaps.beans.valueparser.ParseException;
@@ -221,6 +219,10 @@ public abstract class ContentController_Base
                         if (UIType.SNIPPLET.equals(uiType)) {
                             fieldValue = getSnipplet(sectionInstance, field);
                             valueType = ValueType.SNIPPLET;
+                        } else if (UIType.UPLOAD.equals(uiType))  {
+                            valueType = ValueType.UPLOAD;
+                        } else if (UIType.UPLOADMULTIPLE.equals(uiType))  {
+                            valueType = ValueType.UPLOADMULTIPLE;
                         } else if (TargetMode.CREATE.equals(targetMode) && field.isEditableDisplay(targetMode)) {
                             valueType = ValueType.INPUT;
                         }
@@ -407,18 +409,6 @@ public abstract class ContentController_Base
             }
         }
         return typeList;
-    }
-
-    public UIType getUIType(final Field _field)
-    {
-        final UIType ret;
-        final String uiTypeStr = _field.getProperty(UIFormFieldProperty.UI_TYPE);
-        if (EnumUtils.isValidEnum(UIType.class, uiTypeStr)) {
-            ret = UIType.valueOf(uiTypeStr);
-        } else {
-            ret = UIType.DEFAULT;
-        }
-        return ret;
     }
 
     private CharSequence getSnipplet(final Instance _instance, final Field _field)
