@@ -49,6 +49,8 @@ public abstract class NavController_Base
             ActionType actionType = null;
             if (command.getTargetTable() != null) {
                 actionType = ActionType.GRID;
+            } else if (command.getTarget() == Target.HIDDEN) {
+                actionType = ActionType.EXEC;
             }
             navItems.add(NavItemDto.builder()
                             .withId(command.getUUID().toString())
@@ -81,6 +83,8 @@ public abstract class NavController_Base
                     }
                 } else if (command.getTargetSearch() != null) {
                     actionType = ActionType.SEARCH;
+                } else if (command.getTarget() == Target.HIDDEN) {
+                    actionType = ActionType.EXEC;
                 }
                 ret.add(NavItemDto.builder()
                             .withId(command.getUUID().toString())

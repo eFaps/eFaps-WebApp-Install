@@ -41,6 +41,8 @@ public abstract class NavItemEvaluator_Base
                 actionType = ActionType.MODAL;
             } else if (command.getTargetTable() != null) {
                 actionType = ActionType.GRID;
+            } else if (command.getTarget() == Target.HIDDEN) {
+                actionType = ActionType.EXEC;
             }
 
             List<NavItemDto> children = null;
