@@ -169,6 +169,11 @@
         </dependency>
         <dependency>
             <groupId>org.efaps</groupId>
+            <artifactId>efaps-graphql-install</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.efaps</groupId>
             <artifactId>efaps-webapp</artifactId>
             <version>${project.version}</version>
         </dependency>
