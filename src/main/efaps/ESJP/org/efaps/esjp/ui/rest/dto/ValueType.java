@@ -27,5 +27,6 @@ public enum ValueType
     INPUT,
     SNIPPLET,
     UPLOAD,
-    UPLOADMULTIPLE
+    UPLOADMULTIPLE,
+    ENUM
 }

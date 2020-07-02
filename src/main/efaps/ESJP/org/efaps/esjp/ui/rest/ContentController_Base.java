@@ -18,21 +18,25 @@ package org.efaps.esjp.ui.rest;
 
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Response;
 
 import org.apache.wicket.RestartResponseException;
+import org.efaps.admin.datamodel.IEnum;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.dbproperty.DBProperties;
 import org.efaps.admin.event.EventType;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
+import org.efaps.admin.program.esjp.EFapsClassLoader;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject;
@@ -61,6 +65,7 @@ import org.efaps.esjp.ui.rest.dto.FormSectionDto;
 import org.efaps.esjp.ui.rest.dto.HeaderSectionDto;
 import org.efaps.esjp.ui.rest.dto.ISection;
 import org.efaps.esjp.ui.rest.dto.NavItemDto;
+import org.efaps.esjp.ui.rest.dto.OptionDto;
 import org.efaps.esjp.ui.rest.dto.OutlineDto;
 import org.efaps.esjp.ui.rest.dto.SectionType;
 import org.efaps.esjp.ui.rest.dto.TableSectionDto;
@@ -132,6 +137,7 @@ public abstract class ContentController_Base
                         .build();
     }
 
+    @SuppressWarnings("unchecked")
     public List<ISection> evalSections(final Instance _instance, final AbstractCommand _cmd)
         throws EFapsException
     {
@@ -213,6 +219,8 @@ public abstract class ContentController_Base
                         if (groupCount > 0) {
                             groupCount--;
                         }
+                        final var valueBldr = ValueDto.builder();
+
                         var valueType = ValueType.READ_ONLY;
                         var fieldValue = executable ? eval.get(field.getName()) : null;
                         final UIType uiType = getUIType(field);
@@ -224,10 +232,36 @@ public abstract class ContentController_Base
                         } else if (UIType.UPLOADMULTIPLE.equals(uiType))  {
                             valueType = ValueType.UPLOADMULTIPLE;
                         } else if (TargetMode.CREATE.equals(targetMode) && field.isEditableDisplay(targetMode)) {
-                            valueType = ValueType.INPUT;
+                            final var attr = sectionInstance.getType().getAttribute(field.getAttribute());
+                            if (attr != null) {
+                                final var attrType = attr.getAttributeType();
+                                switch (attrType.getName()) {
+                                    case "Enum":
+                                        valueType = ValueType.ENUM;
+                                        try {
+                                            final Class<?> clazz = Class.forName(attr.getClassName(), false,
+                                                            EFapsClassLoader.getInstance());
+                                            valueBldr.withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
+                                                .map(ienum -> {
+                                                    return OptionDto.builder()
+                                                                .withValue(((IEnum) ienum).getInt())
+                                                                .withLabel(getEnumLabel((IEnum) ienum))
+                                                                .build();
+                                                }).collect(Collectors.toList()));
+                                        } catch (final ClassNotFoundException e) {
+                                            // TODO Auto-generated catch block
+                                            e.printStackTrace();
+                                        }
+                                        break;
+                                    default:
+                                        valueType = ValueType.INPUT;
+                                        break;
+                                }
+                            } else {
+                                valueType = ValueType.INPUT;
+                            }
                         }
-                        final var value = ValueDto.builder()
-                                        .withLabel(getLabel(sectionInstance, field))
+                        final var value = valueBldr.withLabel(getLabel(sectionInstance, field))
                                         .withName(field.getName())
                                         .withValue(fieldValue)
                                         .withType(valueType)
@@ -423,4 +457,23 @@ public abstract class ContentController_Base
         }
         return ret;
     }
+
+    public static String getEnumLabel(final IEnum _enum)
+    {
+        String ret = null;
+        if (_enum != null) {
+            final String key;
+            if (_enum.getClass().isEnum()) {
+                key = _enum.getClass().getName() + "." + _enum.toString();
+            } else {
+                key = _enum.getClass().getName();
+            }
+            ret = DBProperties.getProperty(key, false);
+            if (ret == null) {
+                ret = _enum.toString();
+            }
+        }
+        return ret;
+    }
+
 }

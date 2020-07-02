@@ -16,44 +16,24 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
-@JsonDeserialize(builder = ValueDto.Builder.class)
-@EFapsUUID("5b98f5dd-366b-41e3-8402-f26afbbf2240")
+@JsonDeserialize(builder = OptionDto.Builder.class)
+@EFapsUUID("9bd46754-d249-4a4a-ae5f-1de3f370bbbc")
 @EFapsApplication("eFaps-WebApp")
-public class ValueDto
+public class OptionDto
 {
 
-    private final ValueType type;
-    private final String name;
     private final String label;
     private final Object value;
-    private final List<OptionDto> options;
 
-    private ValueDto(final Builder builder)
+    private OptionDto(final Builder builder)
     {
-        type = builder.type;
-        name = builder.name;
         label = builder.label;
         value = builder.value;
-        options = builder.options;
-    }
-
-    public ValueType getType()
-    {
-        return type;
-    }
-
-    public String getName()
-    {
-        return name;
     }
 
     public String getLabel()
@@ -61,19 +41,14 @@ public class ValueDto
         return label;
     }
 
-    @JsonSerialize(using = ValueSerializer.class)
     public Object getValue()
     {
         return value;
     }
 
-    public List<OptionDto> getOptions()
-    {
-        return options;
-    }
-
     /**
-     * Creates builder to build {@link ValueDto}.
+     * Creates builder to build {@link OptionDto}.
+     *
      * @return created builder
      */
     public static Builder builder()
@@ -82,31 +57,16 @@ public class ValueDto
     }
 
     /**
-     * Builder to build {@link ValueDto}.
+     * Builder to build {@link OptionDto}.
      */
     public static final class Builder
     {
 
-        private ValueType type;
-        private String name;
         private String label;
         private Object value;
-        private List<OptionDto> options = Collections.emptyList();
 
         private Builder()
         {
-        }
-
-        public Builder withType(final ValueType type)
-        {
-            this.type = type;
-            return this;
-        }
-
-        public Builder withName(final String name)
-        {
-            this.name = name;
-            return this;
         }
 
         public Builder withLabel(final String label)
@@ -121,15 +81,10 @@ public class ValueDto
             return this;
         }
 
-        public Builder withOptions(final List<OptionDto> options)
+        public OptionDto build()
         {
-            this.options = options;
-            return this;
-        }
-
-        public ValueDto build()
-        {
-            return new ValueDto(this);
+            return new OptionDto(this);
         }
     }
+
 }
