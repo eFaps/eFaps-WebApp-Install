@@ -63,7 +63,9 @@ public abstract class ExecController_Base
 
         final AbstractCommand cmd = Command.get(UUID.fromString(_cmdId));
         evalUpload(cmd, parameters);
-        cmd.executeEvents(EventType.UI_COMMAND_EXECUTE, ParameterValues.PARAMETERS, parameters);
+
+        cmd.executeEvents(EventType.UI_COMMAND_EXECUTE, ParameterValues.PARAMETERS, parameters,
+                        ParameterValues.OTHERS, parameters.get("eFapsSelectedOids"));
 
         final Response ret = Response.ok()
                         .build();

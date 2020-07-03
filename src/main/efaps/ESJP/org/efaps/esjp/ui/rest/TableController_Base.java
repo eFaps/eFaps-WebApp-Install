@@ -68,7 +68,7 @@ public abstract class TableController_Base
         final var properties = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
         final var types = evalTypes(properties);
 
-        final var values = getValues(table, types);
+        final var values = getValues(cmd, table, types);
 
         final var menu = cmd.getTargetMenu();
 
@@ -118,7 +118,8 @@ public abstract class TableController_Base
         return typeList;
     }
 
-    public Collection<Map<String, ?>> getValues(final org.efaps.admin.ui.Table _table, final List<Type> _types)
+    public Collection<Map<String, ?>> getValues(final AbstractCommand _cmd, final org.efaps.admin.ui.Table _table,
+                                                final List<Type> _types)
         throws EFapsException
     {
         final var fields = getFields(_table);
@@ -128,7 +129,7 @@ public abstract class TableController_Base
                         .query(types)
                         .select();
 
-        if (fields.stream().anyMatch(field -> field.getReference() != null)) {
+        if (_cmd.isTargetShowCheckBoxes() || fields.stream().anyMatch(field -> field.getReference() != null)) {
             print.oid().as("OID");
         }
         for (final var field : fields) {

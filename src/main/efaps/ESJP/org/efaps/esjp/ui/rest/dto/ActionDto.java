@@ -30,11 +30,13 @@ public class ActionDto
 
     private final ActionType type;
     private final String label;
+    private final VerifyDto verify;
 
     private ActionDto(final Builder builder)
     {
         type = builder.type;
         label = builder.label;
+        verify = builder.verify;
     }
 
     public ActionType getType()
@@ -45,6 +47,11 @@ public class ActionDto
     public String getLabel()
     {
         return label;
+    }
+
+    public VerifyDto getVerify()
+    {
+        return verify;
     }
 
     @Override
@@ -70,6 +77,7 @@ public class ActionDto
 
         private ActionType type;
         private String label;
+        private VerifyDto verify;
 
         private Builder()
         {
@@ -84,6 +92,12 @@ public class ActionDto
         public Builder withLabel(final String label)
         {
             this.label = label;
+            return this;
+        }
+
+        public Builder withVerify(final VerifyDto verify)
+        {
+            this.verify = verify;
             return this;
         }
 
