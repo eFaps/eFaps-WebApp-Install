@@ -19,6 +19,7 @@ package org.efaps.esjp.ui.rest;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -31,10 +32,12 @@ import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
+import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.api.ui.UIType;
 import org.efaps.db.Context;
+import org.efaps.db.Instance;
 import org.efaps.util.EFapsException;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.slf4j.Logger;
@@ -64,8 +67,19 @@ public abstract class ExecController_Base
         final AbstractCommand cmd = Command.get(UUID.fromString(_cmdId));
         evalUpload(cmd, parameters);
 
-        cmd.executeEvents(EventType.UI_COMMAND_EXECUTE, ParameterValues.PARAMETERS, parameters,
-                        ParameterValues.OTHERS, parameters.get("eFapsSelectedOids"));
+        final var paraValues = new ArrayList<Object>();
+        paraValues.add(ParameterValues.PARAMETERS);
+        paraValues.add(parameters);
+
+        if (TargetMode.EDIT.equals(cmd.getTargetMode()) && parameters.containsKey("eFapsOID")) {
+            paraValues.add(ParameterValues.INSTANCE);
+            paraValues.add(Instance.get(parameters.get("eFapsOID")[0]));
+        }
+        if (parameters.containsKey("eFapsSelectedOids")) {
+            paraValues.add(ParameterValues.OTHERS);
+            paraValues.add(parameters.get("eFapsSelectedOids"));
+        }
+        cmd.executeEvents(EventType.UI_COMMAND_EXECUTE, paraValues.toArray());
 
         final Response ret = Response.ok()
                         .build();

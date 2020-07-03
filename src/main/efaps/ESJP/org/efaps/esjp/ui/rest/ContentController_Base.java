@@ -231,7 +231,8 @@ public abstract class ContentController_Base
                             valueType = ValueType.UPLOAD;
                         } else if (UIType.UPLOADMULTIPLE.equals(uiType))  {
                             valueType = ValueType.UPLOADMULTIPLE;
-                        } else if (TargetMode.CREATE.equals(targetMode) && field.isEditableDisplay(targetMode)) {
+                        } else if ((TargetMode.CREATE.equals(targetMode) || TargetMode.EDIT.equals(targetMode))
+                                        && field.isEditableDisplay(targetMode)) {
                             final var attr = sectionInstance.getType().getAttribute(field.getAttribute());
                             if (attr != null) {
                                 final var attrType = attr.getAttributeType();
@@ -252,6 +253,10 @@ public abstract class ContentController_Base
                                             // TODO Auto-generated catch block
                                             e.printStackTrace();
                                         }
+                                        if (TargetMode.EDIT.equals(targetMode) && fieldValue instanceof IEnum) {
+                                            fieldValue = ((IEnum) fieldValue).getInt();
+                                        }
+
                                         break;
                                     default:
                                         valueType = ValueType.INPUT;
@@ -365,6 +370,10 @@ public abstract class ContentController_Base
             if (cmd.getTargetMode().equals(TargetMode.CREATE) && cmd.hasEvents(EventType.UI_COMMAND_EXECUTE)) {
                 action = ActionDto.builder()
                                 .withLabel(DBProperties.getProperty("default.Button.Create"))
+                                .build();
+            } else if (cmd.getTargetMode().equals(TargetMode.EDIT) && cmd.hasEvents(EventType.UI_COMMAND_EXECUTE)) {
+                action = ActionDto.builder()
+                                .withLabel(DBProperties.getProperty("default.Button.Edit"))
                                 .build();
             }
 
