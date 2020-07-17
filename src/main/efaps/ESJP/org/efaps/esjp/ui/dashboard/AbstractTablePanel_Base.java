@@ -62,8 +62,8 @@ public abstract class AbstractTablePanel_Base
     {
         final List<Map<String, Object>> ds =  getDataSource();
         final StringBuilder html = new StringBuilder();
-
-        final Table table = new Table().setCssClass("dashboardtable");
+        final String cssClss = getCssClass();
+        final Table table = new Table().setCssClass("dashboardtable" + (cssClss == null ? "" : " " + cssClss));
         if (!ds.isEmpty()) {
             for (final Entry<String, Object> entry: ds.get(0).entrySet()) {
                 if (entry.getValue() instanceof Instance) {
@@ -91,7 +91,14 @@ public abstract class AbstractTablePanel_Base
         }
         html.append("<div style=\"width: ").append(getWidth())
             .append("px; height: ").append(getHeight())
-            .append("px; overflow:auto \">");
+            .append("px; overflow:auto;\">");
+
+        final String style = getStyle();
+        if (style != null) {
+            html.append("<style type=\"text/css\">\n")
+                .append(style)
+                .append("\n</style>");
+        }
 
         if (getTitle() != null) {
             html.append("<div class=\"title\">").append(getTitle()).append("</div>");
