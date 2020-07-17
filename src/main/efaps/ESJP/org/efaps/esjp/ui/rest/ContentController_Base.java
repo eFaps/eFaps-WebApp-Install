@@ -20,6 +20,7 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -30,6 +31,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.wicket.RestartResponseException;
 import org.efaps.admin.datamodel.IEnum;
+import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.dbproperty.DBProperties;
 import org.efaps.admin.event.EventType;
@@ -167,7 +169,11 @@ public abstract class ContentController_Base
                             print.select(field.getSelect()).as(field.getName());
                             executable = true;
                         } else if (field.getAttribute() != null) {
-                            print.attribute(field.getAttribute()).as(field.getName());
+                            if (TargetMode.VIEW.equals(targetMode)) {
+                                add2Select4Attribute(print, field, Collections.singletonList(_instance.getType()));
+                            } else {
+                                print.attribute(field.getAttribute()).as(field.getName());
+                            }
                             executable = true;
                         } else if (field.getPhrase() != null) {
                             // print.addPhrase(field.getName(),
@@ -256,7 +262,17 @@ public abstract class ContentController_Base
                                         if (TargetMode.EDIT.equals(targetMode) && fieldValue instanceof IEnum) {
                                             fieldValue = ((IEnum) fieldValue).getInt();
                                         }
-
+                                        break;
+                                    case "Status":
+                                        valueType = ValueType.STATUS;
+                                        final var statusType = attr.getLink();
+                                        valueBldr.withOptions(Status.get(statusType.getUUID()).values().stream()
+                                            .map(status -> {
+                                                return OptionDto.builder()
+                                                            .withValue(status.getId())
+                                                            .withLabel(status.getLabel())
+                                                            .build();
+                                            }).collect(Collectors.toList()));
                                         break;
                                     default:
                                         valueType = ValueType.INPUT;
@@ -399,6 +415,10 @@ public abstract class ContentController_Base
         final var types = typeList.stream().map(Type::getName).toArray(String[]::new);
 
         final var propertiesMap = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
+        if (propertiesMap.containsKey("InstanceSelect")) {
+            LOG.warn("doe not work with InstanceSelect yet..");
+        }
+
         final var query = EQL.builder()
                         .print()
                         .query(types);
