@@ -29,7 +29,9 @@ import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Response;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.wicket.RestartResponseException;
+import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.IEnum;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.datamodel.Type;
@@ -274,6 +276,14 @@ public abstract class ContentController_Base
                                                             .build();
                                             }).collect(Collectors.toList()));
                                         break;
+                                    case "Boolean":
+                                        valueType = ValueType.RADIO;
+                                        valueBldr.withOptions(Arrays.asList(OptionDto.builder().withValue(true)
+                                            .withLabel(getBooleanLabel(attr, field, true))
+                                            .build(),OptionDto.builder().withValue(false)
+                                            .withLabel(getBooleanLabel(attr, field, false))
+                                            .build()));
+                                        break;
                                     default:
                                         valueType = ValueType.INPUT;
                                         break;
@@ -503,6 +513,22 @@ public abstract class ContentController_Base
             }
         }
         return ret;
+    }
+
+    public static String getBooleanLabel(final Attribute attr, final Field field, final Boolean bool)
+    {
+        {
+            String ret = BooleanUtils.toStringTrueFalse(bool);
+            if (attr != null
+                            && DBProperties.hasProperty(attr.getKey() + "." + BooleanUtils.toStringTrueFalse(bool))) {
+                ret = DBProperties.getProperty(attr.getKey() + "."
+                                + BooleanUtils.toStringTrueFalse(bool));
+            } else if (DBProperties
+                            .hasProperty(field.getLabel() + "." + BooleanUtils.toStringTrueFalse(bool))) {
+                ret = DBProperties.getProperty(field.getLabel() + "." + BooleanUtils.toStringTrueFalse(bool));
+            }
+            return ret;
+        }
     }
 
 }

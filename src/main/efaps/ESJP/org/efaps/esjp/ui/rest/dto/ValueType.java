@@ -29,5 +29,6 @@ public enum ValueType
     UPLOAD,
     UPLOADMULTIPLE,
     ENUM,
-    STATUS
+    STATUS,
+    RADIO
 }
