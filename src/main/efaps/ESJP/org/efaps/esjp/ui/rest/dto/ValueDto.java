@@ -35,6 +35,7 @@ public class ValueDto
     private final String name;
     private final String label;
     private final Object value;
+    private final String ref;
     private final List<OptionDto> options;
 
     private ValueDto(final Builder builder)
@@ -43,6 +44,7 @@ public class ValueDto
         name = builder.name;
         label = builder.label;
         value = builder.value;
+        ref = builder.ref;
         options = builder.options;
     }
 
@@ -72,6 +74,11 @@ public class ValueDto
         return options;
     }
 
+    public String getRef()
+    {
+        return ref;
+    }
+
     /**
      * Creates builder to build {@link ValueDto}.
      * @return created builder
@@ -91,6 +98,7 @@ public class ValueDto
         private String name;
         private String label;
         private Object value;
+        private String ref;
         private List<OptionDto> options = Collections.emptyList();
 
         private Builder()
@@ -118,6 +126,12 @@ public class ValueDto
         public Builder withValue(final Object value)
         {
             this.value = value;
+            return this;
+        }
+
+        public Builder withRef(final String ref)
+        {
+            this.ref = ref;
             return this;
         }
 

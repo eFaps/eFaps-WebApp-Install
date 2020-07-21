@@ -30,5 +30,6 @@ public enum ValueType
     UPLOADMULTIPLE,
     ENUM,
     STATUS,
-    RADIO
+    RADIO,
+    AUTOCOMPLETE
 }
