@@ -288,6 +288,9 @@ public abstract class ContentController_Base
                                                 .withLabel(getBooleanLabel(attr, field, false))
                                                 .build()));
                                             break;
+                                        case "Date":
+                                            valueType = ValueType.DATE;
+                                            break;
                                         default:
                                             valueType = ValueType.INPUT;
                                             break;
