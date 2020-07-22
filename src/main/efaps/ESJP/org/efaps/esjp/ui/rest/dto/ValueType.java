@@ -32,5 +32,6 @@ public enum ValueType
     STATUS,
     RADIO,
     AUTOCOMPLETE,
-    DATE
+    DATE,
+    DROPDOWN
 }

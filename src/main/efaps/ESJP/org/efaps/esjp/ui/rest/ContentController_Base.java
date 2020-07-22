@@ -38,6 +38,7 @@ import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.dbproperty.DBProperties;
 import org.efaps.admin.event.EventType;
 import org.efaps.admin.event.Parameter.ParameterValues;
+import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsClassLoader;
@@ -53,6 +54,7 @@ import org.efaps.admin.ui.field.FieldGroup;
 import org.efaps.admin.ui.field.FieldHeading;
 import org.efaps.admin.ui.field.FieldSet;
 import org.efaps.admin.ui.field.FieldTable;
+import org.efaps.api.ui.IOption;
 import org.efaps.api.ui.UIType;
 import org.efaps.beans.ValueList;
 import org.efaps.beans.valueparser.ParseException;
@@ -227,92 +229,14 @@ public abstract class ContentController_Base
                         if (groupCount > 0) {
                             groupCount--;
                         }
-                        final var valueBldr = ValueDto.builder();
-
-                        var valueType = ValueType.READ_ONLY;
-                        var fieldValue = executable ? eval.get(field.getName()) : null;
-                        final UIType uiType = getUIType(field);
-                        if (UIType.SNIPPLET.equals(uiType)) {
-                            fieldValue = getSnipplet(sectionInstance, field);
-                            valueType = ValueType.SNIPPLET;
-                        } else if (UIType.UPLOAD.equals(uiType))  {
-                            valueType = ValueType.UPLOAD;
-                        } else if (UIType.UPLOADMULTIPLE.equals(uiType))  {
-                            valueType = ValueType.UPLOADMULTIPLE;
-                        } else if ((TargetMode.CREATE.equals(targetMode) || TargetMode.EDIT.equals(targetMode))
-                                        && field.isEditableDisplay(targetMode)) {
-                            if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {
-                                valueType = ValueType.AUTOCOMPLETE;
-                                valueBldr.withRef(String.valueOf(field.getId()));
-                            } else {
-                                final var attr = sectionInstance.getType().getAttribute(field.getAttribute());
-                                if (attr != null) {
-                                    final var attrType = attr.getAttributeType();
-                                    switch (attrType.getName()) {
-                                        case "Enum":
-                                            valueType = ValueType.ENUM;
-                                            try {
-                                                final Class<?> clazz = Class.forName(attr.getClassName(), false,
-                                                                EFapsClassLoader.getInstance());
-                                                valueBldr.withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
-                                                    .map(ienum -> {
-                                                        return OptionDto.builder()
-                                                                    .withValue(((IEnum) ienum).getInt())
-                                                                    .withLabel(getEnumLabel((IEnum) ienum))
-                                                                    .build();
-                                                    }).collect(Collectors.toList()));
-                                            } catch (final ClassNotFoundException e) {
-                                                // TODO Auto-generated catch block
-                                                e.printStackTrace();
-                                            }
-                                            if (TargetMode.EDIT.equals(targetMode) && fieldValue instanceof IEnum) {
-                                                fieldValue = ((IEnum) fieldValue).getInt();
-                                            }
-                                            break;
-                                        case "Status":
-                                            valueType = ValueType.STATUS;
-                                            final var statusType = attr.getLink();
-                                            valueBldr.withOptions(Status.get(statusType.getUUID()).values().stream()
-                                                .map(status -> {
-                                                    return OptionDto.builder()
-                                                                .withValue(status.getId())
-                                                                .withLabel(status.getLabel())
-                                                                .build();
-                                                }).collect(Collectors.toList()));
-                                            break;
-                                        case "Boolean":
-                                            valueType = ValueType.RADIO;
-                                            valueBldr.withOptions(Arrays.asList(OptionDto.builder().withValue(true)
-                                                .withLabel(getBooleanLabel(attr, field, true))
-                                                .build(),OptionDto.builder().withValue(false)
-                                                .withLabel(getBooleanLabel(attr, field, false))
-                                                .build()));
-                                            break;
-                                        case "Date":
-                                            valueType = ValueType.DATE;
-                                            break;
-                                        default:
-                                            valueType = ValueType.INPUT;
-                                            break;
-                                    }
-                                } else {
-                                    valueType = ValueType.INPUT;
-                                }
-                            }
-                        }
-                        final var value = valueBldr.withLabel(getLabel(sectionInstance, field))
-                                        .withName(field.getName())
-                                        .withValue(fieldValue)
-                                        .withType(valueType)
-                                        .build();
-                        currentValues.add(value);
+                        final var fieldValue = executable ? eval.get(field.getName()) : null;
+                        currentValues.add(evalValue(field, fieldValue, sectionInstance, targetMode));
                         if (groupCount < 1) {
                             currentSection.addValue(currentValues);
                             currentValues = new ArrayList<ValueDto>();
                         }
                     }
                 }
-
             }
         }
         sections.stream().forEach(section -> {
@@ -331,6 +255,121 @@ public abstract class ContentController_Base
                             .withColumns(columns)
                             .withValues(getValues(_cmd, table, _instance))
                             .build());
+        }
+        return ret;
+    }
+
+    protected ValueDto evalValue(final Field field, Object fieldValue, final Instance inst,
+                                 final TargetMode targetMode)
+        throws EFapsException
+    {
+        final var valueBldr = ValueDto.builder();
+        var valueType = ValueType.READ_ONLY;
+        final UIType uiType = getUIType(field);
+        if (UIType.SNIPPLET.equals(uiType)) {
+            fieldValue = getSnipplet(inst, field);
+            valueType = ValueType.SNIPPLET;
+        } else if (UIType.UPLOAD.equals(uiType)) {
+            valueType = ValueType.UPLOAD;
+        } else if (UIType.UPLOADMULTIPLE.equals(uiType)) {
+            valueType = ValueType.UPLOADMULTIPLE;
+        } else if ((TargetMode.CREATE.equals(targetMode) || TargetMode.EDIT.equals(targetMode))
+                        && field.isEditableDisplay(targetMode)) {
+            if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {
+                valueType = ValueType.AUTOCOMPLETE;
+                valueBldr.withRef(String.valueOf(field.getId()));
+            } else {
+                final var attr = inst.getType().getAttribute(field.getAttribute());
+                if (attr != null) {
+                    if (attr.hasEvents(EventType.RANGE_VALUE)) {
+                        valueType = ValueType.DROPDOWN;
+                        final var options = getRangeValue(attr, fieldValue, targetMode);
+                        valueBldr.withOptions(options.stream()
+                            .map(opt -> {
+                                return OptionDto.builder()
+                                                .withLabel(opt.getLabel())
+                                                .withValue(opt.getValue())
+                                                .build();
+                            }).collect(Collectors.toList()));
+                        final var selectedOpt = options.stream().filter(IOption::isSelected).findFirst();
+                        if (selectedOpt.isPresent()) {
+                            fieldValue = selectedOpt.get().getValue();
+                        }
+                    } else {
+
+                        final var attrType = attr.getAttributeType();
+                        switch (attrType.getName()) {
+                            case "Enum":
+                                valueType = ValueType.ENUM;
+                                try {
+                                    final Class<?> clazz = Class.forName(attr.getClassName(), false,
+                                                    EFapsClassLoader.getInstance());
+                                    valueBldr.withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
+                                                    .map(ienum -> {
+                                                        return OptionDto.builder()
+                                                                        .withValue(((IEnum) ienum).getInt())
+                                                                        .withLabel(getEnumLabel((IEnum) ienum))
+                                                                        .build();
+                                                    }).collect(Collectors.toList()));
+                                } catch (final ClassNotFoundException e) {
+                                    LOG.error("Catched", e);
+                                }
+                                if (TargetMode.EDIT.equals(targetMode) && fieldValue instanceof IEnum) {
+                                    fieldValue = ((IEnum) fieldValue).getInt();
+                                }
+                                break;
+                            case "Status":
+                                valueType = ValueType.STATUS;
+                                final var statusType = attr.getLink();
+                                valueBldr.withOptions(Status.get(statusType.getUUID()).values().stream()
+                                                .map(status -> {
+                                                    return OptionDto.builder()
+                                                                    .withValue(status.getId())
+                                                                    .withLabel(status.getLabel())
+                                                                    .build();
+                                                }).collect(Collectors.toList()));
+                                break;
+                            case "Boolean":
+                                valueType = ValueType.RADIO;
+                                valueBldr.withOptions(Arrays.asList(OptionDto.builder()
+                                                .withValue(true)
+                                                .withLabel(getBooleanLabel(attr, field, true))
+                                                .build(),
+                                                OptionDto.builder()
+                                                .withValue(false)
+                                                .withLabel(getBooleanLabel(attr, field, false))
+                                                .build()));
+                                break;
+                            case "Date":
+                                valueType = ValueType.DATE;
+                                break;
+                            default:
+                                valueType = ValueType.INPUT;
+                                break;
+                        }
+                    }
+                } else {
+                    valueType = ValueType.INPUT;
+                }
+            }
+        }
+        return valueBldr.withLabel(getLabel(inst, field))
+                        .withName(field.getName())
+                        .withValue(fieldValue)
+                        .withType(valueType)
+                        .build();
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<IOption> getRangeValue(final Attribute _attr, final Object fieldValue, final TargetMode targetMode)
+        throws EFapsException
+    {
+        final List<IOption> ret = new ArrayList<>();
+        for (final Return values : _attr.executeEvents(EventType.RANGE_VALUE,
+                        ParameterValues.UIOBJECT, _attr,
+                        ParameterValues.ACCESSMODE, targetMode,
+                        ParameterValues.OTHERS, fieldValue)) {
+                ret.addAll((List<IOption>) values.get(ReturnValues.VALUES));
         }
         return ret;
     }
