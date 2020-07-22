@@ -26,6 +26,7 @@ import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.datamodel.attributetype.StatusType;
 import org.efaps.admin.dbproperty.DBProperties;
+import org.efaps.admin.event.EventType;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
@@ -100,10 +101,24 @@ public abstract class AbstractController_Base
             _print.attribute(_field.getAttribute()).as(_field.getName());
         } else if (attr.getAttributeType().getDbAttrType() instanceof StatusType) {
             _print.select("status.label").as(_field.getName());
+        } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
+            add2Select4RangeValue(_print, _field, attr);
         } else {
             _print.attribute(_field.getAttribute()).as(_field.getName());
         }
     }
+
+    protected void add2Select4RangeValue(final Print _print, final Field _field, final Attribute attr)
+    {
+        final var event = attr.getEvents(EventType.RANGE_VALUE).get(0);
+        final var valueStr = event.getProperty("Value");
+        if (valueStr.contains("$<")) {
+
+        } else {
+            _print.select("linkto[" + attr.getName() + "].attribute[" + valueStr + "]").as(_field.getName());
+        }
+    }
+
 
     protected UIType getUIType(final Field _field)
     {
