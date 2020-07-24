@@ -32,6 +32,7 @@ import javax.ws.rs.core.Response;
 import org.apache.commons.lang3.BooleanUtils;
 import org.apache.wicket.RestartResponseException;
 import org.efaps.admin.datamodel.Attribute;
+import org.efaps.admin.datamodel.AttributeSet;
 import org.efaps.admin.datamodel.IEnum;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.datamodel.Type;
@@ -167,7 +168,12 @@ public abstract class ContentController_Base
                 if (sectionInstance.isValid() && !field.isNoneDisplay(targetMode)
                                 && field.hasAccess(targetMode, sectionInstance, _cmd, sectionInstance)) {
                     if (field instanceof FieldSet) {
-                        LOG.debug("FieldSet {}", field);
+                        final var attributeSet = AttributeSet.find(_instance.getType().getName(), field.getAttribute());
+                        final var attrList = ((FieldSet) field).getOrder().isEmpty()
+                                        ? attributeSet.getSetAttributes() : ((FieldSet) field).getOrder();
+                        for (final var attr : attrList) {
+                            print.attributeSet(field.getAttribute()).attribute(attr).as(field.getName() + "-" + attr);
+                        }
                     } else {
                         if (field.getSelect() != null) {
                             print.select(field.getSelect()).as(field.getName());
@@ -219,6 +225,17 @@ public abstract class ContentController_Base
                                         .build());
                     } else if (field instanceof FieldClassification) {
                         LOG.info("FieldClassification {}", field);
+                    } else if (field instanceof FieldSet) {
+                        if (executable) {
+                            final var attributeSet = AttributeSet.find(_instance.getType().getName(),
+                                            field.getAttribute());
+                            final var attrList = ((FieldSet) field).getOrder().isEmpty()
+                                            ? attributeSet.getSetAttributes() : ((FieldSet) field).getOrder();
+                            for (final var attr : attrList) {
+                                final var fieldValue = eval.get(field.getName() + "-" + attr);
+                                LOG.info("fieldValue fieldSet {}", fieldValue);
+                            }
+                        }
                     } else {
                         if (currentSection == null) {
                             currentSection = new FormSection();
