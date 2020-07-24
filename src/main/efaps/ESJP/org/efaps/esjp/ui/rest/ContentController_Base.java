@@ -180,8 +180,7 @@ public abstract class ContentController_Base
                             }
                             executable = true;
                         } else if (field.getPhrase() != null) {
-                            // print.addPhrase(field.getName(),
-                            // field.getPhrase());
+                            print.phrase(field.getPhrase()).as(field.getName());
                         } else if (field.getMsgPhrase() != null) {
                             print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName())
                                             .as(field.getName());
