@@ -225,6 +225,7 @@ public abstract class ContentController_Base
                                         .withValues(getValues(field, fieldTable, sectionInstance))
                                         .build());
                     } else if (field instanceof FieldHeading) {
+                        currentSection = null;
                         sections.add(HeaderSectionDto.builder()
                                         .withHeader(DBProperties.getProperty(field.getLabel()))
                                         .withLevel(((FieldHeading) field).getLevel())
