@@ -17,6 +17,7 @@
 package org.efaps.esjp.ui.rest;
 
 import java.io.StringReader;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -36,6 +37,7 @@ import org.efaps.admin.datamodel.AttributeSet;
 import org.efaps.admin.datamodel.IEnum;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.datamodel.Type;
+import org.efaps.admin.datamodel.ui.IUIValue;
 import org.efaps.admin.dbproperty.DBProperties;
 import org.efaps.admin.event.EventType;
 import org.efaps.admin.event.Parameter.ParameterValues;
@@ -50,6 +52,7 @@ import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
 import org.efaps.admin.ui.Menu;
 import org.efaps.admin.ui.field.Field;
+import org.efaps.admin.ui.field.Field.Display;
 import org.efaps.admin.ui.field.FieldClassification;
 import org.efaps.admin.ui.field.FieldGroup;
 import org.efaps.admin.ui.field.FieldHeading;
@@ -60,6 +63,7 @@ import org.efaps.api.ui.UIType;
 import org.efaps.beans.ValueList;
 import org.efaps.beans.valueparser.ParseException;
 import org.efaps.beans.valueparser.ValueParser;
+import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.db.PrintQuery;
 import org.efaps.eql.EQL;
@@ -205,7 +209,9 @@ public abstract class ContentController_Base
             var groupCount = 0;
             var currentValues = new ArrayList<ValueDto>();
             for (final Field field : form.getFields()) {
-                if (!field.isNoneDisplay(targetMode)
+                if (field.isHiddenDisplay(targetMode)) {
+                    LOG.warn("Skipped Hidden field {} in form {}", field.getName(), form.getName());
+                } else if (!field.isNoneDisplay(targetMode)
                                 && field.hasAccess(targetMode, sectionInstance, _cmd, sectionInstance)) {
                     if (field instanceof FieldGroup) {
                         final FieldGroup group = (FieldGroup) field;
@@ -297,7 +303,7 @@ public abstract class ContentController_Base
             } else {
                 final var attr = inst.getType().getAttribute(field.getAttribute());
                 if (attr != null) {
-                    if (attr.hasEvents(EventType.RANGE_VALUE)) {
+                    if (attr.hasEvents(EventType.RANGE_VALUE) && !"Status".equals(attr.getAttributeType().getName())) {
                         valueType = ValueType.DROPDOWN;
                         final var options = getRangeValue(attr, fieldValue, targetMode);
                         valueBldr.withOptions(options.stream()
@@ -358,6 +364,9 @@ public abstract class ContentController_Base
                                 break;
                             case "Date":
                                 valueType = ValueType.DATE;
+                                if (TargetMode.CREATE.equals(targetMode) && fieldValue == null) {
+                                    fieldValue = LocalDate.now(Context.getThreadContext().getZoneId()).toString();
+                                }
                                 break;
                             default:
                                 valueType = ValueType.INPUT;
@@ -552,7 +561,52 @@ public abstract class ContentController_Base
     {
         CharSequence ret = null;
         if (_field.hasEvents(EventType.UI_FIELD_VALUE)) {
-            final var values = _field.executeEvents(EventType.UI_FIELD_VALUE, ParameterValues.INSTANCE, _instance);
+
+            final var uiValue = new IUIValue() {
+
+                @Override
+                public Display getDisplay()
+                {
+                    LOG.warn("getDisplay Not implemented");
+                    return null;
+                }
+
+                @Override
+                public Field getField()
+                {
+                    return _field;
+                }
+
+                @Override
+                public Instance getInstance()
+                {
+                    return _instance;
+                }
+
+                @Override
+                public Instance getCallInstance()
+                {
+                    LOG.warn("getDisplay Not implemented");
+                    return null;
+                }
+
+                @Override
+                public Object getObject()
+                {
+                    LOG.warn("getDisplay Not implemented");
+                    return null;
+                }
+
+                @Override
+                public Attribute getAttribute()
+                    throws EFapsException
+                {
+                    LOG.warn("getDisplay Not implemented");
+                    return null;
+                }
+            };
+            final var values = _field.executeEvents(EventType.UI_FIELD_VALUE, ParameterValues.INSTANCE, _instance,
+                            ParameterValues.UIOBJECT, uiValue);
             for (final var entry : values) {
                 ret = (CharSequence) entry.get(ReturnValues.SNIPLETT);
             }
