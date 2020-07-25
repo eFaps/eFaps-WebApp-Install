@@ -88,6 +88,8 @@ import org.efaps.util.UUIDUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
 @EFapsUUID("da1c680f-8219-4a93-ab64-d6dbd261dc56")
 @EFapsApplication("eFaps-WebApp")
 public abstract class ContentController_Base
@@ -287,27 +289,29 @@ public abstract class ContentController_Base
         throws EFapsException
     {
         final var valueBldr = ValueDto.builder();
-        var valueType = ValueType.READ_ONLY;
         final UIType uiType = getUIType(field);
         if (UIType.SNIPPLET.equals(uiType)) {
             fieldValue = getSnipplet(inst, field);
-            valueType = ValueType.SNIPPLET;
+            valueBldr.withType(ValueType.SNIPPLET);
         } else if (UIType.UPLOAD.equals(uiType)) {
-            valueType = ValueType.UPLOAD;
+            valueBldr.withType(ValueType.UPLOAD);
         } else if (UIType.UPLOADMULTIPLE.equals(uiType)) {
-            valueType = ValueType.UPLOADMULTIPLE;
+            valueBldr.withType(ValueType.UPLOADMULTIPLE);
         } else if ((TargetMode.CREATE.equals(targetMode) || TargetMode.EDIT.equals(targetMode))
                         && field.isEditableDisplay(targetMode)) {
             if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {
-                valueType = ValueType.AUTOCOMPLETE;
+                valueBldr.withType(ValueType.AUTOCOMPLETE);
                 valueBldr.withRef(String.valueOf(field.getId()));
+            } else if (field.hasEvents(EventType.UI_FIELD_VALUE)) {
+                fieldValue = evalFieldValueEvent(inst, field, valueBldr, fieldValue, targetMode);
             } else {
                 final var attr = inst.getType().getAttribute(field.getAttribute());
                 if (attr != null) {
                     if (attr.hasEvents(EventType.RANGE_VALUE) && !"Status".equals(attr.getAttributeType().getName())) {
-                        valueType = ValueType.DROPDOWN;
                         final var options = getRangeValue(attr, fieldValue, targetMode);
-                        valueBldr.withOptions(options.stream()
+                        valueBldr
+                            .withType(ValueType.DROPDOWN)
+                            .withOptions(options.stream()
                             .map(opt -> {
                                 return OptionDto.builder()
                                                 .withLabel(opt.getLabel())
@@ -319,15 +323,14 @@ public abstract class ContentController_Base
                             fieldValue = selectedOpt.get().getValue();
                         }
                     } else {
-
                         final var attrType = attr.getAttributeType();
                         switch (attrType.getName()) {
                             case "Enum":
-                                valueType = ValueType.ENUM;
                                 try {
                                     final Class<?> clazz = Class.forName(attr.getClassName(), false,
                                                     EFapsClassLoader.getInstance());
-                                    valueBldr.withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
+                                    valueBldr.withType(ValueType.ENUM)
+                                        .withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
                                                     .map(ienum -> {
                                                         return OptionDto.builder()
                                                                         .withValue(((IEnum) ienum).getInt())
@@ -342,9 +345,9 @@ public abstract class ContentController_Base
                                 }
                                 break;
                             case "Status":
-                                valueType = ValueType.STATUS;
                                 final var statusType = attr.getLink();
-                                valueBldr.withOptions(Status.get(statusType.getUUID()).values().stream()
+                                valueBldr.withType(ValueType.STATUS)
+                                    .withOptions(Status.get(statusType.getUUID()).values().stream()
                                                 .map(status -> {
                                                     return OptionDto.builder()
                                                                     .withValue(status.getId())
@@ -353,7 +356,7 @@ public abstract class ContentController_Base
                                                 }).collect(Collectors.toList()));
                                 break;
                             case "Boolean":
-                                valueType = ValueType.RADIO;
+                                valueBldr.withType(ValueType.RADIO);
                                 valueBldr.withOptions(Arrays.asList(OptionDto.builder()
                                                 .withValue(true)
                                                 .withLabel(getBooleanLabel(attr, field, true))
@@ -364,27 +367,61 @@ public abstract class ContentController_Base
                                                 .build()));
                                 break;
                             case "Date":
-                                valueType = ValueType.DATE;
+                                valueBldr.withType(ValueType.DATE);
                                 if (TargetMode.CREATE.equals(targetMode) && fieldValue == null) {
                                     fieldValue = LocalDate.now(Context.getThreadContext().getZoneId()).toString();
                                 }
                                 break;
                             default:
-                                valueType = ValueType.INPUT;
+                                valueBldr.withType(ValueType.INPUT);
                                 break;
                         }
                     }
                 } else {
-                    valueType = ValueType.INPUT;
+                    valueBldr.withType(ValueType.INPUT);
                 }
             }
         }
         return valueBldr.withLabel(getLabel(inst, field))
                         .withName(field.getName())
                         .withValue(fieldValue)
-                        .withType(valueType)
                         .build();
     }
+
+    @SuppressWarnings("unchecked")
+    private Object evalFieldValueEvent(final Instance _instance, final Field field, final ValueDto.Builder valueBldr,
+                                      final Object fieldValue, final TargetMode targetMode)
+        throws EFapsException
+    {
+        Object ret = fieldValue;
+        final var uiValue = RestUIValue.builder()
+                        .withInstance(_instance)
+                        .withField(field)
+                        .build();
+        for (final Return aReturn : field.executeEvents(EventType.UI_FIELD_VALUE,
+                        ParameterValues.ACCESSMODE, targetMode,
+                        ParameterValues.UIOBJECT, uiValue,
+                        ParameterValues.OTHERS, fieldValue)) {
+            final var values = aReturn.get(ReturnValues.VALUES);
+            if (values instanceof List && !((List<?>) values).isEmpty()) {
+                if (((List<?>) values).get(0) instanceof IOption) {
+                    valueBldr.withType(ValueType.DROPDOWN)
+                        .withOptions(((List<IOption>) values).stream().map(option -> {
+                        return OptionDto.builder()
+                                        .withValue(option.getValue())
+                                        .withLabel(option.getLabel())
+                                        .build();
+                    }).collect(Collectors.toList()));
+                    final var selectedOpt = ((List<IOption>) values).stream().filter(IOption::isSelected).findFirst();
+                    if (selectedOpt.isPresent()) {
+                        ret = selectedOpt.get().getValue();
+                    }
+                }
+            }
+        }
+        return ret;
+    }
+
 
     @SuppressWarnings("unchecked")
     private List<IOption> getRangeValue(final Attribute _attr, final Object fieldValue, final TargetMode targetMode)
@@ -562,50 +599,10 @@ public abstract class ContentController_Base
     {
         CharSequence ret = null;
         if (_field.hasEvents(EventType.UI_FIELD_VALUE)) {
-
-            final var uiValue = new IUIValue() {
-
-                @Override
-                public Display getDisplay()
-                {
-                    LOG.warn("getDisplay Not implemented");
-                    return null;
-                }
-
-                @Override
-                public Field getField()
-                {
-                    return _field;
-                }
-
-                @Override
-                public Instance getInstance()
-                {
-                    return _instance;
-                }
-
-                @Override
-                public Instance getCallInstance()
-                {
-                    LOG.warn("getDisplay Not implemented");
-                    return null;
-                }
-
-                @Override
-                public Object getObject()
-                {
-                    LOG.warn("getDisplay Not implemented");
-                    return null;
-                }
-
-                @Override
-                public Attribute getAttribute()
-                    throws EFapsException
-                {
-                    LOG.warn("getDisplay Not implemented");
-                    return null;
-                }
-            };
+            final var uiValue = RestUIValue.builder()
+                            .withInstance(_instance)
+                            .withField(_field)
+                            .build();
             final var values = _field.executeEvents(EventType.UI_FIELD_VALUE, ParameterValues.INSTANCE, _instance,
                             ParameterValues.UIOBJECT, uiValue);
             for (final var entry : values) {
@@ -649,4 +646,107 @@ public abstract class ContentController_Base
         }
     }
 
+    @JsonDeserialize(builder = RestUIValue.Builder.class)
+    public static class RestUIValue
+        implements IUIValue
+    {
+
+        private final Attribute attribute;
+        private final Field field;
+        private final Instance instance;
+
+        private RestUIValue(final Builder builder)
+        {
+            attribute = builder.attribute;
+            field = builder.field;
+            instance = builder.instance;
+        }
+
+        @Override
+        public Attribute getAttribute()
+            throws EFapsException
+        {
+            return attribute;
+        }
+
+        @Override
+        public Instance getCallInstance()
+        {
+            LOG.warn("getCallInstance Not implemented");
+            return null;
+        }
+
+        @Override
+        public Display getDisplay()
+        {
+            LOG.warn("getDisplay Not implemented");
+            return null;
+        }
+
+        @Override
+        public Field getField()
+        {
+            return field;
+        }
+
+        @Override
+        public Instance getInstance()
+        {
+            return instance;
+        }
+
+        @Override
+        public Object getObject()
+        {
+            LOG.warn("getObject Not implemented");
+            return null;
+        }
+
+        /**
+         * Creates builder to build {@link RestUIValue}.
+         * @return created builder
+         */
+        public static Builder builder()
+        {
+            return new Builder();
+        }
+
+        /**
+         * Builder to build {@link RestUIValue}.
+         */
+        public static final class Builder
+        {
+
+            private Attribute attribute;
+            private Field field;
+            private Instance instance;
+
+            private Builder()
+            {
+            }
+
+            public Builder withAttribute(final Attribute attribute)
+            {
+                this.attribute = attribute;
+                return this;
+            }
+
+            public Builder withField(final Field field)
+            {
+                this.field = field;
+                return this;
+            }
+
+            public Builder withInstance(final Instance instance)
+            {
+                this.instance = instance;
+                return this;
+            }
+
+            public RestUIValue build()
+            {
+                return new RestUIValue(this);
+            }
+        }
+    }
 }
