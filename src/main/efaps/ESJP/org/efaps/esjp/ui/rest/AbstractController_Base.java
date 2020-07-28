@@ -86,7 +86,7 @@ public abstract class AbstractController_Base
             final var columBldr = ColumnDto.builder()
                             .withField(field.getName())
                             .withHeader(field.getLabel() == null ? "" : DBProperties.getProperty(field.getLabel()))
-                            .withRef(field.getReference() != null ? "true" : "false");
+                            .withRef(field.getReference() != null ? "true" : null);
             if (TargetMode.CREATE.equals(targetMode) || TargetMode.EDIT.equals(targetMode) && !types.isEmpty()) {
                 if (field.getAttribute() != null) {
                     final var typeOpt = types.stream().filter(type -> {
