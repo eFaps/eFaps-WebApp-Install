@@ -16,27 +16,34 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
+import java.util.Collections;
+import java.util.List;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+@JsonDeserialize(builder = ColumnDto.Builder.class)
 @EFapsUUID("035f280d-7634-477c-a7a6-b01d665b3088")
 @EFapsApplication("eFaps-WebApp")
-@JsonDeserialize(builder = ColumnDto.Builder.class)
 public class ColumnDto
 {
 
     private final String header;
     private final String field;
-    private final boolean ref;
+    private final String ref;
+    private final ValueType type;
+    private final List<OptionDto> options;
 
-    private ColumnDto(final Builder _builder)
+    private ColumnDto(final Builder builder)
     {
-        header = _builder.header;
-        field = _builder.field;
-        ref = _builder.ref;
+        header = builder.header;
+        field = builder.field;
+        ref = builder.ref;
+        type = builder.type;
+        options = builder.options;
     }
 
     public String getHeader()
@@ -49,9 +56,19 @@ public class ColumnDto
         return field;
     }
 
-    public boolean isRef()
+    public String getRef()
     {
         return ref;
+    }
+
+    public ValueType getType()
+    {
+        return type;
+    }
+
+    public List<OptionDto> getOptions()
+    {
+        return options;
     }
 
     @Override
@@ -60,33 +77,62 @@ public class ColumnDto
         return ToStringBuilder.reflectionToString(this);
     }
 
+    /**
+     * Creates builder to build {@link ColumnDto}.
+     *
+     * @return created builder
+     */
     public static Builder builder()
     {
         return new Builder();
     }
 
+    /**
+     * Builder to build {@link ColumnDto}.
+     */
     public static final class Builder
+        implements IFieldBuilder
     {
 
         private String header;
         private String field;
-        private boolean ref;
+        private String ref;
+        private ValueType type;
+        private List<OptionDto> options = Collections.emptyList();
 
-        public Builder withHeader(final String _header)
+        private Builder()
         {
-            header = _header;
+        }
+
+        public Builder withHeader(final String header)
+        {
+            this.header = header;
             return this;
         }
 
-        public Builder withField(final String _field)
+        public Builder withField(final String field)
         {
-            field = _field;
+            this.field = field;
             return this;
         }
 
-        public Builder withRef(final boolean _ref)
+        public Builder withRef(final String ref)
         {
-            ref = _ref;
+            this.ref = ref;
+            return this;
+        }
+
+        @Override
+        public Builder withType(final ValueType type)
+        {
+            this.type = type;
+            return this;
+        }
+
+        @Override
+        public Builder withOptions(final List<OptionDto> options)
+        {
+            this.options = options;
             return this;
         }
 

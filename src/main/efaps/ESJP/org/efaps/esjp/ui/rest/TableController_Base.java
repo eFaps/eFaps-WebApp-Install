@@ -31,6 +31,7 @@ import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
+import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
 import org.efaps.admin.ui.Menu;
 import org.efaps.eql.EQL;
@@ -81,7 +82,7 @@ public abstract class TableController_Base
         final var dto = TableDto.builder()
                         .withMenu(menus)
                         .withHeader(getHeader(cmd))
-                        .withColumns(getColumns(table))
+                        .withColumns(getColumns(table, TargetMode.VIEW, null))
                         .withValues(values)
                         .withSelectionMode(selectionMode)
                         .build();

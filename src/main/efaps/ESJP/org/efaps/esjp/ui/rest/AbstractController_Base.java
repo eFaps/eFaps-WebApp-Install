@@ -17,6 +17,7 @@
 package org.efaps.esjp.ui.rest;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -27,15 +28,24 @@ import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.datamodel.attributetype.StatusType;
 import org.efaps.admin.dbproperty.DBProperties;
 import org.efaps.admin.event.EventType;
+import org.efaps.admin.event.Parameter.ParameterValues;
+import org.efaps.admin.event.Return;
+import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.api.ci.UIFormFieldProperty;
+import org.efaps.api.ui.IOption;
 import org.efaps.api.ui.UIType;
+import org.efaps.db.Instance;
 import org.efaps.eql.builder.Print;
+import org.efaps.esjp.ui.rest.ContentController_Base.RestUIValue;
 import org.efaps.esjp.ui.rest.dto.ColumnDto;
+import org.efaps.esjp.ui.rest.dto.IFieldBuilder;
+import org.efaps.esjp.ui.rest.dto.OptionDto;
+import org.efaps.esjp.ui.rest.dto.ValueType;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -66,16 +76,38 @@ public abstract class AbstractController_Base
         }).collect(Collectors.toList());
     }
 
-    protected List<ColumnDto> getColumns(final org.efaps.admin.ui.Table _table)
+    protected List<ColumnDto> getColumns(final org.efaps.admin.ui.Table _table, final TargetMode targetMode,
+                                         final Collection<Type> types)
+        throws EFapsException
     {
         final var fields = getFields(_table);
         final var ret = new ArrayList<ColumnDto>();
         for (final var field : fields) {
-            ret.add(ColumnDto.builder()
+            final var columBldr = ColumnDto.builder()
                             .withField(field.getName())
                             .withHeader(field.getLabel() == null ? "" : DBProperties.getProperty(field.getLabel()))
-                            .withRef(field.getReference() != null)
-                            .build());
+                            .withRef(field.getReference() != null ? "true" : "false");
+            if (TargetMode.CREATE.equals(targetMode) || TargetMode.EDIT.equals(targetMode) && !types.isEmpty()) {
+                if (field.getAttribute() != null) {
+                    final var typeOpt = types.stream().filter(type -> {
+                        return type.getAttribute(field.getAttribute()) != null;
+                    }).findFirst();
+                    if (typeOpt.isPresent()) {
+                        final var attr = typeOpt.get().getAttribute(field.getAttribute());
+                        final var attrType = attr.getAttributeType();
+                        switch (attrType.getName()) {
+                            default:
+                                columBldr.withType(ValueType.INPUT);
+                        }
+                    }
+                } else if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {
+                    columBldr.withType(ValueType.AUTOCOMPLETE);
+                    columBldr.withRef(String.valueOf(field.getId()));
+                } else if (field.hasEvents(EventType.UI_FIELD_VALUE)) {
+                    evalFieldValueEvent(null, field, columBldr, null, targetMode);
+                }
+            }
+            ret.add(columBldr.build());
         }
         return ret;
     }
@@ -131,4 +163,39 @@ public abstract class AbstractController_Base
         }
         return ret;
     }
+
+    @SuppressWarnings("unchecked")
+    protected Object evalFieldValueEvent(final Instance _instance, final Field field, final IFieldBuilder bldr,
+                                      final Object fieldValue, final TargetMode targetMode)
+        throws EFapsException
+    {
+        Object ret = fieldValue;
+        final var uiValue = RestUIValue.builder()
+                        .withInstance(_instance)
+                        .withField(field)
+                        .build();
+        for (final Return aReturn : field.executeEvents(EventType.UI_FIELD_VALUE,
+                        ParameterValues.ACCESSMODE, targetMode,
+                        ParameterValues.UIOBJECT, uiValue,
+                        ParameterValues.OTHERS, fieldValue)) {
+            final var values = aReturn.get(ReturnValues.VALUES);
+            if (values instanceof List && !((List<?>) values).isEmpty()) {
+                if (((List<?>) values).get(0) instanceof IOption) {
+                    bldr.withType(ValueType.DROPDOWN)
+                        .withOptions(((List<IOption>) values).stream().map(option -> {
+                        return OptionDto.builder()
+                                        .withValue(option.getValue())
+                                        .withLabel(option.getLabel())
+                                        .build();
+                    }).collect(Collectors.toList()));
+                    final var selectedOpt = ((List<IOption>) values).stream().filter(IOption::isSelected).findFirst();
+                    if (selectedOpt.isPresent()) {
+                        ret = selectedOpt.get().getValue();
+                    }
+                }
+            }
+        }
+        return ret;
+    }
+
 }

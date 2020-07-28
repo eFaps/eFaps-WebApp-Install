@@ -91,7 +91,7 @@ public class ValueDto
     /**
      * Builder to build {@link ValueDto}.
      */
-    public static final class Builder
+    public static final class Builder implements IFieldBuilder
     {
 
         private ValueType type;
@@ -105,6 +105,7 @@ public class ValueDto
         {
         }
 
+        @Override
         public Builder withType(final ValueType type)
         {
             this.type = type;
@@ -135,6 +136,7 @@ public class ValueDto
             return this;
         }
 
+        @Override
         public Builder withOptions(final List<OptionDto> options)
         {
             this.options = options;

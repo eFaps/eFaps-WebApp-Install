@@ -16,12 +16,18 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
+import java.util.List;
+
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
-@EFapsUUID("f8f9bf1a-015c-4698-93c8-545b369c3d4b")
+@EFapsUUID("3782c63a-4a9c-4c56-8f77-863e80844951")
 @EFapsApplication("eFaps-WebApp")
-public interface ISection
+public interface IFieldBuilder
 {
-    SectionType getType();
+
+    IFieldBuilder withType(ValueType dropdown);
+
+    IFieldBuilder withOptions(List<OptionDto> collect);
+
 }

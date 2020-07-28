@@ -221,8 +221,9 @@ public abstract class ContentController_Base
                     } else if (field instanceof FieldTable) {
                         currentSection = null;
                         final var fieldTable = ((FieldTable) field).getTargetTable();
-                        final var columns = getColumns(fieldTable);
+                        final var columns = getColumns(fieldTable, targetMode, evalTypes(field));
                         sections.add(TableSectionDto.builder()
+                                        .withEditable(field.isEditableDisplay(targetMode))
                                         .withColumns(columns)
                                         .withValues(getValues(field, fieldTable, sectionInstance))
                                         .build());
@@ -275,7 +276,7 @@ public abstract class ContentController_Base
         });
 
         if (table != null) {
-            final var columns = getColumns(table);
+            final var columns = getColumns(table, targetMode, null);
             ret.add(TableSectionDto.builder()
                             .withColumns(columns)
                             .withValues(getValues(_cmd, table, _instance))
@@ -387,41 +388,6 @@ public abstract class ContentController_Base
                         .withValue(fieldValue)
                         .build();
     }
-
-    @SuppressWarnings("unchecked")
-    private Object evalFieldValueEvent(final Instance _instance, final Field field, final ValueDto.Builder valueBldr,
-                                      final Object fieldValue, final TargetMode targetMode)
-        throws EFapsException
-    {
-        Object ret = fieldValue;
-        final var uiValue = RestUIValue.builder()
-                        .withInstance(_instance)
-                        .withField(field)
-                        .build();
-        for (final Return aReturn : field.executeEvents(EventType.UI_FIELD_VALUE,
-                        ParameterValues.ACCESSMODE, targetMode,
-                        ParameterValues.UIOBJECT, uiValue,
-                        ParameterValues.OTHERS, fieldValue)) {
-            final var values = aReturn.get(ReturnValues.VALUES);
-            if (values instanceof List && !((List<?>) values).isEmpty()) {
-                if (((List<?>) values).get(0) instanceof IOption) {
-                    valueBldr.withType(ValueType.DROPDOWN)
-                        .withOptions(((List<IOption>) values).stream().map(option -> {
-                        return OptionDto.builder()
-                                        .withValue(option.getValue())
-                                        .withLabel(option.getLabel())
-                                        .build();
-                    }).collect(Collectors.toList()));
-                    final var selectedOpt = ((List<IOption>) values).stream().filter(IOption::isSelected).findFirst();
-                    if (selectedOpt.isPresent()) {
-                        ret = selectedOpt.get().getValue();
-                    }
-                }
-            }
-        }
-        return ret;
-    }
-
 
     @SuppressWarnings("unchecked")
     private List<IOption> getRangeValue(final Attribute _attr, final Object fieldValue, final TargetMode targetMode)

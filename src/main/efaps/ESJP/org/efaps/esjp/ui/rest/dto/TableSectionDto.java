@@ -8,8 +8,10 @@ import java.util.Map;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 
+@JsonDeserialize(builder = TableSectionDto.Builder.class)
 @EFapsUUID("c7445c98-2a27-4143-9202-02bb341e0838")
 @EFapsApplication("eFaps-WebApp")
 public class TableSectionDto
@@ -18,11 +20,13 @@ public class TableSectionDto
 
     private final List<ColumnDto> columns;
     private final Collection<Map<String, ?>> values;
+    private final boolean editable;
 
     private TableSectionDto(final Builder builder)
     {
         columns = builder.columns;
         values = builder.values;
+        editable = builder.editable;
     }
 
     @Override
@@ -42,9 +46,13 @@ public class TableSectionDto
         return values;
     }
 
+    public boolean isEditable()
+    {
+        return editable;
+    }
+
     /**
      * Creates builder to build {@link TableSectionDto}.
-     *
      * @return created builder
      */
     public static Builder builder()
@@ -60,6 +68,7 @@ public class TableSectionDto
 
         private List<ColumnDto> columns = Collections.emptyList();
         private Collection<Map<String, ?>> values = Collections.emptyList();
+        private boolean editable;
 
         private Builder()
         {
@@ -74,6 +83,12 @@ public class TableSectionDto
         public Builder withValues(final Collection<Map<String, ?>> values)
         {
             this.values = values;
+            return this;
+        }
+
+        public Builder withEditable(final boolean editable)
+        {
+            this.editable = editable;
             return this;
         }
 

@@ -164,7 +164,7 @@ public abstract class SearchController_Base
         LOG.debug("", queryParameters);
         final var dto = TableDto.builder()
                         .withHeader(getHeader(cmd))
-                        .withColumns(getColumns(table))
+                        .withColumns(getColumns(table, TargetMode.SEARCH, null))
                         .withValues(getValues(cmd, table))
                         .build();
 
