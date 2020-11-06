@@ -49,7 +49,10 @@ import org.efaps.db.InstanceQuery;
 import org.efaps.db.QueryBuilder;
 import org.efaps.eql.EQL;
 import org.efaps.eql.builder.Print;
+import org.efaps.eql.builder.Query;
+import org.efaps.eql.builder.Where;
 import org.efaps.esjp.common.AbstractCommon;
+import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.ui.wicket.models.field.AbstractUIField;
 import org.efaps.ui.wicket.models.objects.UIStructurBrowser;
 import org.efaps.ui.wicket.models.objects.UIStructurBrowser.ExecutionStatus;
@@ -131,20 +134,25 @@ public abstract class StandartStructurBrowser_Base
         throws EFapsException
     {
         final Return ret = new Return();
+        final var instance = _parameter.getInstance();
         final Map<Integer, String> types = analyseProperty(_parameter, "Type");
-
-        final Print print = EQL.builder()
+        final Map<Integer, String> linkFroms = analyseProperty(_parameter, "LinkFrom");
+        final Query query = EQL.builder()
                         .print()
-                        .query(types.values().stream().toArray(String[]::new))
-                        .select();
-        add2MainQuery(_parameter, print);
-        ret.put(ReturnValues.VALUES, print.build());
+                        .query(types.values().stream().toArray(String[]::new));
+        final Where where = query.where();
+        if (!linkFroms.isEmpty() && InstanceUtils.isValid(instance)) {
+            where.attribute(linkFroms.get(0)).eq(instance);
+        }
+        add2MainQuery(_parameter, where);
+        ret.put(ReturnValues.VALUES, query.select().build());
         return ret;
     }
 
-    protected void add2MainQuery(final Parameter _parameter, final Print _print)
+    protected void add2MainQuery(final Parameter _parameter, final Where _where)
+        throws EFapsException
     {
-        // to be used by implementations
+
     }
 
     protected Return evalChildrenQuery(final Parameter _parameter, final Collection<Instance> _instances)
