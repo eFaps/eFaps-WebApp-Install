@@ -23,6 +23,7 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = DashboardDto.Builder.class)
@@ -62,6 +63,7 @@ public class DashboardDto
     /**
      * Builder to build {@link DashboardDto}.
      */
+    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder
     {
 
