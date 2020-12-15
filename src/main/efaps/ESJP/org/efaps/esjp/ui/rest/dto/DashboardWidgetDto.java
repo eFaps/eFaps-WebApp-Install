@@ -23,50 +23,36 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-@JsonDeserialize(builder = DashboardItemDto.Builder.class)
-@EFapsUUID("ab961c5a-d974-4af0-a233-aeb4e7613b77")
+@JsonDeserialize(builder = DashboardWidgetDto.Builder.class)
+@EFapsUUID("e0e5217c-f8c3-4b8a-8aac-5b0afacc5449")
 @EFapsApplication("eFaps-WebApp")
-public class DashboardItemDto
+public class DashboardWidgetDto
 {
 
-    private final int x;
-    private final int y;
-    private final int rows;
-    private final int cols;
-    private final DashboardWidgetDto widget;
+    private final DashboardWidgetType type;
+    private final String identifier;
+    private final String eql;
 
-    private DashboardItemDto(final Builder builder)
+    private DashboardWidgetDto(final Builder builder)
     {
-        x = builder.x;
-        y = builder.y;
-        rows = builder.rows;
-        cols = builder.cols;
-        widget = builder.widget;
+        type = builder.type;
+        identifier = builder.identifier;
+        eql = builder.eql;
     }
 
-    public int getX()
+    public DashboardWidgetType getType()
     {
-        return x;
+        return type;
     }
 
-    public int getY()
+    public String getIdentifier()
     {
-        return y;
+        return identifier;
     }
 
-    public int getRows()
+    public String getEql()
     {
-        return rows;
-    }
-
-    public int getCols()
-    {
-        return cols;
-    }
-
-    public DashboardWidgetDto getWidget()
-    {
-        return widget;
+        return eql;
     }
 
     @Override
@@ -76,7 +62,7 @@ public class DashboardItemDto
     }
 
     /**
-     * Creates builder to build {@link DashboardItemDto}.
+     * Creates builder to build {@link DashboardWidgetDto}.
      *
      * @return created builder
      */
@@ -86,55 +72,41 @@ public class DashboardItemDto
     }
 
     /**
-     * Builder to build {@link DashboardItemDto}.
+     * Builder to build {@link DashboardWidgetDto}.
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder
     {
 
-        private int x;
-        private int y;
-        private int rows;
-        private int cols;
-        private DashboardWidgetDto widget;
+        private DashboardWidgetType type;
+        private String identifier;
+        private String eql;
 
         private Builder()
         {
         }
 
-        public Builder withx(final int x)
+        public Builder withType(final DashboardWidgetType type)
         {
-            this.x = x;
+            this.type = type;
             return this;
         }
 
-        public Builder withy(final int y)
+        public Builder withIdentifier(final String identifier)
         {
-            this.y = y;
+            this.identifier = identifier;
             return this;
         }
 
-        public Builder withRows(final int rows)
+        public Builder withEql(final String eql)
         {
-            this.rows = rows;
+            this.eql = eql;
             return this;
         }
 
-        public Builder withCols(final int cols)
+        public DashboardWidgetDto build()
         {
-            this.cols = cols;
-            return this;
-        }
-
-        public Builder withWidget(final DashboardWidgetDto widget)
-        {
-            this.widget = widget;
-            return this;
-        }
-
-        public DashboardItemDto build()
-        {
-            return new DashboardItemDto(this);
+            return new DashboardWidgetDto(this);
         }
     }
 }
