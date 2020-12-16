@@ -57,6 +57,7 @@ public class DashboardWidgetDeserializer
         final var typeVal = node.get("type").asText();
         final var identifier = node.get("identifier").asText();
         final var eql = node.get("eql").asText();
+        final var title = node.has("title") ? node.get("title").asText() : "";
         final var type = EnumUtils.getEnum(DashboardWidgetType.class, typeVal);
         switch (type) {
             case TABLE:
@@ -73,6 +74,7 @@ public class DashboardWidgetDeserializer
                 ret = DashboardWidgetTableDto.builder()
                                 .withIdentifier(identifier)
                                 .withType(type)
+                                .withTitle(title)
                                 .withEql(eql)
                                 .withColumns(columns)
                                 .build();

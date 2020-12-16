@@ -32,12 +32,14 @@ public abstract class DashboardWidgetDto
     private final DashboardWidgetType type;
     private final String identifier;
     private final String eql;
+    private final String title;
 
     protected DashboardWidgetDto(final Builder<?> builder)
     {
         type = builder.type;
         identifier = builder.identifier;
         eql = builder.eql;
+        title = builder.title;
     }
 
     public DashboardWidgetType getType()
@@ -71,6 +73,7 @@ public abstract class DashboardWidgetDto
         private DashboardWidgetType type;
         private String identifier;
         private String eql;
+        private String title;
 
         protected Builder()
         {
@@ -96,5 +99,17 @@ public abstract class DashboardWidgetDto
             this.eql = eql;
             return (T) this;
         }
+
+        @SuppressWarnings("unchecked")
+        public T withTitle(final String title)
+        {
+            this.title = title;
+            return (T) this;
+        }
+    }
+
+    public String getTitle()
+    {
+        return title;
     }
 }
