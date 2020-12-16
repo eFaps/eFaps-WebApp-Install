@@ -18,6 +18,8 @@ package org.efaps.esjp.ui.rest;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
@@ -25,12 +27,15 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.user.UserAttributesSet;
 import org.efaps.db.Context;
+import org.efaps.db.stmt.PrintStmt;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CICommon;
 import org.efaps.esjp.ui.rest.dto.DashboardDto;
 import org.efaps.esjp.ui.rest.dto.DashboardItemDto;
 import org.efaps.esjp.ui.rest.dto.DashboardTabDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetDto;
+import org.efaps.esjp.ui.rest.dto.DashboardWidgetTableDto;
+import org.efaps.esjp.ui.rest.dto.WidgetTableDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -144,5 +149,59 @@ public abstract class DashboardController_Base
                 LOG.error("Catched: ", e);
             }
         }
+    }
+
+    public Response getWidget(final String _widgetId)
+        throws EFapsException
+    {
+        final var eval = EQL.builder().print()
+                        .query(CICommon.DashboardWidget).where()
+                        .attribute(CICommon.DashboardWidget.Identifier)
+                        .eq(_widgetId)
+                        .select().attribute(CICommon.DashboardWidget.Config)
+                        .evaluate();
+        var entity = new Object();
+        if (eval.next()) {
+            final var mapper = getObjectMapper();
+            try {
+                final var dto = mapper.readValue(eval.<String>get(CICommon.DashboardWidget.Config),
+                                DashboardWidgetDto.class);
+                switch (dto.getType()) {
+                    case TABLE:
+                        entity = getTable((DashboardWidgetTableDto) dto);
+                        break;
+                    case BARCHART:
+                    default:
+                        break;
+                }
+            } catch (JsonProcessingException | EFapsException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
+        return Response.ok()
+                        .entity(entity)
+                        .build();
+    }
+
+    protected Object getTable(final DashboardWidgetTableDto _widgetDto)
+        throws EFapsException
+    {
+        final var stmt = EQL.getStatement(_widgetDto.getEql());
+        final var eval = ((PrintStmt) stmt).evaluate();
+        final var values = new ArrayList<Map<String,String>>();
+        while (eval.next()) {
+            final var map = new HashMap<String,String>();
+            for (final var column : _widgetDto.getColumns()) {
+                final var obj = eval.get(column.getField());
+                final var value = String.valueOf(obj);
+                map.put(column.getField(), value);
+            }
+            values.add(map);
+        }
+        return WidgetTableDto.builder()
+                        .withColumns(_widgetDto.getColumns())
+                        .withValues(values)
+                        .build();
     }
 }

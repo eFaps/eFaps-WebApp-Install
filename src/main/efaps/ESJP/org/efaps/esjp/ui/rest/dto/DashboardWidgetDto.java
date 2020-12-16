@@ -23,17 +23,17 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-@JsonDeserialize(builder = DashboardWidgetDto.Builder.class)
 @EFapsUUID("e0e5217c-f8c3-4b8a-8aac-5b0afacc5449")
 @EFapsApplication("eFaps-WebApp")
-public class DashboardWidgetDto
+@JsonDeserialize(using = DashboardWidgetDeserializer.class)
+public abstract class DashboardWidgetDto
 {
 
     private final DashboardWidgetType type;
     private final String identifier;
     private final String eql;
 
-    private DashboardWidgetDto(final Builder builder)
+    protected DashboardWidgetDto(final Builder<?> builder)
     {
         type = builder.type;
         identifier = builder.identifier;
@@ -62,51 +62,39 @@ public class DashboardWidgetDto
     }
 
     /**
-     * Creates builder to build {@link DashboardWidgetDto}.
-     *
-     * @return created builder
-     */
-    public static Builder builder()
-    {
-        return new Builder();
-    }
-
-    /**
      * Builder to build {@link DashboardWidgetDto}.
      */
     @JsonIgnoreProperties(ignoreUnknown = true)
-    public static final class Builder
+    public static class Builder<T extends Builder<T>>
     {
 
         private DashboardWidgetType type;
         private String identifier;
         private String eql;
 
-        private Builder()
+        protected Builder()
         {
         }
 
-        public Builder withType(final DashboardWidgetType type)
+        @SuppressWarnings("unchecked")
+        public T withType(final DashboardWidgetType type)
         {
             this.type = type;
-            return this;
+            return (T) this;
         }
 
-        public Builder withIdentifier(final String identifier)
+        @SuppressWarnings("unchecked")
+        public T withIdentifier(final String identifier)
         {
             this.identifier = identifier;
-            return this;
+            return (T) this;
         }
 
-        public Builder withEql(final String eql)
+        @SuppressWarnings("unchecked")
+        public T withEql(final String eql)
         {
             this.eql = eql;
-            return this;
-        }
-
-        public DashboardWidgetDto build()
-        {
-            return new DashboardWidgetDto(this);
+            return (T) this;
         }
     }
 }

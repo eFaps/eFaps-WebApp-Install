@@ -126,6 +126,7 @@ public class DashboardItemDto
             return this;
         }
 
+        @JsonDeserialize(using = DashboardWidgetDeserializer.class)
         public Builder withWidget(final DashboardWidgetDto widget)
         {
             this.widget = widget;
