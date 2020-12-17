@@ -32,11 +32,19 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public class DashboardTabDto
 {
 
+    private final String label;
+
     private final List<DashboardItemDto> layout;
 
     private DashboardTabDto(final Builder builder)
     {
+        label = builder.label;
         layout = builder.layout;
+    }
+
+    public String getLabel()
+    {
+        return label;
     }
 
     public List<DashboardItemDto> getLayout()
@@ -67,10 +75,17 @@ public class DashboardTabDto
     public static final class Builder
     {
 
+        private String label;
         private List<DashboardItemDto> layout = Collections.emptyList();
 
         private Builder()
         {
+        }
+
+        public Builder withLabel(final String label)
+        {
+            this.label = label;
+            return this;
         }
 
         public Builder withLayout(final List<DashboardItemDto> layout)
