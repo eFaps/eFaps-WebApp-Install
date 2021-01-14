@@ -26,7 +26,6 @@ import java.util.UUID;
 import org.apache.wicket.MetaDataKey;
 import org.apache.wicket.devutils.debugbar.DebugBar;
 import org.apache.wicket.devutils.debugbar.InspectorDebugPanel;
-import org.apache.wicket.devutils.debugbar.PageSizeDebugPanel;
 import org.apache.wicket.devutils.debugbar.SessionSizeDebugPanel;
 import org.apache.wicket.devutils.debugbar.VersionDebugContributor;
 import org.apache.wicket.protocol.http.WebApplication;
@@ -77,7 +76,6 @@ public class DevUtils
                 DebugBar.registerContributor(VersionDebugContributor.DEBUG_BAR_CONTRIB, application);
                 DebugBar.registerContributor(InspectorDebugPanel.DEBUG_BAR_CONTRIB, application);
                 DebugBar.registerContributor(SessionSizeDebugPanel.DEBUG_BAR_CONTRIB, application);
-                DebugBar.registerContributor(PageSizeDebugPanel.DEBUG_BAR_CONTRIB, application);
                 application.setMetaData(DevUtils.DEBUG_BAR_CONTRIBUTED, true);
             }
         }
