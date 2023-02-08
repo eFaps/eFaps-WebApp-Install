@@ -451,7 +451,7 @@ public abstract class Table_Base
             if (!_type.isInstance(object)) {
                 if (_type.equals(Long.class)) {
                     if (object == null) {
-                        map.put(_name, new Long(0));
+                        map.put(_name, 0L);
                     } else {
                         ret = false;
                         break;
