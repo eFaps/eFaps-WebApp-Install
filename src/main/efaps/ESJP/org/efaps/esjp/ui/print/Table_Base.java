@@ -20,6 +20,7 @@ package org.efaps.esjp.ui.print;
 import java.awt.Color;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -230,7 +231,7 @@ public abstract class Table_Base
             }
             if (add) {
                 final BigDecimal width = new BigDecimal(header.getWidth()).setScale(2)
-                                .divide(new BigDecimal(widthWeight), BigDecimal.ROUND_HALF_UP)
+                                .divide(new BigDecimal(widthWeight), RoundingMode.HALF_UP)
                                 .multiply(new BigDecimal(555));
 
                 TextColumnBuilder<?> clbdr = null;
@@ -458,7 +459,7 @@ public abstract class Table_Base
                     }
                 } else if (_type.equals(Boolean.class)) {
                     if (object == null) {
-                        map.put(_name, new Boolean(false));
+                        map.put(_name, Boolean.FALSE);
                     } else {
                         ret = false;
                         break;
