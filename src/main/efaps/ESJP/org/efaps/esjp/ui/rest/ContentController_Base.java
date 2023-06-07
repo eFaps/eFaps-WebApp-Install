@@ -117,7 +117,7 @@ public abstract class ContentController_Base
                             .withId(typeMenu.getUUID().toString())
                             .withLabel(getLabel(instance, typeMenu.getLabel()))
                             .withAction(ActionDto.builder()
-                                            .withType(ActionType.GRID)
+                                            .withType(ActionType.FORM)
                                             .build())
                             .build());
             for (final var command : typeMenu.getCommands()) {
@@ -155,7 +155,7 @@ public abstract class ContentController_Base
         throws EFapsException
     {
         final var ret = new ArrayList<ISection>();
-        final var sections = new ArrayList<Object>();
+        final var sections = new ArrayList<>();
         final var targetMode = TargetMode.UNKNOWN.equals(_cmd.getTargetMode()) ? TargetMode.VIEW : _cmd.getTargetMode();
 
         final Instance sectionInstance;
@@ -178,7 +178,7 @@ public abstract class ContentController_Base
                         final var attrList = ((FieldSet) field).getOrder().isEmpty()
                                         ? attributeSet.getSetAttributes() : ((FieldSet) field).getOrder();
                         for (final var attr : attrList) {
-                            print.attributeSet(field.getAttribute()).attribute(attr).as(field.getName() + "-" + attr);
+                        //    print.attributeSet(field.getAttribute()).attribute(attr).as(field.getName() + "-" + attr);
                         }
                     } else {
                         if (field.getSelect() != null) {
@@ -205,11 +205,13 @@ public abstract class ContentController_Base
                     }
                 }
             }
-            final var eval = executable ? print.execute().evaluate() : null;
+            final var eval = executable ? print.evaluate() : null;
 
             FormSection currentSection = null;
             var groupCount = 0;
             var currentValues = new ArrayList<ValueDto>();
+            HeaderSectionDto.Builder currentHeaderSectionBldr = null;
+
             for (final Field field : form.getFields()) {
                 if (field.isHiddenDisplay(targetMode)) {
                     LOG.warn("Skipped Hidden field {} in form {}", field.getName(), form.getName());
@@ -222,17 +224,24 @@ public abstract class ContentController_Base
                         currentSection = null;
                         final var fieldTable = ((FieldTable) field).getTargetTable();
                         final var columns = getColumns(fieldTable, targetMode, evalTypes(field));
-                        sections.add(TableSectionDto.builder()
+                        final var tableSection = TableSectionDto.builder()
                                         .withEditable(field.isEditableDisplay(targetMode))
                                         .withColumns(columns)
                                         .withValues(getValues(field, fieldTable, sectionInstance))
-                                        .build());
+                                        .build();
+                        if (currentHeaderSectionBldr != null) {
+                            currentHeaderSectionBldr.addSection(tableSection);
+                        } else {
+                            sections.add(sections);
+                        }
                     } else if (field instanceof FieldHeading) {
                         currentSection = null;
-                        sections.add(HeaderSectionDto.builder()
+                        if (currentHeaderSectionBldr != null) {
+                            sections.add(currentHeaderSectionBldr.build());
+                        }
+                        currentHeaderSectionBldr = HeaderSectionDto.builder()
                                         .withHeader(DBProperties.getProperty(field.getLabel()))
-                                        .withLevel(((FieldHeading) field).getLevel())
-                                        .build());
+                                        .withLevel(((FieldHeading) field).getLevel());
                     } else if (field instanceof FieldClassification) {
                         LOG.info("FieldClassification {}", field);
                     } else if (field instanceof FieldSet) {
@@ -240,7 +249,8 @@ public abstract class ContentController_Base
                             final var attributeSet = AttributeSet.find(_instance.getType().getName(),
                                             field.getAttribute());
                             final var attrList = ((FieldSet) field).getOrder().isEmpty()
-                                            ? attributeSet.getSetAttributes() : ((FieldSet) field).getOrder();
+                                            ? attributeSet.getSetAttributes()
+                                            : ((FieldSet) field).getOrder();
                             for (final var attr : attrList) {
                                 final var fieldValue = eval.get(field.getName() + "-" + attr);
                                 LOG.info("fieldValue fieldSet {}", fieldValue);
@@ -259,12 +269,16 @@ public abstract class ContentController_Base
                         currentValues.add(evalValue(field, fieldValue, sectionInstance, targetMode));
                         if (groupCount < 1) {
                             currentSection.addValue(currentValues);
-                            currentValues = new ArrayList<ValueDto>();
+                            currentValues = new ArrayList<>();
                         }
                     }
                 }
             }
+            if (currentHeaderSectionBldr != null) {
+                sections.add(currentHeaderSectionBldr.build());
+            }
         }
+
         sections.stream().forEach(section -> {
             if (section instanceof FormSection) {
                 ret.add(FormSectionDto.builder()
@@ -432,6 +446,7 @@ public abstract class ContentController_Base
             }
         }
     }
+
 
     public String getLabel(final Instance _instance, final String _propertyKey)
     {

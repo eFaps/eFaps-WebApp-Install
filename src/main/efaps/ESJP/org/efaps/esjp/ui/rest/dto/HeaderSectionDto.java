@@ -16,6 +16,9 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
@@ -27,11 +30,13 @@ public class HeaderSectionDto
 
     private final String header;
     private final int level;
+    private final List<ISection> sections;
 
     private HeaderSectionDto(final Builder builder)
     {
         header = builder.header;
         level = builder.level;
+        sections = builder.sections;
     }
 
     @Override
@@ -48,6 +53,11 @@ public class HeaderSectionDto
     public int getLevel()
     {
         return level;
+    }
+
+    public List<ISection> getSections()
+    {
+        return sections;
     }
 
     /**
@@ -68,6 +78,7 @@ public class HeaderSectionDto
 
         private String header;
         private int level;
+        private List<ISection> sections;
 
         private Builder()
         {
@@ -82,6 +93,21 @@ public class HeaderSectionDto
         public Builder withLevel(final int level)
         {
             this.level = level;
+            return this;
+        }
+
+        public Builder withSections(final List<ISection> sections)
+        {
+            this.sections = sections;
+            return this;
+        }
+
+        public Builder addSection(final ISection section)
+        {
+            if (this.sections == null) {
+                this.sections = new ArrayList<>();
+            }
+            this.sections.add(section);
             return this;
         }
 

@@ -16,6 +16,7 @@
  */
 package org.efaps.esjp.ui.rest;
 
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -39,7 +40,10 @@ import org.efaps.admin.ui.field.Field;
 import org.efaps.api.ci.UIFormFieldProperty;
 import org.efaps.api.ui.IOption;
 import org.efaps.api.ui.UIType;
+import org.efaps.beans.valueparser.ParseException;
+import org.efaps.beans.valueparser.ValueParser;
 import org.efaps.db.Instance;
+import org.efaps.db.PrintQuery;
 import org.efaps.eql.builder.Print;
 import org.efaps.esjp.ui.rest.ContentController_Base.RestUIValue;
 import org.efaps.esjp.ui.rest.dto.ColumnDto;
@@ -112,12 +116,31 @@ public abstract class AbstractController_Base
         return ret;
     }
 
-    protected String getHeader(final AbstractCommand _cmd)
+    protected String getHeader(final AbstractCommand _cmd, final String oid) throws EFapsException
     {
         final var key = _cmd.getTargetTitle() == null
                         ? _cmd.getName() + ".Title"
                         : _cmd.getTargetTitle();
-        return DBProperties.getProperty(key);
+        var header = DBProperties.getProperty(key);
+        final var instance = Instance.get(oid);
+        if (instance.isValid()) {
+            final PrintQuery print = new PrintQuery(instance);
+            final ValueParser parser = new ValueParser(new StringReader(header));
+            try {
+                final var list = parser.ExpressionString();
+                if (!list.getExpressions().isEmpty()) {
+                    list.makeSelect(print);
+                    if (print.execute()) {
+                        header = list.makeString(instance, print, TargetMode.VIEW);
+                    }
+                }
+            } catch (final ParseException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+        }
+        return header;
     }
 
     protected void add2Select4Attribute(final Print _print, final Field _field, final List<Type> _types)

@@ -20,6 +20,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
+import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -37,9 +38,9 @@ public class TableController
     @Path("/{id}")
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response getTable(@PathParam("id") final String _id)
+    public Response getTable(@PathParam("id") final String id, @QueryParam("oid") final String oid)
         throws EFapsException
     {
-        return super.getTable(_id);
+        return super.getTable(id, oid);
     }
 }

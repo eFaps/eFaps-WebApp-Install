@@ -27,13 +27,13 @@ import javax.ws.rs.core.Response;
 
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.event.EventType;
-import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
 import org.efaps.admin.ui.Menu;
+import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.ui.rest.dto.NavItemDto;
@@ -54,7 +54,7 @@ public abstract class TableController_Base
      */
     private static final Logger LOG = LoggerFactory.getLogger(TableController.class);
 
-    public Response getTable(final String _id)
+    public Response getTable(final String _id, final String oid)
         throws EFapsException
     {
         AbstractCommand cmd = Command.get(UUID.fromString(_id));
@@ -63,13 +63,9 @@ public abstract class TableController_Base
         }
         final var table = cmd.getTargetTable();
         LOG.info("Get TABLE {} ", table);
-        cmd.executeEvents(EventType.UI_TABLE_EVALUATE,
-                        ParameterValues.OTHERS, null);
-
         final var properties = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
-        final var types = evalTypes(properties);
 
-        final var values = getValues(cmd, table, types);
+        final var values = getValues(cmd, table, properties, oid);
 
         final var menu = cmd.getTargetMenu();
 
@@ -81,7 +77,7 @@ public abstract class TableController_Base
 
         final var dto = TableDto.builder()
                         .withMenu(menus)
-                        .withHeader(getHeader(cmd))
+                        .withHeader(getHeader(cmd, oid))
                         .withColumns(getColumns(table, TargetMode.VIEW, null))
                         .withValues(values)
                         .withSelectionMode(selectionMode)
@@ -120,22 +116,28 @@ public abstract class TableController_Base
     }
 
     public Collection<Map<String, ?>> getValues(final AbstractCommand _cmd, final org.efaps.admin.ui.Table _table,
-                                                final List<Type> _types)
+                                                final Map<String, String> properties, final String oid)
         throws EFapsException
     {
+        final var types = evalTypes(properties);
         final var fields = getFields(_table);
-        final var types = _types.stream().map(Type::getName).toArray(String[]::new);
-        final var print = EQL.builder()
+        final var typeNames = types.stream().map(Type::getName).toArray(String[]::new);
+        final var query = EQL.builder()
                         .print()
-                        .query(types)
-                        .select();
+                        .query(typeNames);
+
+        if (properties.containsKey("LinkFrom") && Instance.get(oid).isValid()) {
+            query.where().attribute(properties.get("LinkFrom")).eq(Instance.get(oid));
+        }
+
+        final var print = query.select();
 
         if (_cmd.isTargetShowCheckBoxes() || fields.stream().anyMatch(field -> field.getReference() != null)) {
             print.oid().as("OID");
         }
         for (final var field : fields) {
             if (field.getAttribute() != null) {
-                add2Select4Attribute(print, field, _types);
+                add2Select4Attribute(print, field, types);
             } else if (field.getSelect() != null) {
                 print.select(field.getSelect()).as(field.getName());
             } else if (field.getMsgPhrase() != null) {

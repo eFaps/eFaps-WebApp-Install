@@ -103,7 +103,7 @@ public abstract class SearchController_Base
     {
         final var form = _cmd.getTargetForm();
         var groupCount = 0;
-        final var items = new ArrayList<Object>();
+        final var items = new ArrayList<>();
         var currentValues = new ArrayList<ValueDto>();
         for (final var field : form.getFields()) {
             if (field.hasAccess(TargetMode.SEARCH, null, _cmd, null)
@@ -122,7 +122,7 @@ public abstract class SearchController_Base
                                     .build());
                     if (groupCount < 1) {
                         items.add(currentValues.size() == 1 ?  currentValues.get(0) : currentValues);
-                        currentValues = new ArrayList<ValueDto>();
+                        currentValues = new ArrayList<>();
                     }
                 }
             }
@@ -163,7 +163,7 @@ public abstract class SearchController_Base
         final MultivaluedMap<String, String> queryParameters = _uriInfo.getQueryParameters();
         LOG.debug("", queryParameters);
         final var dto = TableDto.builder()
-                        .withHeader(getHeader(cmd))
+                        .withHeader(getHeader(cmd, null))
                         .withColumns(getColumns(table, TargetMode.SEARCH, null))
                         .withValues(getValues(cmd, table))
                         .build();
