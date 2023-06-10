@@ -16,17 +16,12 @@
  */
 package org.efaps.esjp.ui.rest;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.core.Response;
 
-import org.apache.commons.io.FileUtils;
 import org.efaps.admin.event.EventType;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
@@ -34,12 +29,8 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
-import org.efaps.admin.ui.field.Field;
-import org.efaps.api.ui.UIType;
-import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.util.EFapsException;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,23 +42,13 @@ public abstract class ExecController_Base
 
     private static final Logger LOG = LoggerFactory.getLogger(ExecController.class);
 
-    public Response exec(final String _cmdId, final FormDataMultiPart _formData)
+    public Response exec(final String _cmdId)
         throws EFapsException
     {
         final var parameters = new HashMap<String, String[]>();
-        final var fields = _formData.getFields();
-        for (final var entry : fields.entrySet()) {
-            final var fieldName = entry.getKey();
-            final var values = entry.getValue().stream().map(part -> {
-                return part.getValue();
-            }).toArray(String[]::new);
-            parameters.put(fieldName, values);
-        }
-
         final AbstractCommand cmd = Command.get(UUID.fromString(_cmdId));
-        evalUpload(cmd, parameters);
 
-        final var paraValues = new ArrayList<Object>();
+        final var paraValues = new ArrayList<>();
         paraValues.add(ParameterValues.PARAMETERS);
         paraValues.add(parameters);
 
@@ -84,103 +65,5 @@ public abstract class ExecController_Base
         final Response ret = Response.ok()
                         .build();
         return ret;
-    }
-
-    protected void evalUpload(final AbstractCommand _cmd, final Map<String, String[]> _parameters)
-    {
-        final var form = _cmd.getTargetForm();
-        if (form != null) {
-            form.getFields().stream().filter(field -> {
-                final var uiType = getUIType(field);
-                return UIType.UPLOAD.equals(uiType) || UIType.UPLOADMULTIPLE.equals(uiType);
-            }).forEach(field -> {
-                registerFileParameter(field, _parameters);
-            });
-        }
-    }
-
-    protected void registerFileParameter(final Field _field, final Map<String, String[]> _parameters)
-    {
-        final var keys = _parameters.get(_field.getName());
-        int idx = -1;
-        for (final String key : keys) {
-            final var file = UploadController_Base.MAP.get(key);
-            if (file != null && file.exists()) {
-                try {
-                    final var filePara = new FilePara()
-                                    .setParameterName(_field.getName())
-                                    .setFile(file);
-                    final var fieldKey = idx > -1 ? _field.getName() + "_" + idx : _field.getName();
-                    Context.getThreadContext().getFileParameters().put(fieldKey, filePara);
-                    idx++;
-                } catch (final EFapsException e) {
-                    LOG.error("Catched", e);
-                }
-            }
-        }
-    }
-
-    public static class FilePara
-        implements Context.FileParameter
-    {
-
-        private String parameterName;
-        private File file;
-        private InputStream inputStream;
-
-        @Override
-        public void close()
-            throws IOException
-        {
-            if (inputStream != null) {
-                inputStream.close();
-            }
-        }
-
-        @Override
-        public String getContentType()
-        {
-            return null;
-        }
-
-        @Override
-        public InputStream getInputStream()
-            throws IOException
-        {
-            if (inputStream == null) {
-                inputStream = FileUtils.openInputStream(file);
-            }
-            return inputStream;
-        }
-
-        @Override
-        public String getName()
-        {
-            return file.getName();
-        }
-
-        @Override
-        public String getParameterName()
-        {
-            return parameterName;
-        }
-
-        @Override
-        public long getSize()
-        {
-            return file.length();
-        }
-
-        public FilePara setParameterName(final String _parameterName)
-        {
-            parameterName = _parameterName;
-            return this;
-        }
-
-        public FilePara setFile(final File _file)
-        {
-            file = _file;
-            return this;
-        }
     }
 }

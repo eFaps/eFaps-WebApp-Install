@@ -27,7 +27,6 @@ import javax.ws.rs.core.Response;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.util.EFapsException;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 @EFapsUUID("8b5f48f6-120f-42d1-857c-21b050981267")
 @EFapsApplication("eFaps-WebApp")
@@ -39,10 +38,10 @@ public class ExecController
     @POST
     @Path("/{cmdId}")
     @Produces({ MediaType.APPLICATION_JSON })
-    @Consumes({MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_FORM_URLENCODED})
-    public Response exec(@PathParam("cmdId") final String _cmdId, final FormDataMultiPart _formData)
+    @Consumes({ MediaType.APPLICATION_JSON })
+    public Response exec(@PathParam("cmdId") final String _cmdId)
         throws EFapsException
     {
-        return super.exec(_cmdId,_formData);
+        return super.exec(_cmdId);
     }
 }
