@@ -16,6 +16,8 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
+import java.util.List;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
@@ -30,13 +32,13 @@ public class UserDto
 
     private final String firstName;
     private final String lastName;
-    private final String company;
+    private final List<CompanyDto> companies;
 
     public UserDto(final Builder _builder)
     {
         firstName = _builder.firstName;
         lastName = _builder.lastName;
-        company = _builder.company;
+        companies = _builder.companies;
     }
 
     public String getFirstName()
@@ -49,9 +51,9 @@ public class UserDto
         return lastName;
     }
 
-    public String getCompany()
+    public List<CompanyDto> getCompanies()
     {
-        return company;
+        return companies;
     }
 
     @Override
@@ -70,7 +72,7 @@ public class UserDto
 
         private String firstName;
         private String lastName;
-        private String company;
+        private List<CompanyDto> companies;
 
         public Builder withFirstName(final String _firstName)
         {
@@ -84,9 +86,9 @@ public class UserDto
             return this;
         }
 
-        public Builder withCompany(final String _company)
+        public Builder withCompanies(final List<CompanyDto> companies)
         {
-            company = _company;
+            this.companies = companies;
             return this;
         }
 

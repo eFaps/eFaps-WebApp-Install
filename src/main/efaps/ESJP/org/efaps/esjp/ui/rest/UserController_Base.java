@@ -16,11 +16,16 @@
  */
 package org.efaps.esjp.ui.rest;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.user.Company;
 import org.efaps.db.Context;
+import org.efaps.esjp.ui.rest.dto.CompanyDto;
 import org.efaps.esjp.ui.rest.dto.UserDto;
 import org.efaps.util.EFapsException;
 
@@ -33,11 +38,23 @@ public abstract class UserController_Base
         throws EFapsException
     {
         final var person = Context.getThreadContext().getPerson();
-        final var company = Context.getThreadContext().getCompany();
+        final var currentCompanyId = Context.getThreadContext().getCompany().getId();
+
+        final List<CompanyDto> companies = new ArrayList<>();
+
+        for (final var companyId : person.getCompanies()) {
+            final var oneCompany = Company.get(companyId);
+            companies.add(CompanyDto.builder()
+                            .withName(oneCompany.getName())
+                            .withUuid(oneCompany.getUUID())
+                            .withCurrent(currentCompanyId == companyId)
+                            .build());
+        }
+
         final var dto = UserDto.builder()
                         .withFirstName(person.getFirstName())
                         .withLastName(person.getLastName())
-                        .withCompany(company.getName())
+                        .withCompanies(companies)
                         .build();
 
         final Response ret = Response.ok()
