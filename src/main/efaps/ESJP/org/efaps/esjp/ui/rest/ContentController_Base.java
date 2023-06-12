@@ -78,7 +78,6 @@ import org.efaps.esjp.ui.rest.dto.ISection;
 import org.efaps.esjp.ui.rest.dto.NavItemDto;
 import org.efaps.esjp.ui.rest.dto.OptionDto;
 import org.efaps.esjp.ui.rest.dto.OutlineDto;
-import org.efaps.esjp.ui.rest.dto.SectionType;
 import org.efaps.esjp.ui.rest.dto.TableSectionDto;
 import org.efaps.esjp.ui.rest.dto.ValueDto;
 import org.efaps.esjp.ui.rest.dto.ValueType;
@@ -155,7 +154,6 @@ public abstract class ContentController_Base
         throws EFapsException
     {
         final var ret = new ArrayList<ISection>();
-        final var sections = new ArrayList<>();
         final var targetMode = TargetMode.UNKNOWN.equals(_cmd.getTargetMode()) ? TargetMode.VIEW : _cmd.getTargetMode();
 
         final Instance sectionInstance;
@@ -207,7 +205,7 @@ public abstract class ContentController_Base
             }
             final var eval = executable ? print.evaluate() : null;
 
-            FormSection currentSection = null;
+            FormSectionDto.Builder currentFormSectionBldr = null;
             var groupCount = 0;
             var currentValues = new ArrayList<ValueDto>();
             HeaderSectionDto.Builder currentHeaderSectionBldr = null;
@@ -221,7 +219,7 @@ public abstract class ContentController_Base
                         final FieldGroup group = (FieldGroup) field;
                         groupCount = group.getGroupCount();
                     } else if (field instanceof FieldTable) {
-                        currentSection = null;
+                        currentFormSectionBldr = null;
                         final var fieldTable = ((FieldTable) field).getTargetTable();
                         final var columns = getColumns(fieldTable, targetMode, evalTypes(field));
                         final var tableSection = TableSectionDto.builder()
@@ -232,13 +230,15 @@ public abstract class ContentController_Base
                         if (currentHeaderSectionBldr != null) {
                             currentHeaderSectionBldr.addSection(tableSection);
                         } else {
-                            sections.add(sections);
+                            ret.add(tableSection);
                         }
                     } else if (field instanceof FieldHeading) {
-                        currentSection = null;
                         if (currentHeaderSectionBldr != null) {
-                            sections.add(currentHeaderSectionBldr.build());
+                            ret.add(currentHeaderSectionBldr.build());
+                        } else if (currentFormSectionBldr != null) {
+                            ret.add(currentFormSectionBldr.build());
                         }
+                        currentFormSectionBldr = null;
                         currentHeaderSectionBldr = HeaderSectionDto.builder()
                                         .withHeader(DBProperties.getProperty(field.getLabel()))
                                         .withLevel(((FieldHeading) field).getLevel());
@@ -257,10 +257,11 @@ public abstract class ContentController_Base
                             }
                         }
                     } else {
-                        if (currentSection == null) {
-                            currentSection = new FormSection();
-                            currentSection.type = SectionType.FORM;
-                            sections.add(currentSection);
+                        if (currentFormSectionBldr == null) {
+                            currentFormSectionBldr = FormSectionDto.builder();
+                            if (currentHeaderSectionBldr != null) {
+                                currentHeaderSectionBldr.addSection(currentFormSectionBldr);
+                            }
                         }
                         if (groupCount > 0) {
                             groupCount--;
@@ -268,26 +269,18 @@ public abstract class ContentController_Base
                         final var fieldValue = executable ? eval.get(field.getName()) : null;
                         currentValues.add(evalValue(field, fieldValue, sectionInstance, targetMode));
                         if (groupCount < 1) {
-                            currentSection.addValue(currentValues);
+                            currentFormSectionBldr.addItem(currentValues);
                             currentValues = new ArrayList<>();
                         }
                     }
                 }
             }
             if (currentHeaderSectionBldr != null) {
-                sections.add(currentHeaderSectionBldr.build());
+                ret.add(currentHeaderSectionBldr.build());
+            } else if (currentFormSectionBldr != null) {
+                ret.add(currentFormSectionBldr.build());
             }
         }
-
-        sections.stream().forEach(section -> {
-            if (section instanceof FormSection) {
-                ret.add(FormSectionDto.builder()
-                                .withItems(((FormSection) section).values)
-                                .build());
-            } else {
-                ret.add((ISection) section);
-            }
-        });
 
         if (table != null) {
             final var columns = getColumns(table, targetMode, null);
@@ -430,23 +423,6 @@ public abstract class ContentController_Base
         }
         return ret;
     }
-
-    private class FormSection
-    {
-
-        SectionType type;
-        List<Object> values = new ArrayList<>();
-
-        public void addValue(final List<ValueDto> _value)
-        {
-            if (_value.size() == 1) {
-                values.add(_value.get(0));
-            } else {
-                values.add(_value);
-            }
-        }
-    }
-
 
     public String getLabel(final Instance _instance, final String _propertyKey)
     {

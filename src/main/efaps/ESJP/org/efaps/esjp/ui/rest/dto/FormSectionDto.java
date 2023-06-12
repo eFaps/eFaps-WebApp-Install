@@ -16,7 +16,7 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
@@ -61,7 +61,7 @@ public class FormSectionDto
     public static final class Builder
     {
 
-        private List<Object> items = Collections.emptyList();
+        private List<Object> items = new ArrayList<>();
 
         private Builder()
         {
@@ -70,6 +70,11 @@ public class FormSectionDto
         public Builder withItems(final List<Object> items)
         {
             this.items = items;
+            return this;
+        }
+
+        public Builder addItem(final Object item) {
+            items.add(item);
             return this;
         }
 

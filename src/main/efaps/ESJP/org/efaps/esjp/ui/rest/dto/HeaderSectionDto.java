@@ -36,7 +36,7 @@ public class HeaderSectionDto
     {
         header = builder.header;
         level = builder.level;
-        sections = builder.sections;
+        sections = builder.getSections();
     }
 
     @Override
@@ -78,7 +78,7 @@ public class HeaderSectionDto
 
         private String header;
         private int level;
-        private List<ISection> sections;
+        private List<Object> sections;
 
         private Builder()
         {
@@ -96,13 +96,13 @@ public class HeaderSectionDto
             return this;
         }
 
-        public Builder withSections(final List<ISection> sections)
+        public Builder withSections(final List<Object> sections)
         {
             this.sections = sections;
             return this;
         }
 
-        public Builder addSection(final ISection section)
+        public Builder addSection(final Object section)
         {
             if (this.sections == null) {
                 this.sections = new ArrayList<>();
@@ -111,8 +111,25 @@ public class HeaderSectionDto
             return this;
         }
 
+        protected  List<ISection> getSections() {
+            final List<ISection> tempSections = new ArrayList<>();
+            sections.stream().forEach(section -> {
+                tempSections.add((ISection) section);
+            });
+            return tempSections;
+        }
+
         public HeaderSectionDto build()
         {
+            final List<Object> tempSections = new ArrayList<>();
+            sections.stream().forEach(section -> {
+                if (section instanceof FormSectionDto.Builder) {
+                    tempSections.add(((FormSectionDto.Builder) section).build());
+                } else if (section instanceof ISection) {
+                    tempSections.add(section);
+                }
+            });
+            this.sections = tempSections;
             return new HeaderSectionDto(this);
         }
     }
