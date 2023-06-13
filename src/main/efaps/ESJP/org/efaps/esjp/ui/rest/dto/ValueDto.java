@@ -19,6 +19,7 @@ package org.efaps.esjp.ui.rest.dto;
 import java.util.Collections;
 import java.util.List;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
@@ -77,6 +78,12 @@ public class ValueDto
     public String getRef()
     {
         return ref;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this);
     }
 
     /**

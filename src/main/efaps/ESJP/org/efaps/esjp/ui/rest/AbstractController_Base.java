@@ -221,4 +221,25 @@ public abstract class AbstractController_Base
         return ret;
     }
 
+    protected Object evalFieldFormatEvent(final Instance _instance,
+                                          final Field field,
+                                          final IFieldBuilder bldr,
+                                          final Object fieldValue,
+                                          final TargetMode targetMode)
+        throws EFapsException
+    {
+        Object ret = fieldValue;
+        final var uiValue = RestUIValue.builder()
+                        .withInstance(_instance)
+                        .withField(field)
+                        .withObject(fieldValue)
+                        .build();
+        for (final Return aReturn : field.executeEvents(EventType.UI_FIELD_FORMAT,
+                        ParameterValues.ACCESSMODE, targetMode,
+                        ParameterValues.UIOBJECT, uiValue,
+                        ParameterValues.OTHERS, fieldValue)) {
+            ret = aReturn.get(ReturnValues.VALUES);
+        }
+        return ret;
+    }
 }

@@ -149,7 +149,6 @@ public abstract class ContentController_Base
                         .build();
     }
 
-    @SuppressWarnings("unchecked")
     public List<ISection> evalSections(final Instance _instance, final AbstractCommand _cmd)
         throws EFapsException
     {
@@ -192,8 +191,7 @@ public abstract class ContentController_Base
                         } else if (field.getPhrase() != null) {
                             print.phrase(field.getPhrase()).as(field.getName());
                         } else if (field.getMsgPhrase() != null) {
-                            print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName())
-                                            .as(field.getName());
+                            print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName());
                             executable = true;
                         }
                     }
@@ -305,6 +303,8 @@ public abstract class ContentController_Base
             valueBldr.withType(ValueType.UPLOAD);
         } else if (UIType.UPLOADMULTIPLE.equals(uiType)) {
             valueBldr.withType(ValueType.UPLOADMULTIPLE);
+        } else if (field.hasEvents(EventType.UI_FIELD_FORMAT)) {
+            fieldValue = evalFieldFormatEvent(inst, field, valueBldr, fieldValue, targetMode);
         } else if ((TargetMode.CREATE.equals(targetMode) || TargetMode.EDIT.equals(targetMode))
                         && field.isEditableDisplay(targetMode)) {
             if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {
@@ -611,12 +611,14 @@ public abstract class ContentController_Base
         private final Attribute attribute;
         private final Field field;
         private final Instance instance;
+        private final Object object;
 
         private RestUIValue(final Builder builder)
         {
             attribute = builder.attribute;
             field = builder.field;
             instance = builder.instance;
+            object = builder.object;
         }
 
         @Override
@@ -655,8 +657,7 @@ public abstract class ContentController_Base
         @Override
         public Object getObject()
         {
-            LOG.warn("getObject Not implemented");
-            return null;
+            return object;
         }
 
         /**
@@ -677,6 +678,7 @@ public abstract class ContentController_Base
             private Attribute attribute;
             private Field field;
             private Instance instance;
+            private Object object;
 
             private Builder()
             {
@@ -697,6 +699,12 @@ public abstract class ContentController_Base
             public Builder withInstance(final Instance instance)
             {
                 this.instance = instance;
+                return this;
+            }
+
+            public Builder withObject(final Object object)
+            {
+                this.object = object;
                 return this;
             }
 
