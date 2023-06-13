@@ -18,6 +18,7 @@ package org.efaps.esjp.ui.rest;
 
 import java.io.StringReader;
 import java.time.LocalDate;
+import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -388,6 +389,11 @@ public abstract class ContentController_Base
                 } else {
                     valueBldr.withType(ValueType.INPUT);
                 }
+            }
+        }
+        if (fieldValue != null && valueBldr.getType() == null) {
+            if (fieldValue instanceof OffsetDateTime) {
+                valueBldr.withType(ValueType.DATETIME);
             }
         }
         return valueBldr.withLabel(getLabel(inst, field))

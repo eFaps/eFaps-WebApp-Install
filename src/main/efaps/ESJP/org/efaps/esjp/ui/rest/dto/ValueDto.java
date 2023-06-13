@@ -102,6 +102,12 @@ public class ValueDto
     {
 
         private ValueType type;
+
+        public ValueType getType()
+        {
+            return type;
+        }
+
         private String name;
         private String label;
         private Object value;

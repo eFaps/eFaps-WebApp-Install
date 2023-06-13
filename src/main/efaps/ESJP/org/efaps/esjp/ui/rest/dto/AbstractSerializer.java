@@ -16,10 +16,21 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.apache.commons.text.StringSubstitutor;
+import org.efaps.admin.EFapsSystemConfiguration;
+import org.efaps.admin.KernelSettings;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.user.Person;
+import org.efaps.admin.user.Person.AttrName;
+import org.efaps.esjp.ui.rest.AbstractController;
+import org.efaps.util.EFapsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.JsonSerializer;
 
@@ -28,18 +39,34 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 public abstract class AbstractSerializer<T>
     extends JsonSerializer<T>
 {
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractController.class);
 
     public Object getObjectValue(final Object _object)
+
     {
         Object ret;
         if (_object instanceof Type) {
             ret = ((Type) _object).getLabel();
         } else if (_object instanceof Person) {
-            ret = ((Person) _object).getName();
+            final Person person = (Person) _object;
+            String display = null;
+            try {
+                display = EFapsSystemConfiguration.get().getAttributeValue(KernelSettings.USERUI_DISPLAYPERSON);
+            } catch (final EFapsException e) {
+                LOG.error("Catched", e);
+            }
+            if (display == null) {
+                display = "${LASTNAME}, ${FIRSTNAME}";
+            }
+            final Map<String, String> values = new HashMap<>();
+            for (final AttrName attr : AttrName.values()) {
+                values.put(attr.name(), person.getAttrValue(attr));
+            }
+            final StringSubstitutor sub = new StringSubstitutor(values);
+            ret = sub.replace(display);
         } else {
             ret = _object;
         }
         return ret;
     }
-
 }
