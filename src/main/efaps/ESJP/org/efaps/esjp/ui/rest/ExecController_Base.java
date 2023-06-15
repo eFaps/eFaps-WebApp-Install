@@ -32,6 +32,7 @@ import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
 import org.efaps.db.Instance;
+import org.efaps.esjp.ui.rest.dto.ExecResponseDto;
 import org.efaps.esjp.ui.rest.dto.PayloadDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -65,8 +66,12 @@ public abstract class ExecController_Base
             paraValues.add(parameters.get("eFapsSelectedOids"));
         }
         cmd.executeEvents(EventType.UI_COMMAND_EXECUTE, paraValues.toArray());
+        final var response = ExecResponseDto.builder()
+                        .withReload(!cmd.isNoUpdateAfterCmd())
+                        .build();
 
         final Response ret = Response.ok()
+                        .entity(response)
                         .build();
         return ret;
     }
