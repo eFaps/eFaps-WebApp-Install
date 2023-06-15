@@ -35,6 +35,7 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.wicket.RestartResponseException;
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.AttributeSet;
+import org.efaps.admin.datamodel.IBitEnum;
 import org.efaps.admin.datamodel.IEnum;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.datamodel.Type;
@@ -338,7 +339,7 @@ public abstract class ContentController_Base
                                 try {
                                     final Class<?> clazz = Class.forName(attr.getClassName(), false,
                                                     EFapsClassLoader.getInstance());
-                                    valueBldr.withType(ValueType.ENUM)
+                                    valueBldr.withType(ValueType.RADIO)
                                         .withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
                                                     .map(ienum -> {
                                                         return OptionDto.builder()
@@ -353,9 +354,28 @@ public abstract class ContentController_Base
                                     fieldValue = ((IEnum) fieldValue).getInt();
                                 }
                                 break;
+                            case "BitEnum":
+                                try {
+                                    final Class<?> clazz = Class.forName(attr.getClassName(), false,
+                                                    EFapsClassLoader.getInstance());
+                                    valueBldr.withType(ValueType.BITENUM)
+                                        .withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
+                                                    .map(ienum -> {
+                                                        return OptionDto.builder()
+                                                                        .withValue(((IBitEnum) ienum).getBitIndex())
+                                                                        .withLabel(getEnumLabel((IEnum) ienum))
+                                                                        .build();
+                                                    }).collect(Collectors.toList()));
+                                } catch (final ClassNotFoundException e) {
+                                    LOG.error("Catched", e);
+                                }
+                                if (TargetMode.EDIT.equals(targetMode) && fieldValue instanceof IEnum) {
+                                    fieldValue = ((IEnum) fieldValue).getInt();
+                                }
+                                break;
                             case "Status":
                                 final var statusType = attr.getLink();
-                                valueBldr.withType(ValueType.STATUS)
+                                valueBldr.withType(ValueType.DROPDOWN)
                                     .withOptions(Status.get(statusType.getUUID()).values().stream()
                                                 .map(status -> {
                                                     return OptionDto.builder()
