@@ -76,11 +76,7 @@ public abstract class NavController_Base
                 if (command.getTargetTable() != null) {
                     actionType = ActionType.GRID;
                 } else if (command.getTargetForm() != null) {
-                    if (command.getTarget() == Target.MODAL) {
-                        actionType = ActionType.MODAL;
-                    } else {
-                        actionType = ActionType.FORM;
-                    }
+                    actionType = ActionType.FORM;
                 } else if (command.getTargetSearch() != null) {
                     actionType = ActionType.SEARCH;
                 } else if (command.getTarget() == Target.HIDDEN) {
@@ -91,6 +87,7 @@ public abstract class NavController_Base
                             .withLabel(command.getLabelProperty())
                             .withChildren(addChildren(command))
                             .withAction(ActionDto.builder()
+                                            .withModal(command.getTarget() == Target.MODAL)
                                             .withType(actionType)
                                             .build())
                             .build());

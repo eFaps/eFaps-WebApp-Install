@@ -38,9 +38,10 @@ public abstract class NavItemEvaluator_Base
     {
         final var ret = new ArrayList<NavItemDto>();
         for (final var command : _menu.getCommands()) {
-            final var actionBldr = ActionDto.builder();
-            if (command.getTarget() == Target.MODAL) {
-                actionBldr.withType(ActionType.MODAL);
+            final var actionBldr = ActionDto.builder()
+                            .withModal(command.getTarget() == Target.MODAL);
+            if (command.getTargetForm() != null) {
+                actionBldr.withType(ActionType.FORM);
             } else if (command.getTargetTable() != null) {
                 actionBldr.withType(ActionType.GRID);
             } else if (command.getTarget() == Target.HIDDEN) {

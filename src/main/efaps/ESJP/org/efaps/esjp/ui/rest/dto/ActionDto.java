@@ -31,12 +31,14 @@ public class ActionDto
     private final ActionType type;
     private final String label;
     private final VerifyDto verify;
+    private final boolean modal;
 
     private ActionDto(final Builder builder)
     {
         type = builder.type;
         label = builder.label;
         verify = builder.verify;
+        this.modal = builder.modal;
     }
 
     public ActionType getType()
@@ -52,6 +54,11 @@ public class ActionDto
     public VerifyDto getVerify()
     {
         return verify;
+    }
+
+    public boolean isModal()
+    {
+        return modal;
     }
 
     @Override
@@ -78,6 +85,7 @@ public class ActionDto
         private ActionType type;
         private String label;
         private VerifyDto verify;
+        boolean modal;
 
         private Builder()
         {
@@ -98,6 +106,12 @@ public class ActionDto
         public Builder withVerify(final VerifyDto verify)
         {
             this.verify = verify;
+            return this;
+        }
+
+        public Builder withModal(final boolean modal)
+        {
+            this.modal = modal;
             return this;
         }
 
