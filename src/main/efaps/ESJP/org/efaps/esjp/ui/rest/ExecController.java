@@ -26,6 +26,7 @@ import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.esjp.ui.rest.dto.PayloadDto;
 import org.efaps.util.EFapsException;
 
 @EFapsUUID("8b5f48f6-120f-42d1-857c-21b050981267")
@@ -39,9 +40,9 @@ public class ExecController
     @Path("/{cmdId}")
     @Produces({ MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_JSON })
-    public Response exec(@PathParam("cmdId") final String _cmdId)
+    public Response exec(@PathParam("cmdId") final String _cmdId, final PayloadDto dto)
         throws EFapsException
     {
-        return super.exec(_cmdId);
+        return super.exec(_cmdId, dto);
     }
 }

@@ -38,6 +38,7 @@ public class ValueDto
     private final Object value;
     private final String ref;
     private final List<OptionDto> options;
+    private final boolean required;
 
     private ValueDto(final Builder builder)
     {
@@ -47,6 +48,7 @@ public class ValueDto
         value = builder.value;
         ref = builder.ref;
         options = builder.options;
+        required = builder.required;
     }
 
     public ValueType getType()
@@ -80,6 +82,11 @@ public class ValueDto
         return ref;
     }
 
+    public boolean isRequired()
+    {
+        return required;
+    }
+
     @Override
     public String toString()
     {
@@ -88,6 +95,7 @@ public class ValueDto
 
     /**
      * Creates builder to build {@link ValueDto}.
+     *
      * @return created builder
      */
     public static Builder builder()
@@ -98,7 +106,8 @@ public class ValueDto
     /**
      * Builder to build {@link ValueDto}.
      */
-    public static final class Builder implements IFieldBuilder
+    public static final class Builder
+        implements IFieldBuilder
     {
 
         private ValueType type;
@@ -113,6 +122,7 @@ public class ValueDto
         private Object value;
         private String ref;
         private List<OptionDto> options = Collections.emptyList();
+        private boolean required;
 
         private Builder()
         {
@@ -153,6 +163,12 @@ public class ValueDto
         public Builder withOptions(final List<OptionDto> options)
         {
             this.options = options;
+            return this;
+        }
+
+        public Builder withRequired(final boolean required)
+        {
+            this.required = required;
             return this;
         }
 

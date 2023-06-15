@@ -26,8 +26,8 @@ import javax.ws.rs.core.Response;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.esjp.ui.rest.dto.PayloadDto;
 import org.efaps.util.EFapsException;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 @EFapsUUID("e768e37f-4723-4dc5-9ca6-971d7e3a3d7e")
 @EFapsApplication("eFaps-WebApp")
@@ -39,10 +39,10 @@ public class AutocompleteController
     @Path("/{fieldId}")
     @POST
     @Produces({ MediaType.APPLICATION_JSON })
-    @Consumes({MediaType.MULTIPART_FORM_DATA, MediaType.APPLICATION_FORM_URLENCODED})
-    public Response search(@PathParam("fieldId") final String _fieldId,final FormDataMultiPart _formData)
+    @Consumes({ MediaType.APPLICATION_JSON })
+    public Response search(@PathParam("fieldId") final String fieldId, final PayloadDto dto)
         throws EFapsException
     {
-        return super.search(_fieldId, _formData);
+        return super.search(fieldId, dto);
     }
 }

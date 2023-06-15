@@ -17,7 +17,9 @@
 package org.efaps.esjp.ui.rest;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.core.Response;
@@ -30,6 +32,7 @@ import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
 import org.efaps.db.Instance;
+import org.efaps.esjp.ui.rest.dto.PayloadDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,10 +45,11 @@ public abstract class ExecController_Base
 
     private static final Logger LOG = LoggerFactory.getLogger(ExecController.class);
 
-    public Response exec(final String _cmdId)
+    public Response exec(final String _cmdId,
+                         final PayloadDto dto)
         throws EFapsException
     {
-        final var parameters = new HashMap<String, String[]>();
+        final var parameters = convertToMap(dto);
         final AbstractCommand cmd = Command.get(UUID.fromString(_cmdId));
 
         final var paraValues = new ArrayList<>();
@@ -64,6 +68,23 @@ public abstract class ExecController_Base
 
         final Response ret = Response.ok()
                         .build();
+        return ret;
+    }
+
+    protected Map<String, String[]> convertToMap(final PayloadDto dto)
+    {
+        final var ret = new HashMap<String, String[]>();
+        if (dto != null && dto.getValues() != null) {
+            for (final var entry : dto.getValues().entrySet()) {
+                if (entry.getValue() instanceof Collection) {
+                    ret.put(entry.getKey(), ((Collection<?>) entry.getValue()).stream().map(val -> {
+                        return String.valueOf(val);
+                    }).toArray(String[]::new));
+                } else {
+                    ret.put(entry.getKey(), new String[] { String.valueOf(entry.getValue()) });
+                }
+            }
+        }
         return ret;
     }
 }

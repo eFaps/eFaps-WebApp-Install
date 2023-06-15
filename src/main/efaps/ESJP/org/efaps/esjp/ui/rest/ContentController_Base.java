@@ -296,7 +296,8 @@ public abstract class ContentController_Base
                                  final TargetMode targetMode)
         throws EFapsException
     {
-        final var valueBldr = ValueDto.builder();
+        final var valueBldr = ValueDto.builder()
+                        .withRequired(field.isRequired());
         final UIType uiType = getUIType(field);
         if (UIType.SNIPPLET.equals(uiType)) {
             fieldValue = getSnipplet(inst, field);

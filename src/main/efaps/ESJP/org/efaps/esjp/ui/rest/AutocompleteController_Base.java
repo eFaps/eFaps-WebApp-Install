@@ -31,34 +31,28 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.esjp.ui.rest.dto.AutocompleteResponseDto;
 import org.efaps.esjp.ui.rest.dto.OptionDto;
+import org.efaps.esjp.ui.rest.dto.PayloadDto;
 import org.efaps.ui.wicket.util.EFapsKey;
 import org.efaps.util.EFapsException;
-import org.glassfish.jersey.media.multipart.FormDataMultiPart;
 
 @EFapsUUID("0f3c95a0-abb6-4c70-9869-5cf9142a3dac")
 @EFapsApplication("eFaps-WebApp")
 public abstract class AutocompleteController_Base
 {
 
-    public Response search(final String _fieldId, final FormDataMultiPart _formData)
+    public Response search(final String fieldId, final PayloadDto dto)
         throws EFapsException
     {
-        final var field = Field.get(Long.valueOf(_fieldId));
+        final var field = Field.get(Long.valueOf(fieldId));
 
         final var parameters = new HashMap<String, String[]>();
-        final var fields = _formData.getFields();
-        for (final var entry : fields.entrySet()) {
-            final var fieldName = entry.getKey();
-            final var values = entry.getValue().stream().map(part -> {
-                return part.getValue();
-            }).toArray(String[]::new);
-            parameters.put(fieldName, values);
-        }
-        final var term = parameters.getOrDefault("eFapsAutocomplete", new String[] {""})[0];
 
-        final var paraValues = new ArrayList<Object>();
+        final var term = dto.getValues().get(fieldId + "_query");
+                    //parameters.getOrDefault("eFapsAutocomplete", new String[] {""})[0];
+
+        final var paraValues = new ArrayList<>();
         paraValues.add(ParameterValues.OTHERS);
-        paraValues.add(term);
+        paraValues.add(term == null ? "" :term );
         paraValues.add(ParameterValues.PARAMETERS);
         paraValues.add(parameters);
 
@@ -69,7 +63,7 @@ public abstract class AutocompleteController_Base
                 values.stream().forEach(val -> {
                     @SuppressWarnings("unchecked") final var map = (Map<String, String>) val;
                     options.add(OptionDto.builder()
-                        .withLabel(map.get(EFapsKey.AUTOCOMPLETE_VALUE.getKey()))
+                        .withLabel(map.get(EFapsKey.AUTOCOMPLETE_CHOICE.getKey()))
                         .withValue(map.get(EFapsKey.AUTOCOMPLETE_KEY.getKey()))
                         .build());
                 });
