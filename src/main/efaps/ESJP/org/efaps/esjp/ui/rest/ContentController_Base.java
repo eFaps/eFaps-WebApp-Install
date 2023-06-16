@@ -63,11 +63,13 @@ import org.efaps.admin.ui.field.FieldTable;
 import org.efaps.api.ui.IOption;
 import org.efaps.api.ui.UIType;
 import org.efaps.beans.ValueList;
+import org.efaps.beans.ValueList.Token;
 import org.efaps.beans.valueparser.ParseException;
 import org.efaps.beans.valueparser.ValueParser;
 import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.db.PrintQuery;
+import org.efaps.db.stmt.selection.Evaluator;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.db.InstanceUtils;
@@ -266,8 +268,10 @@ public abstract class ContentController_Base
                         if (groupCount > 0) {
                             groupCount--;
                         }
-                        final var fieldValue = executable ? eval.get(field.getName()) : null;
-                        currentValues.add(evalValue(field, fieldValue, sectionInstance, targetMode));
+                        if (executable) {
+                            eval.get(field.getName());
+                        }
+                        currentValues.add(evalValue(eval, field, sectionInstance, targetMode));
                         if (groupCount < 1) {
                             currentFormSectionBldr.addItem(currentValues);
                             currentValues = new ArrayList<>();
@@ -292,12 +296,57 @@ public abstract class ContentController_Base
         return ret;
     }
 
-    protected ValueDto evalValue(final Field field, Object fieldValue, final Instance inst,
+    protected ValueDto evalValue(final Evaluator eval,
+                                 final Field field,
+                                 final Instance inst,
                                  final TargetMode targetMode)
         throws EFapsException
     {
         final var valueBldr = ValueDto.builder()
                         .withRequired(field.isRequired());
+        Object fieldValue = null;
+        boolean rangeValue = false;
+        // range value
+        if (TargetMode.VIEW.equals(targetMode) && field.getAttribute() != null) {
+            final var attr = inst.getType().getAttribute(field.getAttribute());
+            if (attr != null && attr.hasEvents(EventType.RANGE_VALUE)
+                            && !"Status".equals(attr.getAttributeType().getName())) {
+                rangeValue = true;
+                final var event = attr.getEvents(EventType.RANGE_VALUE).get(0);
+                final var valueStr = event.getProperty("Value");
+                if (valueStr.contains("$<")) {
+                    try {
+                        final var valueList = new ValueParser(new StringReader(valueStr)).ExpressionString();
+                        final int i = 0;
+                        final var strBldr = new StringBuilder();
+                        for (final Token token : valueList.getTokens()) {
+                            switch (token.getType()) {
+                                case EXPRESSION:
+                                    final var expValue = eval.get(field.getName() + "_ex" + i);
+                                    if (expValue != null) {
+                                        strBldr.append(String.valueOf(expValue));
+                                    }
+                                    break;
+                                case TEXT:
+                                    strBldr.append(token.getValue());
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
+                        fieldValue = strBldr.toString();
+                    } catch (final ParseException e) {
+                        throw new EFapsException("Catched", e);
+                    }
+                } else {
+                    fieldValue = eval.get(field.getName());
+                }
+            }
+        }
+        if (!rangeValue) {
+            fieldValue = eval.get(field.getName());
+        }
+
         final UIType uiType = getUIType(field);
         if (UIType.SNIPPLET.equals(uiType)) {
             fieldValue = getSnipplet(inst, field);

@@ -143,7 +143,10 @@ public abstract class AbstractController_Base
         return header;
     }
 
-    protected void add2Select4Attribute(final Print _print, final Field _field, final List<Type> _types)
+    protected void add2Select4Attribute(final Print _print,
+                                        final Field _field,
+                                        final List<Type> _types)
+        throws EFapsException
     {
         Attribute attr = null;
         for (final var type : _types) {
@@ -163,17 +166,28 @@ public abstract class AbstractController_Base
         }
     }
 
-    protected void add2Select4RangeValue(final Print _print, final Field _field, final Attribute attr)
+    protected void add2Select4RangeValue(final Print print,
+                                         final Field field,
+                                         final Attribute attr)
+        throws EFapsException
     {
         final var event = attr.getEvents(EventType.RANGE_VALUE).get(0);
         final var valueStr = event.getProperty("Value");
         if (valueStr.contains("$<")) {
-
+            try {
+                final var valueList = new ValueParser(new StringReader(valueStr)).ExpressionString();
+                int i = 0;
+                for (final var expression : valueList.getExpressions()) {
+                    print.select("linkto[" + attr.getName() + "]." + expression).as(field.getName() + "_ex" + i);
+                    i++;
+                }
+            } catch (final ParseException e) {
+                throw new EFapsException("Catched", e);
+            }
         } else {
-            _print.select("linkto[" + attr.getName() + "].attribute[" + valueStr + "]").as(_field.getName());
+            print.linkto(attr.getName()).attribute(valueStr).as(field.getName());
         }
     }
-
 
     protected UIType getUIType(final Field _field)
     {
