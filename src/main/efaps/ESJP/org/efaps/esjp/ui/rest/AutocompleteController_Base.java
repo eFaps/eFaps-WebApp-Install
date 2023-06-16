@@ -62,10 +62,13 @@ public abstract class AutocompleteController_Base
             if (values != null) {
                 values.stream().forEach(val -> {
                     @SuppressWarnings("unchecked") final var map = (Map<String, String>) val;
+                    final var label = map.containsKey(EFapsKey.AUTOCOMPLETE_CHOICE.getKey())
+                                    ? map.get(EFapsKey.AUTOCOMPLETE_CHOICE.getKey())
+                                    : map.get(EFapsKey.AUTOCOMPLETE_VALUE.getKey());
                     options.add(OptionDto.builder()
-                        .withLabel(map.get(EFapsKey.AUTOCOMPLETE_CHOICE.getKey()))
-                        .withValue(map.get(EFapsKey.AUTOCOMPLETE_KEY.getKey()))
-                        .build());
+                                    .withLabel(label)
+                                    .withValue(map.get(EFapsKey.AUTOCOMPLETE_KEY.getKey()))
+                                    .build());
                 });
             }
         }
