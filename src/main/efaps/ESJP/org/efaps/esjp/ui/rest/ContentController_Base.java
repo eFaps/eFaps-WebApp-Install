@@ -360,8 +360,16 @@ public abstract class ContentController_Base
         } else if ((TargetMode.CREATE.equals(targetMode) || TargetMode.EDIT.equals(targetMode))
                         && field.isEditableDisplay(targetMode)) {
             if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {
-                valueBldr.withType(ValueType.AUTOCOMPLETE);
-                valueBldr.withRef(String.valueOf(field.getId()));
+                valueBldr.withType(ValueType.AUTOCOMPLETE)
+                    .withRef(String.valueOf(field.getId()));
+                final var alterOid = eval.get(field.getName() + "_AOID");
+                if (alterOid != null) {
+                    valueBldr.withOptions(List.of(OptionDto.builder()
+                                                .withLabel(String.valueOf(fieldValue))
+                                                .withValue(alterOid)
+                                                .build()));
+                    fieldValue = alterOid;
+                }
             } else if (field.hasEvents(EventType.UI_FIELD_VALUE)) {
                 fieldValue = evalFieldValueEvent(inst, field, valueBldr, fieldValue, targetMode);
             } else {
@@ -412,15 +420,17 @@ public abstract class ContentController_Base
                                         .withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
                                                     .map(ienum -> {
                                                         return OptionDto.builder()
-                                                                        .withValue(((IBitEnum) ienum).getBitIndex())
+                                                                        .withValue(((IBitEnum) ienum).getInt())
                                                                         .withLabel(getEnumLabel((IEnum) ienum))
                                                                         .build();
                                                     }).collect(Collectors.toList()));
                                 } catch (final ClassNotFoundException e) {
                                     LOG.error("Catched", e);
                                 }
-                                if (TargetMode.EDIT.equals(targetMode) && fieldValue instanceof IEnum) {
-                                    fieldValue = ((IEnum) fieldValue).getInt();
+                                if (TargetMode.EDIT.equals(targetMode) && fieldValue instanceof Collection) {
+                                    fieldValue = ((Collection<?>) fieldValue).stream().map(enumVal -> {
+                                       return ((IBitEnum) enumVal).getInt();
+                                    }).toList();
                                 }
                                 break;
                             case "Status":
