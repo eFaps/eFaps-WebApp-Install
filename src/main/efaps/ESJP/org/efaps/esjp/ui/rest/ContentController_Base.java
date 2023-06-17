@@ -344,7 +344,7 @@ public abstract class ContentController_Base
             }
         }
         if (!rangeValue) {
-            fieldValue = eval.get(field.getName());
+            fieldValue = eval == null ? null : eval.get(field.getName());
         }
 
         final UIType uiType = getUIType(field);
@@ -541,7 +541,8 @@ public abstract class ContentController_Base
         if (cmd == null) {
             cmd = Menu.get(UUID.fromString(_cmdId));
         }
-        if (instance.isValid() || cmd.getTargetMode().equals(TargetMode.CREATE)) {
+        if (instance.isValid() || cmd.getTargetMode().equals(TargetMode.CREATE)
+                        || cmd.getTargetMode().equals(TargetMode.UNKNOWN)) {
             final var targetMenu = cmd.getTargetMenu();
             final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu);
             final var header = getLabel(instance, cmd.getTargetTitle());
