@@ -127,6 +127,8 @@ public abstract class ContentController_Base
                 ActionType actionType = null;
                 if (command.getTargetTable() != null) {
                     actionType = ActionType.GRID;
+                } else if (command.getTargetForm() != null) {
+                    actionType = ActionType.FORM;
                 }
                 navItems.add(NavItemDto.builder()
                                 .withId(command.getUUID().toString())
