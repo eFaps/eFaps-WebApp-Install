@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2020 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,7 +20,9 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.ws.rs.core.Response;
@@ -35,34 +37,38 @@ import org.efaps.esjp.ui.rest.dto.UploadResponseDto;
 import org.efaps.util.EFapsException;
 import org.efaps.util.RandomUtil;
 import org.glassfish.jersey.media.multipart.FormDataMultiPart;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @EFapsUUID("9b89aec9-f0cc-4a4e-9b67-06aee26963f6")
 @EFapsApplication("eFaps-WebApp")
 public abstract class UploadController_Base
 {
 
-    public static Map<String, File> MAP = new HashMap<>();
+    private static final Logger LOG = LoggerFactory.getLogger(UploadController.class);
+
+    public static Map<String, File> FILEMAP = new HashMap<>();
 
     public Response upload(final FormDataMultiPart _formData)
         throws EFapsException
     {
-        String ret = null;
+        final List<String> ret = new ArrayList<>();
         try {
             for (final var bodyPart : _formData.getBodyParts()) {
                 final var fileName = bodyPart.getContentDisposition().getFileName();
                 final var file = getFile(fileName);
                 final InputStream is = bodyPart.getEntityAs(InputStream.class);
                 FileUtils.copyInputStreamToFile(is, file);
-                ret = RandomUtil.randomAlphanumeric(12);
-                MAP.put(ret, file);
+                final var key = RandomUtil.randomAlphanumeric(12);
+                FILEMAP.put(key, file);
+                ret.add(key);
             }
         } catch (final IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            LOG.error("Catched", e);
         }
         return Response.ok()
                         .entity(UploadResponseDto.builder()
-                                        .withKey(ret)
+                                        .withKeys(ret)
                                         .build())
                         .build();
     }

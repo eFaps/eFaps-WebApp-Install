@@ -1,5 +1,7 @@
 package org.efaps.esjp.ui.rest.dto;
 
+import java.util.List;
+
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
@@ -11,16 +13,16 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public class UploadResponseDto
 {
 
-    private final String key;
+    private final List<String> keys;
 
     private UploadResponseDto(final Builder builder)
     {
-        key = builder.key;
+        keys = builder.keys;
     }
 
-    public String getKey()
+    public List<String> getKeys()
     {
-        return key;
+        return keys;
     }
 
     /**
@@ -39,15 +41,15 @@ public class UploadResponseDto
     public static final class Builder
     {
 
-        private String key;
+        private List<String> keys;
 
         private Builder()
         {
         }
 
-        public Builder withKey(final String key)
+        public Builder withKeys(final List<String> keys)
         {
-            this.key = key;
+            this.keys = keys;
             return this;
         }
 
