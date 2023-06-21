@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2020 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -36,7 +36,7 @@ public class ColumnDto
     private final String ref;
     private final ValueType type;
     private final List<OptionDto> options;
-
+    private final String updateRef;
     private ColumnDto(final Builder builder)
     {
         header = builder.header;
@@ -44,6 +44,12 @@ public class ColumnDto
         ref = builder.ref;
         type = builder.type;
         options = builder.options;
+        updateRef = builder.updateRef;
+    }
+
+    public String getField()
+    {
+        return field;
     }
 
     public String getHeader()
@@ -51,9 +57,9 @@ public class ColumnDto
         return header;
     }
 
-    public String getField()
+    public List<OptionDto> getOptions()
     {
-        return field;
+        return options;
     }
 
     public String getRef()
@@ -66,9 +72,9 @@ public class ColumnDto
         return type;
     }
 
-    public List<OptionDto> getOptions()
+    public String getUpdateRef()
     {
-        return options;
+        return updateRef;
     }
 
     @Override
@@ -99,9 +105,21 @@ public class ColumnDto
         private String ref;
         private ValueType type;
         private List<OptionDto> options = Collections.emptyList();
+        private String updateRef;
 
         private Builder()
         {
+        }
+
+        public ColumnDto build()
+        {
+            return new ColumnDto(this);
+        }
+
+        public Builder withField(final String field)
+        {
+            this.field = field;
+            return this;
         }
 
         public Builder withHeader(final String header)
@@ -110,9 +128,10 @@ public class ColumnDto
             return this;
         }
 
-        public Builder withField(final String field)
+        @Override
+        public Builder withOptions(final List<OptionDto> options)
         {
-            this.field = field;
+            this.options = options;
             return this;
         }
 
@@ -129,16 +148,10 @@ public class ColumnDto
             return this;
         }
 
-        @Override
-        public Builder withOptions(final List<OptionDto> options)
+        public Builder withUpdateRef(final String updateRef)
         {
-            this.options = options;
+            this.updateRef = updateRef;
             return this;
-        }
-
-        public ColumnDto build()
-        {
-            return new ColumnDto(this);
         }
     }
 }

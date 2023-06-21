@@ -39,6 +39,7 @@ public class ValueDto
     private final String ref;
     private final List<OptionDto> options;
     private final boolean required;
+    private final String updateRef;
 
     private ValueDto(final Builder builder)
     {
@@ -49,16 +50,7 @@ public class ValueDto
         ref = builder.ref;
         options = builder.options;
         required = builder.required;
-    }
-
-    public ValueType getType()
-    {
-        return type;
-    }
-
-    public String getName()
-    {
-        return name;
+        updateRef = builder.updateRef;
     }
 
     public String getLabel()
@@ -66,10 +58,9 @@ public class ValueDto
         return label;
     }
 
-    @JsonSerialize(using = ValueSerializer.class)
-    public Object getValue()
+    public String getName()
     {
-        return value;
+        return name;
     }
 
     public List<OptionDto> getOptions()
@@ -80,6 +71,22 @@ public class ValueDto
     public String getRef()
     {
         return ref;
+    }
+
+    public ValueType getType()
+    {
+        return type;
+    }
+
+    public String getUpdateRef()
+    {
+        return updateRef;
+    }
+
+    @JsonSerialize(using = ValueSerializer.class)
+    public Object getValue()
+    {
+        return value;
     }
 
     public boolean isRequired()
@@ -112,33 +119,26 @@ public class ValueDto
 
         private ValueType type;
 
-        public ValueType getType()
-        {
-            return type;
-        }
-
         private String name;
+
         private String label;
         private Object value;
         private String ref;
         private List<OptionDto> options = Collections.emptyList();
         private boolean required;
-
+        private String updateRef;
         private Builder()
         {
         }
 
-        @Override
-        public Builder withType(final ValueType type)
+        public ValueDto build()
         {
-            this.type = type;
-            return this;
+            return new ValueDto(this);
         }
 
-        public Builder withName(final String name)
+        public ValueType getType()
         {
-            this.name = name;
-            return this;
+            return type;
         }
 
         public Builder withLabel(final String label)
@@ -147,15 +147,9 @@ public class ValueDto
             return this;
         }
 
-        public Builder withValue(final Object value)
+        public Builder withName(final String name)
         {
-            this.value = value;
-            return this;
-        }
-
-        public Builder withRef(final String ref)
-        {
-            this.ref = ref;
+            this.name = name;
             return this;
         }
 
@@ -166,15 +160,35 @@ public class ValueDto
             return this;
         }
 
+        public Builder withRef(final String ref)
+        {
+            this.ref = ref;
+            return this;
+        }
+
         public Builder withRequired(final boolean required)
         {
             this.required = required;
             return this;
         }
 
-        public ValueDto build()
+        @Override
+        public Builder withType(final ValueType type)
         {
-            return new ValueDto(this);
+            this.type = type;
+            return this;
+        }
+
+        public Builder withUpdateRef(final String updateRef)
+        {
+            this.updateRef = updateRef;
+            return this;
+        }
+
+        public Builder withValue(final Object value)
+        {
+            this.value = value;
+            return this;
         }
     }
 }

@@ -21,9 +21,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 
 import javax.ws.rs.core.Response;
@@ -50,6 +48,70 @@ public abstract class ExecController_Base
 {
 
     private static final Logger LOG = LoggerFactory.getLogger(ExecController.class);
+
+    protected void evalUpload(final PayloadDto dto)
+        throws EFapsException
+    {
+        if (dto.getValues().containsKey("eFapsUpload")) {
+            final String uploadFieldName = (String) dto.getValues().get("eFapsUpload");
+            final var uploads = dto.getValues().get(uploadFieldName);
+            final List<String> keys = new ArrayList<>();
+            if (uploads instanceof Collection) {
+                keys.addAll(((Collection<?>) uploads).stream().map(obj -> ((String) obj)).toList());
+            } else {
+                keys.add((String) uploads);
+            }
+            int i = 0;
+            for (final var key : keys) {
+                final var file = UploadController.FILEMAP.get(key);
+                if (file != null) {
+                    final var parameterName = keys.size() > 1 ? uploadFieldName + "_" + i : uploadFieldName;
+                    Context.getThreadContext().getFileParameters().put(parameterName, new Context.FileParameter()
+                    {
+
+                        @Override
+                        public void close()
+                            throws IOException
+                        {
+                            // TODO Auto-generated method stub
+                        }
+
+                        @Override
+                        public String getContentType()
+                        {
+                            return "";
+                        }
+
+                        @Override
+                        public InputStream getInputStream()
+                            throws IOException
+                        {
+                            return new FileInputStream(file);
+                        }
+
+                        @Override
+                        public String getName()
+                        {
+                            return file.getName();
+                        }
+
+                        @Override
+                        public String getParameterName()
+                        {
+                            return uploadFieldName;
+                        }
+
+                        @Override
+                        public long getSize()
+                        {
+                            return  file.length();
+                        }
+                    });
+                }
+                i++;
+            }
+        }
+    }
 
     public Response exec(final String cmdId,
                          final PayloadDto dto)
@@ -81,88 +143,5 @@ public abstract class ExecController_Base
                         .entity(response)
                         .build();
         return ret;
-    }
-
-    protected Map<String, String[]> convertToMap(final PayloadDto dto)
-    {
-        final var ret = new HashMap<String, String[]>();
-        if (dto != null && dto.getValues() != null) {
-            for (final var entry : dto.getValues().entrySet()) {
-                if (entry.getValue() instanceof Collection) {
-                    ret.put(entry.getKey(), ((Collection<?>) entry.getValue()).stream().map(val -> {
-                        return String.valueOf(val);
-                    }).toArray(String[]::new));
-                } else {
-                    ret.put(entry.getKey(), new String[] { String.valueOf(entry.getValue()) });
-                }
-            }
-        }
-        return ret;
-    }
-
-    protected void evalUpload(final PayloadDto dto)
-        throws EFapsException
-    {
-        if (dto.getValues().containsKey("eFapsUpload")) {
-            final String uploadFieldName = (String) dto.getValues().get("eFapsUpload");
-            final var uploads = dto.getValues().get(uploadFieldName);
-            final List<String> keys = new ArrayList<>();
-            if (uploads instanceof Collection) {
-                keys.addAll(((Collection<?>) uploads).stream().map(obj -> {
-                    return (String) obj;
-                }).toList());
-            } else {
-                keys.add((String) uploads);
-            }
-            int i = 0;
-            for (final var key : keys) {
-                final var file = UploadController.FILEMAP.get(key);
-                if (file != null) {
-                    final var parameterName = keys.size() > 1 ? uploadFieldName + "_" + i : uploadFieldName;
-                    Context.getThreadContext().getFileParameters().put(parameterName, new Context.FileParameter()
-                    {
-
-                        @Override
-                        public void close()
-                            throws IOException
-                        {
-                            // TODO Auto-generated method stub
-                        }
-
-                        @Override
-                        public InputStream getInputStream()
-                            throws IOException
-                        {
-                            return new FileInputStream(file);
-                        }
-
-                        @Override
-                        public long getSize()
-                        {
-                            return  file.length();
-                        }
-
-                        @Override
-                        public String getContentType()
-                        {
-                            return "";
-                        }
-
-                        @Override
-                        public String getName()
-                        {
-                            return file.getName();
-                        }
-
-                        @Override
-                        public String getParameterName()
-                        {
-                            return uploadFieldName;
-                        }
-                    });
-                }
-                i++;
-            }
-        }
     }
 }

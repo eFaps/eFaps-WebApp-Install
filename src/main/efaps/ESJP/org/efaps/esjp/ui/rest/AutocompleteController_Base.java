@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2020 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -48,7 +48,6 @@ public abstract class AutocompleteController_Base
         final var parameters = new HashMap<String, String[]>();
 
         final var term = dto.getValues().get(fieldId + "_query");
-                    //parameters.getOrDefault("eFapsAutocomplete", new String[] {""})[0];
 
         final var paraValues = new ArrayList<>();
         paraValues.add(ParameterValues.OTHERS);

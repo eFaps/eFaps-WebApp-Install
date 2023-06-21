@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2020 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -100,61 +100,6 @@ public abstract class ContentController_Base
 {
     private static final Logger LOG = LoggerFactory.getLogger(ContentController.class);
 
-    public Response getContent(final String _oid)
-        throws EFapsException
-    {
-        ContentDto dto = null;
-        final var instance = Instance.get(_oid);
-        if (instance.isValid()) {
-
-            final var typeMenu = instance.getType().getTypeMenu();
-            final var defaultSelected = typeMenu.getCommands().stream().filter(cmd -> cmd.isDefaultSelected()).findFirst();
-            final var currentCmd = defaultSelected.isPresent() ? defaultSelected.get() : typeMenu;
-
-            final var targetMenu = currentCmd.getTargetMenu();
-            final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu);
-            final var header = getLabel(instance, currentCmd.getTargetTitle());
-
-            final List<NavItemDto> navItems = new ArrayList<>();
-            navItems.add(NavItemDto.builder()
-                            .withId(typeMenu.getUUID().toString())
-                            .withLabel(getLabel(instance, typeMenu.getLabel()))
-                            .withAction(ActionDto.builder()
-                                            .withType(ActionType.FORM)
-                                            .build())
-                            .build());
-            for (final var command : typeMenu.getCommands()) {
-                ActionType actionType = null;
-                if (command.getTargetTable() != null) {
-                    actionType = ActionType.GRID;
-                } else if (command.getTargetForm() != null) {
-                    actionType = ActionType.FORM;
-                }
-                navItems.add(NavItemDto.builder()
-                                .withId(command.getUUID().toString())
-                                .withLabel(command.getLabelProperty())
-                                .withAction(ActionDto.builder()
-                                                .withType(actionType)
-                                                .build())
-                                .build());
-            }
-            final var outline = OutlineDto.builder()
-                            .withOid(_oid)
-                            .withMenu(menus)
-                            .withHeader(header)
-                            .withSections(evalSections(instance, currentCmd))
-                            .build();
-            dto = ContentDto.builder()
-                            .withOutline(outline)
-                            .withNav(navItems)
-                            .withSelected(currentCmd.getUUID().toString())
-                            .build();
-        }
-        return Response.ok()
-                        .entity(dto)
-                        .build();
-    }
-
     public List<ISection> evalSections(final Instance _instance, final AbstractCommand _cmd)
         throws EFapsException
     {
@@ -183,23 +128,21 @@ public abstract class ContentController_Base
                         for (final var attr : attrList) {
                         //    print.attributeSet(field.getAttribute()).attribute(attr).as(field.getName() + "-" + attr);
                         }
-                    } else {
-                        if (field.getSelect() != null) {
-                            print.select(field.getSelect()).as(field.getName());
-                            executable = true;
-                        } else if (field.getAttribute() != null) {
-                            if (TargetMode.VIEW.equals(targetMode)) {
-                                add2Select4Attribute(print, field, Collections.singletonList(_instance.getType()));
-                            } else {
-                                print.attribute(field.getAttribute()).as(field.getName());
-                            }
-                            executable = true;
-                        } else if (field.getPhrase() != null) {
-                            print.phrase(field.getPhrase()).as(field.getName());
-                        } else if (field.getMsgPhrase() != null) {
-                            print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName());
-                            executable = true;
+                    } else if (field.getSelect() != null) {
+                        print.select(field.getSelect()).as(field.getName());
+                        executable = true;
+                    } else if (field.getAttribute() != null) {
+                        if (TargetMode.VIEW.equals(targetMode)) {
+                            add2Select4Attribute(print, field, Collections.singletonList(_instance.getType()));
+                        } else {
+                            print.attribute(field.getAttribute()).as(field.getName());
                         }
+                        executable = true;
+                    } else if (field.getPhrase() != null) {
+                        print.phrase(field.getPhrase()).as(field.getName());
+                    } else if (field.getMsgPhrase() != null) {
+                        print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName());
+                        executable = true;
                     }
                     if (field.getSelectAlternateOID() != null) {
                         print.select(field.getSelectAlternateOID()).as(field.getName() + "_AOID");
@@ -220,7 +163,7 @@ public abstract class ContentController_Base
                 } else if (!field.isNoneDisplay(targetMode)
                                 && field.hasAccess(targetMode, sectionInstance, _cmd, sectionInstance)) {
                     if (field instanceof FieldGroup) {
-                        final FieldGroup group = (FieldGroup) field;
+                        final var group = (FieldGroup) field;
                         groupCount = group.getGroupCount();
                     } else if (field instanceof FieldTable) {
                         currentFormSectionBldr = null;
@@ -298,6 +241,33 @@ public abstract class ContentController_Base
         return ret;
     }
 
+    protected List<Type> evalTypes(final AbstractUserInterfaceObject _cmd)
+        throws EFapsException
+    {
+        final var propertiesMap = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
+        final var typeList = new ArrayList<Type>();
+        final var properties = new Properties();
+        properties.putAll(propertiesMap);
+        final var types = PropertiesUtil.analyseProperty(properties, "Type", 0);
+        final var expandChildTypes = PropertiesUtil.analyseProperty(properties, "ExpandChildTypes", 0);
+
+        for (final var typeEntry : types.entrySet()) {
+            Type type;
+            if (UUIDUtil.isUUID(typeEntry.getValue())) {
+                type = Type.get(UUID.fromString(typeEntry.getValue()));
+            } else {
+                type = Type.get(typeEntry.getValue());
+            }
+            typeList.add(type);
+            if (expandChildTypes.containsKey(0) && Boolean.parseBoolean(expandChildTypes.get(0))
+                            || expandChildTypes.containsKey(typeEntry.getKey())
+                                            && Boolean.parseBoolean(expandChildTypes.get(typeEntry.getKey()))) {
+                type.getChildTypes().forEach(at -> typeList.add(at));
+            }
+        }
+        return typeList;
+    }
+
     protected ValueDto evalValue(final Evaluator eval,
                                  final Field field,
                                  final Instance inst,
@@ -364,7 +334,7 @@ public abstract class ContentController_Base
             if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {
                 valueBldr.withType(ValueType.AUTOCOMPLETE)
                     .withRef(String.valueOf(field.getId()));
-                final var alterOid = eval.get(field.getName() + "_AOID");
+                final var alterOid = eval == null ? null : eval.get(field.getName() + "_AOID");
                 if (alterOid != null) {
                     valueBldr.withOptions(List.of(OptionDto.builder()
                                                 .withLabel(String.valueOf(fieldValue))
@@ -382,12 +352,10 @@ public abstract class ContentController_Base
                         valueBldr
                             .withType(ValueType.DROPDOWN)
                             .withOptions(options.stream()
-                            .map(opt -> {
-                                return OptionDto.builder()
-                                                .withLabel(opt.getLabel())
-                                                .withValue(opt.getValue())
-                                                .build();
-                            }).collect(Collectors.toList()));
+                            .map(opt -> OptionDto.builder()
+                                            .withLabel(opt.getLabel())
+                                            .withValue(opt.getValue())
+                                            .build()).collect(Collectors.toList()));
                         final var selectedOpt = options.stream().filter(IOption::isSelected).findFirst();
                         if (selectedOpt.isPresent()) {
                             fieldValue = selectedOpt.get().getValue();
@@ -401,12 +369,10 @@ public abstract class ContentController_Base
                                                     EFapsClassLoader.getInstance());
                                     valueBldr.withType(ValueType.RADIO)
                                         .withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
-                                                    .map(ienum -> {
-                                                        return OptionDto.builder()
-                                                                        .withValue(((IEnum) ienum).getInt())
-                                                                        .withLabel(getEnumLabel((IEnum) ienum))
-                                                                        .build();
-                                                    }).collect(Collectors.toList()));
+                                                    .map(ienum -> OptionDto.builder()
+                                                                    .withValue(((IEnum) ienum).getInt())
+                                                                    .withLabel(getEnumLabel((IEnum) ienum))
+                                                                    .build()).collect(Collectors.toList()));
                                 } catch (final ClassNotFoundException e) {
                                     LOG.error("Catched", e);
                                 }
@@ -420,31 +386,25 @@ public abstract class ContentController_Base
                                                     EFapsClassLoader.getInstance());
                                     valueBldr.withType(ValueType.BITENUM)
                                         .withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
-                                                    .map(ienum -> {
-                                                        return OptionDto.builder()
-                                                                        .withValue(((IBitEnum) ienum).getInt())
-                                                                        .withLabel(getEnumLabel((IEnum) ienum))
-                                                                        .build();
-                                                    }).collect(Collectors.toList()));
+                                                    .map(ienum -> OptionDto.builder()
+                                                                    .withValue(((IBitEnum) ienum).getInt())
+                                                                    .withLabel(getEnumLabel((IEnum) ienum))
+                                                                    .build()).collect(Collectors.toList()));
                                 } catch (final ClassNotFoundException e) {
                                     LOG.error("Catched", e);
                                 }
                                 if (TargetMode.EDIT.equals(targetMode) && fieldValue instanceof Collection) {
-                                    fieldValue = ((Collection<?>) fieldValue).stream().map(enumVal -> {
-                                       return ((IBitEnum) enumVal).getInt();
-                                    }).toList();
+                                    fieldValue = ((Collection<?>) fieldValue).stream().map(enumVal -> ((IBitEnum) enumVal).getInt()).toList();
                                 }
                                 break;
                             case "Status":
                                 final var statusType = attr.getLink();
                                 valueBldr.withType(ValueType.DROPDOWN)
                                     .withOptions(Status.get(statusType.getUUID()).values().stream()
-                                                .map(status -> {
-                                                    return OptionDto.builder()
-                                                                    .withValue(status.getId())
-                                                                    .withLabel(status.getLabel())
-                                                                    .build();
-                                                }).collect(Collectors.toList()));
+                                                .map(status -> OptionDto.builder()
+                                                                .withValue(status.getId())
+                                                                .withLabel(status.getLabel())
+                                                                .build()).collect(Collectors.toList()));
                                 break;
                             case "Boolean":
                                 valueBldr.withType(ValueType.RADIO);
@@ -478,60 +438,68 @@ public abstract class ContentController_Base
                 valueBldr.withType(ValueType.DATETIME);
             }
         }
+        if (field.hasEvents(EventType.UI_FIELD_UPDATE)) {
+            valueBldr.withUpdateRef(String.valueOf(field.getId()));
+        }
         return valueBldr.withLabel(getLabel(inst, field))
                         .withName(field.getName())
                         .withValue(fieldValue)
                         .build();
     }
 
-    @SuppressWarnings("unchecked")
-    private List<IOption> getRangeValue(final Attribute _attr, final Object fieldValue, final TargetMode targetMode)
+    public Response getContent(final String _oid)
         throws EFapsException
     {
-        final List<IOption> ret = new ArrayList<>();
-        for (final Return values : _attr.executeEvents(EventType.RANGE_VALUE,
-                        ParameterValues.UIOBJECT, _attr,
-                        ParameterValues.ACCESSMODE, targetMode,
-                        ParameterValues.OTHERS, fieldValue)) {
-                ret.addAll((List<IOption>) values.get(ReturnValues.VALUES));
-        }
-        return ret;
-    }
+        ContentDto dto = null;
+        final var instance = Instance.get(_oid);
+        if (instance.isValid()) {
 
-    private String getLabel(final Instance _instance, final Field _field)
-    {
-        String ret = null;
-        if (_field.getLabel() != null) {
-            ret = DBProperties.getProperty(_field.getLabel());
-        } else if (_field.getAttribute() != null) {
-            final var attr = _instance.getType().getAttribute(_field.getAttribute());
-            if (attr != null) {
-                ret = DBProperties.getProperty(attr.getLabelKey());
-            }
-        }
-        return ret;
-    }
+            final var typeMenu = instance.getType().getTypeMenu();
+            final var defaultSelected = typeMenu.getCommands().stream().filter(AbstractCommand::isDefaultSelected).findFirst();
+            final var currentCmd = defaultSelected.isPresent() ? defaultSelected.get() : typeMenu;
 
-    public String getLabel(final Instance _instance, final String _propertyKey)
-    {
-        String ret = "";
-        try {
-            ret = DBProperties.getProperty(_propertyKey);
-            final ValueParser parser = new ValueParser(new StringReader(ret));
-            final ValueList list = parser.ExpressionString();
-            if (InstanceUtils.isValid(_instance) && list.getExpressions().size() > 0) {
-                final PrintQuery print = new PrintQuery(_instance);
-                list.makeSelect(print);
-                if (print.execute()) {
-                    ret = list.makeString(_instance, print, TargetMode.VIEW);
+            final var targetMenu = currentCmd.getTargetMenu();
+            final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu);
+            final var header = getLabel(instance, currentCmd.getTargetTitle());
+
+            final List<NavItemDto> navItems = new ArrayList<>();
+            navItems.add(NavItemDto.builder()
+                            .withId(typeMenu.getUUID().toString())
+                            .withLabel(getLabel(instance, typeMenu.getLabel()))
+                            .withAction(ActionDto.builder()
+                                            .withType(ActionType.FORM)
+                                            .build())
+                            .build());
+            for (final var command : typeMenu.getCommands()) {
+                ActionType actionType = null;
+                if (command.getTargetTable() != null) {
+                    actionType = ActionType.GRID;
+                } else if (command.getTargetForm() != null) {
+                    actionType = ActionType.FORM;
                 }
+                navItems.add(NavItemDto.builder()
+                                .withId(command.getUUID().toString())
+                                .withLabel(command.getLabelProperty())
+                                .withAction(ActionDto.builder()
+                                                .withType(actionType)
+                                                .build())
+                                .build());
             }
-        } catch (final EFapsException e) {
-            throw new RestartResponseException(new ErrorPage(e));
-        } catch (final ParseException e) {
-            throw new RestartResponseException(new ErrorPage(e));
+            final var outline = OutlineDto.builder()
+                            .withOid(_oid)
+                            .withMenu(menus)
+                            .withHeader(header)
+                            .withSections(evalSections(instance, currentCmd))
+                            .build();
+            dto = ContentDto.builder()
+                            .withOutline(outline)
+                            .withNav(navItems)
+                            .withSelected(currentCmd.getUUID().toString())
+                            .build();
         }
-        return ret;
+        return Response.ok()
+                        .entity(dto)
+                        .build();
     }
 
     public Response getContent(final String _oid, final String _cmdId)
@@ -570,6 +538,74 @@ public abstract class ContentController_Base
         return Response.ok()
                         .entity(dto)
                         .build();
+    }
+
+    private String getLabel(final Instance _instance, final Field _field)
+    {
+        String ret = null;
+        if (_field.getLabel() != null) {
+            ret = DBProperties.getProperty(_field.getLabel());
+        } else if (_field.getAttribute() != null) {
+            final var attr = _instance.getType().getAttribute(_field.getAttribute());
+            if (attr != null) {
+                ret = DBProperties.getProperty(attr.getLabelKey());
+            }
+        }
+        return ret;
+    }
+
+    public String getLabel(final Instance _instance, final String _propertyKey)
+    {
+        String ret = "";
+        try {
+            ret = DBProperties.getProperty(_propertyKey);
+            final ValueParser parser = new ValueParser(new StringReader(ret));
+            final ValueList list = parser.ExpressionString();
+            if (InstanceUtils.isValid(_instance) && list.getExpressions().size() > 0) {
+                final PrintQuery print = new PrintQuery(_instance);
+                list.makeSelect(print);
+                if (print.execute()) {
+                    ret = list.makeString(_instance, print, TargetMode.VIEW);
+                }
+            }
+        } catch (final EFapsException e) {
+            throw new RestartResponseException(new ErrorPage(e));
+        } catch (final ParseException e) {
+            throw new RestartResponseException(new ErrorPage(e));
+        }
+        return ret;
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<IOption> getRangeValue(final Attribute _attr, final Object fieldValue, final TargetMode targetMode)
+        throws EFapsException
+    {
+        final List<IOption> ret = new ArrayList<>();
+        for (final Return values : _attr.executeEvents(EventType.RANGE_VALUE,
+                        ParameterValues.UIOBJECT, _attr,
+                        ParameterValues.ACCESSMODE, targetMode,
+                        ParameterValues.OTHERS, fieldValue)) {
+                ret.addAll((List<IOption>) values.get(ReturnValues.VALUES));
+        }
+        return ret;
+    }
+
+    private CharSequence getSnipplet(final Instance _instance, final Field _field)
+        throws EFapsException
+    {
+        CharSequence ret = null;
+        if (_field.hasEvents(EventType.UI_FIELD_VALUE)) {
+            final var uiValue = RestUIValue.builder()
+                            .withInstance(_instance)
+                            .withField(_field)
+                            .build();
+            final var values = _field.executeEvents(EventType.UI_FIELD_VALUE, ParameterValues.INSTANCE, _instance,
+                            ParameterValues.UIOBJECT, uiValue);
+            for (final var entry : values) {
+                ret = (CharSequence) entry.get(ReturnValues.SNIPLETT);
+            }
+        }
+        return ret;
     }
 
     public Collection<Map<String, ?>> getValues(final AbstractUserInterfaceObject _cmd, final org.efaps.admin.ui.Table _table,
@@ -613,49 +649,20 @@ public abstract class ContentController_Base
         return print.evaluate().getData();
     }
 
-    protected List<Type> evalTypes(final AbstractUserInterfaceObject _cmd)
-        throws EFapsException
+    public static String getBooleanLabel(final Attribute attr, final Field field, final Boolean bool)
     {
-        final var propertiesMap = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
-        final var typeList = new ArrayList<Type>();
-        final var properties = new Properties();
-        properties.putAll(propertiesMap);
-        final var types = PropertiesUtil.analyseProperty(properties, "Type", 0);
-        final var expandChildTypes = PropertiesUtil.analyseProperty(properties, "ExpandChildTypes", 0);
-
-        for (final var typeEntry : types.entrySet()) {
-            Type type;
-            if (UUIDUtil.isUUID(typeEntry.getValue())) {
-                type = Type.get(UUID.fromString(typeEntry.getValue()));
-            } else {
-                type = Type.get(typeEntry.getValue());
+        {
+            String ret = BooleanUtils.toStringTrueFalse(bool);
+            if (attr != null
+                            && DBProperties.hasProperty(attr.getKey() + "." + BooleanUtils.toStringTrueFalse(bool))) {
+                ret = DBProperties.getProperty(attr.getKey() + "."
+                                + BooleanUtils.toStringTrueFalse(bool));
+            } else if (DBProperties
+                            .hasProperty(field.getLabel() + "." + BooleanUtils.toStringTrueFalse(bool))) {
+                ret = DBProperties.getProperty(field.getLabel() + "." + BooleanUtils.toStringTrueFalse(bool));
             }
-            typeList.add(type);
-            if (expandChildTypes.containsKey(0) && Boolean.parseBoolean(expandChildTypes.get(0))
-                            || expandChildTypes.containsKey(typeEntry.getKey())
-                                            && Boolean.parseBoolean(expandChildTypes.get(typeEntry.getKey()))) {
-                type.getChildTypes().forEach(at -> typeList.add(at));
-            }
+            return ret;
         }
-        return typeList;
-    }
-
-    private CharSequence getSnipplet(final Instance _instance, final Field _field)
-        throws EFapsException
-    {
-        CharSequence ret = null;
-        if (_field.hasEvents(EventType.UI_FIELD_VALUE)) {
-            final var uiValue = RestUIValue.builder()
-                            .withInstance(_instance)
-                            .withField(_field)
-                            .build();
-            final var values = _field.executeEvents(EventType.UI_FIELD_VALUE, ParameterValues.INSTANCE, _instance,
-                            ParameterValues.UIOBJECT, uiValue);
-            for (final var entry : values) {
-                ret = (CharSequence) entry.get(ReturnValues.SNIPLETT);
-            }
-        }
-        return ret;
     }
 
     public static String getEnumLabel(final IEnum _enum)
@@ -674,22 +681,6 @@ public abstract class ContentController_Base
             }
         }
         return ret;
-    }
-
-    public static String getBooleanLabel(final Attribute attr, final Field field, final Boolean bool)
-    {
-        {
-            String ret = BooleanUtils.toStringTrueFalse(bool);
-            if (attr != null
-                            && DBProperties.hasProperty(attr.getKey() + "." + BooleanUtils.toStringTrueFalse(bool))) {
-                ret = DBProperties.getProperty(attr.getKey() + "."
-                                + BooleanUtils.toStringTrueFalse(bool));
-            } else if (DBProperties
-                            .hasProperty(field.getLabel() + "." + BooleanUtils.toStringTrueFalse(bool))) {
-                ret = DBProperties.getProperty(field.getLabel() + "." + BooleanUtils.toStringTrueFalse(bool));
-            }
-            return ret;
-        }
     }
 
     @JsonDeserialize(builder = RestUIValue.Builder.class)
@@ -773,6 +764,11 @@ public abstract class ContentController_Base
             {
             }
 
+            public RestUIValue build()
+            {
+                return new RestUIValue(this);
+            }
+
             public Builder withAttribute(final Attribute attribute)
             {
                 this.attribute = attribute;
@@ -795,11 +791,6 @@ public abstract class ContentController_Base
             {
                 this.object = object;
                 return this;
-            }
-
-            public RestUIValue build()
-            {
-                return new RestUIValue(this);
             }
         }
     }

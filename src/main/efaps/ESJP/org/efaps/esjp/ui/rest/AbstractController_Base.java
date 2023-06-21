@@ -19,7 +19,9 @@ package org.efaps.esjp.ui.rest;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.EnumUtils;
@@ -49,6 +51,7 @@ import org.efaps.esjp.ui.rest.ContentController_Base.RestUIValue;
 import org.efaps.esjp.ui.rest.dto.ColumnDto;
 import org.efaps.esjp.ui.rest.dto.IFieldBuilder;
 import org.efaps.esjp.ui.rest.dto.OptionDto;
+import org.efaps.esjp.ui.rest.dto.PayloadDto;
 import org.efaps.esjp.ui.rest.dto.ValueType;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -58,90 +61,8 @@ import org.slf4j.LoggerFactory;
 @EFapsApplication("eFaps-WebApp")
 public abstract class AbstractController_Base
 {
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractController.class);
-
-    protected String getBaseSelect4MsgPhrase(final Field _field)
-    {
-        String ret = "";
-        if (_field.getSelectAlternateOID() != null) {
-            ret = StringUtils.removeEnd(_field.getSelectAlternateOID(), ".oid");
-        }
-        return ret;
-    }
-
-    protected List<Field> getFields(final org.efaps.admin.ui.Table _table) {
-        return _table.getFields().stream().filter(field ->  {
-            try {
-                return field.hasAccess(TargetMode.VIEW, null) && !field.isNoneDisplay(TargetMode.VIEW);
-            } catch (final EFapsException e) {
-                LOG.error("Catched error while evaluation access for Field: {}", field);
-            }
-            return false;
-        }).collect(Collectors.toList());
-    }
-
-    protected List<ColumnDto> getColumns(final org.efaps.admin.ui.Table _table, final TargetMode targetMode,
-                                         final Collection<Type> types)
-        throws EFapsException
-    {
-        final var fields = getFields(_table);
-        final var ret = new ArrayList<ColumnDto>();
-        for (final var field : fields) {
-            final var columBldr = ColumnDto.builder()
-                            .withField(field.getName())
-                            .withHeader(field.getLabel() == null ? "" : DBProperties.getProperty(field.getLabel()))
-                            .withRef(field.getReference() != null ? "true" : null);
-            if (TargetMode.CREATE.equals(targetMode) || TargetMode.EDIT.equals(targetMode) && !types.isEmpty()) {
-                if (field.getAttribute() != null) {
-                    final var typeOpt = types.stream().filter(type -> {
-                        return type.getAttribute(field.getAttribute()) != null;
-                    }).findFirst();
-                    if (typeOpt.isPresent()) {
-                        final var attr = typeOpt.get().getAttribute(field.getAttribute());
-                        final var attrType = attr.getAttributeType();
-                        switch (attrType.getName()) {
-                            default:
-                                columBldr.withType(ValueType.INPUT);
-                        }
-                    }
-                } else if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {
-                    columBldr.withType(ValueType.AUTOCOMPLETE);
-                    columBldr.withRef(String.valueOf(field.getId()));
-                } else if (field.hasEvents(EventType.UI_FIELD_VALUE)) {
-                    evalFieldValueEvent(null, field, columBldr, null, targetMode);
-                }
-            }
-            ret.add(columBldr.build());
-        }
-        return ret;
-    }
-
-    protected String getHeader(final AbstractCommand _cmd, final String oid) throws EFapsException
-    {
-        final var key = _cmd.getTargetTitle() == null
-                        ? _cmd.getName() + ".Title"
-                        : _cmd.getTargetTitle();
-        var header = DBProperties.getProperty(key);
-        final var instance = Instance.get(oid);
-        if (instance.isValid()) {
-            final PrintQuery print = new PrintQuery(instance);
-            final ValueParser parser = new ValueParser(new StringReader(header));
-            try {
-                final var list = parser.ExpressionString();
-                if (!list.getExpressions().isEmpty()) {
-                    list.makeSelect(print);
-                    if (print.execute()) {
-                        header = list.makeString(instance, print, TargetMode.VIEW);
-                    }
-                }
-            } catch (final ParseException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
-
-        }
-        return header;
-    }
 
     protected void add2Select4Attribute(final Print _print,
                                         final Field _field,
@@ -189,46 +110,16 @@ public abstract class AbstractController_Base
         }
     }
 
-    protected UIType getUIType(final Field _field)
+    protected Map<String, String[]> convertToMap(final PayloadDto dto)
     {
-        final UIType ret;
-        final String uiTypeStr = _field.getProperty(UIFormFieldProperty.UI_TYPE);
-        if (EnumUtils.isValidEnum(UIType.class, uiTypeStr)) {
-            ret = UIType.valueOf(uiTypeStr);
-        } else {
-            ret = UIType.DEFAULT;
-        }
-        return ret;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected Object evalFieldValueEvent(final Instance _instance, final Field field, final IFieldBuilder bldr,
-                                      final Object fieldValue, final TargetMode targetMode)
-        throws EFapsException
-    {
-        Object ret = fieldValue;
-        final var uiValue = RestUIValue.builder()
-                        .withInstance(_instance)
-                        .withField(field)
-                        .build();
-        for (final Return aReturn : field.executeEvents(EventType.UI_FIELD_VALUE,
-                        ParameterValues.ACCESSMODE, targetMode,
-                        ParameterValues.UIOBJECT, uiValue,
-                        ParameterValues.OTHERS, fieldValue)) {
-            final var values = aReturn.get(ReturnValues.VALUES);
-            if (values instanceof List && !((List<?>) values).isEmpty()) {
-                if (((List<?>) values).get(0) instanceof IOption) {
-                    bldr.withType(ValueType.DROPDOWN)
-                        .withOptions(((List<IOption>) values).stream().map(option -> {
-                        return OptionDto.builder()
-                                        .withValue(option.getValue())
-                                        .withLabel(option.getLabel())
-                                        .build();
-                    }).collect(Collectors.toList()));
-                    final var selectedOpt = ((List<IOption>) values).stream().filter(IOption::isSelected).findFirst();
-                    if (selectedOpt.isPresent()) {
-                        ret = selectedOpt.get().getValue();
-                    }
+        final var ret = new HashMap<String, String[]>();
+        if (dto != null && dto.getValues() != null) {
+            for (final var entry : dto.getValues().entrySet()) {
+                if (entry.getValue() instanceof Collection) {
+                    ret.put(entry.getKey(), ((Collection<?>) entry.getValue()).stream().map(String::valueOf)
+                                    .toArray(String[]::new));
+                } else {
+                    ret.put(entry.getKey(), new String[] { String.valueOf(entry.getValue()) });
                 }
             }
         }
@@ -256,4 +147,143 @@ public abstract class AbstractController_Base
         }
         return ret;
     }
+
+    @SuppressWarnings("unchecked")
+    protected Object evalFieldValueEvent(final Instance _instance,
+                                         final Field field,
+                                         final IFieldBuilder bldr,
+                                         final Object fieldValue,
+                                         final TargetMode targetMode)
+        throws EFapsException
+    {
+        Object ret = fieldValue;
+        final var uiValue = RestUIValue.builder()
+                        .withInstance(_instance)
+                        .withField(field)
+                        .build();
+        for (final Return aReturn : field.executeEvents(EventType.UI_FIELD_VALUE,
+                        ParameterValues.ACCESSMODE, targetMode,
+                        ParameterValues.UIOBJECT, uiValue,
+                        ParameterValues.OTHERS, fieldValue)) {
+            final var values = aReturn.get(ReturnValues.VALUES);
+            if (values instanceof List && !((List<?>) values).isEmpty()) {
+                if (((List<?>) values).get(0) instanceof IOption) {
+                    bldr.withType(ValueType.DROPDOWN)
+                                    .withOptions(((List<IOption>) values).stream().map(option -> OptionDto.builder()
+                                                    .withValue(option.getValue())
+                                                    .withLabel(option.getLabel())
+                                                    .build()).collect(Collectors.toList()));
+                    final var selectedOpt = ((List<IOption>) values).stream().filter(IOption::isSelected).findFirst();
+                    if (selectedOpt.isPresent()) {
+                        ret = selectedOpt.get().getValue();
+                    }
+                }
+            }
+        }
+        return ret;
+    }
+
+    protected String getBaseSelect4MsgPhrase(final Field _field)
+    {
+        String ret = "";
+        if (_field.getSelectAlternateOID() != null) {
+            ret = StringUtils.removeEnd(_field.getSelectAlternateOID(), ".oid");
+        }
+        return ret;
+    }
+
+    protected List<ColumnDto> getColumns(final org.efaps.admin.ui.Table _table,
+                                         final TargetMode targetMode,
+                                         final Collection<Type> types)
+        throws EFapsException
+    {
+        final var ret = new ArrayList<ColumnDto>();
+        for (final var field : _table.getFields()) {
+            if (!field.isNoneDisplay(targetMode) && field.hasAccess(targetMode, null, null, null)) {
+                final var columBldr = ColumnDto.builder()
+                                .withField(field.getName())
+                                .withHeader(field.getLabel() == null ? "" : DBProperties.getProperty(field.getLabel()))
+                                .withRef(field.getReference() != null ? "true" : null);
+                if ((TargetMode.CREATE.equals(targetMode) || TargetMode.EDIT.equals(targetMode) && !types.isEmpty())
+                                && field.isEditableDisplay(targetMode)) {
+                    if (field.getAttribute() != null) {
+                        final var typeOpt = types.stream()
+                                        .filter(type -> (type.getAttribute(field.getAttribute()) != null)).findFirst();
+                        if (typeOpt.isPresent()) {
+                            final var attr = typeOpt.get().getAttribute(field.getAttribute());
+                            final var attrType = attr.getAttributeType();
+                            switch (attrType.getName()) {
+                                default:
+                                    columBldr.withType(ValueType.INPUT);
+                            }
+                        }
+                    } else if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {
+                        columBldr.withType(ValueType.AUTOCOMPLETE);
+                        columBldr.withRef(String.valueOf(field.getId()));
+                    } else if (field.hasEvents(EventType.UI_FIELD_VALUE)) {
+                        evalFieldValueEvent(null, field, columBldr, null, targetMode);
+                    }
+                    if (field.hasEvents(EventType.UI_FIELD_UPDATE)) {
+                        columBldr.withUpdateRef(String.valueOf(field.getId()));
+                    }
+                }
+                ret.add(columBldr.build());
+            }
+        }
+        return ret;
+    }
+
+    protected List<Field> getFields(final org.efaps.admin.ui.Table _table)
+    {
+        return _table.getFields().stream().filter(field -> {
+            try {
+                return field.hasAccess(TargetMode.VIEW, null) && !field.isNoneDisplay(TargetMode.VIEW);
+            } catch (final EFapsException e) {
+                LOG.error("Catched error while evaluation access for Field: {}", field);
+            }
+            return false;
+        }).collect(Collectors.toList());
+    }
+
+    protected String getHeader(final AbstractCommand _cmd,
+                               final String oid)
+        throws EFapsException
+    {
+        final var key = _cmd.getTargetTitle() == null
+                        ? _cmd.getName() + ".Title"
+                        : _cmd.getTargetTitle();
+        var header = DBProperties.getProperty(key);
+        final var instance = Instance.get(oid);
+        if (instance.isValid()) {
+            final PrintQuery print = new PrintQuery(instance);
+            final ValueParser parser = new ValueParser(new StringReader(header));
+            try {
+                final var list = parser.ExpressionString();
+                if (!list.getExpressions().isEmpty()) {
+                    list.makeSelect(print);
+                    if (print.execute()) {
+                        header = list.makeString(instance, print, TargetMode.VIEW);
+                    }
+                }
+            } catch (final ParseException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+
+        }
+        return header;
+    }
+
+    protected UIType getUIType(final Field _field)
+    {
+        final UIType ret;
+        final String uiTypeStr = _field.getProperty(UIFormFieldProperty.UI_TYPE);
+        if (EnumUtils.isValidEnum(UIType.class, uiTypeStr)) {
+            ret = UIType.valueOf(uiTypeStr);
+        } else {
+            ret = UIType.DEFAULT;
+        }
+        return ret;
+    }
+
 }
