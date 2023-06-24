@@ -18,6 +18,7 @@ package org.efaps.esjp.ui.rest;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -128,6 +129,11 @@ public abstract class TableController_Base
 
         if (properties.containsKey("LinkFrom") && Instance.get(oid).isValid()) {
             query.where().attribute(properties.get("LinkFrom")).eq(Instance.get(oid));
+        }
+
+        if (properties.containsKey("InstanceSelect")) {
+            LOG.error("Cmd uses unsuported InstanceSelect: {}", _cmd);
+            return Collections.emptyList();
         }
 
         final var print = query.select();

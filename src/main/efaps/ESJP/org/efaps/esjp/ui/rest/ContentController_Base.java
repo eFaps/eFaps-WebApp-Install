@@ -35,10 +35,12 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.wicket.RestartResponseException;
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.AttributeSet;
+import org.efaps.admin.datamodel.Classification;
 import org.efaps.admin.datamodel.IBitEnum;
 import org.efaps.admin.datamodel.IEnum;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.datamodel.Type;
+import org.efaps.admin.datamodel.attributetype.StatusType;
 import org.efaps.admin.datamodel.ui.IUIValue;
 import org.efaps.admin.dbproperty.DBProperties;
 import org.efaps.admin.event.EventType;
@@ -52,6 +54,7 @@ import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
+import org.efaps.admin.ui.Form;
 import org.efaps.admin.ui.Menu;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.admin.ui.field.Field.Display;
@@ -71,6 +74,7 @@ import org.efaps.db.Instance;
 import org.efaps.db.PrintQuery;
 import org.efaps.db.stmt.selection.Evaluator;
 import org.efaps.eql.EQL;
+import org.efaps.eql.builder.Print;
 import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.ui.rest.dto.ActionDto;
@@ -88,6 +92,7 @@ import org.efaps.esjp.ui.rest.dto.ValueType;
 import org.efaps.ui.wicket.pages.error.ErrorPage;
 import org.efaps.util.EFapsException;
 import org.efaps.util.UUIDUtil;
+import org.efaps.util.cache.CacheReloadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -98,13 +103,19 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public abstract class ContentController_Base
     extends AbstractController
 {
+
     private static final Logger LOG = LoggerFactory.getLogger(ContentController.class);
 
-    public List<ISection> evalSections(final Instance _instance, final AbstractCommand _cmd)
+    protected AbstractCommand callCmd;
+    protected TargetMode currentTargetMode;
+
+    public List<ISection> evalSections(final Instance _instance,
+                                       final AbstractCommand _cmd)
         throws EFapsException
     {
-        final var ret = new ArrayList<ISection>();
+        List<ISection> ret = new ArrayList<>();
         final var targetMode = TargetMode.UNKNOWN.equals(_cmd.getTargetMode()) ? TargetMode.VIEW : _cmd.getTargetMode();
+        currentTargetMode = targetMode;
 
         final Instance sectionInstance;
         if (TargetMode.CREATE.equals(targetMode) && _cmd.getTargetCreateType() != null) {
@@ -116,129 +127,222 @@ public abstract class ContentController_Base
         final var form = _cmd.getTargetForm();
         final var table = _cmd.getTargetTable();
         if (form != null) {
-            boolean executable = false;
             final var print = EQL.builder().print(sectionInstance);
-            for (final Field field : form.getFields()) {
-                if (sectionInstance.isValid() && !field.isNoneDisplay(targetMode)
-                                && field.hasAccess(targetMode, sectionInstance, _cmd, sectionInstance)) {
-                    if (field instanceof FieldSet) {
-                        final var attributeSet = AttributeSet.find(_instance.getType().getName(), field.getAttribute());
-                        final var attrList = ((FieldSet) field).getOrder().isEmpty()
-                                        ? attributeSet.getSetAttributes() : ((FieldSet) field).getOrder();
-                        for (final var attr : attrList) {
-                        //    print.attributeSet(field.getAttribute()).attribute(attr).as(field.getName() + "-" + attr);
-                        }
-                    } else if (field.getSelect() != null) {
-                        print.select(field.getSelect()).as(field.getName());
-                        executable = true;
-                    } else if (field.getAttribute() != null) {
-                        if (TargetMode.VIEW.equals(targetMode)) {
-                            add2Select4Attribute(print, field, Collections.singletonList(_instance.getType()));
-                        } else {
-                            print.attribute(field.getAttribute()).as(field.getName());
-                        }
-                        executable = true;
-                    } else if (field.getPhrase() != null) {
-                        print.phrase(field.getPhrase()).as(field.getName());
-                    } else if (field.getMsgPhrase() != null) {
-                        print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName());
-                        executable = true;
-                    }
-                    if (field.getSelectAlternateOID() != null) {
-                        print.select(field.getSelectAlternateOID()).as(field.getName() + "_AOID");
-                        executable = true;
-                    }
-                }
-            }
+            final var executable = evalSelects4Form(_cmd, form, print, sectionInstance, null);
+
             final var eval = executable ? print.evaluate() : null;
-
-            FormSectionDto.Builder currentFormSectionBldr = null;
-            var groupCount = 0;
-            var currentValues = new ArrayList<ValueDto>();
-            HeaderSectionDto.Builder currentHeaderSectionBldr = null;
-
-            for (final Field field : form.getFields()) {
-                if (field.isHiddenDisplay(targetMode)) {
-                    LOG.warn("Skipped Hidden field {} in form {}", field.getName(), form.getName());
-                } else if (!field.isNoneDisplay(targetMode)
-                                && field.hasAccess(targetMode, sectionInstance, _cmd, sectionInstance)) {
-                    if (field instanceof FieldGroup) {
-                        final var group = (FieldGroup) field;
-                        groupCount = group.getGroupCount();
-                    } else if (field instanceof FieldTable) {
-                        currentFormSectionBldr = null;
-                        final var fieldTable = ((FieldTable) field).getTargetTable();
-                        final var columns = getColumns(fieldTable, targetMode, evalTypes(field));
-                        final var tableSection = TableSectionDto.builder()
-                                        .withEditable(field.isEditableDisplay(targetMode))
-                                        .withColumns(columns)
-                                        .withValues(getValues(field, fieldTable, sectionInstance))
-                                        .build();
-                        if (currentHeaderSectionBldr != null) {
-                            currentHeaderSectionBldr.addSection(tableSection);
-                        } else {
-                            ret.add(tableSection);
-                        }
-                    } else if (field instanceof FieldHeading) {
-                        if (currentHeaderSectionBldr != null) {
-                            ret.add(currentHeaderSectionBldr.build());
-                        } else if (currentFormSectionBldr != null) {
-                            ret.add(currentFormSectionBldr.build());
-                        }
-                        currentFormSectionBldr = null;
-                        currentHeaderSectionBldr = HeaderSectionDto.builder()
-                                        .withHeader(DBProperties.getProperty(field.getLabel()))
-                                        .withLevel(((FieldHeading) field).getLevel());
-                    } else if (field instanceof FieldClassification) {
-                        LOG.info("FieldClassification {}", field);
-                    } else if (field instanceof FieldSet) {
-                        if (executable) {
-                            final var attributeSet = AttributeSet.find(_instance.getType().getName(),
-                                            field.getAttribute());
-                            final var attrList = ((FieldSet) field).getOrder().isEmpty()
-                                            ? attributeSet.getSetAttributes()
-                                            : ((FieldSet) field).getOrder();
-                            for (final var attr : attrList) {
-                                final var fieldValue = eval.get(field.getName() + "-" + attr);
-                                LOG.info("fieldValue fieldSet {}", fieldValue);
-                            }
-                        }
-                    } else {
-                        if (currentFormSectionBldr == null) {
-                            currentFormSectionBldr = FormSectionDto.builder();
-                            if (currentHeaderSectionBldr != null) {
-                                currentHeaderSectionBldr.addSection(currentFormSectionBldr);
-                            }
-                        }
-                        if (groupCount > 0) {
-                            groupCount--;
-                        }
-                        if (executable) {
-                            eval.get(field.getName());
-                        }
-                        currentValues.add(evalValue(eval, field, sectionInstance, targetMode));
-                        if (groupCount < 1) {
-                            currentFormSectionBldr.addItem(currentValues);
-                            currentValues = new ArrayList<>();
-                        }
-                    }
-                }
-            }
-            if (currentHeaderSectionBldr != null) {
-                ret.add(currentHeaderSectionBldr.build());
-            } else if (currentFormSectionBldr != null) {
-                ret.add(currentFormSectionBldr.build());
-            }
+            ret = evalSections4Form(form, sectionInstance.getType(), sectionInstance, eval);
         }
-
         if (table != null) {
-            final var columns = getColumns(table, targetMode, null);
+            final var columns = getColumns(table, currentTargetMode, null);
             ret.add(TableSectionDto.builder()
                             .withColumns(columns)
                             .withValues(getValues(_cmd, table, _instance))
                             .build());
         }
         return ret;
+    }
+
+    protected List<ISection> evalSections4Class(final FieldClassification field,
+                                                final Instance instance,
+                                                final Evaluator eval)
+        throws EFapsException
+    {
+        final var ret = new ArrayList<ISection>();
+        final String[] names = field.getClassificationName().split(";");
+        for (final String className : names) {
+            final Classification clazz = Classification.get(className);
+            final var form = clazz.getTypeForm();
+            ret.addAll(evalSections4Form(form, clazz, instance, eval));
+        }
+        return ret;
+    }
+
+    protected List<ISection> evalSections4Form(final Form form,
+                                               final Type type,
+                                               final Instance instance,
+                                               final Evaluator eval)
+        throws CacheReloadException, EFapsException
+    {
+        final var ret = new ArrayList<ISection>();
+        FormSectionDto.Builder currentFormSectionBldr = null;
+        var groupCount = 0;
+        var currentValues = new ArrayList<ValueDto>();
+        HeaderSectionDto.Builder currentHeaderSectionBldr = null;
+
+        for (final Field field : form.getFields()) {
+            if (field.isHiddenDisplay(currentTargetMode)) {
+                LOG.warn("Skipped Hidden field {} in form {}", field.getName(), form.getName());
+            } else if (!field.isNoneDisplay(currentTargetMode)
+                            && field.hasAccess(currentTargetMode, instance, callCmd, instance)) {
+                if (field instanceof FieldGroup) {
+                    final var group = (FieldGroup) field;
+                    groupCount = group.getGroupCount();
+                } else if (field instanceof FieldTable) {
+                    currentFormSectionBldr = null;
+                    final var fieldTable = ((FieldTable) field).getTargetTable();
+                    final var columns = getColumns(fieldTable, currentTargetMode, evalTypes(field));
+                    final var tableSection = TableSectionDto.builder()
+                                    .withEditable(field.isEditableDisplay(currentTargetMode))
+                                    .withColumns(columns)
+                                    .withValues(getValues(field, fieldTable, instance))
+                                    .build();
+                    if (currentHeaderSectionBldr != null) {
+                        currentHeaderSectionBldr.addSection(tableSection);
+                    } else {
+                        ret.add(tableSection);
+                    }
+                } else if (field instanceof FieldHeading) {
+                    if (currentHeaderSectionBldr != null) {
+                        ret.add(currentHeaderSectionBldr.build());
+                    } else if (currentFormSectionBldr != null) {
+                        ret.add(currentFormSectionBldr.build());
+                    }
+                    currentFormSectionBldr = null;
+                    currentHeaderSectionBldr = HeaderSectionDto.builder()
+                                    .withHeader(DBProperties.getProperty(field.getLabel()))
+                                    .withLevel(((FieldHeading) field).getLevel());
+                } else if (field instanceof FieldClassification) {
+                    ret.addAll(evalSections4Class((FieldClassification) field, instance, eval));
+                } else if (field instanceof FieldSet) {
+                    if (eval != null) {
+                        final var attributeSet = AttributeSet.find(instance.getType().getName(),
+                                        field.getAttribute());
+                        final var attrList = ((FieldSet) field).getOrder().isEmpty()
+                                        ? attributeSet.getSetAttributes()
+                                        : ((FieldSet) field).getOrder();
+                        for (final var attr : attrList) {
+                            final var fieldValue = eval.get(field.getName() + "-" + attr);
+                            LOG.info("fieldValue fieldSet {}", fieldValue);
+                        }
+                    }
+                } else {
+                    if (currentFormSectionBldr == null) {
+                        currentFormSectionBldr = FormSectionDto.builder();
+                        if (currentHeaderSectionBldr != null) {
+                            currentHeaderSectionBldr.addSection(currentFormSectionBldr);
+                        }
+                    }
+                    if (groupCount > 0) {
+                        groupCount--;
+                    }
+                    if (eval != null) {
+                        eval.get(field.getName());
+                    }
+                    currentValues.add(evalValue(eval, field, type, instance));
+                    if (groupCount < 1) {
+                        currentFormSectionBldr.addItem(currentValues);
+                        currentValues = new ArrayList<>();
+                    }
+                }
+            }
+        }
+        if (currentHeaderSectionBldr != null) {
+            ret.add(currentHeaderSectionBldr.build());
+        } else if (currentFormSectionBldr != null) {
+            ret.add(currentFormSectionBldr.build());
+        }
+        return ret;
+    }
+
+    protected void evalSelects4Class(final AbstractCommand callCmd,
+                                     final FieldClassification field,
+                                     final Print print,
+                                     final Instance instance)
+        throws EFapsException
+    {
+        final String[] names = field.getClassificationName().split(";");
+        for (final String className : names) {
+            final Classification clazz = Classification.get(className);
+            final var form = clazz.getTypeForm();
+            evalSelects4Form(callCmd, form, print, instance, clazz);
+        }
+    }
+
+    protected boolean evalSelects4Form(final AbstractCommand callCmd,
+                                       final Form form,
+                                       final Print print,
+                                       final Instance instance,
+                                       final Classification clazz)
+        throws CacheReloadException, EFapsException
+    {
+        boolean executable = false;
+        for (final Field field : form.getFields()) {
+            if (instance.isValid() && !field.isNoneDisplay(currentTargetMode)
+                            && field.hasAccess(currentTargetMode, instance, callCmd, instance)) {
+                if (field instanceof FieldClassification) {
+                    evalSelects4Class(callCmd, (FieldClassification) field, print, instance);
+                } else if (field instanceof FieldSet) {
+                    final var attributeSet = AttributeSet.find(instance.getType().getName(), field.getAttribute());
+                    final var attrList = ((FieldSet) field).getOrder().isEmpty()
+                                    ? attributeSet.getSetAttributes()
+                                    : ((FieldSet) field).getOrder();
+                    for (final var attr : attrList) {
+                        // print.attributeSet(field.getAttribute()).attribute(attr).as(field.getName()
+                        // + "-" + attr);
+                    }
+                } else if (field.getSelect() != null) {
+                    if (clazz != null) {
+                        print.clazz(clazz.getName()).select(field.getSelect()).as(field.getName());
+                    } else {
+                        print.select(field.getSelect()).as(field.getName());
+                    }
+                    executable = true;
+                } else if (field.getAttribute() != null) {
+                    if (TargetMode.VIEW.equals(currentTargetMode)) {
+                        add2Select4Attribute(print, field, Collections.singletonList(instance.getType()), clazz);
+                    } else {
+                        print.attribute(field.getAttribute()).as(field.getName());
+                    }
+                    executable = true;
+                } else if (field.getPhrase() != null) {
+                    print.phrase(field.getPhrase()).as(field.getName());
+                } else if (field.getMsgPhrase() != null) {
+                    print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName());
+                    executable = true;
+                }
+                if (field.getSelectAlternateOID() != null) {
+                    print.select(field.getSelectAlternateOID()).as(field.getName() + "_AOID");
+                    executable = true;
+                }
+            }
+        }
+        return executable;
+    }
+
+    protected void add2Select4Attribute(final Print _print,
+                                        final Field _field,
+                                        final List<Type> _types,
+                                        final Classification clazz)
+        throws EFapsException
+    {
+        Attribute attr = null;
+        for (final var type : _types) {
+            attr = type.getAttribute(_field.getAttribute());
+            if (attr != null) {
+                break;
+            }
+        }
+        if (attr == null) {
+            if (clazz != null) {
+                _print.clazz(clazz.getName()).attribute(_field.getAttribute()).as(_field.getName());
+            } else {
+                _print.attribute(_field.getAttribute()).as(_field.getName());
+            }
+        } else if (attr.getAttributeType().getDbAttrType() instanceof StatusType) {
+            if (clazz != null) {
+
+            } else {
+
+                _print.select("status.label").as(_field.getName());
+            }
+        } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
+            add2Select4RangeValue(_print, _field, attr);
+        } else if (clazz != null) {
+
+        } else {
+            _print.attribute(_field.getAttribute()).as(_field.getName());
+        }
     }
 
     protected List<Type> evalTypes(final AbstractUserInterfaceObject _cmd)
@@ -270,8 +374,8 @@ public abstract class ContentController_Base
 
     protected ValueDto evalValue(final Evaluator eval,
                                  final Field field,
-                                 final Instance inst,
-                                 final TargetMode targetMode)
+                                 final Type type,
+                                 final Instance inst)
         throws EFapsException
     {
         final var valueBldr = ValueDto.builder()
@@ -279,8 +383,8 @@ public abstract class ContentController_Base
         Object fieldValue = null;
         boolean rangeValue = false;
         // range value
-        if (TargetMode.VIEW.equals(targetMode) && field.getAttribute() != null) {
-            final var attr = inst.getType().getAttribute(field.getAttribute());
+        if (TargetMode.VIEW.equals(currentTargetMode) && field.getAttribute() != null) {
+            final var attr = type.getAttribute(field.getAttribute());
             if (attr != null && attr.hasEvents(EventType.RANGE_VALUE)
                             && !"Status".equals(attr.getAttributeType().getName())) {
                 rangeValue = true;
@@ -328,34 +432,35 @@ public abstract class ContentController_Base
         } else if (UIType.UPLOADMULTIPLE.equals(uiType)) {
             valueBldr.withType(ValueType.UPLOADMULTIPLE);
         } else if (field.hasEvents(EventType.UI_FIELD_FORMAT)) {
-            fieldValue = evalFieldFormatEvent(inst, field, valueBldr, fieldValue, targetMode);
-        } else if ((TargetMode.CREATE.equals(targetMode) || TargetMode.EDIT.equals(targetMode))
-                        && field.isEditableDisplay(targetMode)) {
+            fieldValue = evalFieldFormatEvent(inst, field, valueBldr, fieldValue, currentTargetMode);
+        } else if ((TargetMode.CREATE.equals(currentTargetMode) || TargetMode.EDIT.equals(currentTargetMode))
+                        && field.isEditableDisplay(currentTargetMode)) {
             if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {
                 valueBldr.withType(ValueType.AUTOCOMPLETE)
-                    .withRef(String.valueOf(field.getId()));
+                                .withRef(String.valueOf(field.getId()));
                 final var alterOid = eval == null ? null : eval.get(field.getName() + "_AOID");
                 if (alterOid != null) {
                     valueBldr.withOptions(List.of(OptionDto.builder()
-                                                .withLabel(String.valueOf(fieldValue))
-                                                .withValue(alterOid)
-                                                .build()));
+                                    .withLabel(String.valueOf(fieldValue))
+                                    .withValue(alterOid)
+                                    .build()));
                     fieldValue = alterOid;
                 }
             } else if (field.hasEvents(EventType.UI_FIELD_VALUE)) {
-                fieldValue = evalFieldValueEvent(inst, field, valueBldr, fieldValue, targetMode);
+                fieldValue = evalFieldValueEvent(inst, field, valueBldr, fieldValue, currentTargetMode);
             } else {
-                final var attr = inst.getType().getAttribute(field.getAttribute());
+                final var attr = type.getAttribute(field.getAttribute());
                 if (attr != null) {
                     if (attr.hasEvents(EventType.RANGE_VALUE) && !"Status".equals(attr.getAttributeType().getName())) {
-                        final var options = getRangeValue(attr, fieldValue, targetMode);
+                        final var options = getRangeValue(attr, fieldValue, currentTargetMode);
                         valueBldr
-                            .withType(ValueType.DROPDOWN)
-                            .withOptions(options.stream()
-                            .map(opt -> OptionDto.builder()
-                                            .withLabel(opt.getLabel())
-                                            .withValue(opt.getValue())
-                                            .build()).collect(Collectors.toList()));
+                                        .withType(ValueType.DROPDOWN)
+                                        .withOptions(options.stream()
+                                                        .map(opt -> OptionDto.builder()
+                                                                        .withLabel(opt.getLabel())
+                                                                        .withValue(opt.getValue())
+                                                                        .build())
+                                                        .collect(Collectors.toList()));
                         final var selectedOpt = options.stream().filter(IOption::isSelected).findFirst();
                         if (selectedOpt.isPresent()) {
                             fieldValue = selectedOpt.get().getValue();
@@ -368,15 +473,17 @@ public abstract class ContentController_Base
                                     final Class<?> clazz = Class.forName(attr.getClassName(), false,
                                                     EFapsClassLoader.getInstance());
                                     valueBldr.withType(ValueType.RADIO)
-                                        .withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
-                                                    .map(ienum -> OptionDto.builder()
-                                                                    .withValue(((IEnum) ienum).getInt())
-                                                                    .withLabel(getEnumLabel((IEnum) ienum))
-                                                                    .build()).collect(Collectors.toList()));
+                                                    .withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
+                                                                    .map(ienum -> OptionDto.builder()
+                                                                                    .withValue(((IEnum) ienum).getInt())
+                                                                                    .withLabel(getEnumLabel(
+                                                                                                    (IEnum) ienum))
+                                                                                    .build())
+                                                                    .collect(Collectors.toList()));
                                 } catch (final ClassNotFoundException e) {
                                     LOG.error("Catched", e);
                                 }
-                                if (TargetMode.EDIT.equals(targetMode) && fieldValue instanceof IEnum) {
+                                if (TargetMode.EDIT.equals(currentTargetMode) && fieldValue instanceof IEnum) {
                                     fieldValue = ((IEnum) fieldValue).getInt();
                                 }
                                 break;
@@ -385,26 +492,31 @@ public abstract class ContentController_Base
                                     final Class<?> clazz = Class.forName(attr.getClassName(), false,
                                                     EFapsClassLoader.getInstance());
                                     valueBldr.withType(ValueType.BITENUM)
-                                        .withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
-                                                    .map(ienum -> OptionDto.builder()
-                                                                    .withValue(((IBitEnum) ienum).getInt())
-                                                                    .withLabel(getEnumLabel((IEnum) ienum))
-                                                                    .build()).collect(Collectors.toList()));
+                                                    .withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
+                                                                    .map(ienum -> OptionDto.builder()
+                                                                                    .withValue(((IBitEnum) ienum)
+                                                                                                    .getInt())
+                                                                                    .withLabel(getEnumLabel(
+                                                                                                    (IEnum) ienum))
+                                                                                    .build())
+                                                                    .collect(Collectors.toList()));
                                 } catch (final ClassNotFoundException e) {
                                     LOG.error("Catched", e);
                                 }
-                                if (TargetMode.EDIT.equals(targetMode) && fieldValue instanceof Collection) {
-                                    fieldValue = ((Collection<?>) fieldValue).stream().map(enumVal -> ((IBitEnum) enumVal).getInt()).toList();
+                                if (TargetMode.EDIT.equals(currentTargetMode) && fieldValue instanceof Collection) {
+                                    fieldValue = ((Collection<?>) fieldValue).stream()
+                                                    .map(enumVal -> ((IBitEnum) enumVal).getInt()).toList();
                                 }
                                 break;
                             case "Status":
                                 final var statusType = attr.getLink();
                                 valueBldr.withType(ValueType.DROPDOWN)
-                                    .withOptions(Status.get(statusType.getUUID()).values().stream()
-                                                .map(status -> OptionDto.builder()
-                                                                .withValue(status.getId())
-                                                                .withLabel(status.getLabel())
-                                                                .build()).collect(Collectors.toList()));
+                                                .withOptions(Status.get(statusType.getUUID()).values().stream()
+                                                                .map(status -> OptionDto.builder()
+                                                                                .withValue(status.getId())
+                                                                                .withLabel(status.getLabel())
+                                                                                .build())
+                                                                .collect(Collectors.toList()));
                                 break;
                             case "Boolean":
                                 valueBldr.withType(ValueType.RADIO);
@@ -413,13 +525,13 @@ public abstract class ContentController_Base
                                                 .withLabel(getBooleanLabel(attr, field, true))
                                                 .build(),
                                                 OptionDto.builder()
-                                                .withValue(false)
-                                                .withLabel(getBooleanLabel(attr, field, false))
-                                                .build()));
+                                                                .withValue(false)
+                                                                .withLabel(getBooleanLabel(attr, field, false))
+                                                                .build()));
                                 break;
                             case "Date":
                                 valueBldr.withType(ValueType.DATE);
-                                if (TargetMode.CREATE.equals(targetMode) && fieldValue == null) {
+                                if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null) {
                                     fieldValue = LocalDate.now(Context.getThreadContext().getZoneId()).toString();
                                 }
                                 break;
@@ -441,7 +553,7 @@ public abstract class ContentController_Base
         if (field.hasEvents(EventType.UI_FIELD_UPDATE)) {
             valueBldr.withUpdateRef(String.valueOf(field.getId()));
         }
-        return valueBldr.withLabel(getLabel(inst, field))
+        return valueBldr.withLabel(getLabel(type, field))
                         .withName(field.getName())
                         .withValue(fieldValue)
                         .build();
@@ -455,7 +567,8 @@ public abstract class ContentController_Base
         if (instance.isValid()) {
 
             final var typeMenu = instance.getType().getTypeMenu();
-            final var defaultSelected = typeMenu.getCommands().stream().filter(AbstractCommand::isDefaultSelected).findFirst();
+            final var defaultSelected = typeMenu.getCommands().stream().filter(AbstractCommand::isDefaultSelected)
+                            .findFirst();
             final var currentCmd = defaultSelected.isPresent() ? defaultSelected.get() : typeMenu;
 
             final var targetMenu = currentCmd.getTargetMenu();
@@ -502,7 +615,8 @@ public abstract class ContentController_Base
                         .build();
     }
 
-    public Response getContent(final String _oid, final String _cmdId)
+    public Response getContent(final String _oid,
+                               final String _cmdId)
         throws EFapsException
     {
         OutlineDto dto = null;
@@ -540,13 +654,14 @@ public abstract class ContentController_Base
                         .build();
     }
 
-    private String getLabel(final Instance _instance, final Field _field)
+    private String getLabel(final Type type,
+                            final Field _field)
     {
         String ret = null;
         if (_field.getLabel() != null) {
             ret = DBProperties.getProperty(_field.getLabel());
         } else if (_field.getAttribute() != null) {
-            final var attr = _instance.getType().getAttribute(_field.getAttribute());
+            final var attr = type.getAttribute(_field.getAttribute());
             if (attr != null) {
                 ret = DBProperties.getProperty(attr.getLabelKey());
             }
@@ -554,7 +669,8 @@ public abstract class ContentController_Base
         return ret;
     }
 
-    public String getLabel(final Instance _instance, final String _propertyKey)
+    public String getLabel(final Instance _instance,
+                           final String _propertyKey)
     {
         String ret = "";
         try {
@@ -577,7 +693,9 @@ public abstract class ContentController_Base
     }
 
     @SuppressWarnings("unchecked")
-    private List<IOption> getRangeValue(final Attribute _attr, final Object fieldValue, final TargetMode targetMode)
+    private List<IOption> getRangeValue(final Attribute _attr,
+                                        final Object fieldValue,
+                                        final TargetMode targetMode)
         throws EFapsException
     {
         final List<IOption> ret = new ArrayList<>();
@@ -585,12 +703,13 @@ public abstract class ContentController_Base
                         ParameterValues.UIOBJECT, _attr,
                         ParameterValues.ACCESSMODE, targetMode,
                         ParameterValues.OTHERS, fieldValue)) {
-                ret.addAll((List<IOption>) values.get(ReturnValues.VALUES));
+            ret.addAll((List<IOption>) values.get(ReturnValues.VALUES));
         }
         return ret;
     }
 
-    private CharSequence getSnipplet(final Instance _instance, final Field _field)
+    private CharSequence getSnipplet(final Instance _instance,
+                                     final Field _field)
         throws EFapsException
     {
         CharSequence ret = null;
@@ -608,7 +727,8 @@ public abstract class ContentController_Base
         return ret;
     }
 
-    public Collection<Map<String, ?>> getValues(final AbstractUserInterfaceObject _cmd, final org.efaps.admin.ui.Table _table,
+    public Collection<Map<String, ?>> getValues(final AbstractUserInterfaceObject _cmd,
+                                                final org.efaps.admin.ui.Table _table,
                                                 final Instance _instance)
         throws EFapsException
     {
@@ -636,7 +756,7 @@ public abstract class ContentController_Base
         }
         for (final var field : fields) {
             if (field.getAttribute() != null) {
-                add2Select4Attribute(print, field, typeList);
+                add2Select4Attribute(print, field, typeList, null);
             } else if (field.getSelect() != null) {
                 print.select(field.getSelect()).as(field.getName());
             } else if (field.getMsgPhrase() != null) {
@@ -649,7 +769,9 @@ public abstract class ContentController_Base
         return print.evaluate().getData();
     }
 
-    public static String getBooleanLabel(final Attribute attr, final Field field, final Boolean bool)
+    public static String getBooleanLabel(final Attribute attr,
+                                         final Field field,
+                                         final Boolean bool)
     {
         {
             String ret = BooleanUtils.toStringTrueFalse(bool);
@@ -742,6 +864,7 @@ public abstract class ContentController_Base
 
         /**
          * Creates builder to build {@link RestUIValue}.
+         *
          * @return created builder
          */
         public static Builder builder()
