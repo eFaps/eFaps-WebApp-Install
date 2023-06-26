@@ -86,6 +86,7 @@ import org.efaps.esjp.ui.rest.dto.ISection;
 import org.efaps.esjp.ui.rest.dto.NavItemDto;
 import org.efaps.esjp.ui.rest.dto.OptionDto;
 import org.efaps.esjp.ui.rest.dto.OutlineDto;
+import org.efaps.esjp.ui.rest.dto.SectionType;
 import org.efaps.esjp.ui.rest.dto.TableSectionDto;
 import org.efaps.esjp.ui.rest.dto.ValueDto;
 import org.efaps.esjp.ui.rest.dto.ValueType;
@@ -106,8 +107,11 @@ public abstract class ContentController_Base
 
     private static final Logger LOG = LoggerFactory.getLogger(ContentController.class);
 
+    protected Instance mainInstance;
     protected AbstractCommand callCmd;
     protected TargetMode currentTargetMode;
+    protected List<Classification> classifications;
+
 
     public List<ISection> evalSections(final Instance _instance,
                                        final AbstractCommand _cmd)
@@ -116,7 +120,7 @@ public abstract class ContentController_Base
         List<ISection> ret = new ArrayList<>();
         final var targetMode = TargetMode.UNKNOWN.equals(_cmd.getTargetMode()) ? TargetMode.VIEW : _cmd.getTargetMode();
         currentTargetMode = targetMode;
-
+        mainInstance = _instance;
         final Instance sectionInstance;
         if (TargetMode.CREATE.equals(targetMode) && _cmd.getTargetCreateType() != null) {
             sectionInstance = Instance.get(_cmd.getTargetCreateType(), null);
@@ -132,6 +136,12 @@ public abstract class ContentController_Base
 
             final var eval = executable ? print.evaluate() : null;
             ret = evalSections4Form(form, sectionInstance.getType(), sectionInstance, eval);
+            // check for classifications
+            final var fieldClassifications = form.getFields().stream()
+                            .filter(field -> (field instanceof FieldClassification)).collect(Collectors.toList());
+            for (final var fieldClassification : fieldClassifications) {
+                ret.addAll(evalSections4Class((FieldClassification) fieldClassification, sectionInstance, eval));
+            }
         }
         if (table != null) {
             final var columns = getColumns(table, currentTargetMode, null);
@@ -143,18 +153,47 @@ public abstract class ContentController_Base
         return ret;
     }
 
+    protected void evalClassifications()
+        throws EFapsException
+    {
+        classifications = new ArrayList<>();
+        final var clazzes = mainInstance.getType().getClassifiedByTypes();
+        for (final var clazz : clazzes) {
+            if (clazz.isRoot()) {
+                classifications.addAll(evalClassificationsForInstance(clazz, mainInstance));
+            }
+        }
+    }
+
+    protected List<Classification> getClassifications()
+        throws EFapsException
+    {
+        if (classifications == null) {
+            evalClassifications();
+        }
+        return this.classifications;
+    }
+
     protected List<ISection> evalSections4Class(final FieldClassification field,
                                                 final Instance instance,
                                                 final Evaluator eval)
         throws EFapsException
     {
         final var ret = new ArrayList<ISection>();
-        final String[] names = field.getClassificationName().split(";");
-        for (final String className : names) {
-            final Classification clazz = Classification.get(className);
-            final var form = clazz.getTypeForm();
-            ret.addAll(evalSections4Form(form, clazz, instance, eval));
+        for (final var classification : getClassifications()) {
+            final var form = classification.getTypeForm();
+            ret.addAll(evalSections4Form(form, classification, instance, eval));
         }
+        ret.sort((arg0,
+         arg1) -> {
+            if (SectionType.FORM.equals(arg0.getType()) && SectionType.HEADING.equals(arg1.getType())) {
+                return -1;
+            }
+            if (SectionType.HEADING.equals(arg0.getType()) && SectionType.HEADING.equals(arg1.getType())) {
+                return ((HeaderSectionDto) arg0).getHeader().compareTo(((HeaderSectionDto) arg1).getHeader());
+            }
+            return 0;
+        });
         return ret;
     }
 
@@ -169,7 +208,6 @@ public abstract class ContentController_Base
         var groupCount = 0;
         var currentValues = new ArrayList<ValueDto>();
         HeaderSectionDto.Builder currentHeaderSectionBldr = null;
-
         for (final Field field : form.getFields()) {
             if (field.isHiddenDisplay(currentTargetMode)) {
                 LOG.warn("Skipped Hidden field {} in form {}", field.getName(), form.getName());
@@ -202,8 +240,6 @@ public abstract class ContentController_Base
                     currentHeaderSectionBldr = HeaderSectionDto.builder()
                                     .withHeader(DBProperties.getProperty(field.getLabel()))
                                     .withLevel(((FieldHeading) field).getLevel());
-                } else if (field instanceof FieldClassification) {
-                    ret.addAll(evalSections4Class((FieldClassification) field, instance, eval));
                 } else if (field instanceof FieldSet) {
                     if (eval != null) {
                         final var attributeSet = AttributeSet.find(instance.getType().getName(),
@@ -251,11 +287,9 @@ public abstract class ContentController_Base
                                      final Instance instance)
         throws EFapsException
     {
-        final String[] names = field.getClassificationName().split(";");
-        for (final String className : names) {
-            final Classification clazz = Classification.get(className);
-            final var form = clazz.getTypeForm();
-            evalSelects4Form(callCmd, form, print, instance, clazz);
+        for (final var classification : getClassifications()) {
+            final var form = classification.getTypeForm();
+            evalSelects4Form(callCmd, form, print, instance, classification);
         }
     }
 
@@ -296,7 +330,11 @@ public abstract class ContentController_Base
                     }
                     executable = true;
                 } else if (field.getPhrase() != null) {
-                    print.phrase(field.getPhrase()).as(field.getName());
+                    if (clazz != null) {
+                        print.clazz(clazz.getName()).phrase(field.getPhrase()).as(field.getName());
+                    } else {
+                        print.phrase(field.getPhrase()).as(field.getName());
+                    }
                 } else if (field.getMsgPhrase() != null) {
                     print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName());
                     executable = true;
@@ -767,6 +805,28 @@ public abstract class ContentController_Base
             }
         }
         return print.evaluate().getData();
+    }
+
+
+    public List<Classification> evalClassificationsForInstance(final Classification classification,
+                                                               final Instance instance)
+        throws EFapsException
+    {
+        final List<Classification> ret = new ArrayList<>();
+        if (classification.isRoot()) {
+            final var eval = EQL.builder().print(instance).clazz(classification.getName()).instance().evaluate();
+            if (eval.next() && eval.get(1) != null) {
+                ret.add(classification);
+            }
+        }
+        for (final var childClassification : classification.getChildClassifications()) {
+            final var eval = EQL.builder().print(instance).clazz(childClassification.getName()).instance().evaluate();
+            if (eval.next() && eval.get(1) != null) {
+                ret.add(childClassification);
+                ret.addAll(evalClassificationsForInstance(childClassification, instance));
+            }
+        }
+        return ret;
     }
 
     public static String getBooleanLabel(final Attribute attr,

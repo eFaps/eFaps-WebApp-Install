@@ -122,13 +122,15 @@ public class HeaderSectionDto
         public HeaderSectionDto build()
         {
             final List<Object> tempSections = new ArrayList<>();
-            sections.stream().forEach(section -> {
-                if (section instanceof FormSectionDto.Builder) {
-                    tempSections.add(((FormSectionDto.Builder) section).build());
-                } else if (section instanceof ISection) {
-                    tempSections.add(section);
-                }
-            });
+            if (sections != null) {
+                sections.stream().forEach(section -> {
+                    if (section instanceof FormSectionDto.Builder) {
+                        tempSections.add(((FormSectionDto.Builder) section).build());
+                    } else if (section instanceof ISection) {
+                        tempSections.add(section);
+                    }
+                });
+            }
             this.sections = tempSections;
             return new HeaderSectionDto(this);
         }
