@@ -74,6 +74,8 @@ import org.efaps.db.PrintQuery;
 import org.efaps.db.stmt.selection.Evaluator;
 import org.efaps.eql.EQL;
 import org.efaps.eql.builder.Print;
+import org.efaps.eql2.impl.AttributeSelectElement;
+import org.efaps.eql2.impl.LinktoSelectElement;
 import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.ui.rest.dto.ActionDto;
@@ -713,15 +715,33 @@ public abstract class ContentController_Base
     }
 
     private String getLabel(final Type type,
-                            final Field _field)
+                            final Field field) throws CacheReloadException
     {
         String ret = null;
-        if (_field.getLabel() != null) {
-            ret = DBProperties.getProperty(_field.getLabel());
-        } else if (_field.getAttribute() != null) {
-            final var attr = type.getAttribute(_field.getAttribute());
+        if (field.getLabel() != null) {
+            ret = DBProperties.getProperty(field.getLabel());
+        } else if (field.getAttribute() != null) {
+            final var attr = type.getAttribute(field.getAttribute());
             if (attr != null) {
                 ret = DBProperties.getProperty(attr.getLabelKey());
+            }
+        }
+        if (ret == null && field.getSelect() != null) {
+            final var select = EQL.parseSelect(field.getSelect());
+            if (select.getElements(0) instanceof LinktoSelectElement) {
+                final var linkAttrName = ((LinktoSelectElement) select.getElements(0)).getName();
+                final var linkAttr = type.getAttribute(linkAttrName);
+                if (linkAttr != null && linkAttr.getLink() != null) {
+                    final var attrSelectEle = select.getElementsList().stream()
+                                    .filter(element -> (element instanceof AttributeSelectElement)).findFirst();
+                    if (attrSelectEle.isPresent()) {
+                        final var attrName = ((AttributeSelectElement) attrSelectEle.get()).getName();
+                        final var attr = linkAttr.getLink().getAttribute(attrName);
+                        if (attr != null) {
+                            ret = DBProperties.getProperty(attr.getLabelKey());
+                        }
+                    }
+                }
             }
         }
         return ret;
