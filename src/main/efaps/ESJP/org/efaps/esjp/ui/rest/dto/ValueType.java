@@ -33,5 +33,6 @@ public enum ValueType
     AUTOCOMPLETE,
     DATE,
     DATETIME,
-    DROPDOWN
+    DROPDOWN,
+    ATTRSET
 }

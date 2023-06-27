@@ -80,6 +80,7 @@ import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.ui.rest.dto.ActionDto;
 import org.efaps.esjp.ui.rest.dto.ActionType;
+import org.efaps.esjp.ui.rest.dto.AttributeSetDto;
 import org.efaps.esjp.ui.rest.dto.ContentDto;
 import org.efaps.esjp.ui.rest.dto.FormSectionDto;
 import org.efaps.esjp.ui.rest.dto.HeaderSectionDto;
@@ -207,7 +208,7 @@ public abstract class ContentController_Base
         final var ret = new ArrayList<ISection>();
         FormSectionDto.Builder currentFormSectionBldr = null;
         var groupCount = 0;
-        var currentValues = new ArrayList<ValueDto>();
+        var currentValues = new ArrayList<>();
         HeaderSectionDto.Builder currentHeaderSectionBldr = null;
         for (final Field field : form.getFields()) {
             if (field.isHiddenDisplay(currentTargetMode)) {
@@ -243,14 +244,24 @@ public abstract class ContentController_Base
                                     .withLevel(((FieldHeading) field).getLevel());
                 } else if (field instanceof FieldSet) {
                     if (eval != null) {
-                        final var attributeSet = AttributeSet.find(instance.getType().getName(),
-                                        field.getAttribute());
+                        // what happens if that is in a group?
+                        final var attributeSet = AttributeSet.find(type.getName(), field.getAttribute());
                         final var attrList = ((FieldSet) field).getOrder().isEmpty()
                                         ? attributeSet.getSetAttributes()
                                         : ((FieldSet) field).getOrder();
-                        for (final var attr : attrList) {
-                            final var fieldValue = eval.get(field.getName() + "-" + attr);
-                            LOG.info("fieldValue fieldSet {}", fieldValue);
+                        if (attributeSet != null) {
+                            final var attrSetDto = AttributeSetDto.builder()
+                                            .withName(field.getName())
+                                            .withLabel(field.getLabel());
+                            final List<ValueDto> values = new ArrayList<>();
+                            for (final var attr : attrList) {
+                                final var fieldValue = eval.get(field.getName() + "-" + attr);
+                                final var valueBldr = ValueDto.builder()
+                                                .withName(attr)
+                                                .withValue(fieldValue);
+                                values.add(valueBldr.build());
+                            }
+                            currentValues.add(attrSetDto.withValues(values).build());
                         }
                     }
                 } else {
@@ -263,6 +274,9 @@ public abstract class ContentController_Base
                     if (groupCount > 0) {
                         groupCount--;
                     }
+                    
+                    
+                    
                     if (eval != null) {
                         eval.get(field.getName());
                     }
@@ -308,13 +322,21 @@ public abstract class ContentController_Base
                 if (field instanceof FieldClassification) {
                     evalSelects4Class(callCmd, (FieldClassification) field, print, instance);
                 } else if (field instanceof FieldSet) {
-                    final var attributeSet = AttributeSet.find(instance.getType().getName(), field.getAttribute());
-                    final var attrList = ((FieldSet) field).getOrder().isEmpty()
-                                    ? attributeSet.getSetAttributes()
-                                    : ((FieldSet) field).getOrder();
-                    for (final var attr : attrList) {
-                        // print.attributeSet(field.getAttribute()).attribute(attr).as(field.getName()
-                        // + "-" + attr);
+                    final var typeName = clazz == null ?  instance.getType().getName() : clazz.getName();
+                    final var attributeSet = AttributeSet.find(typeName, field.getAttribute());
+                    if (attributeSet != null) {
+                        final var attrList = ((FieldSet) field).getOrder().isEmpty()
+                                        ? attributeSet.getSetAttributes()
+                                        : ((FieldSet) field).getOrder();
+                        for (final var attr : attrList) {
+                            if (clazz != null) {
+                                print.clazz(clazz.getName()).attributeSet(field.getAttribute()).attribute(attr)
+                                                .as(field.getName() + "-" + attr);
+                            } else {
+                                print.attributeSet(field.getAttribute()).attribute(attr)
+                                                .as(field.getName() + "-" + attr);
+                            }
+                        }
                     }
                 } else if (field.getSelect() != null) {
                     if (clazz != null) {
