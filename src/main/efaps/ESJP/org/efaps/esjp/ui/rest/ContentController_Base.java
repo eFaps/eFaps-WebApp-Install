@@ -242,28 +242,6 @@ public abstract class ContentController_Base
                     currentHeaderSectionBldr = HeaderSectionDto.builder()
                                     .withHeader(DBProperties.getProperty(field.getLabel()))
                                     .withLevel(((FieldHeading) field).getLevel());
-                } else if (field instanceof FieldSet) {
-                    if (eval != null) {
-                        // what happens if that is in a group?
-                        final var attributeSet = AttributeSet.find(type.getName(), field.getAttribute());
-                        final var attrList = ((FieldSet) field).getOrder().isEmpty()
-                                        ? attributeSet.getSetAttributes()
-                                        : ((FieldSet) field).getOrder();
-                        if (attributeSet != null) {
-                            final var attrSetDto = AttributeSetDto.builder()
-                                            .withName(field.getName())
-                                            .withLabel(field.getLabel());
-                            final List<ValueDto> values = new ArrayList<>();
-                            for (final var attr : attrList) {
-                                final var fieldValue = eval.get(field.getName() + "-" + attr);
-                                final var valueBldr = ValueDto.builder()
-                                                .withName(attr)
-                                                .withValue(fieldValue);
-                                values.add(valueBldr.build());
-                            }
-                            currentValues.add(attrSetDto.withValues(values).build());
-                        }
-                    }
                 } else {
                     if (currentFormSectionBldr == null) {
                         currentFormSectionBldr = FormSectionDto.builder();
@@ -274,13 +252,33 @@ public abstract class ContentController_Base
                     if (groupCount > 0) {
                         groupCount--;
                     }
-                    
-                    
-                    
-                    if (eval != null) {
-                        eval.get(field.getName());
+                    if (field instanceof FieldSet) {
+                        if (eval != null) {
+                            // what happens if that is in a group?
+                            final var attributeSet = AttributeSet.find(type.getName(), field.getAttribute());
+                            final var attrList = ((FieldSet) field).getOrder().isEmpty()
+                                            ? attributeSet.getSetAttributes()
+                                            : ((FieldSet) field).getOrder();
+                            if (attributeSet != null) {
+                                final var attrSetDto = AttributeSetDto.builder()
+                                                .withName(field.getName())
+                                                .withLabel(DBProperties.getProperty(field.getLabel()));
+                                final List<ValueDto> values = new ArrayList<>();
+                                for (final var attr : attrList) {
+                                    final var fieldValue = eval.get(field.getName() + "-" + attr);
+                                    final var valueBldr = ValueDto.builder()
+                                                    .withName(attr)
+                                                    .withValue(fieldValue)
+                                                    .withLabel(DBProperties.getProperty(field.getLabel() + "/" + attr));
+                                    values.add(valueBldr.build());
+                                }
+                                currentValues.add(attrSetDto.withValue(values).build());
+                            }
+                        }
+                    } else {
+                        currentValues.add(evalValue(eval, field, type, instance));
                     }
-                    currentValues.add(evalValue(eval, field, type, instance));
+
                     if (groupCount < 1) {
                         currentFormSectionBldr.addItem(currentValues);
                         currentValues = new ArrayList<>();

@@ -33,14 +33,14 @@ public class AttributeSetDto
     private final ValueType type;
     private final String name;
     private final String label;
-    private final List<ValueDto> values;
+    private final List<ValueDto> value;
 
     private AttributeSetDto(Builder builder)
     {
         this.type = builder.type;
         this.name = builder.name;
         this.label = builder.label;
-        this.values = builder.values;
+        this.value = builder.value;
     }
 
     public ValueType getType()
@@ -58,9 +58,9 @@ public class AttributeSetDto
         return label;
     }
 
-    public List<ValueDto> getValues()
+    public List<ValueDto> getValue()
     {
-        return values;
+        return value;
     }
 
     public static Builder builder()
@@ -74,7 +74,7 @@ public class AttributeSetDto
         private ValueType type = ValueType.ATTRSET;
         private String name;
         private String label;
-        private List<ValueDto> values = Collections.emptyList();
+        private List<ValueDto> value = Collections.emptyList();
 
         private Builder()
         {
@@ -98,9 +98,9 @@ public class AttributeSetDto
             return this;
         }
 
-        public Builder withValues(List<ValueDto> values)
+        public Builder withValue(List<ValueDto> value)
         {
-            this.values = values;
+            this.value = value;
             return this;
         }
 
