@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2020 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -140,9 +140,7 @@ public abstract class SearchController_Base
             ret = DBProperties.getProperty(_field.getLabel());
         } else if (_field.getAttribute() != null) {
             if (_cmd.hasEvents(EventType.UI_TABLE_EVALUATE)) {
-                final var typeOpt = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).stream().map(eventDef -> {
-                    return eventDef.getProperty("Type");
-                }).filter(Objects::nonNull).findFirst();
+                final var typeOpt = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).stream().map(eventDef -> eventDef.getProperty("Type")).filter(Objects::nonNull).findFirst();
                 if (typeOpt.isPresent()) {
                     final var attr = Type.get(typeOpt.get()).getAttribute(_field.getAttribute());
                     if (attr != null) {
@@ -162,10 +160,16 @@ public abstract class SearchController_Base
 
         final MultivaluedMap<String, String> queryParameters = _uriInfo.getQueryParameters();
         LOG.debug("", queryParameters);
+
+        final String selectionMode = cmd.isTargetShowCheckBoxes()
+                        ? cmd.getSubmitSelectedRows() == 1 ? "single" : "multiple"
+                        : null;
+
         final var dto = TableDto.builder()
                         .withHeader(getHeader(cmd, null))
                         .withColumns(getColumns(table, TargetMode.SEARCH, null))
                         .withValues(getValues(cmd, table))
+                        .withSelectionMode(selectionMode)
                         .build();
 
         final Response ret = Response.ok()

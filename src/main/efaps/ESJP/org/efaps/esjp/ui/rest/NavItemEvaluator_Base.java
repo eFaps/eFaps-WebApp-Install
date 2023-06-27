@@ -42,6 +42,8 @@ public abstract class NavItemEvaluator_Base
                             .withModal(command.getTarget() == Target.MODAL);
             if (command.getTargetForm() != null) {
                 actionBldr.withType(ActionType.FORM);
+            } else if (command.getTargetSearch() != null) {
+                actionBldr.withType(ActionType.SEARCH);
             } else if (command.getTargetTable() != null) {
                 actionBldr.withType(ActionType.GRID);
             } else if (command.getTarget() == Target.HIDDEN) {
