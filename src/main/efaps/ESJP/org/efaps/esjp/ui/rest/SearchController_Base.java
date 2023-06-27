@@ -28,6 +28,7 @@ import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
+import org.efaps.admin.datamodel.Classification;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.dbproperty.DBProperties;
 import org.efaps.admin.event.EventType;
@@ -41,6 +42,8 @@ import org.efaps.admin.ui.Menu;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.admin.ui.field.FieldGroup;
 import org.efaps.eql.EQL;
+import org.efaps.eql2.impl.AttributeSelectElement;
+import org.efaps.eql2.impl.ClassSelectElement;
 import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.ui.rest.dto.FormSectionDto;
 import org.efaps.esjp.ui.rest.dto.SearchDto;
@@ -140,7 +143,8 @@ public abstract class SearchController_Base
             ret = DBProperties.getProperty(_field.getLabel());
         } else if (_field.getAttribute() != null) {
             if (_cmd.hasEvents(EventType.UI_TABLE_EVALUATE)) {
-                final var typeOpt = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).stream().map(eventDef -> eventDef.getProperty("Type")).filter(Objects::nonNull).findFirst();
+                final var typeOpt = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).stream()
+                                .map(eventDef -> eventDef.getProperty("Type")).filter(Objects::nonNull).findFirst();
                 if (typeOpt.isPresent()) {
                     final var attr = Type.get(typeOpt.get()).getAttribute(_field.getAttribute());
                     if (attr != null) {
@@ -148,6 +152,26 @@ public abstract class SearchController_Base
                     }
                 }
             }
+        }
+        if (ret == null && _field.getSelect() != null) {
+            final var select = EQL.parseSelect(_field.getSelect());
+            if (select.getElements(0) instanceof ClassSelectElement) {
+                final var classificationName = ((ClassSelectElement) select.getElements(0)).getName();
+                final var classification = Classification.get(classificationName);
+                if (classification != null) {
+                    final var attrSelectEle = select.getElementsList().stream()
+                                    .filter(element -> (element instanceof AttributeSelectElement)).findFirst();
+                    if (attrSelectEle.isPresent()) {
+                        final var attrName = ((AttributeSelectElement) attrSelectEle.get()).getName();
+                        final var attr = classification.getAttribute(attrName);
+
+                        if (attr != null) {
+                            ret = DBProperties.getProperty(attr.getLabelKey());
+                        }
+                    }
+                }
+            }
+            LOG.warn("Some other label might be evaluated");
         }
         return ret;
     }
@@ -168,7 +192,7 @@ public abstract class SearchController_Base
         final var dto = TableDto.builder()
                         .withHeader(getHeader(cmd, null))
                         .withColumns(getColumns(table, TargetMode.SEARCH, null))
-                        .withValues(getValues(cmd, table))
+                        .withValues(getValues(cmd, table, queryParameters))
                         .withSelectionMode(selectionMode)
                         .build();
 
@@ -178,8 +202,9 @@ public abstract class SearchController_Base
         return ret;
     }
 
-
-    public Collection<Map<String, ?>> getValues(final AbstractUserInterfaceObject _cmd, final org.efaps.admin.ui.Table _table)
+    public Collection<Map<String, ?>> getValues(final AbstractUserInterfaceObject _cmd,
+                                                final org.efaps.admin.ui.Table _table,
+                                                MultivaluedMap<String, String> queryParameters)
         throws EFapsException
     {
         final var fields = getFields(_table);
@@ -188,6 +213,15 @@ public abstract class SearchController_Base
         final var query = EQL.builder()
                         .print()
                         .query(types);
+
+        for (final var entry : queryParameters.entrySet()) {
+            final var field = fields.stream().filter(f -> f.getName().equals(entry.getKey())).findFirst();
+            if (field.isPresent()) {
+                if (field.get().getAttribute() != null){
+                    query.where().attribute(field.get().getAttribute()).ilike("%" + entry.getValue().get(0) + "%");
+                }
+            }
+        }
 
         final var print = query.select();
 

@@ -126,7 +126,8 @@ public abstract class ExecController_Base
         paraValues.add(ParameterValues.PARAMETERS);
         paraValues.add(parameters);
 
-        if (TargetMode.EDIT.equals(cmd.getTargetMode()) && parameters.containsKey("eFapsOID")) {
+        if ((TargetMode.EDIT.equals(cmd.getTargetMode()) || TargetMode.UNKNOWN.equals(cmd.getTargetMode()))
+                        && parameters.containsKey("eFapsOID")) {
             paraValues.add(ParameterValues.INSTANCE);
             paraValues.add(Instance.get(parameters.get("eFapsOID")[0]));
         }
