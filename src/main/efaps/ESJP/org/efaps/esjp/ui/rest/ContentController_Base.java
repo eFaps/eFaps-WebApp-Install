@@ -22,7 +22,6 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -324,7 +323,7 @@ public abstract class ContentController_Base
                     executable = true;
                 } else if (field.getAttribute() != null) {
                     if (TargetMode.VIEW.equals(currentTargetMode)) {
-                        add2Select4Attribute(print, field, Collections.singletonList(instance.getType()), clazz);
+                        add2Selects4AttributeInViewMode(print, field, clazz == null ? instance.getType() : clazz);
                     } else {
                         print.attribute(field.getAttribute()).as(field.getName());
                     }
@@ -347,6 +346,27 @@ public abstract class ContentController_Base
         }
         return executable;
     }
+
+    protected void add2Selects4AttributeInViewMode(final Print print,
+                                                   final Field field,
+                                                   final Type type)
+        throws EFapsException
+    {
+        final var attr = type.getAttribute(field.getAttribute());
+        if (attr != null) {
+            if (attr.getAttributeType().getDbAttrType() instanceof StatusType) {
+                print.select("status").as(field.getName());
+            } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
+                final var baseSelect = type instanceof Classification ? "class["+ type.getName() + "]" : "";
+                add2Select4RangeValue(print, field, attr, baseSelect);
+            } else if (type instanceof Classification) {
+                print.clazz(type.getName()).attribute(field.getAttribute()).as(field.getName());
+            } else {
+                print.attribute(field.getAttribute()).as(field.getName());
+            }
+        }
+    }
+
 
     protected void add2Select4Attribute(final Print _print,
                                         final Field _field,
@@ -375,7 +395,7 @@ public abstract class ContentController_Base
                 _print.select("status.label").as(_field.getName());
             }
         } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
-            add2Select4RangeValue(_print, _field, attr);
+            add2Select4RangeValue(_print, _field, attr, "");
         } else if (clazz != null) {
 
         } else {

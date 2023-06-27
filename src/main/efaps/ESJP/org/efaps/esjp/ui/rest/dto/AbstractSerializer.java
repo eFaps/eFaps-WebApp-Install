@@ -22,6 +22,7 @@ import java.util.Map;
 import org.apache.commons.text.StringSubstitutor;
 import org.efaps.admin.EFapsSystemConfiguration;
 import org.efaps.admin.KernelSettings;
+import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
@@ -39,10 +40,10 @@ import com.fasterxml.jackson.databind.JsonSerializer;
 public abstract class AbstractSerializer<T>
     extends JsonSerializer<T>
 {
+
     private static final Logger LOG = LoggerFactory.getLogger(AbstractController.class);
 
     public Object getObjectValue(final Object _object)
-
     {
         Object ret;
         if (_object instanceof Type) {
@@ -64,6 +65,8 @@ public abstract class AbstractSerializer<T>
             }
             final StringSubstitutor sub = new StringSubstitutor(values);
             ret = sub.replace(display);
+        } else if (_object instanceof Status) {
+            ret = ((Status) _object).getLabel();
         } else {
             ret = _object;
         }

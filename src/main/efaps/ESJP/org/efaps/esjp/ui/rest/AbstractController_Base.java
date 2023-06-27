@@ -81,7 +81,7 @@ public abstract class AbstractController_Base
         } else if (attr.getAttributeType().getDbAttrType() instanceof StatusType) {
             _print.select("status.label").as(_field.getName());
         } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
-            add2Select4RangeValue(_print, _field, attr);
+            add2Select4RangeValue(_print, _field, attr, "");
         } else {
             _print.attribute(_field.getAttribute()).as(_field.getName());
         }
@@ -89,9 +89,14 @@ public abstract class AbstractController_Base
 
     protected void add2Select4RangeValue(final Print print,
                                          final Field field,
-                                         final Attribute attr)
+                                         final Attribute attr,
+                                         final String baseSelect)
         throws EFapsException
     {
+        var baseSel = "";
+        if (baseSelect != null) {
+            baseSel = baseSelect.endsWith(".") ? baseSelect : baseSelect + ".";
+        }
         final var event = attr.getEvents(EventType.RANGE_VALUE).get(0);
         final var valueStr = event.getProperty("Value");
         if (valueStr.contains("$<")) {
@@ -99,14 +104,15 @@ public abstract class AbstractController_Base
                 final var valueList = new ValueParser(new StringReader(valueStr)).ExpressionString();
                 int i = 0;
                 for (final var expression : valueList.getExpressions()) {
-                    print.select("linkto[" + attr.getName() + "]." + expression).as(field.getName() + "_ex" + i);
+                    print.select(baseSel + "linkto[" + attr.getName() + "]." + expression)
+                                    .as(field.getName() + "_ex" + i);
                     i++;
                 }
             } catch (final ParseException e) {
                 throw new EFapsException("Catched", e);
             }
         } else {
-            print.linkto(attr.getName()).attribute(valueStr).as(field.getName());
+            print.select(baseSel + "linkto[" + attr.getName() + "].attribute[" + valueStr + "]").as(field.getName());
         }
     }
 
