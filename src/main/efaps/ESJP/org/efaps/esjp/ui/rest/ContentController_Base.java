@@ -323,18 +323,7 @@ public abstract class ContentController_Base
                     final var typeName = clazz == null ?  instance.getType().getName() : clazz.getName();
                     final var attributeSet = AttributeSet.find(typeName, field.getAttribute());
                     if (attributeSet != null) {
-                        final var attrList = ((FieldSet) field).getOrder().isEmpty()
-                                        ? attributeSet.getSetAttributes()
-                                        : ((FieldSet) field).getOrder();
-                        for (final var attr : attrList) {
-                            if (clazz != null) {
-                                print.clazz(clazz.getName()).attributeSet(field.getAttribute()).attribute(attr)
-                                                .as(field.getName() + "-" + attr);
-                            } else {
-                                print.attributeSet(field.getAttribute()).attribute(attr)
-                                                .as(field.getName() + "-" + attr);
-                            }
-                        }
+                        add2Selects4AttributeSetInViewMode(print, (FieldSet) field, attributeSet, clazz);
                     }
                 } else if (field.getSelect() != null) {
                     if (clazz != null) {
@@ -369,6 +358,31 @@ public abstract class ContentController_Base
         return executable;
     }
 
+    private void add2Selects4AttributeSetInViewMode(final Print print,
+                                                    final FieldSet fieldSet,
+                                                    final AttributeSet attributeSet,
+                                                    final Classification clazz)
+        throws EFapsException
+    {
+        final var attrList = fieldSet.getOrder().isEmpty()
+                        ? attributeSet.getSetAttributes()
+                        : fieldSet.getOrder();
+        for (final var attrName : attrList) {
+            final var attr = attributeSet.getAttribute(attrName);
+            if (attr.hasEvents(EventType.RANGE_VALUE)) {
+                var baseSelect = clazz != null ? "class[" + clazz.getName() + "]." : "";
+                baseSelect = baseSelect + "attributeset[" + fieldSet.getAttribute() + "]";
+                add2Select4RangeValue(print, fieldSet.getName() + "-" + attrName, attr, baseSelect);
+            } else if (clazz != null) {
+                print.clazz(clazz.getName()).attributeSet(fieldSet.getAttribute()).attribute(attrName)
+                                .as(fieldSet.getName() + "-" + attrName);
+            } else {
+                print.attributeSet(fieldSet.getAttribute()).attribute(attrName)
+                                .as(fieldSet.getName() + "-" + attrName);
+            }
+        }
+    }
+
     protected void add2Selects4AttributeInViewMode(final Print print,
                                                    final Field field,
                                                    final Type type)
@@ -380,7 +394,7 @@ public abstract class ContentController_Base
                 print.select("status").as(field.getName());
             } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
                 final var baseSelect = type instanceof Classification ? "class["+ type.getName() + "]" : "";
-                add2Select4RangeValue(print, field, attr, baseSelect);
+                add2Select4RangeValue(print, field.getName(), attr, baseSelect);
             } else if (type instanceof Classification) {
                 print.clazz(type.getName()).attribute(field.getAttribute()).as(field.getName());
             } else {
@@ -417,7 +431,7 @@ public abstract class ContentController_Base
                 _print.select("status.label").as(_field.getName());
             }
         } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
-            add2Select4RangeValue(_print, _field, attr, "");
+            add2Select4RangeValue(_print, _field.getName(), attr, "");
         } else if (clazz != null) {
 
         } else {

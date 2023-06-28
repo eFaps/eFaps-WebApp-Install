@@ -81,14 +81,14 @@ public abstract class AbstractController_Base
         } else if (attr.getAttributeType().getDbAttrType() instanceof StatusType) {
             _print.select("status.label").as(_field.getName());
         } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
-            add2Select4RangeValue(_print, _field, attr, "");
+            add2Select4RangeValue(_print, _field.getName(), attr, "");
         } else {
             _print.attribute(_field.getAttribute()).as(_field.getName());
         }
     }
 
     protected void add2Select4RangeValue(final Print print,
-                                         final Field field,
+                                         final String key,
                                          final Attribute attr,
                                          final String baseSelect)
         throws EFapsException
@@ -105,14 +105,14 @@ public abstract class AbstractController_Base
                 int i = 0;
                 for (final var expression : valueList.getExpressions()) {
                     print.select(baseSel + "linkto[" + attr.getName() + "]." + expression)
-                                    .as(field.getName() + "_ex" + i);
+                                    .as(key + "_ex" + i);
                     i++;
                 }
             } catch (final ParseException e) {
                 throw new EFapsException("Catched", e);
             }
         } else {
-            print.select(baseSel + "linkto[" + attr.getName() + "].attribute[" + valueStr + "]").as(field.getName());
+            print.select(baseSel + "linkto[" + attr.getName() + "].attribute[" + valueStr + "]").as(key);
         }
     }
 

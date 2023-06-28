@@ -23,17 +23,24 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Response;
 
+import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.Type;
+import org.efaps.admin.datamodel.ui.IUIValue;
 import org.efaps.admin.event.EventType;
+import org.efaps.admin.event.Parameter.ParameterValues;
+import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
 import org.efaps.admin.ui.Menu;
+import org.efaps.admin.ui.field.Field;
+import org.efaps.admin.ui.field.Field.Display;
 import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.common.properties.PropertiesUtil;
@@ -116,8 +123,11 @@ public abstract class TableController_Base
         return typeList;
     }
 
-    public Collection<Map<String, ?>> getValues(final AbstractCommand _cmd, final org.efaps.admin.ui.Table _table,
-                                                final Map<String, String> properties, final String oid)
+    @SuppressWarnings("unchecked")
+    public Collection<Map<String, ?>> getValues(final AbstractCommand _cmd,
+                                                final org.efaps.admin.ui.Table _table,
+                                                final Map<String, String> properties,
+                                                final String oid)
         throws EFapsException
     {
         final var types = evalTypes(properties);
@@ -155,7 +165,61 @@ public abstract class TableController_Base
                 print.select(field.getSelectAlternateOID()).as(field.getName() + "_AOID");
             }
         }
-        return print.evaluate().getData();
+        final var data = print.evaluate().getData();
+        final var fieldsWithFormat = fields.stream().filter(field -> field.hasEvents(EventType.UI_FIELD_FORMAT))
+                        .collect(Collectors.toList());
+
+        for (final var fieldWithFormat : fieldsWithFormat) {
+            for (final var map : data) {
+                final var obj = map.get(fieldWithFormat.getName());
+                final var value = new IUIValue()
+                {
+
+                    @Override
+                    public Display getDisplay()
+                    {
+                        return null;
+                    }
+
+                    @Override
+                    public Field getField()
+                    {
+                        return null;
+                    }
+
+                    @Override
+                    public Instance getInstance()
+                    {
+                        return obj instanceof Instance ? (Instance) obj : null;
+                    }
+
+                    @Override
+                    public Instance getCallInstance()
+                    {
+                        return null;
+                    }
+
+                    @Override
+                    public Object getObject()
+                    {
+                        return obj;
+                    }
+
+                    @Override
+                    public Attribute getAttribute()
+                        throws EFapsException
+                    {
+                        return null;
+                    }
+                };
+                final var returns = fieldWithFormat.executeEvents(EventType.UI_FIELD_FORMAT, ParameterValues.UIOBJECT,
+                                value);
+                for (final var ret : returns) {
+                    ((Map<String, Object>) map).put(fieldWithFormat.getName(), ret.get(ReturnValues.VALUES));
+                }
+            }
+        }
+        return data;
     }
 
 }
