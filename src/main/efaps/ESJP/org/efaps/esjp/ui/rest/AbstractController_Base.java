@@ -174,7 +174,9 @@ public abstract class AbstractController_Base
             final var values = aReturn.get(ReturnValues.VALUES);
             if (values instanceof List && !((List<?>) values).isEmpty()) {
                 if (((List<?>) values).get(0) instanceof IOption) {
-                    bldr.withType(ValueType.DROPDOWN)
+                    final var valueType = getUIType(field).equals(UIType.CHECKBOX) ? ValueType.CHECKBOX
+                                    : ValueType.DROPDOWN;
+                    bldr.withType(valueType)
                                     .withOptions(((List<IOption>) values).stream().map(option -> OptionDto.builder()
                                                     .withValue(option.getValue())
                                                     .withLabel(option.getLabel())
