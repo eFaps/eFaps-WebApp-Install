@@ -35,5 +35,6 @@ public enum ValueType
     DATETIME,
     DROPDOWN,
     ATTRSET,
-    CHECKBOX
+    CHECKBOX,
+    TEXTAREA
 }

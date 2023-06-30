@@ -219,6 +219,9 @@ public abstract class ContentController_Base
                     final var group = (FieldGroup) field;
                     groupCount = group.getGroupCount();
                 } else if (field instanceof FieldTable) {
+                    if (currentFormSectionBldr != null) {
+                        ret.add(currentFormSectionBldr.build());
+                    }
                     currentFormSectionBldr = null;
                     final var fieldTable = ((FieldTable) field).getTargetTable();
                     final var columns = getColumns(fieldTable, currentTargetMode, evalTypes(field));
@@ -543,7 +546,7 @@ public abstract class ContentController_Base
             } else if (field.hasEvents(EventType.UI_FIELD_VALUE)) {
                 fieldValue = evalFieldValueEvent(inst, field, valueBldr, fieldValue, currentTargetMode);
             } else {
-                final var attr = type.getAttribute(field.getAttribute());
+                final var attr = type== null ? null : type.getAttribute(field.getAttribute());
                 if (attr != null) {
                     if (attr.hasEvents(EventType.RANGE_VALUE) && !"Status".equals(attr.getAttributeType().getName())) {
                         final var options = getRangeValue(attr, fieldValue, currentTargetMode);
@@ -630,12 +633,14 @@ public abstract class ContentController_Base
                                 }
                                 break;
                             default:
-                                valueBldr.withType(ValueType.INPUT);
+                                final var valueType =  field.getRows() > 1 ? ValueType.TEXTAREA  :ValueType.INPUT;
+                                valueBldr.withType(valueType);
                                 break;
                         }
                     }
                 } else {
-                    valueBldr.withType(ValueType.INPUT);
+                    final var valueType =  field.getRows() > 1 ? ValueType.TEXTAREA  :ValueType.INPUT;
+                    valueBldr.withType(valueType);
                 }
             }
         }
