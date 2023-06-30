@@ -36,5 +36,6 @@ public enum ValueType
     DROPDOWN,
     ATTRSET,
     CHECKBOX,
-    TEXTAREA
+    TEXTAREA,
+    BUTTON
 }

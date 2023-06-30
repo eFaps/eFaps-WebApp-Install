@@ -58,6 +58,7 @@ import org.efaps.admin.ui.Menu;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.admin.ui.field.Field.Display;
 import org.efaps.admin.ui.field.FieldClassification;
+import org.efaps.admin.ui.field.FieldCommand;
 import org.efaps.admin.ui.field.FieldGroup;
 import org.efaps.admin.ui.field.FieldHeading;
 import org.efaps.admin.ui.field.FieldSet;
@@ -528,6 +529,8 @@ public abstract class ContentController_Base
             valueBldr.withType(ValueType.UPLOAD);
         } else if (UIType.UPLOADMULTIPLE.equals(uiType)) {
             valueBldr.withType(ValueType.UPLOADMULTIPLE);
+        } else if (UIType.BUTTON.equals(uiType) || field instanceof FieldCommand) {
+            valueBldr.withType(ValueType.BUTTON).withRef(String.valueOf(field.getId()));
         } else if (field.hasEvents(EventType.UI_FIELD_FORMAT)) {
             fieldValue = evalFieldFormatEvent(inst, field, valueBldr, fieldValue, currentTargetMode);
         } else if ((TargetMode.CREATE.equals(currentTargetMode) || TargetMode.EDIT.equals(currentTargetMode))
