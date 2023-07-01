@@ -17,8 +17,7 @@
 package org.efaps.esjp.ui.rest;
 
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.HashMap;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
@@ -70,13 +69,13 @@ public class FieldCommandController
             if (returns.contains(ReturnValues.SNIPLETT)) {
                 LOG.error("SNIPPLET do not work here");
             } else if (returns.contains(ReturnValues.VALUES)) {
-                @SuppressWarnings("unchecked")
-                final List<Map<String, Object>> values =  (List<Map<String, Object>>) returns.get(ReturnValues.VALUES);
-                if (!values.isEmpty()) {
-                    responseDto = FieldCommandResponseDto.builder()
-                                    .withValues(values.get(0))
-                                    .build();
-                }
+                final Object result =  returns.get(ReturnValues.VALUES);
+                final var values = new HashMap<String, Object>();
+                values.put("targetField", "result");
+                values.put("result", result);
+                responseDto = FieldCommandResponseDto.builder()
+                                .withValues(values)
+                                .build();
             }
         }
         return Response.ok()

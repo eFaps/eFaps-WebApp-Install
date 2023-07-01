@@ -119,6 +119,7 @@ public abstract class AbstractController_Base
     protected Map<String, String[]> convertToMap(final PayloadDto dto)
     {
         final var ret = new HashMap<String, String[]>();
+        ret.put("eFaps-REST", new String[] { "true" });
         if (dto != null && dto.getValues() != null) {
             for (final var entry : dto.getValues().entrySet()) {
                 if (entry.getValue() instanceof Collection) {
