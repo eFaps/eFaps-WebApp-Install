@@ -664,6 +664,8 @@ public abstract class ContentController_Base
     public Response getContent(final String _oid)
         throws EFapsException
     {
+        LOG.info("Get content for oid: {}", _oid);
+
         ContentDto dto = null;
         final var instance = Instance.get(_oid);
         if (instance.isValid()) {
@@ -717,15 +719,16 @@ public abstract class ContentController_Base
                         .build();
     }
 
-    public Response getContent(final String _oid,
-                               final String _cmdId)
+    public Response getContent(final String oid,
+                               final String cmdId)
         throws EFapsException
     {
+        LOG.info("Get content for oid: {} and cmdId: {}", oid, cmdId);
         OutlineDto dto = null;
-        final var instance = Instance.get(_oid);
-        AbstractCommand cmd = Command.get(UUID.fromString(_cmdId));
+        final var instance = Instance.get(oid);
+        AbstractCommand cmd = Command.get(UUID.fromString(cmdId));
         if (cmd == null) {
-            cmd = Menu.get(UUID.fromString(_cmdId));
+            cmd = Menu.get(UUID.fromString(cmdId));
         }
         if (instance.isValid() || cmd.getTargetMode().equals(TargetMode.CREATE)
                         || cmd.getTargetMode().equals(TargetMode.UNKNOWN)) {
@@ -744,7 +747,7 @@ public abstract class ContentController_Base
             }
 
             dto = OutlineDto.builder()
-                            .withOid(_oid)
+                            .withOid(oid)
                             .withMenu(menus)
                             .withHeader(header)
                             .withSections(evalSections(instance, cmd))

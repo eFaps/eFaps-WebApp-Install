@@ -23,23 +23,21 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-@JsonDeserialize(builder = DashboardTabDto.Builder.class)
+@JsonDeserialize(builder = DashboardPageDto.Builder.class)
 @EFapsUUID("51206226-3c8f-4bfa-a91f-172f38c3ef1c")
 @EFapsApplication("eFaps-WebApp")
-public class DashboardTabDto
+public class DashboardPageDto
 {
 
     private final String label;
+    private final List<DashboardItemDto> items;
 
-    private final List<DashboardItemDto> layout;
-
-    private DashboardTabDto(final Builder builder)
+    private DashboardPageDto(Builder builder)
     {
-        label = builder.label;
-        layout = builder.layout;
+        this.label = builder.label;
+        this.items = builder.items;
     }
 
     public String getLabel()
@@ -47,9 +45,9 @@ public class DashboardTabDto
         return label;
     }
 
-    public List<DashboardItemDto> getLayout()
+    public List<DashboardItemDto> getItems()
     {
-        return layout;
+        return items;
     }
 
     @Override
@@ -58,45 +56,36 @@ public class DashboardTabDto
         return ToStringBuilder.reflectionToString(this);
     }
 
-    /**
-     * Creates builder to build {@link DashboardTabDto}.
-     *
-     * @return created builder
-     */
     public static Builder builder()
     {
         return new Builder();
     }
 
-    /**
-     * Builder to build {@link DashboardTabDto}.
-     */
-    @JsonIgnoreProperties(ignoreUnknown = true)
     public static final class Builder
     {
 
         private String label;
-        private List<DashboardItemDto> layout = Collections.emptyList();
+        private List<DashboardItemDto> items = Collections.emptyList();
 
         private Builder()
         {
         }
 
-        public Builder withLabel(final String label)
+        public Builder withLabel(String label)
         {
             this.label = label;
             return this;
         }
 
-        public Builder withLayout(final List<DashboardItemDto> layout)
+        public Builder withItems(List<DashboardItemDto> items)
         {
-            this.layout = layout;
+            this.items = items;
             return this;
         }
 
-        public DashboardTabDto build()
+        public DashboardPageDto build()
         {
-            return new DashboardTabDto(this);
+            return new DashboardPageDto(this);
         }
     }
 }

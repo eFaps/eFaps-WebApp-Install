@@ -17,8 +17,6 @@
 package org.efaps.esjp.ui.rest.dto;
 
 import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
 
 import org.apache.commons.lang3.EnumUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
@@ -26,7 +24,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -49,34 +46,24 @@ public class DashboardWidgetDeserializer
     }
 
     @Override
-    public DashboardWidgetDto deserialize(final JsonParser _jp, final DeserializationContext _ctxt)
+    public DashboardWidgetDto deserialize(final JsonParser jsonParser,
+                                          final DeserializationContext ctxt)
         throws IOException, JsonProcessingException
     {
         DashboardWidgetDto ret = null;
-        final JsonNode node = _jp.getCodec().readTree(_jp);
+        final JsonNode node = jsonParser.getCodec().readTree(jsonParser);
         final var typeVal = node.get("type").asText();
-        final var identifier = node.get("identifier").asText();
-        final var eql = node.get("eql").asText();
+        final var identifier = node.has("identifier") ? node.get("identifier").asText() : "UNKNOWN";
+        final var eql = node.has("eql") ? node.get("eql").asText() : "UNKNOWN";
         final var title = node.has("title") ? node.get("title").asText() : "";
         final var type = EnumUtils.getEnum(DashboardWidgetType.class, typeVal);
         switch (type) {
             case TABLE:
-                final var arrayNode = node.get("columns");
-                final List<ColumnDto> columns;
-                if (arrayNode == null) {
-                    columns = Collections.emptyList();
-                } else {
-                    columns = getObjectMapper().readValue(arrayNode.toString(),
-                                    new TypeReference<List<ColumnDto>>()
-                                    {
-                                    });
-                }
                 ret = DashboardWidgetTableDto.builder()
                                 .withIdentifier(identifier)
                                 .withType(type)
                                 .withTitle(title)
                                 .withEql(eql)
-                                .withColumns(columns)
                                 .build();
                 break;
             default:

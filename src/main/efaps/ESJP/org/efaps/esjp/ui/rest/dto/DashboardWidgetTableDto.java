@@ -16,9 +16,6 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
-import java.util.Collections;
-import java.util.List;
-
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
@@ -31,17 +28,9 @@ public class DashboardWidgetTableDto
     extends DashboardWidgetDto
 {
 
-    private final List<ColumnDto> columns;
-
     private DashboardWidgetTableDto(final Builder builder)
     {
         super(builder);
-        columns = builder.columns;
-    }
-
-    public List<ColumnDto> getColumns()
-    {
-        return columns;
     }
 
     /**
@@ -61,16 +50,9 @@ public class DashboardWidgetTableDto
         extends DashboardWidgetDto.Builder<Builder>
     {
 
-        private List<ColumnDto> columns = Collections.emptyList();
-
         private Builder()
         {
-        }
-
-        public Builder withColumns(final List<ColumnDto> columns)
-        {
-            this.columns = columns;
-            return this;
+            withType(DashboardWidgetType.TABLE);
         }
 
         public DashboardWidgetTableDto build()

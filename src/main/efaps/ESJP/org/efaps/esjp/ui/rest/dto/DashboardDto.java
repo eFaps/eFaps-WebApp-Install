@@ -32,16 +32,16 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public class DashboardDto
 {
 
-    private final List<DashboardTabDto> tabs;
+    private final List<DashboardPageDto> pages;
 
     private DashboardDto(final Builder builder)
     {
-        tabs = builder.tabs;
+        pages = builder.pages;
     }
 
-    public List<DashboardTabDto> getTabs()
+    public List<DashboardPageDto> getPages()
     {
-        return tabs;
+        return pages;
     }
 
     @Override
@@ -67,15 +67,15 @@ public class DashboardDto
     public static final class Builder
     {
 
-        private List<DashboardTabDto> tabs = Collections.emptyList();
+        private List<DashboardPageDto> pages = Collections.emptyList();
 
         private Builder()
         {
         }
 
-        public Builder withTabs(final List<DashboardTabDto> tabs)
+        public Builder withPages(final List<DashboardPageDto> pages)
         {
-            this.tabs = tabs;
+            this.pages = pages;
             return this;
         }
 

@@ -16,10 +16,7 @@
  */
 package org.efaps.esjp.ui.rest;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
 
 import javax.ws.rs.core.Response;
 
@@ -32,10 +29,9 @@ import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CICommon;
 import org.efaps.esjp.ui.rest.dto.DashboardDto;
 import org.efaps.esjp.ui.rest.dto.DashboardItemDto;
-import org.efaps.esjp.ui.rest.dto.DashboardTabDto;
+import org.efaps.esjp.ui.rest.dto.DashboardPageDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetTableDto;
-import org.efaps.esjp.ui.rest.dto.WidgetTableDto;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,22 +72,24 @@ public abstract class DashboardController_Base
 
     protected DashboardDto getDefaultDashboard()
     {
-        final var layout = new ArrayList<DashboardItemDto>();
-        layout.add(DashboardItemDto.builder()
-                        .withx(0)
-                        .withy(0)
-                        .withCols(1)
-                        .withRows(13)
-                        .build());
-        layout.add(DashboardItemDto.builder()
-                        .withx(1)
-                        .withy(0)
-                        .withCols(4)
-                        .withRows(13)
-                        .build());
+       final var tableDto = DashboardWidgetTableDto.builder()
+                       .withTitle("TableTest")
+                       .withIdentifier("e543f8d7-1f26-4bc2-bd20-0ce00b6078ed")
+                       .build();
+
         return DashboardDto.builder()
-                        .withTabs(Collections.singletonList(DashboardTabDto.builder()
-                                        .withLayout(layout)
+                        .withPages(Arrays.asList(DashboardPageDto
+                                        .builder()
+                                        .withLabel("Page 1")
+                                        .withItems(Arrays.asList(
+                                                        DashboardItemDto.builder().withCols(1).withRows(1).withx(0).withy(0)
+                                                        .withWidget(tableDto).build(),
+                                                        DashboardItemDto.builder().withCols(1).withRows(1).withx(1).withy(0).build(),
+                                                        DashboardItemDto.builder().withCols(1).withRows(1).withx(0).withy(1).build()))
+                                        .build(),
+                                        DashboardPageDto
+                                        .builder()
+                                        .withLabel("Page 2")
                                         .build()))
                         .build();
     }
@@ -100,8 +98,8 @@ public abstract class DashboardController_Base
         throws EFapsException
     {
         System.out.println(_dashboardDto);
-        _dashboardDto.getTabs().stream().flatMap(tab -> tab.getLayout().stream())
-                        .forEach(layout -> persistWidget(layout.getWidget()));
+   //     _dashboardDto.getTabs().stream().flatMap(tab -> tab.getLayout().stream())
+   //                     .forEach(layout -> persistWidget(layout.getWidget()));
 
         final var mapper = getObjectMapper();
         try {
@@ -189,19 +187,6 @@ public abstract class DashboardController_Base
     {
         final var stmt = EQL.getStatement(_widgetDto.getEql());
         final var eval = ((PrintStmt) stmt).evaluate();
-        final var values = new ArrayList<Map<String,String>>();
-        while (eval.next()) {
-            final var map = new HashMap<String,String>();
-            for (final var column : _widgetDto.getColumns()) {
-                final var obj = eval.get(column.getField());
-                final var value = String.valueOf(obj);
-                map.put(column.getField(), value);
-            }
-            values.add(map);
-        }
-        return WidgetTableDto.builder()
-                        .withColumns(_widgetDto.getColumns())
-                        .withValues(values)
-                        .build();
+        return eval.getDataList();
     }
 }

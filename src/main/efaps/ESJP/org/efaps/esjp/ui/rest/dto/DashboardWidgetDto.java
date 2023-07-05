@@ -57,6 +57,11 @@ public abstract class DashboardWidgetDto
         return eql;
     }
 
+    public String getTitle()
+    {
+        return title;
+    }
+
     @Override
     public String toString()
     {
@@ -106,10 +111,5 @@ public abstract class DashboardWidgetDto
             this.title = title;
             return (T) this;
         }
-    }
-
-    public String getTitle()
-    {
-        return title;
     }
 }
