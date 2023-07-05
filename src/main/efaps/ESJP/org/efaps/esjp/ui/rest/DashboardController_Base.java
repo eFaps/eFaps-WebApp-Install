@@ -16,7 +16,10 @@
  */
 package org.efaps.esjp.ui.rest;
 
+import java.math.BigDecimal;
 import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.ws.rs.core.Response;
 
@@ -30,6 +33,7 @@ import org.efaps.esjp.ci.CICommon;
 import org.efaps.esjp.ui.rest.dto.DashboardDto;
 import org.efaps.esjp.ui.rest.dto.DashboardItemDto;
 import org.efaps.esjp.ui.rest.dto.DashboardPageDto;
+import org.efaps.esjp.ui.rest.dto.DashboardWidgetChartDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetTableDto;
 import org.efaps.util.EFapsException;
@@ -72,25 +76,32 @@ public abstract class DashboardController_Base
 
     protected DashboardDto getDefaultDashboard()
     {
-       final var tableDto = DashboardWidgetTableDto.builder()
-                       .withTitle("TableTest")
-                       .withIdentifier("e543f8d7-1f26-4bc2-bd20-0ce00b6078ed")
-                       .build();
-
+        final var tableDto = DashboardWidgetTableDto.builder()
+                        .withTitle("TableTest")
+                        .withIdentifier("e543f8d7-1f26-4bc2-bd20-0ce00b6078ed")
+                        .build();
+        final var chartDto = DashboardWidgetChartDto.builder()
+                        .withTitle("Chart Test")
+                        .withIdentifier("eb70f1aa-1b0a-4739-9ea6-b1d0bb54436d")
+                        .build();
         return DashboardDto.builder()
                         .withPages(Arrays.asList(DashboardPageDto
                                         .builder()
                                         .withLabel("Page 1")
                                         .withItems(Arrays.asList(
-                                                        DashboardItemDto.builder().withCols(1).withRows(1).withx(0).withy(0)
-                                                        .withWidget(tableDto).build(),
-                                                        DashboardItemDto.builder().withCols(1).withRows(1).withx(1).withy(0).build(),
-                                                        DashboardItemDto.builder().withCols(1).withRows(1).withx(0).withy(1).build()))
+                                                        DashboardItemDto.builder().withCols(1).withRows(1).withx(0)
+                                                                        .withy(0)
+                                                                        .withWidget(tableDto).build(),
+                                                        DashboardItemDto.builder().withCols(1).withRows(1).withx(1)
+                                                                        .withy(0)
+                                                                        .withWidget(chartDto).build(),
+                                                        DashboardItemDto.builder().withCols(1).withRows(1).withx(0)
+                                                                        .withy(1).build()))
                                         .build(),
                                         DashboardPageDto
-                                        .builder()
-                                        .withLabel("Page 2")
-                                        .build()))
+                                                        .builder()
+                                                        .withLabel("Page 2")
+                                                        .build()))
                         .build();
     }
 
@@ -98,8 +109,9 @@ public abstract class DashboardController_Base
         throws EFapsException
     {
         System.out.println(_dashboardDto);
-   //     _dashboardDto.getTabs().stream().flatMap(tab -> tab.getLayout().stream())
-   //                     .forEach(layout -> persistWidget(layout.getWidget()));
+        // _dashboardDto.getTabs().stream().flatMap(tab ->
+        // tab.getLayout().stream())
+        // .forEach(layout -> persistWidget(layout.getWidget()));
 
         final var mapper = getObjectMapper();
         try {
@@ -168,7 +180,9 @@ public abstract class DashboardController_Base
                     case TABLE:
                         entity = getTable((DashboardWidgetTableDto) dto);
                         break;
-                    case BARCHART:
+                    case CHART:
+                        entity = getChart((DashboardWidgetChartDto) dto);
+                        break;
                     default:
                         break;
                 }
@@ -189,4 +203,36 @@ public abstract class DashboardController_Base
         final var eval = ((PrintStmt) stmt).evaluate();
         return eval.getDataList();
     }
+
+    protected Object getChart(final DashboardWidgetChartDto _widgetDto)
+        throws EFapsException
+    {
+        final var stmt = EQL.getStatement(_widgetDto.getEql());
+        final var eval = ((PrintStmt) stmt).evaluate();
+
+        final var groupDefs = Arrays.asList("gb");
+        final var metrics = Arrays.asList("cross");
+        final Map<Object, Map<String, BigDecimal>> groupedValues = new HashMap<>();
+        while (eval.next()) {
+            for (final var groupDef: groupDefs) {
+               final var groupBy = eval.get(groupDef);
+               if (!groupedValues.containsKey(groupBy)) {
+                   groupedValues.put(groupBy, new HashMap<>());
+               }
+
+               for (final var metric: metrics) {
+                   final var metricValue = eval.get(metric);
+                   final var values = groupedValues.get(groupBy);
+                   if (!values.containsKey(metric)) {
+                       values.put(metric, BigDecimal.ZERO);
+                   }
+                   final var currentValue = values.get(metric);
+                   values.put(metric, currentValue.add((BigDecimal) metricValue));
+               }
+            }
+        }
+        return groupedValues;
+    }
+
+
 }

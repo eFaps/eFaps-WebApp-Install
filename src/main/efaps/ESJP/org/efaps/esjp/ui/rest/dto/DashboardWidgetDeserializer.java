@@ -61,7 +61,13 @@ public class DashboardWidgetDeserializer
             case TABLE:
                 ret = DashboardWidgetTableDto.builder()
                                 .withIdentifier(identifier)
-                                .withType(type)
+                                .withTitle(title)
+                                .withEql(eql)
+                                .build();
+                break;
+            case CHART:
+                ret = DashboardWidgetChartDto.builder()
+                                .withIdentifier(identifier)
                                 .withTitle(title)
                                 .withEql(eql)
                                 .build();

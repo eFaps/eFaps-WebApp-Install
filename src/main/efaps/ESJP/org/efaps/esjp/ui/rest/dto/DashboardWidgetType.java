@@ -23,6 +23,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @EFapsApplication("eFaps-WebApp")
 public enum DashboardWidgetType
 {
-    BARCHART,
+    CHART,
     TABLE;
 }
