@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2020 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -19,11 +19,9 @@ package org.efaps.esjp.ui.rest.dto;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
-@EFapsUUID("10b32cf9-2b8a-4a9d-8728-bf27255ef415")
+@EFapsUUID("8166bf07-6743-4ef5-9723-b0c2c7d88f9a")
 @EFapsApplication("eFaps-WebApp")
-public enum DashboardWidgetType
+public enum MetricFunction
 {
-    CHART,
-    TABLE,
-    PLACEHOLDER;
+    SUM
 }

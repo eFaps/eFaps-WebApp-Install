@@ -37,6 +37,7 @@ import org.efaps.esjp.ui.rest.dto.DashboardWidgetChartDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetTableDto;
 import org.efaps.util.EFapsException;
+import org.efaps.util.RandomUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -87,6 +88,7 @@ public abstract class DashboardController_Base
         return DashboardDto.builder()
                         .withPages(Arrays.asList(DashboardPageDto
                                         .builder()
+                                        .withKey(RandomUtil.randomAlphabetic(4))
                                         .withLabel("Page 1")
                                         .withItems(Arrays.asList(
                                                         DashboardItemDto.builder().withCols(1).withRows(1).withx(0)
@@ -100,6 +102,7 @@ public abstract class DashboardController_Base
                                         .build(),
                                         DashboardPageDto
                                                         .builder()
+                                                        .withKey(RandomUtil.randomAlphabetic(4))
                                                         .withLabel("Page 2")
                                                         .build()))
                         .build();
@@ -108,10 +111,9 @@ public abstract class DashboardController_Base
     public Response updateDashboard(final DashboardDto _dashboardDto)
         throws EFapsException
     {
-        System.out.println(_dashboardDto);
-        // _dashboardDto.getTabs().stream().flatMap(tab ->
-        // tab.getLayout().stream())
-        // .forEach(layout -> persistWidget(layout.getWidget()));
+        _dashboardDto.getPages().stream()
+            .flatMap(page -> page.getItems().stream())
+            .forEach(item -> persistWidget(item.getWidget()));
 
         final var mapper = getObjectMapper();
         try {

@@ -31,13 +31,21 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 public class DashboardPageDto
 {
 
+    private final String key;
+
     private final String label;
     private final List<DashboardItemDto> items;
 
     private DashboardPageDto(Builder builder)
     {
+        this.key = builder.key;
         this.label = builder.label;
         this.items = builder.items;
+    }
+
+    public String getKey()
+    {
+        return key;
     }
 
     public String getLabel()
@@ -64,11 +72,18 @@ public class DashboardPageDto
     public static final class Builder
     {
 
+        private String key;
         private String label;
         private List<DashboardItemDto> items = Collections.emptyList();
 
         private Builder()
         {
+        }
+
+        public Builder withKey(String key)
+        {
+            this.key = key;
+            return this;
         }
 
         public Builder withLabel(String label)

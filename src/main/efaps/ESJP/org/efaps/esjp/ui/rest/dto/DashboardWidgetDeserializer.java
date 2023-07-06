@@ -17,6 +17,9 @@
 package org.efaps.esjp.ui.rest.dto;
 
 import java.io.IOException;
+import java.util.Collections;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.apache.commons.lang3.EnumUtils;
 import org.efaps.admin.program.esjp.EFapsApplication;
@@ -29,6 +32,7 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @EFapsUUID("149f8a15-c42b-4e4d-8748-bc6465c006a0")
@@ -66,12 +70,34 @@ public class DashboardWidgetDeserializer
                                 .build();
                 break;
             case CHART:
+                final var groupBy = node.has("groupBy") ? StreamSupport
+                                .stream(node.get("groupBy").spliterator(), false)
+                                .map(JsonNode::asText)
+                                .collect(Collectors.toList()) : null;
+                DashboardWidgetChartMetricDto metricDto = null;
+                if (node.has("metrics")) {
+                    final ObjectNode obj = (ObjectNode) node.get("metrics").get(0);
+                    if (obj != null) {
+                        metricDto = DashboardWidgetChartMetricDto.builder()
+                                        .withKey(obj.get("key").textValue())
+                                        .withType(MetricFunction.SUM)
+                                    .build();
+                    }
+                }
                 ret = DashboardWidgetChartDto.builder()
                                 .withIdentifier(identifier)
                                 .withTitle(title)
                                 .withEql(eql)
+                                .withGroupBy(groupBy)
+                                .withMetrics(metricDto == null
+                                                ? Collections.emptyList()
+                                                : Collections.singletonList(metricDto))
                                 .build();
                 break;
+            case PLACEHOLDER:
+                ret = DashboardWidgetPlaceholderDto.builder()
+                                .withIdentifier(identifier)
+                                .build();
             default:
                 break;
         }
