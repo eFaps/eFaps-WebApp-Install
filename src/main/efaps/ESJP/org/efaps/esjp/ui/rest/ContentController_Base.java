@@ -343,7 +343,7 @@ public abstract class ContentController_Base
                     if (TargetMode.VIEW.equals(currentTargetMode)) {
                         add2Selects4AttributeInViewMode(print, field, clazz == null ? instance.getType() : clazz);
                     } else {
-                        print.attribute(field.getAttribute()).as(field.getName());
+                        add2Selects4AttributeInEditMode(print, field, clazz == null ? instance.getType() : clazz);
                     }
                     executable = true;
                 } else if (field.getPhrase() != null) {
@@ -398,7 +398,27 @@ public abstract class ContentController_Base
         final var attr = type.getAttribute(field.getAttribute());
         if (attr != null) {
             if (attr.getAttributeType().getDbAttrType() instanceof StatusType) {
-                print.select("status").as(field.getName());
+                print.status().as(field.getName());
+            } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
+                final var baseSelect = type instanceof Classification ? "class["+ type.getName() + "]" : "";
+                add2Select4RangeValue(print, field.getName(), attr, baseSelect);
+            } else if (type instanceof Classification) {
+                print.clazz(type.getName()).attribute(field.getAttribute()).as(field.getName());
+            } else {
+                print.attribute(field.getAttribute()).as(field.getName());
+            }
+        }
+    }
+
+    protected void add2Selects4AttributeInEditMode(final Print print,
+                                                   final Field field,
+                                                   final Type type)
+        throws EFapsException
+    {
+        final var attr = type.getAttribute(field.getAttribute());
+        if (attr != null) {
+            if (attr.getAttributeType().getDbAttrType() instanceof StatusType) {
+                print.attribute(attr.getName()).as(field.getName());
             } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
                 final var baseSelect = type instanceof Classification ? "class["+ type.getName() + "]" : "";
                 add2Select4RangeValue(print, field.getName(), attr, baseSelect);
@@ -550,7 +570,13 @@ public abstract class ContentController_Base
                     fieldValue = alterOid;
                 }
             } else if (field.hasEvents(EventType.UI_FIELD_VALUE)) {
-                fieldValue = evalFieldValueEvent(inst, field, valueBldr, fieldValue, currentTargetMode);
+                Instance callInstance;
+                if (type instanceof Classification) {
+                    callInstance = eval.inst(type.getName());
+                } else {
+                    callInstance = inst;
+                }
+                fieldValue = evalFieldValueEvent(callInstance, field, valueBldr, fieldValue, currentTargetMode);
             } else {
                 final var attr = type== null ? null : type.getAttribute(field.getAttribute());
                 if (attr != null) {

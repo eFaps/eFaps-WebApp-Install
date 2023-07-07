@@ -164,14 +164,17 @@ public abstract class AbstractController_Base
         throws EFapsException
     {
         Object ret = fieldValue;
+        final Attribute attr = _instance.getType() == null? null :  _instance.getType().getAttribute(field.getAttribute());
         final var uiValue = RestUIValue.builder()
                         .withInstance(_instance)
                         .withField(field)
+                        .withAttribute(attr)
                         .build();
         for (final Return aReturn : field.executeEvents(EventType.UI_FIELD_VALUE,
                         ParameterValues.ACCESSMODE, targetMode,
                         ParameterValues.UIOBJECT, uiValue,
-                        ParameterValues.OTHERS, fieldValue)) {
+                        ParameterValues.OTHERS, fieldValue,
+                        ParameterValues.CALL_INSTANCE, _instance)) {
             final var values = aReturn.get(ReturnValues.VALUES);
             if (values instanceof List && !((List<?>) values).isEmpty()) {
                 if (((List<?>) values).get(0) instanceof IOption) {
