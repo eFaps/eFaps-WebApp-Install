@@ -155,7 +155,11 @@ public abstract class TableController_Base
             if (field.getAttribute() != null) {
                 add2Select4Attribute(print, field, types);
             } else if (field.getSelect() != null) {
-                print.select(field.getSelect()).as(field.getName());
+                var select = field.getSelect();
+                if (field.getSelect().equals("attribute[Status]")) {
+                    select = "status.label";
+                }
+                print.select(select).as(field.getName());
             } else if (field.getMsgPhrase() != null) {
                 print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName());
             } else if (field.getPhrase() != null) {

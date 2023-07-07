@@ -28,6 +28,7 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.user.Person;
 import org.efaps.admin.user.Person.AttrName;
+import org.efaps.db.Instance;
 import org.efaps.esjp.ui.rest.AbstractController;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -67,6 +68,8 @@ public abstract class AbstractSerializer<T>
             ret = sub.replace(display);
         } else if (_object instanceof Status) {
             ret = ((Status) _object).getLabel();
+        } else if (_object instanceof Instance) {
+            ret = ((Instance) _object).getOid();
         } else {
             ret = _object;
         }

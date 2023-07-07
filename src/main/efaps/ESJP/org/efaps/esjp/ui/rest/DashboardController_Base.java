@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import javax.ws.rs.core.Response;
 
@@ -34,6 +35,7 @@ import org.efaps.esjp.ui.rest.dto.DashboardDto;
 import org.efaps.esjp.ui.rest.dto.DashboardItemDto;
 import org.efaps.esjp.ui.rest.dto.DashboardPageDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetChartDto;
+import org.efaps.esjp.ui.rest.dto.DashboardWidgetChartMetricDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetTableDto;
 import org.efaps.util.EFapsException;
@@ -212,29 +214,31 @@ public abstract class DashboardController_Base
         final var stmt = EQL.getStatement(_widgetDto.getEql());
         final var eval = ((PrintStmt) stmt).evaluate();
 
-        final var groupDefs = Arrays.asList("gb");
-        final var metrics = Arrays.asList("cross");
+        final var groupDefs = _widgetDto.getGroupBy();
+        final var metrics = _widgetDto.getMetrics().stream().map(DashboardWidgetChartMetricDto::getKey)
+                        .collect(Collectors.toList());
         final Map<Object, Map<String, BigDecimal>> groupedValues = new HashMap<>();
         while (eval.next()) {
-            for (final var groupDef: groupDefs) {
-               final var groupBy = eval.get(groupDef);
-               if (!groupedValues.containsKey(groupBy)) {
-                   groupedValues.put(groupBy, new HashMap<>());
-               }
+            for (final var groupDef : groupDefs) {
+                final var groupBy = eval.get(groupDef);
+                if (!groupedValues.containsKey(groupBy)) {
+                    groupedValues.put(groupBy, new HashMap<>());
+                }
 
-               for (final var metric: metrics) {
-                   final var metricValue = eval.get(metric);
-                   final var values = groupedValues.get(groupBy);
-                   if (!values.containsKey(metric)) {
-                       values.put(metric, BigDecimal.ZERO);
-                   }
-                   final var currentValue = values.get(metric);
-                   values.put(metric, currentValue.add((BigDecimal) metricValue));
-               }
+                for (final var metric : metrics) {
+                    var metricValue = eval.get(metric);
+                    if (metricValue == null) {
+                        metricValue = BigDecimal.ZERO;
+                    }
+                    final var values = groupedValues.get(groupBy);
+                    if (!values.containsKey(metric)) {
+                        values.put(metric, BigDecimal.ZERO);
+                    }
+                    final var currentValue = values.get(metric);
+                    values.put(metric, currentValue.add((BigDecimal) metricValue));
+                }
             }
         }
         return groupedValues;
     }
-
-
 }

@@ -673,11 +673,10 @@ public abstract class ContentController_Base
             final var typeMenu = instance.getType().getTypeMenu();
             final var defaultSelected = typeMenu.getCommands().stream().filter(AbstractCommand::isDefaultSelected)
                             .findFirst();
-            final var currentCmd = defaultSelected.isPresent() ? defaultSelected.get() : typeMenu;
 
-            final var targetMenu = currentCmd.getTargetMenu();
+            final var targetMenu = typeMenu.getTargetMenu();
             final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu);
-            final var header = getLabel(instance, currentCmd.getTargetTitle());
+            final var header = getLabel(instance, typeMenu.getTargetTitle());
 
             final List<NavItemDto> navItems = new ArrayList<>();
             navItems.add(NavItemDto.builder()
@@ -706,12 +705,13 @@ public abstract class ContentController_Base
                             .withOid(_oid)
                             .withMenu(menus)
                             .withHeader(header)
-                            .withSections(evalSections(instance, currentCmd))
+                            .withSections(evalSections(instance, typeMenu))
                             .build();
             dto = ContentDto.builder()
                             .withOutline(outline)
                             .withNav(navItems)
-                            .withSelected(currentCmd.getUUID().toString())
+                            .withSelected(defaultSelected.isPresent() ? defaultSelected.get().getUUID().toString()
+                                            : typeMenu.getUUID().toString())
                             .build();
         }
         return Response.ok()
