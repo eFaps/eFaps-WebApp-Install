@@ -114,9 +114,14 @@ public abstract class TableController_Base
                 type = Type.get(typeEntry.getValue());
             }
             typeList.add(type);
-            if (expandChildTypes.containsKey(0) && Boolean.parseBoolean(expandChildTypes.get(0))
-                            || expandChildTypes.containsKey(typeEntry.getKey())
-                                            && Boolean.parseBoolean(expandChildTypes.get(typeEntry.getKey()))) {
+            // default expand for children, if not deactiavted
+            if (types.size() == 1
+                            && (expandChildTypes.size() == 0
+                            || expandChildTypes.size() == 1 && !"false".equalsIgnoreCase(expandChildTypes.get(0)))) {
+                type.getChildTypes().forEach(at -> typeList.add(at));
+            }
+            // if we have more specific ones evaluate for each type
+            if (expandChildTypes.size() > 1 && Boolean.parseBoolean(expandChildTypes.get(typeEntry.getKey()))) {
                 type.getChildTypes().forEach(at -> typeList.add(at));
             }
         }

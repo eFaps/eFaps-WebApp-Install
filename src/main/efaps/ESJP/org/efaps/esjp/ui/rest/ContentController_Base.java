@@ -116,26 +116,28 @@ public abstract class ContentController_Base
     protected List<Classification> classifications;
 
 
-    public List<ISection> evalSections(final Instance _instance,
-                                       final AbstractCommand _cmd)
+    public List<ISection> evalSections(final Instance instance,
+                                       final AbstractCommand cmd)
         throws EFapsException
     {
+        LOG.info("Evaluation sections for  instance: {} and cmd : {}", instance, cmd);
+
         List<ISection> ret = new ArrayList<>();
-        final var targetMode = TargetMode.UNKNOWN.equals(_cmd.getTargetMode()) ? TargetMode.VIEW : _cmd.getTargetMode();
+        final var targetMode = TargetMode.UNKNOWN.equals(cmd.getTargetMode()) ? TargetMode.VIEW : cmd.getTargetMode();
         currentTargetMode = targetMode;
-        mainInstance = _instance;
+        mainInstance = instance;
         final Instance sectionInstance;
-        if (TargetMode.CREATE.equals(targetMode) && _cmd.getTargetCreateType() != null) {
-            sectionInstance = Instance.get(_cmd.getTargetCreateType(), null);
+        if (TargetMode.CREATE.equals(targetMode) && cmd.getTargetCreateType() != null) {
+            sectionInstance = Instance.get(cmd.getTargetCreateType(), null);
         } else {
-            sectionInstance = _instance;
+            sectionInstance = instance;
         }
 
-        final var form = _cmd.getTargetForm();
-        final var table = _cmd.getTargetTable();
+        final var form = cmd.getTargetForm();
+        final var table = cmd.getTargetTable();
         if (form != null) {
             final var print = EQL.builder().print(sectionInstance);
-            final var executable = evalSelects4Form(_cmd, form, print, sectionInstance, null);
+            final var executable = evalSelects4Form(cmd, form, print, sectionInstance, null);
 
             final var eval = executable ? print.evaluate() : null;
             ret = evalSections4Form(form, sectionInstance.getType(), sectionInstance, eval);
@@ -150,7 +152,7 @@ public abstract class ContentController_Base
             final var columns = getColumns(table, currentTargetMode, null);
             ret.add(TableSectionDto.builder()
                             .withColumns(columns)
-                            .withValues(getValues(_cmd, table, _instance))
+                            .withValues(getValues(cmd, table, instance))
                             .build());
         }
         return ret;
@@ -206,6 +208,7 @@ public abstract class ContentController_Base
                                                final Evaluator eval)
         throws CacheReloadException, EFapsException
     {
+        LOG.info("Evaluation sections for form:\n {}, type:\n {}, instance:\n{}, eval:\n {}", form, type, instance, eval);
         final var ret = new ArrayList<ISection>();
         FormSectionDto.Builder currentFormSectionBldr = null;
         var groupCount = 0;

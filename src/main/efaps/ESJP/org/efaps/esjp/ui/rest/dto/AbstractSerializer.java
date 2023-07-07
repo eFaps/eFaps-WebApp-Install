@@ -44,13 +44,14 @@ public abstract class AbstractSerializer<T>
 
     private static final Logger LOG = LoggerFactory.getLogger(AbstractController.class);
 
-    public Object getObjectValue(final Object _object)
+    public Object getObjectValue(final Object object)
     {
+        LOG.info("Serializing: {}", object);
         Object ret;
-        if (_object instanceof Type) {
-            ret = ((Type) _object).getLabel();
-        } else if (_object instanceof Person) {
-            final Person person = (Person) _object;
+        if (object instanceof Type) {
+            ret = ((Type) object).getLabel();
+        } else if (object instanceof Person) {
+            final Person person = (Person) object;
             String display = null;
             try {
                 display = EFapsSystemConfiguration.get().getAttributeValue(KernelSettings.USERUI_DISPLAYPERSON);
@@ -66,12 +67,12 @@ public abstract class AbstractSerializer<T>
             }
             final StringSubstitutor sub = new StringSubstitutor(values);
             ret = sub.replace(display);
-        } else if (_object instanceof Status) {
-            ret = ((Status) _object).getLabel();
-        } else if (_object instanceof Instance) {
-            ret = ((Instance) _object).getOid();
+        } else if (object instanceof Status) {
+            ret = ((Status) object).getLabel();
+        } else if (object instanceof Instance) {
+            ret = ((Instance) object).getOid();
         } else {
-            ret = _object;
+            ret = object;
         }
         return ret;
     }
