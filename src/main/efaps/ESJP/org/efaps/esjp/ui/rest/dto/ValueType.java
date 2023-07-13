@@ -37,5 +37,6 @@ public enum ValueType
     ATTRSET,
     CHECKBOX,
     TEXTAREA,
-    BUTTON
+    BUTTON,
+    CLASSIFICATION
 }

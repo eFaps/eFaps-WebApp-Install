@@ -22,18 +22,23 @@ import java.util.List;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = OutlineDto.Builder.class)
 @EFapsUUID("43ce6e45-afd4-40a8-92db-0944dc859570")
 @EFapsApplication("eFaps-WebApp")
+@JsonInclude(Include.NON_NULL)
 public class OutlineDto
 {
+
     private final String oid;
     private final List<NavItemDto> menu;
     private final String header;
     private final List<ISection> sections;
     private final ActionDto action;
+    private final List<ClassificationDto> classifications;
 
     private OutlineDto(final Builder builder)
     {
@@ -42,6 +47,7 @@ public class OutlineDto
         header = builder.header;
         sections = builder.sections;
         action = builder.action;
+        classifications = builder.classifications;
     }
 
     public String getOid()
@@ -69,8 +75,14 @@ public class OutlineDto
         return action;
     }
 
+    public List<ClassificationDto> getClassifications()
+    {
+        return classifications;
+    }
+
     /**
      * Creates builder to build {@link OutlineDto}.
+     *
      * @return created builder
      */
     public static Builder builder()
@@ -89,6 +101,7 @@ public class OutlineDto
         private String header;
         private List<ISection> sections = Collections.emptyList();
         private ActionDto action;
+        private List<ClassificationDto> classifications = Collections.emptyList();
 
         private Builder()
         {
@@ -121,6 +134,12 @@ public class OutlineDto
         public Builder withAction(final ActionDto action)
         {
             this.action = action;
+            return this;
+        }
+
+        public Builder withClassifications(final List<ClassificationDto> classifications)
+        {
+            this.classifications = classifications;
             return this;
         }
 

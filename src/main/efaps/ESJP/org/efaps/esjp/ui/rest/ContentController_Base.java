@@ -558,7 +558,22 @@ public abstract class ContentController_Base
             fieldValue = evalFieldFormatEvent(inst, field, valueBldr, fieldValue, currentTargetMode);
         } else if ((TargetMode.CREATE.equals(currentTargetMode) || TargetMode.EDIT.equals(currentTargetMode))
                         && field.isEditableDisplay(currentTargetMode)) {
-            if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {
+            if (field instanceof FieldClassification) {
+                valueBldr.withType(ValueType.CLASSIFICATION);
+                final String[] names = field.getClassificationName().split(";");
+                final List<UUID> classifications = new ArrayList<>();
+                for (final var name: names) {
+                    if (UUIDUtil.isUUID(name)) {
+                        classifications.add(UUID.fromString(name));
+                    } else {
+                        final var classification = Classification.get(name);
+                        if (classification != null) {
+                            classifications.add(classification.getUUID());
+                        }
+                    }
+                }
+                fieldValue = classifications;
+            } else if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {
                 valueBldr.withType(ValueType.AUTOCOMPLETE)
                                 .withRef(String.valueOf(field.getId()));
                 final var alterOid = eval == null ? null : eval.get(field.getName() + "_AOID");
@@ -735,6 +750,10 @@ public abstract class ContentController_Base
                             .withMenu(menus)
                             .withHeader(header)
                             .withSections(evalSections(instance, typeMenu))
+                            .withClassifications(this.classifications == null ? null
+                                            : this.classifications.stream()
+                                                            .map(ClassificationController::toDto)
+                                                            .collect(Collectors.toList()))
                             .build();
             dto = ContentDto.builder()
                             .withOutline(outline)
@@ -780,6 +799,10 @@ public abstract class ContentController_Base
                             .withMenu(menus)
                             .withHeader(header)
                             .withSections(evalSections(instance, cmd))
+                            .withClassifications(this.classifications == null ? null
+                                            : this.classifications.stream()
+                                                .map(ClassificationController::toDto)
+                                                            .collect(Collectors.toList()))
                             .withAction(action)
                             .build();
         }
