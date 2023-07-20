@@ -289,7 +289,7 @@ public abstract class AbstractController_Base
     protected UIType getUIType(final Field _field)
     {
         final UIType ret;
-        final String uiTypeStr = _field.getProperty(UIFormFieldProperty.UI_TYPE);
+        final String uiTypeStr = _field.getProperty(UIFormFieldProperty.UI_TYPE.value());
         if (EnumUtils.isValidEnum(UIType.class, uiTypeStr)) {
             ret = UIType.valueOf(uiTypeStr);
         } else {
