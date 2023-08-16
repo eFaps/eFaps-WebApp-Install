@@ -16,18 +16,18 @@
  */
 package org.efaps.esjp.ui.rest;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.Produces;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.esjp.ui.rest.dto.DashboardDto;
 import org.efaps.util.EFapsException;
+
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @EFapsUUID("85b9a699-a2ff-4ad9-8945-0323f003bfdd")
 @EFapsApplication("eFaps-WebApp")
@@ -54,6 +54,7 @@ public class DashboardController
         return super.updateDashboard(_dashboardDto);
     }
 
+    @Override
     @GET
     @Path("/widgets/{widgetId}")
     @Produces({ MediaType.APPLICATION_JSON })

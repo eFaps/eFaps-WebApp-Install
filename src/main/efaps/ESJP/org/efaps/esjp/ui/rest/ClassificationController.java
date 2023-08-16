@@ -21,21 +21,23 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
-import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
 import org.efaps.admin.datamodel.Classification;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.esjp.ui.rest.dto.ClassificationDto;
 import org.efaps.util.EFapsException;
 import org.efaps.util.cache.CacheReloadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @EFapsUUID("ff450297-ad55-4b04-b215-86153588f144")
 @EFapsApplication("eFaps-WebApp")
@@ -59,6 +61,20 @@ public class ClassificationController
 
         return Response.ok()
                         .entity(entity)
+                        .build();
+    }
+
+    @GET
+    @Path("{id}/sections")
+    @Produces({ MediaType.APPLICATION_JSON })
+    public Response getSections4Classification(@PathParam("id") final String uuid) throws EFapsException {
+        final var classification = Classification.get(UUID.fromString(uuid));
+        final var form = classification.getTypeForm();
+        final var content = new ContentController();
+        content.currentTargetMode = TargetMode.CREATE;
+        final var sections = content.evalSections4Form(form, classification, null, null);
+        return Response.ok()
+                        .entity(sections)
                         .build();
     }
 

@@ -21,18 +21,26 @@ public class TableSectionDto
     private final List<ColumnDto> columns;
     private final Collection<Map<String, ?>> values;
     private final boolean editable;
+    private final String ref;
 
     private TableSectionDto(final Builder builder)
     {
         columns = builder.columns;
         values = builder.values;
         editable = builder.editable;
+        ref = builder.ref;
     }
 
     @Override
     public SectionType getType()
     {
         return SectionType.TABLE;
+    }
+
+    @Override
+    public String getRef()
+    {
+        return ref;
     }
 
     public List<ColumnDto> getColumns()
@@ -53,6 +61,7 @@ public class TableSectionDto
 
     /**
      * Creates builder to build {@link TableSectionDto}.
+     *
      * @return created builder
      */
     public static Builder builder()
@@ -69,9 +78,16 @@ public class TableSectionDto
         private List<ColumnDto> columns = Collections.emptyList();
         private Collection<Map<String, ?>> values = Collections.emptyList();
         private boolean editable;
+        private String ref;
 
         private Builder()
         {
+        }
+
+        public Builder withRef(final String ref)
+        {
+            this.ref = ref;
+            return this;
         }
 
         public Builder withColumns(final List<ColumnDto> columns)

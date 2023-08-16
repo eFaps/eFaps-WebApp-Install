@@ -28,10 +28,7 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import javax.ws.rs.core.Response;
-
 import org.apache.commons.lang3.BooleanUtils;
-import org.apache.wicket.RestartResponseException;
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.AttributeSet;
 import org.efaps.admin.datamodel.Classification;
@@ -93,7 +90,6 @@ import org.efaps.esjp.ui.rest.dto.SectionType;
 import org.efaps.esjp.ui.rest.dto.TableSectionDto;
 import org.efaps.esjp.ui.rest.dto.ValueDto;
 import org.efaps.esjp.ui.rest.dto.ValueType;
-import org.efaps.ui.wicket.pages.error.ErrorPage;
 import org.efaps.util.EFapsException;
 import org.efaps.util.UUIDUtil;
 import org.efaps.util.cache.CacheReloadException;
@@ -101,6 +97,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import jakarta.ws.rs.core.Response;
 
 @EFapsUUID("da1c680f-8219-4a93-ab64-d6dbd261dc56")
 @EFapsApplication("eFaps-WebApp")
@@ -115,7 +113,6 @@ public abstract class ContentController_Base
     protected TargetMode currentTargetMode;
     protected List<Classification> classifications;
 
-
     public List<ISection> evalSections(final Instance instance,
                                        final AbstractCommand cmd)
         throws EFapsException
@@ -129,6 +126,9 @@ public abstract class ContentController_Base
         final Instance sectionInstance;
         if (TargetMode.CREATE.equals(targetMode) && cmd.getTargetCreateType() != null) {
             sectionInstance = Instance.get(cmd.getTargetCreateType(), null);
+            if (!mainInstance.isValid()) {
+                mainInstance = sectionInstance;
+            }
         } else {
             sectionInstance = instance;
         }
@@ -164,7 +164,7 @@ public abstract class ContentController_Base
         classifications = new ArrayList<>();
         final var clazzes = mainInstance.getType().getClassifiedByTypes();
         for (final var clazz : clazzes) {
-            if (clazz.isRoot()) {
+            if (clazz.isRoot() && !currentTargetMode.equals(TargetMode.CREATE)) {
                 classifications.addAll(evalClassificationsForInstance(clazz, mainInstance));
             }
         }
@@ -190,7 +190,7 @@ public abstract class ContentController_Base
             ret.addAll(evalSections4Form(form, classification, instance, eval));
         }
         ret.sort((arg0,
-         arg1) -> {
+                  arg1) -> {
             if (SectionType.FORM.equals(arg0.getType()) && SectionType.HEADING.equals(arg1.getType())) {
                 return -1;
             }
@@ -202,13 +202,14 @@ public abstract class ContentController_Base
         return ret;
     }
 
-    protected List<ISection> evalSections4Form(final Form form,
-                                               final Type type,
-                                               final Instance instance,
-                                               final Evaluator eval)
-        throws CacheReloadException, EFapsException
+    public List<ISection> evalSections4Form(final Form form,
+                                            final Type type,
+                                            final Instance instance,
+                                            final Evaluator eval)
+        throws EFapsException
     {
-        LOG.info("Evaluation sections for form:\n {}, type:\n {}, instance:\n{}, eval:\n {}", form, type, instance, eval);
+        LOG.info("Evaluation sections for form:\n {}, type:\n {}, instance:\n{}, eval:\n {}", form, type, instance,
+                        eval);
         final var ret = new ArrayList<ISection>();
         FormSectionDto.Builder currentFormSectionBldr = null;
         var groupCount = 0;
@@ -219,12 +220,15 @@ public abstract class ContentController_Base
                 LOG.warn("Skipped Hidden field {} in form {}", field.getName(), form.getName());
             } else if (!field.isNoneDisplay(currentTargetMode)
                             && field.hasAccess(currentTargetMode, instance, callCmd, instance)) {
-                if (field instanceof FieldGroup) {
-                    final var group = (FieldGroup) field;
+                if (field instanceof final FieldGroup group) {
                     groupCount = group.getGroupCount();
                 } else if (field instanceof FieldTable) {
                     if (currentFormSectionBldr != null) {
-                        ret.add(currentFormSectionBldr.build());
+                        ret.add(currentFormSectionBldr
+                                        .withRef(type instanceof Classification && ret.size() == 0
+                                                        ? type.getUUID().toString()
+                                                        : null)
+                                        .build());
                     }
                     currentFormSectionBldr = null;
                     final var fieldTable = ((FieldTable) field).getTargetTable();
@@ -241,9 +245,17 @@ public abstract class ContentController_Base
                     }
                 } else if (field instanceof FieldHeading) {
                     if (currentHeaderSectionBldr != null) {
-                        ret.add(currentHeaderSectionBldr.build());
+                        ret.add(currentHeaderSectionBldr
+                                        .withRef(type instanceof Classification && ret.size() == 0
+                                                        ? type.getUUID().toString()
+                                                        : null)
+                                        .build());
                     } else if (currentFormSectionBldr != null) {
-                        ret.add(currentFormSectionBldr.build());
+                        ret.add(currentFormSectionBldr
+                                        .withRef(type instanceof Classification && ret.size() == 0
+                                                        ? type.getUUID().toString()
+                                                        : null)
+                                        .build());
                     }
                     currentFormSectionBldr = null;
                     currentHeaderSectionBldr = HeaderSectionDto.builder()
@@ -294,9 +306,13 @@ public abstract class ContentController_Base
             }
         }
         if (currentHeaderSectionBldr != null) {
-            ret.add(currentHeaderSectionBldr.build());
+            ret.add(currentHeaderSectionBldr.withRef(
+                            type instanceof Classification && ret.size() == 0 ? type.getUUID().toString() : null)
+                            .build());
         } else if (currentFormSectionBldr != null) {
-            ret.add(currentFormSectionBldr.build());
+            ret.add(currentFormSectionBldr.withRef(
+                            type instanceof Classification && ret.size() == 0 ? type.getUUID().toString() : null)
+                            .build());
         }
         return ret;
     }
@@ -327,7 +343,7 @@ public abstract class ContentController_Base
                 if (field instanceof FieldClassification) {
                     evalSelects4Class(callCmd, (FieldClassification) field, print, instance);
                 } else if (field instanceof FieldSet) {
-                    final var typeName = clazz == null ?  instance.getType().getName() : clazz.getName();
+                    final var typeName = clazz == null ? instance.getType().getName() : clazz.getName();
                     final var attributeSet = AttributeSet.find(typeName, field.getAttribute());
                     if (attributeSet != null) {
                         add2Selects4AttributeSetInViewMode(print, (FieldSet) field, attributeSet, clazz);
@@ -400,7 +416,7 @@ public abstract class ContentController_Base
             if (attr.getAttributeType().getDbAttrType() instanceof StatusType) {
                 print.status().as(field.getName());
             } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
-                final var baseSelect = type instanceof Classification ? "class["+ type.getName() + "]" : "";
+                final var baseSelect = type instanceof Classification ? "class[" + type.getName() + "]" : "";
                 add2Select4RangeValue(print, field.getName(), attr, baseSelect);
             } else if (type instanceof Classification) {
                 print.clazz(type.getName()).attribute(field.getAttribute()).as(field.getName());
@@ -420,7 +436,7 @@ public abstract class ContentController_Base
             if (attr.getAttributeType().getDbAttrType() instanceof StatusType) {
                 print.attribute(attr.getName()).as(field.getName());
             } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
-                final var baseSelect = type instanceof Classification ? "class["+ type.getName() + "]" : "";
+                final var baseSelect = type instanceof Classification ? "class[" + type.getName() + "]" : "";
                 add2Select4RangeValue(print, field.getName(), attr, baseSelect);
             } else if (type instanceof Classification) {
                 print.clazz(type.getName()).attribute(field.getAttribute()).as(field.getName());
@@ -429,7 +445,6 @@ public abstract class ContentController_Base
             }
         }
     }
-
 
     protected void add2Select4Attribute(final Print _print,
                                         final Field _field,
@@ -562,7 +577,7 @@ public abstract class ContentController_Base
                 valueBldr.withType(ValueType.CLASSIFICATION);
                 final String[] names = field.getClassificationName().split(";");
                 final List<UUID> classifications = new ArrayList<>();
-                for (final var name: names) {
+                for (final var name : names) {
                     if (UUIDUtil.isUUID(name)) {
                         classifications.add(UUID.fromString(name));
                     } else {
@@ -593,7 +608,7 @@ public abstract class ContentController_Base
                 }
                 fieldValue = evalFieldValueEvent(callInstance, field, valueBldr, fieldValue, currentTargetMode);
             } else {
-                final var attr = type== null ? null : type.getAttribute(field.getAttribute());
+                final var attr = type == null ? null : type.getAttribute(field.getAttribute());
                 if (attr != null) {
                     if (attr.hasEvents(EventType.RANGE_VALUE) && !"Status".equals(attr.getAttributeType().getName())) {
                         final var options = getRangeValue(attr, fieldValue, currentTargetMode);
@@ -680,13 +695,13 @@ public abstract class ContentController_Base
                                 }
                                 break;
                             default:
-                                final var valueType =  field.getRows() > 1 ? ValueType.TEXTAREA  :ValueType.INPUT;
+                                final var valueType = field.getRows() > 1 ? ValueType.TEXTAREA : ValueType.INPUT;
                                 valueBldr.withType(valueType);
                                 break;
                         }
                     }
                 } else {
-                    final var valueType =  field.getRows() > 1 ? ValueType.TEXTAREA  :ValueType.INPUT;
+                    final var valueType = field.getRows() > 1 ? ValueType.TEXTAREA : ValueType.INPUT;
                     valueBldr.withType(valueType);
                 }
             }
@@ -801,7 +816,7 @@ public abstract class ContentController_Base
                             .withSections(evalSections(instance, cmd))
                             .withClassifications(this.classifications == null ? null
                                             : this.classifications.stream()
-                                                .map(ClassificationController::toDto)
+                                                            .map(ClassificationController::toDto)
                                                             .collect(Collectors.toList()))
                             .withAction(action)
                             .build();
@@ -812,7 +827,8 @@ public abstract class ContentController_Base
     }
 
     private String getLabel(final Type type,
-                            final Field field) throws CacheReloadException
+                            final Field field)
+        throws CacheReloadException
     {
         String ret = null;
         if (field.getLabel() != null) {
@@ -860,9 +876,9 @@ public abstract class ContentController_Base
                 }
             }
         } catch (final EFapsException e) {
-            throw new RestartResponseException(new ErrorPage(e));
+            LOG.error("Catched", e);
         } catch (final ParseException e) {
-            throw new RestartResponseException(new ErrorPage(e));
+            LOG.error("Catched", e);
         }
         return ret;
     }
@@ -943,7 +959,6 @@ public abstract class ContentController_Base
         }
         return print.evaluate().getData();
     }
-
 
     public List<Classification> evalClassificationsForInstance(final Classification classification,
                                                                final Instance instance)

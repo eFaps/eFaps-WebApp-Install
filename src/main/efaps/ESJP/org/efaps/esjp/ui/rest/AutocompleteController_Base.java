@@ -21,8 +21,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.ws.rs.core.Response;
-
 import org.efaps.admin.event.EventType;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return.ReturnValues;
@@ -32,8 +30,9 @@ import org.efaps.admin.ui.field.Field;
 import org.efaps.esjp.ui.rest.dto.AutocompleteResponseDto;
 import org.efaps.esjp.ui.rest.dto.OptionDto;
 import org.efaps.esjp.ui.rest.dto.PayloadDto;
-import org.efaps.ui.wicket.util.EFapsKey;
 import org.efaps.util.EFapsException;
+
+import jakarta.ws.rs.core.Response;
 
 @EFapsUUID("0f3c95a0-abb6-4c70-9869-5cf9142a3dac")
 @EFapsApplication("eFaps-WebApp")
@@ -61,12 +60,12 @@ public abstract class AutocompleteController_Base
             if (values != null) {
                 values.stream().forEach(val -> {
                     @SuppressWarnings("unchecked") final var map = (Map<String, String>) val;
-                    final var label = map.containsKey(EFapsKey.AUTOCOMPLETE_CHOICE.getKey())
-                                    ? map.get(EFapsKey.AUTOCOMPLETE_CHOICE.getKey())
-                                    : map.get(EFapsKey.AUTOCOMPLETE_VALUE.getKey());
+                    final var label = map.containsKey("eFapsAutoCompleteCHOICE")
+                                    ? map.get("eFapsAutoCompleteCHOICE")
+                                    : map.get("eFapsAutoCompleteVALUE");
                     options.add(OptionDto.builder()
                                     .withLabel(label)
-                                    .withValue(map.get(EFapsKey.AUTOCOMPLETE_KEY.getKey()))
+                                    .withValue(map.get("eFapsAutoCompleteKEY"))
                                     .build());
                 });
             }

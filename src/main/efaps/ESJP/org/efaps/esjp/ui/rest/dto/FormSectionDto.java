@@ -29,16 +29,24 @@ public class FormSectionDto
 {
 
     private final List<Object> items;
+    private final String ref;
 
     private FormSectionDto(final Builder builder)
     {
         items = builder.items;
+        ref = builder.ref;
     }
 
     @Override
     public SectionType getType()
     {
         return SectionType.FORM;
+    }
+
+    @Override
+    public String getRef()
+    {
+        return ref;
     }
 
     public List<Object> getItems()
@@ -48,6 +56,7 @@ public class FormSectionDto
 
     /**
      * Creates builder to build {@link FormSectionDto}.
+     *
      * @return created builder
      */
     public static Builder builder()
@@ -62,6 +71,7 @@ public class FormSectionDto
     {
 
         private List<Object> items = new ArrayList<>();
+        private String ref;
 
         private Builder()
         {
@@ -73,8 +83,15 @@ public class FormSectionDto
             return this;
         }
 
-        public Builder addItem(final Object item) {
+        public Builder addItem(final Object item)
+        {
             items.add(item);
+            return this;
+        }
+
+        public Builder withRef(final String ref)
+        {
+            this.ref = ref;
             return this;
         }
 

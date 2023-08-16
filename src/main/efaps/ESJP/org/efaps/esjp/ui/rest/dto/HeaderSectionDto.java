@@ -31,18 +31,26 @@ public class HeaderSectionDto
     private final String header;
     private final int level;
     private final List<ISection> sections;
+    private final String ref;
 
     private HeaderSectionDto(final Builder builder)
     {
         header = builder.header;
         level = builder.level;
         sections = builder.getSections();
+        ref = builder.ref;
     }
 
     @Override
     public SectionType getType()
     {
         return SectionType.HEADING;
+    }
+
+    @Override
+    public String getRef()
+    {
+        return ref;
     }
 
     public String getHeader()
@@ -79,9 +87,16 @@ public class HeaderSectionDto
         private String header;
         private int level;
         private List<Object> sections;
+        private String ref;
 
         private Builder()
         {
+        }
+
+        public Builder withRef(final String ref)
+        {
+            this.ref = ref;
+            return this;
         }
 
         public Builder withHeader(final String header)
@@ -111,7 +126,8 @@ public class HeaderSectionDto
             return this;
         }
 
-        protected  List<ISection> getSections() {
+        protected List<ISection> getSections()
+        {
             final List<ISection> tempSections = new ArrayList<>();
             sections.stream().forEach(section -> {
                 tempSections.add((ISection) section);

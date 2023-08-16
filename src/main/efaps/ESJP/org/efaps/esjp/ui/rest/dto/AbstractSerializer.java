@@ -29,7 +29,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.user.Person;
 import org.efaps.admin.user.Person.AttrName;
 import org.efaps.db.Instance;
-import org.efaps.esjp.ui.rest.AbstractController;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,16 +41,15 @@ public abstract class AbstractSerializer<T>
     extends JsonSerializer<T>
 {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractSerializer.class);
 
     public Object getObjectValue(final Object object)
     {
-        LOG.info("Serializing: {}", object);
+        LOG.debug("Serializing: {}", object);
         Object ret;
         if (object instanceof Type) {
             ret = ((Type) object).getLabel();
-        } else if (object instanceof Person) {
-            final Person person = (Person) object;
+        } else if (object instanceof final Person person) {
             String display = null;
             try {
                 display = EFapsSystemConfiguration.get().getAttributeValue(KernelSettings.USERUI_DISPLAYPERSON);

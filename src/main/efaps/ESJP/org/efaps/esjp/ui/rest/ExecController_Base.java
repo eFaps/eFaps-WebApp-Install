@@ -24,8 +24,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-import javax.ws.rs.core.Response;
-
+import org.efaps.admin.datamodel.Classification;
 import org.efaps.admin.event.EventType;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
@@ -38,8 +37,11 @@ import org.efaps.db.Instance;
 import org.efaps.esjp.ui.rest.dto.ExecResponseDto;
 import org.efaps.esjp.ui.rest.dto.PayloadDto;
 import org.efaps.util.EFapsException;
+import org.efaps.util.cache.CacheReloadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.ws.rs.core.Response;
 
 @EFapsUUID("29e9c73d-a4ec-4f20-a8ad-b213b0db1afe")
 @EFapsApplication("eFaps-WebApp")
@@ -104,7 +106,7 @@ public abstract class ExecController_Base
                         @Override
                         public long getSize()
                         {
-                            return  file.length();
+                            return file.length();
                         }
                     });
                 }
@@ -135,6 +137,8 @@ public abstract class ExecController_Base
             paraValues.add(ParameterValues.OTHERS);
             paraValues.add(parameters.get("eFapsSelectedOids"));
         }
+        evalClassifications(dto, paraValues);
+
         cmd.executeEvents(EventType.UI_COMMAND_EXECUTE, paraValues.toArray());
         final var response = ExecResponseDto.builder()
                         .withReload(!cmd.isNoUpdateAfterCmd())
@@ -144,5 +148,22 @@ public abstract class ExecController_Base
                         .entity(response)
                         .build();
         return ret;
+    }
+
+    protected void evalClassifications(final PayloadDto dto,
+                                       final ArrayList<Object> paraValues)
+    {
+        if (dto.getValues().containsKey("eFapsClassifications")) {
+            paraValues.add(ParameterValues.CLASSIFICATIONS);
+            final List<String> uuids = (List<String>) dto.getValues().get("eFapsClassifications");
+            paraValues.add(uuids.stream().map(uuid -> {
+                try {
+                    return Classification.get(UUID.fromString(uuid));
+                } catch (final CacheReloadException e) {
+                    LOG.error("Catched", e);
+                }
+                return null;
+            }).toList());
+        }
     }
 }

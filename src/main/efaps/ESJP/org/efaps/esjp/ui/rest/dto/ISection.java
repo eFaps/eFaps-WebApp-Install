@@ -24,4 +24,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 public interface ISection
 {
     SectionType getType();
+
+    String getRef();
 }
