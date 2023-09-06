@@ -216,7 +216,9 @@ public abstract class ContentController_Base
         var currentValues = new ArrayList<>();
         HeaderSectionDto.Builder currentHeaderSectionBldr = null;
         for (final Field field : form.getFields()) {
-            if (field.isHiddenDisplay(currentTargetMode)) {
+            if (TargetMode.VIEW.equals(currentTargetMode) && field instanceof FieldClassification) {
+                LOG.debug("Skipped Classification field {} in form {}", field.getName(), form.getName());
+            } else if (field.isHiddenDisplay(currentTargetMode)) {
                 LOG.warn("Skipped Hidden field {} in form {}", field.getName(), form.getName());
             } else if (!field.isNoneDisplay(currentTargetMode)
                             && field.hasAccess(currentTargetMode, instance, callCmd, instance)) {
