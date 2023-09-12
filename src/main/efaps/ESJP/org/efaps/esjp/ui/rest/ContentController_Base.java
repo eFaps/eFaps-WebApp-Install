@@ -83,6 +83,7 @@ import org.efaps.esjp.ui.rest.dto.ContentDto;
 import org.efaps.esjp.ui.rest.dto.FormSectionDto;
 import org.efaps.esjp.ui.rest.dto.HeaderSectionDto;
 import org.efaps.esjp.ui.rest.dto.ISection;
+import org.efaps.esjp.ui.rest.dto.ModuleDto;
 import org.efaps.esjp.ui.rest.dto.NavItemDto;
 import org.efaps.esjp.ui.rest.dto.OptionDto;
 import org.efaps.esjp.ui.rest.dto.OutlineDto;
@@ -789,12 +790,25 @@ public abstract class ContentController_Base
         throws EFapsException
     {
         LOG.info("Get content for oid: {} and cmdId: {}", oid, cmdId);
-        OutlineDto dto = null;
+
         final var instance = Instance.get(oid);
         AbstractCommand cmd = Command.get(UUID.fromString(cmdId));
         if (cmd == null) {
             cmd = Menu.get(UUID.fromString(cmdId));
         }
+        if (cmd.getTargetModule() != null) {
+            final var module = cmd.getTargetModule();
+            final var dto = ModuleDto.builder()
+                .withId(module.getUUID().toString())
+                .withKey(module.getProperty("ModuleKey"))
+                .withTargetMode(cmd.getTargetMode())
+                .build();
+            return Response.ok()
+                            .entity(dto)
+                            .build();
+        }
+
+        OutlineDto dto = null;
         if (instance.isValid() || cmd.getTargetMode().equals(TargetMode.CREATE)
                         || cmd.getTargetMode().equals(TargetMode.UNKNOWN)) {
             final var targetMenu = cmd.getTargetMenu();

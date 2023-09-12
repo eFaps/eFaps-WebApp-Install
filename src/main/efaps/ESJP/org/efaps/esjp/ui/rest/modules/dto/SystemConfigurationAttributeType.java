@@ -1,0 +1,27 @@
+/*
+ * Copyright 2003 - 2023 The eFaps Team
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ *
+ */
+package org.efaps.esjp.ui.rest.modules.dto;
+
+import org.efaps.admin.program.esjp.EFapsApplication;
+import org.efaps.admin.program.esjp.EFapsUUID;
+
+@EFapsUUID("33b5647d-2e2d-4441-bde2-ffd47e144bfd")
+@EFapsApplication("eFaps-WebApp")
+public enum SystemConfigurationAttributeType
+{
+    BOOLEAN, UNDEFINED, PROPERTIES, STRING, LIST, INTEGER;
+}

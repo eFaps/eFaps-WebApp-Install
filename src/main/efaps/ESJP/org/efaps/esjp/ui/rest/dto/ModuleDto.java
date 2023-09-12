@@ -16,50 +16,49 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
-import java.util.UUID;
-
+import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
-@JsonDeserialize(builder = CompanyDto.Builder.class)
-@EFapsUUID("271067ff-2afc-4c25-93b8-372ffb5eddda")
+@JsonDeserialize(builder = ModuleDto.Builder.class)
+@EFapsUUID("86cb6dc7-890a-4282-923e-45d6806a11ab")
 @EFapsApplication("eFaps-WebApp")
-public class CompanyDto
+public class ModuleDto
 {
 
-    private final String name;
-    private final String oid;
-    private final UUID uuid;
-    private final boolean current;
+    private final String id;
+    private final String key;
+    private final TargetMode targetMode;
 
-    private CompanyDto(Builder builder)
+    private ModuleDto(Builder builder)
     {
-        this.name = builder.name;
-        this.oid = builder.oid;
-        this.uuid = builder.uuid;
-        this.current = builder.current;
+        this.id = builder.id;
+        this.key = builder.key;
+        this.targetMode = builder.targetMode;
     }
 
-    public boolean isCurrent()
+    public String getId()
     {
-        return current;
+        return id;
     }
 
-    public String getName()
+    public String getKey()
     {
-        return name;
+        return key;
     }
 
-    public String getOid()
+    public TargetMode getTargetMode()
     {
-        return oid;
+        return targetMode;
     }
 
-    public UUID getUuid()
+    @Override
+    public String toString()
     {
-        return uuid;
+        return ToStringBuilder.reflectionToString(this);
     }
 
     public static Builder builder()
@@ -70,42 +69,35 @@ public class CompanyDto
     public static final class Builder
     {
 
-        private String name;
-        private String oid;
-        private UUID uuid;
-        private boolean current;
+        private String id;
+        private String key;
+        private TargetMode targetMode;
 
         private Builder()
         {
         }
 
-        public Builder withName(String name)
+        public Builder withId(String id)
         {
-            this.name = name;
+            this.id = id;
             return this;
         }
 
-        public Builder withOid(String oid)
+        public Builder withKey(String key)
         {
-            this.oid = oid;
+            this.key = key;
             return this;
         }
 
-        public Builder withUuid(UUID uuid)
+        public Builder withTargetMode(TargetMode targetMode)
         {
-            this.uuid = uuid;
+            this.targetMode = targetMode;
             return this;
         }
 
-        public Builder withCurrent(boolean current)
+        public ModuleDto build()
         {
-            this.current = current;
-            return this;
-        }
-
-        public CompanyDto build()
-        {
-            return new CompanyDto(this);
+            return new ModuleDto(this);
         }
     }
 }

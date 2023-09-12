@@ -16,15 +16,15 @@
  */
 package org.efaps.esjp.ui.rest;
 
+import org.efaps.admin.program.esjp.EFapsApplication;
+import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.util.EFapsException;
+
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
-
-import org.efaps.admin.program.esjp.EFapsApplication;
-import org.efaps.admin.program.esjp.EFapsUUID;
-import org.efaps.util.EFapsException;
 
 @EFapsUUID("0f520538-106b-4b94-95be-c4ab619474f7")
 @EFapsApplication("eFaps-WebApp")
@@ -41,5 +41,15 @@ public class UserController
         throws EFapsException
     {
         return super.getCurrent();
+    }
+
+    @Override
+    @GET
+    @Path("/companies")
+    @Produces({ MediaType.APPLICATION_JSON })
+    public Response getCompanies()
+        throws EFapsException
+    {
+        return super.getCompanies();
     }
 }
