@@ -717,6 +717,15 @@ public abstract class ContentController_Base
         if (field.hasEvents(EventType.UI_FIELD_UPDATE)) {
             valueBldr.withUpdateRef(String.valueOf(field.getId()));
         }
+        if (fieldValue != null && TargetMode.VIEW.equals(currentTargetMode) && field.getReference() != null) {
+            final var alternativeOid = eval.<String>get(field.getName() + "_AOID");
+            if (alternativeOid != null) {
+                valueBldr.withNavRef(alternativeOid);
+            } else {
+                valueBldr.withNavRef(eval.inst().getOid());
+            }
+        }
+
         return valueBldr.withLabel(getLabel(type, field))
                         .withName(field.getName())
                         .withValue(fieldValue)

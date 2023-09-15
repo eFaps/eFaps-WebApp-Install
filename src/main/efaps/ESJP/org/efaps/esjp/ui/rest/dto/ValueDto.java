@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2020 The eFaps Team
+ * Copyright 2003 - 2023 The eFaps Team
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -40,17 +40,19 @@ public class ValueDto
     private final List<OptionDto> options;
     private final boolean required;
     private final String updateRef;
+    private final String navRef;
 
     private ValueDto(final Builder builder)
     {
-        type = builder.type;
-        name = builder.name;
-        label = builder.label;
-        value = builder.value;
-        ref = builder.ref;
-        options = builder.options;
-        required = builder.required;
-        updateRef = builder.updateRef;
+        this.type = builder.type;
+        this.name = builder.name;
+        this.label = builder.label;
+        this.value = builder.value;
+        this.ref = builder.ref;
+        this.options = builder.options;
+        this.required = builder.required;
+        this.updateRef = builder.updateRef;
+        this.navRef = builder.navRef;
     }
 
     public String getLabel()
@@ -94,46 +96,94 @@ public class ValueDto
         return required;
     }
 
+    public String getNavRef()
+    {
+        return navRef;
+    }
+
     @Override
     public String toString()
     {
         return ToStringBuilder.reflectionToString(this);
     }
 
-    /**
-     * Creates builder to build {@link ValueDto}.
-     *
-     * @return created builder
-     */
     public static Builder builder()
     {
         return new Builder();
     }
 
-    /**
-     * Builder to build {@link ValueDto}.
-     */
     public static final class Builder
         implements IFieldBuilder
     {
 
         private ValueType type;
-
         private String name;
-
         private String label;
         private Object value;
         private String ref;
         private List<OptionDto> options = Collections.emptyList();
         private boolean required;
         private String updateRef;
+        private String navRef;
+
         private Builder()
         {
         }
 
-        public ValueDto build()
+        @Override
+        public Builder withType(ValueType type)
         {
-            return new ValueDto(this);
+            this.type = type;
+            return this;
+        }
+
+        public Builder withName(String name)
+        {
+            this.name = name;
+            return this;
+        }
+
+        public Builder withLabel(String label)
+        {
+            this.label = label;
+            return this;
+        }
+
+        public Builder withValue(Object value)
+        {
+            this.value = value;
+            return this;
+        }
+
+        public Builder withRef(String ref)
+        {
+            this.ref = ref;
+            return this;
+        }
+
+        @Override
+        public Builder withOptions(List<OptionDto> options)
+        {
+            this.options = options;
+            return this;
+        }
+
+        public Builder withRequired(boolean required)
+        {
+            this.required = required;
+            return this;
+        }
+
+        public Builder withUpdateRef(String updateRef)
+        {
+            this.updateRef = updateRef;
+            return this;
+        }
+
+        public Builder withNavRef(String navRef)
+        {
+            this.navRef = navRef;
+            return this;
         }
 
         public ValueType getType()
@@ -141,54 +191,9 @@ public class ValueDto
             return type;
         }
 
-        public Builder withLabel(final String label)
+        public ValueDto build()
         {
-            this.label = label;
-            return this;
-        }
-
-        public Builder withName(final String name)
-        {
-            this.name = name;
-            return this;
-        }
-
-        @Override
-        public Builder withOptions(final List<OptionDto> options)
-        {
-            this.options = options;
-            return this;
-        }
-
-        public Builder withRef(final String ref)
-        {
-            this.ref = ref;
-            return this;
-        }
-
-        public Builder withRequired(final boolean required)
-        {
-            this.required = required;
-            return this;
-        }
-
-        @Override
-        public Builder withType(final ValueType type)
-        {
-            this.type = type;
-            return this;
-        }
-
-        public Builder withUpdateRef(final String updateRef)
-        {
-            this.updateRef = updateRef;
-            return this;
-        }
-
-        public Builder withValue(final Object value)
-        {
-            this.value = value;
-            return this;
+            return new ValueDto(this);
         }
     }
 }
