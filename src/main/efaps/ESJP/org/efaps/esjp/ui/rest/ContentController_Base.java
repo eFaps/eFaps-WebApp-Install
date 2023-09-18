@@ -808,10 +808,10 @@ public abstract class ContentController_Base
         if (cmd.getTargetModule() != null) {
             final var module = cmd.getTargetModule();
             final var dto = ModuleDto.builder()
-                .withId(module.getUUID().toString())
-                .withKey(module.getProperty("ModuleKey"))
-                .withTargetMode(cmd.getTargetMode())
-                .build();
+                            .withId(module.getUUID().toString())
+                            .withKey(module.getProperty("ModuleKey"))
+                            .withTargetMode(cmd.getTargetMode())
+                            .build();
             return Response.ok()
                             .entity(dto)
                             .build();
@@ -948,41 +948,47 @@ public abstract class ContentController_Base
                                                 final Instance _instance)
         throws EFapsException
     {
-        final var fields = getFields(_table);
-        final var typeList = evalTypes(_cmd);
-        final var types = typeList.stream().map(Type::getName).toArray(String[]::new);
+        Collection<Map<String, ?>> ret;
+        if (TargetMode.CREATE.equals(this.currentTargetMode)) {
+            ret = new ArrayList<>();
+        } else {
+            final var fields = getFields(_table);
+            final var typeList = evalTypes(_cmd);
+            final var types = typeList.stream().map(Type::getName).toArray(String[]::new);
 
-        final var propertiesMap = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
-        if (propertiesMap.containsKey("InstanceSelect")) {
-            LOG.warn("doe not work with InstanceSelect yet..");
-        }
-
-        final var query = EQL.builder()
-                        .print()
-                        .query(types);
-
-        if (propertiesMap.containsKey("LinkFrom")) {
-            final var linkfromAttr = propertiesMap.get("LinkFrom");
-            query.where().attr(linkfromAttr).eq(_instance);
-        }
-        final var print = query.select();
-
-        if (fields.stream().anyMatch(field -> field.getReference() != null)) {
-            print.oid().as("OID");
-        }
-        for (final var field : fields) {
-            if (field.getAttribute() != null) {
-                add2Select4Attribute(print, field, typeList, null);
-            } else if (field.getSelect() != null) {
-                print.select(field.getSelect()).as(field.getName());
-            } else if (field.getMsgPhrase() != null) {
-                print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName());
+            final var propertiesMap = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
+            if (propertiesMap.containsKey("InstanceSelect")) {
+                LOG.warn("doe not work with InstanceSelect yet..");
             }
-            if (field.getSelectAlternateOID() != null) {
-                print.select(field.getSelectAlternateOID()).as(field.getName() + "_AOID");
+
+            final var query = EQL.builder()
+                            .print()
+                            .query(types);
+
+            if (propertiesMap.containsKey("LinkFrom")) {
+                final var linkfromAttr = propertiesMap.get("LinkFrom");
+                query.where().attr(linkfromAttr).eq(_instance);
             }
+            final var print = query.select();
+
+            if (fields.stream().anyMatch(field -> field.getReference() != null)) {
+                print.oid().as("OID");
+            }
+            for (final var field : fields) {
+                if (field.getAttribute() != null) {
+                    add2Select4Attribute(print, field, typeList, null);
+                } else if (field.getSelect() != null) {
+                    print.select(field.getSelect()).as(field.getName());
+                } else if (field.getMsgPhrase() != null) {
+                    print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName());
+                }
+                if (field.getSelectAlternateOID() != null) {
+                    print.select(field.getSelectAlternateOID()).as(field.getName() + "_AOID");
+                }
+            }
+            ret = print.evaluate().getData();
         }
-        return print.evaluate().getData();
+        return ret;
     }
 
     public List<Classification> evalClassificationsForInstance(final Classification classification,

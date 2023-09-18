@@ -23,6 +23,7 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.api.annotation.EFapsSysConfAttribute;
 import org.efaps.api.annotation.EFapsSystemConfiguration;
+import org.efaps.esjp.admin.common.systemconfiguration.BooleanSysConfAttribute;
 import org.efaps.esjp.admin.common.systemconfiguration.StringSysConfAttribute;
 import org.efaps.util.cache.CacheReloadException;
 
@@ -44,6 +45,13 @@ public class WebApp
                     .key(BASE + "MainToolBar")
                     .defaultValue("87001cc3-c45c-44de-b8f1-776df507f268")
                     .description("MainToolbar to be used by the SPA");
+
+    @EFapsSysConfAttribute
+    public static final BooleanSysConfAttribute DASHBOARD_ACTIVE = new BooleanSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "dashboard.Active")
+                    .defaultValue(false)
+                    .description("Activate the dashboard");
 
     /**
      * @return the SystemConfigruation for Sales

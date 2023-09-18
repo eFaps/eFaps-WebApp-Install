@@ -36,6 +36,7 @@ import org.efaps.esjp.ui.rest.dto.DashboardWidgetChartDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetChartMetricDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetTableDto;
+import org.efaps.esjp.ui.util.WebApp;
 import org.efaps.util.EFapsException;
 import org.efaps.util.RandomUtil;
 import org.slf4j.Logger;
@@ -59,22 +60,28 @@ public abstract class DashboardController_Base
     public Response getDashboard()
         throws EFapsException
     {
-        final var userAttributesSet = new UserAttributesSet(Context.getThreadContext().getPersonId());
-        final var dashboardStr = userAttributesSet.getString(KEY);
-        DashboardDto dto = null;
-        if (dashboardStr == null) {
-            dto = getDefaultDashboard();
-        } else {
-            final var mapper = getObjectMapper();
-            try {
-                dto = mapper.readValue(dashboardStr, DashboardDto.class);
-            } catch (final JsonProcessingException e) {
-                LOG.error("Catched: ", e);
+        Response response;
+        if (WebApp.DASHBOARD_ACTIVE.get()) {
+            final var userAttributesSet = new UserAttributesSet(Context.getThreadContext().getPersonId());
+            final var dashboardStr = userAttributesSet.getString(KEY);
+            DashboardDto dto = null;
+            if (dashboardStr == null) {
+                dto = getDefaultDashboard();
+            } else {
+                final var mapper = getObjectMapper();
+                try {
+                    dto = mapper.readValue(dashboardStr, DashboardDto.class);
+                } catch (final JsonProcessingException e) {
+                    LOG.error("Catched: ", e);
+                }
             }
+            response = Response.ok()
+                            .entity(dto)
+                            .build();
+        } else {
+            response = Response.ok().build();
         }
-        return Response.ok()
-                        .entity(dto)
-                        .build();
+        return response;
     }
 
     protected DashboardDto getDefaultDashboard()
@@ -114,8 +121,8 @@ public abstract class DashboardController_Base
         throws EFapsException
     {
         _dashboardDto.getPages().stream()
-            .flatMap(page -> page.getItems().stream())
-            .forEach(item -> persistWidget(item.getWidget()));
+                        .flatMap(page -> page.getItems().stream())
+                        .forEach(item -> persistWidget(item.getWidget()));
 
         final var mapper = getObjectMapper();
         try {
