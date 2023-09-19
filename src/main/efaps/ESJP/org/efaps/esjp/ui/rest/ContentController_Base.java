@@ -114,6 +114,121 @@ public abstract class ContentController_Base
     protected TargetMode currentTargetMode;
     protected List<Classification> classifications;
 
+    public Response getContent(final String _oid)
+        throws EFapsException
+    {
+        LOG.info("Get content for oid: {}", _oid);
+
+        ContentDto dto = null;
+        final var instance = Instance.get(_oid);
+        if (instance.isValid()) {
+
+            final var typeMenu = instance.getType().getTypeMenu();
+            final var defaultSelected = typeMenu.getCommands().stream().filter(AbstractCommand::isDefaultSelected)
+                            .findFirst();
+
+            final var targetMenu = typeMenu.getTargetMenu();
+            final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu);
+            final var header = getLabel(instance, typeMenu.getTargetTitle());
+
+            final List<NavItemDto> navItems = new ArrayList<>();
+            navItems.add(NavItemDto.builder()
+                            .withId(typeMenu.getUUID().toString())
+                            .withLabel(getLabel(instance, typeMenu.getLabel()))
+                            .withAction(ActionDto.builder()
+                                            .withType(ActionType.FORM)
+                                            .build())
+                            .build());
+            for (final var command : typeMenu.getCommands()) {
+                ActionType actionType = null;
+                if (command.getTargetTable() != null) {
+                    actionType = ActionType.GRID;
+                } else if (command.getTargetForm() != null) {
+                    actionType = ActionType.FORM;
+                }
+                navItems.add(NavItemDto.builder()
+                                .withId(command.getUUID().toString())
+                                .withLabel(command.getLabelProperty())
+                                .withAction(ActionDto.builder()
+                                                .withType(actionType)
+                                                .build())
+                                .build());
+            }
+            final var outline = OutlineDto.builder()
+                            .withOid(_oid)
+                            .withMenu(menus)
+                            .withHeader(header)
+                            .withSections(evalSections(instance, typeMenu))
+                            .withClassifications(this.classifications == null ? null
+                                            : this.classifications.stream()
+                                                            .map(ClassificationController::toDto)
+                                                            .collect(Collectors.toList()))
+                            .build();
+            dto = ContentDto.builder()
+                            .withOutline(outline)
+                            .withNav(navItems)
+                            .withSelected(defaultSelected.isPresent() ? defaultSelected.get().getUUID().toString()
+                                            : typeMenu.getUUID().toString())
+                            .build();
+        }
+        return Response.ok()
+                        .entity(dto)
+                        .build();
+    }
+
+    public Response getContent(final String oid,
+                               final String cmdId)
+        throws EFapsException
+    {
+        LOG.info("Get content for oid: {} and cmdId: {}", oid, cmdId);
+
+        final var instance = Instance.get(oid);
+        AbstractCommand cmd = Command.get(UUID.fromString(cmdId));
+        if (cmd == null) {
+            cmd = Menu.get(UUID.fromString(cmdId));
+        }
+        if (cmd.getTargetModule() != null) {
+            final var module = cmd.getTargetModule();
+            final var dto = ModuleDto.builder()
+                            .withId(module.getUUID().toString())
+                            .withKey(module.getProperty("ModuleKey"))
+                            .withTargetMode(cmd.getTargetMode())
+                            .build();
+            return Response.ok()
+                            .entity(dto)
+                            .build();
+        }
+
+        final var targetMenu = cmd.getTargetMenu();
+        final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu);
+        final var header = getLabel(instance, cmd.getTargetTitle());
+        ActionDto action = null;
+        if (cmd.getTargetMode().equals(TargetMode.CREATE) && cmd.hasEvents(EventType.UI_COMMAND_EXECUTE)) {
+            action = ActionDto.builder()
+                            .withLabel(DBProperties.getProperty("default.Button.Create"))
+                            .build();
+        } else if (cmd.getTargetMode().equals(TargetMode.EDIT) && cmd.hasEvents(EventType.UI_COMMAND_EXECUTE)) {
+            action = ActionDto.builder()
+                            .withLabel(DBProperties.getProperty("default.Button.Edit"))
+                            .build();
+        }
+        final var dto = OutlineDto.builder()
+                        .withOid(oid)
+                        .withMenu(menus)
+                        .withHeader(header)
+                        .withSections(evalSections(instance, cmd))
+                        .withClassifications(this.classifications == null ? null
+                                        : this.classifications.stream()
+                                                        .map(ClassificationController::toDto)
+                                                        .collect(Collectors.toList()))
+                        .withAction(action)
+                        .build();
+
+        return Response.ok()
+                        .entity(dto)
+                        .build();
+    }
+
     public List<ISection> evalSections(final Instance instance,
                                        final AbstractCommand cmd)
         throws EFapsException
@@ -729,125 +844,6 @@ public abstract class ContentController_Base
         return valueBldr.withLabel(getLabel(type, field))
                         .withName(field.getName())
                         .withValue(fieldValue)
-                        .build();
-    }
-
-    public Response getContent(final String _oid)
-        throws EFapsException
-    {
-        LOG.info("Get content for oid: {}", _oid);
-
-        ContentDto dto = null;
-        final var instance = Instance.get(_oid);
-        if (instance.isValid()) {
-
-            final var typeMenu = instance.getType().getTypeMenu();
-            final var defaultSelected = typeMenu.getCommands().stream().filter(AbstractCommand::isDefaultSelected)
-                            .findFirst();
-
-            final var targetMenu = typeMenu.getTargetMenu();
-            final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu);
-            final var header = getLabel(instance, typeMenu.getTargetTitle());
-
-            final List<NavItemDto> navItems = new ArrayList<>();
-            navItems.add(NavItemDto.builder()
-                            .withId(typeMenu.getUUID().toString())
-                            .withLabel(getLabel(instance, typeMenu.getLabel()))
-                            .withAction(ActionDto.builder()
-                                            .withType(ActionType.FORM)
-                                            .build())
-                            .build());
-            for (final var command : typeMenu.getCommands()) {
-                ActionType actionType = null;
-                if (command.getTargetTable() != null) {
-                    actionType = ActionType.GRID;
-                } else if (command.getTargetForm() != null) {
-                    actionType = ActionType.FORM;
-                }
-                navItems.add(NavItemDto.builder()
-                                .withId(command.getUUID().toString())
-                                .withLabel(command.getLabelProperty())
-                                .withAction(ActionDto.builder()
-                                                .withType(actionType)
-                                                .build())
-                                .build());
-            }
-            final var outline = OutlineDto.builder()
-                            .withOid(_oid)
-                            .withMenu(menus)
-                            .withHeader(header)
-                            .withSections(evalSections(instance, typeMenu))
-                            .withClassifications(this.classifications == null ? null
-                                            : this.classifications.stream()
-                                                            .map(ClassificationController::toDto)
-                                                            .collect(Collectors.toList()))
-                            .build();
-            dto = ContentDto.builder()
-                            .withOutline(outline)
-                            .withNav(navItems)
-                            .withSelected(defaultSelected.isPresent() ? defaultSelected.get().getUUID().toString()
-                                            : typeMenu.getUUID().toString())
-                            .build();
-        }
-        return Response.ok()
-                        .entity(dto)
-                        .build();
-    }
-
-    public Response getContent(final String oid,
-                               final String cmdId)
-        throws EFapsException
-    {
-        LOG.info("Get content for oid: {} and cmdId: {}", oid, cmdId);
-
-        final var instance = Instance.get(oid);
-        AbstractCommand cmd = Command.get(UUID.fromString(cmdId));
-        if (cmd == null) {
-            cmd = Menu.get(UUID.fromString(cmdId));
-        }
-        if (cmd.getTargetModule() != null) {
-            final var module = cmd.getTargetModule();
-            final var dto = ModuleDto.builder()
-                            .withId(module.getUUID().toString())
-                            .withKey(module.getProperty("ModuleKey"))
-                            .withTargetMode(cmd.getTargetMode())
-                            .build();
-            return Response.ok()
-                            .entity(dto)
-                            .build();
-        }
-
-        OutlineDto dto = null;
-        if (instance.isValid() || cmd.getTargetMode().equals(TargetMode.CREATE)
-                        || cmd.getTargetMode().equals(TargetMode.UNKNOWN)) {
-            final var targetMenu = cmd.getTargetMenu();
-            final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu);
-            final var header = getLabel(instance, cmd.getTargetTitle());
-            ActionDto action = null;
-            if (cmd.getTargetMode().equals(TargetMode.CREATE) && cmd.hasEvents(EventType.UI_COMMAND_EXECUTE)) {
-                action = ActionDto.builder()
-                                .withLabel(DBProperties.getProperty("default.Button.Create"))
-                                .build();
-            } else if (cmd.getTargetMode().equals(TargetMode.EDIT) && cmd.hasEvents(EventType.UI_COMMAND_EXECUTE)) {
-                action = ActionDto.builder()
-                                .withLabel(DBProperties.getProperty("default.Button.Edit"))
-                                .build();
-            }
-
-            dto = OutlineDto.builder()
-                            .withOid(oid)
-                            .withMenu(menus)
-                            .withHeader(header)
-                            .withSections(evalSections(instance, cmd))
-                            .withClassifications(this.classifications == null ? null
-                                            : this.classifications.stream()
-                                                            .map(ClassificationController::toDto)
-                                                            .collect(Collectors.toList()))
-                            .withAction(action)
-                            .build();
-        }
-        return Response.ok()
-                        .entity(dto)
                         .build();
     }
 
