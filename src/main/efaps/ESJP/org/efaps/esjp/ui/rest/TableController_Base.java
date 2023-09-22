@@ -16,16 +16,12 @@
  */
 package org.efaps.esjp.ui.rest;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
-import jakarta.ws.rs.core.Response;
 
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.Type;
@@ -43,18 +39,18 @@ import org.efaps.admin.ui.field.Field;
 import org.efaps.admin.ui.field.Field.Display;
 import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
-import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.ui.rest.dto.NavItemDto;
 import org.efaps.esjp.ui.rest.dto.TableDto;
 import org.efaps.util.EFapsException;
-import org.efaps.util.UUIDUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import jakarta.ws.rs.core.Response;
 
 @EFapsUUID("708d3d0d-e230-44e1-99f4-aadb45f70be9")
 @EFapsApplication("eFaps-WebApp")
 public abstract class TableController_Base
-    extends AbstractController
+    extends AbstractTableController
 {
 
     /**
@@ -95,37 +91,6 @@ public abstract class TableController_Base
                         .entity(dto)
                         .build();
         return ret;
-    }
-
-    protected List<Type> evalTypes(final Map<String, String> _propertiesMap)
-        throws EFapsException
-    {
-        final var typeList = new ArrayList<Type>();
-        final var properties = new Properties();
-        properties.putAll(_propertiesMap);
-        final var types = PropertiesUtil.analyseProperty(properties, "Type", 0);
-        final var expandChildTypes = PropertiesUtil.analyseProperty(properties, "ExpandChildTypes", 0);
-
-        for (final var typeEntry : types.entrySet()) {
-            Type type;
-            if (UUIDUtil.isUUID(typeEntry.getValue())) {
-                type = Type.get(UUID.fromString(typeEntry.getValue()));
-            } else {
-                type = Type.get(typeEntry.getValue());
-            }
-            typeList.add(type);
-            // default expand for children, if not deactiavted
-            if (types.size() == 1
-                            && (expandChildTypes.size() == 0
-                            || expandChildTypes.size() == 1 && !"false".equalsIgnoreCase(expandChildTypes.get(0)))) {
-                type.getChildTypes().forEach(at -> typeList.add(at));
-            }
-            // if we have more specific ones evaluate for each type
-            if (expandChildTypes.size() > 1 && Boolean.parseBoolean(expandChildTypes.get(typeEntry.getKey()))) {
-                type.getChildTypes().forEach(at -> typeList.add(at));
-            }
-        }
-        return typeList;
     }
 
     @SuppressWarnings("unchecked")

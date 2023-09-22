@@ -20,8 +20,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import jakarta.ws.rs.core.Response;
-
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
@@ -33,6 +31,8 @@ import org.efaps.esjp.ui.rest.dto.ActionType;
 import org.efaps.esjp.ui.rest.dto.NavItemDto;
 import org.efaps.esjp.ui.util.WebApp;
 import org.efaps.util.EFapsException;
+
+import jakarta.ws.rs.core.Response;
 
 @EFapsUUID("addb3347-919d-455a-8a82-39e0180471d8")
 @EFapsApplication("eFaps-WebApp")
@@ -50,7 +50,7 @@ public abstract class NavController_Base
             if (command.getTargetSearch() != null) {
                 actionType = ActionType.SEARCH;
             } else if (command.getTargetTable() != null) {
-                actionType = ActionType.GRID;
+                actionType = command.getTargetStructurBrowserField() == null ? ActionType.GRID : ActionType.STRBRWSR;
             } else if (command.getTarget() == Target.HIDDEN) {
                 actionType = ActionType.EXEC;
             }
@@ -73,10 +73,11 @@ public abstract class NavController_Base
     {
         final List<NavItemDto> ret = new ArrayList<>();
         if (_command instanceof AbstractMenu) {
-            for (final var command : ((AbstractMenu ) _command).getCommands()) {
+            for (final var command : ((AbstractMenu) _command).getCommands()) {
                 ActionType actionType = null;
                 if (command.getTargetTable() != null) {
-                    actionType = ActionType.GRID;
+                    actionType = command.getTargetStructurBrowserField() == null ? ActionType.GRID
+                                    : ActionType.STRBRWSR;
                 } else if (command.getTargetForm() != null) {
                     actionType = ActionType.FORM;
                 } else if (command.getTargetSearch() != null) {
@@ -85,14 +86,14 @@ public abstract class NavController_Base
                     actionType = ActionType.EXEC;
                 }
                 ret.add(NavItemDto.builder()
-                            .withId(command.getUUID().toString())
-                            .withLabel(command.getLabelProperty())
-                            .withChildren(addChildren(command))
-                            .withAction(ActionDto.builder()
-                                            .withModal(command.getTarget() == Target.MODAL)
-                                            .withType(actionType)
-                                            .build())
-                            .build());
+                                .withId(command.getUUID().toString())
+                                .withLabel(command.getLabelProperty())
+                                .withChildren(addChildren(command))
+                                .withAction(ActionDto.builder()
+                                                .withModal(command.getTarget() == Target.MODAL)
+                                                .withType(actionType)
+                                                .build())
+                                .build());
             }
         }
         return ret;
