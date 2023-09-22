@@ -133,6 +133,11 @@ public abstract class ExecController_Base
             paraValues.add(ParameterValues.INSTANCE);
             paraValues.add(Instance.get(parameters.get("eFapsOID")[0]));
         }
+        if (TargetMode.CREATE.equals(cmd.getTargetMode())
+                        && parameters.containsKey("eFapsParentOID")) {
+            paraValues.add(ParameterValues.INSTANCE);
+            paraValues.add(Instance.get(parameters.get("eFapsParentOID")[0]));
+        }
         if (parameters.containsKey("eFapsSelectedOids")) {
             paraValues.add(ParameterValues.OTHERS);
             paraValues.add(parameters.get("eFapsSelectedOids"));

@@ -74,6 +74,7 @@ public class ValueUtils
     {
         final var map = new HashMap<String, Object>();
         for (final var field : fields) {
+            map.put("OID", eval.inst().getOid());
             map.put(field.getName(), eval.get(field.getName()));
 
             if (field.getSelectAlternateOID() != null) {

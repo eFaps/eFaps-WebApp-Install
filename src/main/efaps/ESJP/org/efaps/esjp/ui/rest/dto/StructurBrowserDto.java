@@ -36,14 +36,16 @@ public class StructurBrowserDto
     private final List<ColumnDto> columns;
     private final List<StructurBrowserEntryDto> values;
     private final String selectionMode;
+    private final String toggleColumn;
 
-    private StructurBrowserDto(final Builder builder)
+    private StructurBrowserDto(Builder builder)
     {
-        menu = builder.menu;
-        header = builder.header;
-        columns = builder.columns;
-        values = builder.values;
-        selectionMode = builder.selectionMode;
+        this.menu = builder.menu;
+        this.header = builder.header;
+        this.columns = builder.columns;
+        this.values = builder.values;
+        this.selectionMode = builder.selectionMode;
+        this.toggleColumn = builder.toggleColumn;
     }
 
     public List<NavItemDto> getMenu()
@@ -71,25 +73,22 @@ public class StructurBrowserDto
         return selectionMode;
     }
 
+    public String getToggleColumn()
+    {
+        return toggleColumn;
+    }
+
     @Override
     public String toString()
     {
         return ToStringBuilder.reflectionToString(this);
     }
 
-    /**
-     * Creates builder to build {@link StructurBrowserDto}.
-     *
-     * @return created builder
-     */
     public static Builder builder()
     {
         return new Builder();
     }
 
-    /**
-     * Builder to build {@link StructurBrowserDto}.
-     */
     public static final class Builder
     {
 
@@ -98,38 +97,45 @@ public class StructurBrowserDto
         private List<ColumnDto> columns = Collections.emptyList();
         private List<StructurBrowserEntryDto> values = Collections.emptyList();
         private String selectionMode;
+        private String toggleColumn;
 
         private Builder()
         {
         }
 
-        public Builder withMenu(final List<NavItemDto> menu)
+        public Builder withMenu(List<NavItemDto> menu)
         {
             this.menu = menu;
             return this;
         }
 
-        public Builder withHeader(final String header)
+        public Builder withHeader(String header)
         {
             this.header = header;
             return this;
         }
 
-        public Builder withColumns(final List<ColumnDto> columns)
+        public Builder withColumns(List<ColumnDto> columns)
         {
             this.columns = columns;
             return this;
         }
 
-        public Builder withValues(final List<StructurBrowserEntryDto> values)
+        public Builder withValues(List<StructurBrowserEntryDto> values)
         {
             this.values = values;
             return this;
         }
 
-        public Builder withSelectionMode(final String selectionMode)
+        public Builder withSelectionMode(String selectionMode)
         {
             this.selectionMode = selectionMode;
+            return this;
+        }
+
+        public Builder withToggleColumn(String toggleColumn)
+        {
+            this.toggleColumn = toggleColumn;
             return this;
         }
 

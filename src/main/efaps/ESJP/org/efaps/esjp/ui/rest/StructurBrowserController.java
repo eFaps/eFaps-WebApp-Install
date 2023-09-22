@@ -86,6 +86,7 @@ public class StructurBrowserController
                         .withColumns(getColumns(table, TargetMode.VIEW, null))
                         .withValues(values)
                         .withSelectionMode(selectionMode)
+                        .withToggleColumn(cmd.getTargetStructurBrowserField())
                         .build();
 
         return Response.ok(dto)
