@@ -1053,6 +1053,7 @@ public abstract class ContentController_Base
         private final Field field;
         private final Instance instance;
         private final Object object;
+        private final Display display;
 
         private RestUIValue(final Builder builder)
         {
@@ -1060,6 +1061,7 @@ public abstract class ContentController_Base
             field = builder.field;
             instance = builder.instance;
             object = builder.object;
+            display = builder.display;
         }
 
         @Override
@@ -1079,8 +1081,7 @@ public abstract class ContentController_Base
         @Override
         public Display getDisplay()
         {
-            LOG.warn("getDisplay Not implemented");
-            return null;
+            return display;
         }
 
         @Override
@@ -1121,6 +1122,7 @@ public abstract class ContentController_Base
             private Field field;
             private Instance instance;
             private Object object;
+            private Display display;
 
             private Builder()
             {
@@ -1154,6 +1156,12 @@ public abstract class ContentController_Base
                 this.object = object;
                 return this;
             }
+            public Builder withDisplay(final Display display)
+            {
+                this.display = display;
+                return this;
+            }
+
         }
     }
 }

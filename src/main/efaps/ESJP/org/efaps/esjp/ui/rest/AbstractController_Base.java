@@ -133,7 +133,7 @@ public abstract class AbstractController_Base
         return ret;
     }
 
-    protected Object evalFieldFormatEvent(final Instance _instance,
+    protected Object evalFieldFormatEvent(final Instance instance,
                                           final Field field,
                                           final IFieldBuilder bldr,
                                           final Object fieldValue,
@@ -142,11 +142,14 @@ public abstract class AbstractController_Base
     {
         Object ret = fieldValue;
         final var uiValue = RestUIValue.builder()
-                        .withInstance(_instance)
+                        .withInstance(instance)
                         .withField(field)
                         .withObject(fieldValue)
+                        .withDisplay(field.getDisplay(targetMode))
                         .build();
-        for (final Return aReturn : field.executeEvents(EventType.UI_FIELD_FORMAT,
+        for (final Return aReturn : field.executeEvents(
+                        EventType.UI_FIELD_FORMAT,
+                        ParameterValues.INSTANCE, instance,
                         ParameterValues.ACCESSMODE, targetMode,
                         ParameterValues.UIOBJECT, uiValue,
                         ParameterValues.OTHERS, fieldValue)) {
@@ -169,6 +172,7 @@ public abstract class AbstractController_Base
                         .withInstance(_instance)
                         .withField(field)
                         .withAttribute(attr)
+                        .withDisplay(field.getDisplay(targetMode))
                         .build();
         for (final Return aReturn : field.executeEvents(EventType.UI_FIELD_VALUE,
                         ParameterValues.ACCESSMODE, targetMode,
