@@ -833,9 +833,9 @@ public abstract class ContentController_Base
             valueBldr.withUpdateRef(String.valueOf(field.getId()));
         }
         if (fieldValue != null && TargetMode.VIEW.equals(currentTargetMode) && field.getReference() != null) {
-            final var alternativeOid = eval.<String>get(field.getName() + "_AOID");
-            if (alternativeOid != null) {
-                valueBldr.withNavRef(alternativeOid);
+            final var alternativeOid = eval.get(field.getName() + "_AOID");
+            if (alternativeOid != null && alternativeOid instanceof String) {
+                valueBldr.withNavRef((String) alternativeOid);
             } else {
                 valueBldr.withNavRef(eval.inst().getOid());
             }
