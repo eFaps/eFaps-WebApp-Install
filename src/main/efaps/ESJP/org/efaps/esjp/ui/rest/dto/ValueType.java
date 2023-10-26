@@ -38,5 +38,6 @@ public enum ValueType
     CHECKBOX,
     TEXTAREA,
     BUTTON,
-    CLASSIFICATION
+    CLASSIFICATION,
+    DATETIMELABEL
 }
