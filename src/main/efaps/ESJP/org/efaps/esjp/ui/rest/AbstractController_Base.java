@@ -66,7 +66,7 @@ public abstract class AbstractController_Base
 
     protected void add2Select4Attribute(final Print _print,
                                         final Field _field,
-                                        final List<Type> _types)
+                                        final Collection<Type> _types)
         throws EFapsException
     {
         Attribute attr = null;

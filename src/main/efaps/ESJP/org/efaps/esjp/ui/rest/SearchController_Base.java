@@ -18,15 +18,12 @@ package org.efaps.esjp.ui.rest;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
-
-import jakarta.ws.rs.core.MultivaluedMap;
-import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.UriInfo;
 
 import org.efaps.admin.datamodel.Classification;
 import org.efaps.admin.datamodel.Type;
@@ -56,11 +53,16 @@ import org.efaps.util.cache.CacheReloadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import jakarta.ws.rs.core.MultivaluedMap;
+import jakarta.ws.rs.core.Response;
+import jakarta.ws.rs.core.UriInfo;
+
 @EFapsUUID("b8efbce5-c5cf-495d-855d-aff75f171f9b")
 @EFapsApplication("eFaps-WebApp")
 public abstract class SearchController_Base
     extends AbstractController
 {
+
     private static final Logger LOG = LoggerFactory.getLogger(SearchController.class);
 
     public Response getSearch(final String _cmdId)
@@ -111,8 +113,7 @@ public abstract class SearchController_Base
         for (final var field : form.getFields()) {
             if (field.hasAccess(TargetMode.SEARCH, null, _cmd, null)
                             && !field.isNoneDisplay(TargetMode.SEARCH)) {
-                if (field instanceof FieldGroup) {
-                    final FieldGroup group = (FieldGroup) field;
+                if (field instanceof final FieldGroup group) {
                     groupCount = group.getGroupCount();
                 } else {
                     if (groupCount > 0) {
@@ -124,7 +125,7 @@ public abstract class SearchController_Base
                                     .withType(ValueType.INPUT)
                                     .build());
                     if (groupCount < 1) {
-                        items.add(currentValues.size() == 1 ?  currentValues.get(0) : currentValues);
+                        items.add(currentValues.size() == 1 ? currentValues.get(0) : currentValues);
                         currentValues = new ArrayList<>();
                     }
                 }
@@ -135,7 +136,8 @@ public abstract class SearchController_Base
                         .build();
     }
 
-    private String getLabel(final AbstractCommand _cmd, final Field _field)
+    private String getLabel(final AbstractCommand _cmd,
+                            final Field _field)
         throws CacheReloadException
     {
         String ret = null;
@@ -176,7 +178,8 @@ public abstract class SearchController_Base
         return ret;
     }
 
-    public Response search(final String _cmdId, final UriInfo _uriInfo)
+    public Response search(final String _cmdId,
+                           final UriInfo _uriInfo)
         throws EFapsException
     {
         final var cmd = Command.get(UUID.fromString(_cmdId));
@@ -217,7 +220,7 @@ public abstract class SearchController_Base
         for (final var entry : queryParameters.entrySet()) {
             final var field = fields.stream().filter(f -> f.getName().equals(entry.getKey())).findFirst();
             if (field.isPresent()) {
-                if (field.get().getAttribute() != null){
+                if (field.get().getAttribute() != null) {
                     query.where().attribute(field.get().getAttribute()).ilike("%" + entry.getValue().get(0) + "%");
                 }
             }
@@ -243,30 +246,49 @@ public abstract class SearchController_Base
         return print.evaluate().getData();
     }
 
-    protected List<Type> evalTypes(final AbstractUserInterfaceObject _cmd)
+    protected Set<Type> evalTypes(final AbstractUserInterfaceObject _cmd)
         throws EFapsException
     {
         final var propertiesMap = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
-        final var typeList = new ArrayList<Type>();
+        final var typeList = new HashSet<Type>();
+        final var excluded = new HashSet<Type>();
         final var properties = new Properties();
         properties.putAll(propertiesMap);
         final var types = PropertiesUtil.analyseProperty(properties, "Type", 0);
         final var expandChildTypes = PropertiesUtil.analyseProperty(properties, "ExpandChildTypes", 0);
 
         for (final var typeEntry : types.entrySet()) {
+            var typeStr = typeEntry.getValue();
+            boolean exclude = false;
+            if (typeStr.startsWith("!")) {
+                typeStr = typeStr.substring(1);
+                exclude = true;
+            }
             Type type;
-            if (UUIDUtil.isUUID(typeEntry.getValue())) {
+            if (UUIDUtil.isUUID(typeStr)) {
                 type = Type.get(UUID.fromString(typeEntry.getValue()));
             } else {
-                type = Type.get(typeEntry.getValue());
+                type = Type.get(typeStr);
             }
-            typeList.add(type);
+            if (exclude) {
+                excluded.add(type);
+            } else {
+                typeList.add(type);
+            }
             if (expandChildTypes.containsKey(0) && Boolean.parseBoolean(expandChildTypes.get(0))
                             || expandChildTypes.containsKey(typeEntry.getKey())
                                             && Boolean.parseBoolean(expandChildTypes.get(typeEntry.getKey()))) {
-                type.getChildTypes().forEach(at -> typeList.add(at));
+                for (final var childType : type.getChildTypes()) {
+                    if (exclude) {
+                        excluded.add(childType);
+                    } else {
+                        typeList.add(childType);
+                    }
+                }
+
             }
         }
+        typeList.removeAll(excluded);
         return typeList;
     }
 
