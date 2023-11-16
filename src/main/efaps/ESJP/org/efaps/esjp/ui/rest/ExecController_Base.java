@@ -119,7 +119,7 @@ public abstract class ExecController_Base
                          final PayloadDto dto)
         throws EFapsException
     {
-        LOG.info("exec : {}", cmdId);
+        LOG.info("exec : {}, payload: {}", cmdId, dto);
         final var parameters = convertToMap(dto);
         evalUpload(dto);
         final AbstractCommand cmd = Command.get(UUID.fromString(cmdId));
