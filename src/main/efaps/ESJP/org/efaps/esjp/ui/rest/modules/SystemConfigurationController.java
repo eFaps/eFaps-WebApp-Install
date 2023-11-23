@@ -37,7 +37,12 @@ import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.ui.rest.modules.dto.SystemConfigurationAttributeDto;
 import org.efaps.esjp.ui.rest.modules.dto.SystemConfigurationAttributeType;
 import org.efaps.esjp.ui.rest.modules.dto.SystemConfigurationAttributeValueDto;
+import org.efaps.esjp.ui.util.ValueUtils;
 import org.efaps.util.EFapsException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -54,6 +59,8 @@ import jakarta.ws.rs.core.Response;
 @Path("/ui/modules/system-configurations")
 public class SystemConfigurationController
 {
+
+    private static final Logger LOG = LoggerFactory.getLogger(SystemConfigurationController.class);
 
     @Path("/{sysConfOid}/attributes")
     @GET
@@ -171,12 +178,18 @@ public class SystemConfigurationController
     }
 
     @SuppressWarnings("rawtypes")
-    protected SystemConfigurationAttributeDto evalKey(final ISysConfAttribute attr) {
+    protected SystemConfigurationAttributeDto evalKey(final ISysConfAttribute attr)
+    {
         String defaultValue = null;
         String description = null;
         if (attr instanceof AbstractSysConfAttribute) {
-            defaultValue = String.valueOf(((AbstractSysConfAttribute) attr).getDefaultValue());
-            description =  String.valueOf(((AbstractSysConfAttribute) attr).getDescription());
+            final var mapper = ValueUtils.getObjectMapper();
+            try {
+                defaultValue = mapper.writeValueAsString(((AbstractSysConfAttribute) attr).getDefaultValue());
+            } catch (final JsonProcessingException e) {
+                LOG.error("Catched", e);
+            }
+            description = String.valueOf(((AbstractSysConfAttribute) attr).getDescription());
         }
         return SystemConfigurationAttributeDto.builder()
                         .withKey(attr.getKey())

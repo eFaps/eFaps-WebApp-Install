@@ -35,12 +35,18 @@ import org.efaps.util.cache.CacheReloadException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
+
 @EFapsUUID("1b168a8f-97ec-4fdf-bfa3-97b4cbd0b239")
 @EFapsApplication("eFaps-WebApp")
 public class ValueUtils
 {
 
     private static final Logger LOG = LoggerFactory.getLogger(ValueUtils.class);
+
+    private static ObjectMapper OBJECTMAPPER;
 
     public static List<Field> getFields(final AbstractCollection uiCollection)
     {
@@ -54,7 +60,8 @@ public class ValueUtils
         }).collect(Collectors.toList());
     }
 
-    public static Type evalType(final String typeStr) {
+    public static Type evalType(final String typeStr)
+    {
         Type type = null;
         try {
             if (UUIDUtil.isUUID(typeStr)) {
@@ -84,5 +91,14 @@ public class ValueUtils
         return map;
     }
 
+    public static ObjectMapper getObjectMapper()
+    {
+        if (OBJECTMAPPER == null) {
 
+            OBJECTMAPPER = new ObjectMapper();
+            OBJECTMAPPER.registerModule(new JavaTimeModule());
+            OBJECTMAPPER.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        }
+        return OBJECTMAPPER;
+    }
 }

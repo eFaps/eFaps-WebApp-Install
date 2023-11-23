@@ -36,6 +36,7 @@ import org.efaps.esjp.ui.rest.dto.DashboardWidgetChartDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetChartMetricDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetTableDto;
+import org.efaps.esjp.ui.util.ValueUtils;
 import org.efaps.esjp.ui.util.WebApp;
 import org.efaps.util.EFapsException;
 import org.efaps.util.RandomUtil;
@@ -43,9 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 import jakarta.ws.rs.core.Response;
 
@@ -68,7 +66,7 @@ public abstract class DashboardController_Base
             if (dashboardStr == null) {
                 dto = getDefaultDashboard();
             } else {
-                final var mapper = getObjectMapper();
+                final var mapper = ValueUtils.getObjectMapper();
                 try {
                     dto = mapper.readValue(dashboardStr, DashboardDto.class);
                 } catch (final JsonProcessingException e) {
@@ -124,7 +122,7 @@ public abstract class DashboardController_Base
                         .flatMap(page -> page.getItems().stream())
                         .forEach(item -> persistWidget(item.getWidget()));
 
-        final var mapper = getObjectMapper();
+        final var mapper = ValueUtils.getObjectMapper();
         try {
             final var dashboardStr = mapper.writeValueAsString(_dashboardDto);
             final var userAttributesSet = new UserAttributesSet(Context.getThreadContext().getPersonId());
@@ -136,19 +134,12 @@ public abstract class DashboardController_Base
         return Response.ok().build();
     }
 
-    protected ObjectMapper getObjectMapper()
-    {
-        final var mapper = new ObjectMapper();
-        mapper.registerModule(new JavaTimeModule());
-        mapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
-        return mapper;
-    }
 
     protected void persistWidget(final DashboardWidgetDto _dashboardWidgetDto)
     {
         if (_dashboardWidgetDto != null) {
             try {
-                final var mapper = getObjectMapper();
+                final var mapper = ValueUtils.getObjectMapper();
                 final var config = mapper.writeValueAsString(_dashboardWidgetDto);
                 final var eval = EQL.builder().print()
                                 .query(CICommon.DashboardWidget).where()
@@ -183,7 +174,7 @@ public abstract class DashboardController_Base
                         .evaluate();
         var entity = new Object();
         if (eval.next()) {
-            final var mapper = getObjectMapper();
+            final var mapper = ValueUtils.getObjectMapper();
             try {
                 final var dto = mapper.readValue(eval.<String>get(CICommon.DashboardWidget.Config),
                                 DashboardWidgetDto.class);
