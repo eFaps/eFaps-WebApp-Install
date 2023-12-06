@@ -126,8 +126,8 @@ public abstract class TableController_Base
                 add2Select4Attribute(print, field, types);
             } else if (field.getSelect() != null) {
                 var select = field.getSelect();
-                if (field.getSelect().equals("attribute[Status]")) {
-                    select = "status.label";
+                if (field.getSelect().endsWith("attribute[Status]")) {
+                    select = field.getSelect().replace("attribute[Status]", "status.label");
                 }
                 print.select(select).as(field.getName());
             } else if (field.getMsgPhrase() != null) {
