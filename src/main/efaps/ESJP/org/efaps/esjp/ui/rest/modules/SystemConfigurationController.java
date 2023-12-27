@@ -37,6 +37,8 @@ import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.ui.rest.modules.dto.SystemConfigurationAttributeDto;
 import org.efaps.esjp.ui.rest.modules.dto.SystemConfigurationAttributeType;
 import org.efaps.esjp.ui.rest.modules.dto.SystemConfigurationAttributeValueDto;
+import org.efaps.esjp.ui.rest.modules.dto.SystemConfigurationLinkDto;
+import org.efaps.esjp.ui.rest.modules.dto.SystemConfigurationLinkValueDto;
 import org.efaps.esjp.ui.util.ValueUtils;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -65,7 +67,7 @@ public class SystemConfigurationController
     @Path("/{sysConfOid}/attributes")
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response getKeys(@PathParam("sysConfOid") final String oid)
+    public Response geteSystemConfigurationAttributes(@PathParam("sysConfOid") final String oid)
         throws EFapsException
     {
         final var inst = Instance.get(oid);
@@ -86,8 +88,8 @@ public class SystemConfigurationController
     @Path("/{sysConfOid}/attributes")
     @Produces({ MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_JSON })
-    public Response create(@PathParam("sysConfOid") final String oid,
-                           final SystemConfigurationAttributeValueDto dto)
+    public Response createSystemConfigurationAttribute(@PathParam("sysConfOid") final String oid,
+                                                       final SystemConfigurationAttributeValueDto dto)
         throws EFapsException
     {
         final var inst = Instance.get(oid);
@@ -107,7 +109,7 @@ public class SystemConfigurationController
     @Path("/{sysConfOid}/attributes/{attrOid}")
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response get(@PathParam("attrOid") final String oid)
+    public Response getSystemConfigurationAttribute(@PathParam("attrOid") final String oid)
         throws EFapsException
     {
         final var inst = Instance.get(oid);
@@ -141,8 +143,8 @@ public class SystemConfigurationController
     @PUT
     @Produces({ MediaType.APPLICATION_JSON })
     @Consumes({ MediaType.APPLICATION_JSON })
-    public Response update(@PathParam("attrOid") final String oid,
-                           final SystemConfigurationAttributeValueDto dto)
+    public Response updateSystemConfigurationAttribute(@PathParam("attrOid") final String oid,
+                                                       final SystemConfigurationAttributeValueDto dto)
         throws EFapsException
     {
         final var inst = Instance.get(oid);
@@ -153,6 +155,103 @@ public class SystemConfigurationController
                             .set(CIAdminCommon.SystemConfigurationAttribute.Description, dto.getDescription())
                             .set(CIAdminCommon.SystemConfigurationAttribute.AppKey, dto.getAppKey())
                             .set(CIAdminCommon.SystemConfigurationAttribute.CompanyLink, dto.getCompanyLink())
+                            .execute();
+        }
+        return Response.ok().build();
+    }
+
+    @Path("/{sysConfOid}/links")
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON })
+    public Response getSystemConfigurationLinks(@PathParam("sysConfOid") final String oid)
+        throws EFapsException
+    {
+        final var inst = Instance.get(oid);
+        List<SystemConfigurationLinkDto> keys = new ArrayList<>();
+        if (InstanceUtils.isType(inst, CIAdminCommon.SystemConfiguration)) {
+            final var eval = EQL.builder().print(inst)
+                            .attribute(CIAdminCommon.SystemConfiguration.UUID)
+                            .evaluate();
+            final var sysconfUUID = eval.<String>get(CIAdminCommon.SystemConfiguration.UUID);
+            keys = SysConfResourceConfig.getResourceConfig().getLinks(sysconfUUID).stream()
+                            .map(link -> SystemConfigurationLinkDto.builder()
+                                            .withKey(link.getKey())
+                                            .withDescription(String.valueOf(
+                                                            ((AbstractSysConfAttribute<?, ?>) link).getDescription()))
+                                            .build())
+                            .collect(Collectors.toList());
+        }
+        return Response.ok(keys).build();
+    }
+
+    @POST
+    @Path("/{sysConfOid}/links")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    public Response createSystemConfigurationLink(@PathParam("sysConfOid") final String oid,
+                                                  final SystemConfigurationLinkValueDto dto)
+        throws EFapsException
+    {
+        final var inst = Instance.get(oid);
+        if (InstanceUtils.isType(inst, CIAdminCommon.SystemConfiguration)) {
+            EQL.builder().insert(CIAdminCommon.SystemConfigurationLink)
+                            .set(CIAdminCommon.SystemConfigurationLink.AbstractLink, inst)
+                            .set(CIAdminCommon.SystemConfigurationLink.Key, dto.getKey())
+                            .set(CIAdminCommon.SystemConfigurationLink.Value, dto.getValue())
+                            .set(CIAdminCommon.SystemConfigurationLink.Description, dto.getDescription())
+                            .set(CIAdminCommon.SystemConfigurationLink.AppKey, dto.getAppKey())
+                            .set(CIAdminCommon.SystemConfigurationLink.CompanyLink, dto.getCompanyLink())
+                            .execute();
+        }
+        return Response.ok().build();
+    }
+
+    @Path("/{sysConfOid}/links/{linkOid}")
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON })
+    public Response getSystemConfigurationLink(@PathParam("linkOid") final String oid)
+        throws EFapsException
+    {
+        final var inst = Instance.get(oid);
+        SystemConfigurationLinkValueDto dto = null;
+        if (InstanceUtils.isType(inst, CIAdminCommon.SystemConfigurationLink)) {
+            final var eval = EQL.builder().print(inst)
+                            .attribute(CIAdminCommon.SystemConfigurationLink.Key,
+                                            CIAdminCommon.SystemConfigurationLink.Value,
+                                            CIAdminCommon.SystemConfigurationLink.Description,
+                                            CIAdminCommon.SystemConfigurationLink.CompanyLink,
+                                            CIAdminCommon.SystemConfigurationLink.AppKey)
+                            .linkto(CIAdminCommon.SystemConfigurationLink.AbstractLink)
+                            .attribute(CIAdminCommon.SystemConfiguration.UUID)
+                            .evaluate();
+            final var key = eval.<String>get(CIAdminCommon.SystemConfigurationLink.Key);
+            dto = SystemConfigurationLinkValueDto.builder()
+                            .withKey(key)
+                            .withValue(eval.get(CIAdminCommon.SystemConfigurationLink.Value))
+                            .withDescription(eval.get(CIAdminCommon.SystemConfigurationLink.Description))
+                            .withCompanyLink(eval.get(CIAdminCommon.SystemConfigurationLink.CompanyLink))
+                            .withAppKey(eval.get(CIAdminCommon.SystemConfigurationLink.AppKey))
+                            .build();
+        }
+        return Response.ok(dto).build();
+    }
+
+    @Path("/{sysConfOid}/links/{linkOid}")
+    @PUT
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    public Response updateSystemConfigurationLink(@PathParam("linkOid") final String oid,
+                                                  final SystemConfigurationLinkValueDto dto)
+        throws EFapsException
+    {
+        final var inst = Instance.get(oid);
+        if (InstanceUtils.isType(inst, CIAdminCommon.SystemConfigurationLink)) {
+            EQL.builder().update(inst)
+                            .set(CIAdminCommon.SystemConfigurationLink.Key, dto.getKey())
+                            .set(CIAdminCommon.SystemConfigurationLink.Value, dto.getValue())
+                            .set(CIAdminCommon.SystemConfigurationLink.Description, dto.getDescription())
+                            .set(CIAdminCommon.SystemConfigurationLink.AppKey, dto.getAppKey())
+                            .set(CIAdminCommon.SystemConfigurationLink.CompanyLink, dto.getCompanyLink())
                             .execute();
         }
         return Response.ok().build();
