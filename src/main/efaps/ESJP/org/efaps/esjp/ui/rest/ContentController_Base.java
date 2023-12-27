@@ -634,7 +634,7 @@ public abstract class ContentController_Base
         throws EFapsException
     {
         final var valueBldr = ValueDto.builder()
-                        .withRequired(field.isRequired());
+                        .withRequired(field.isRequired() && field.isEditableDisplay(currentTargetMode));
         Object fieldValue = null;
         boolean rangeValue = false;
         // range value
