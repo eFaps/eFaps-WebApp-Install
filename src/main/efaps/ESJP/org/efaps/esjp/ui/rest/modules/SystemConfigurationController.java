@@ -17,6 +17,7 @@
 package org.efaps.esjp.ui.rest.modules;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -79,6 +80,7 @@ public class SystemConfigurationController
             final var sysconfUUID = eval.<String>get(CIAdminCommon.SystemConfiguration.UUID);
             keys = SysConfResourceConfig.getResourceConfig().getAttributes(sysconfUUID).stream()
                             .map(this::evalKey)
+                            .sorted(Comparator.comparing(SystemConfigurationAttributeDto::getKey))
                             .collect(Collectors.toList());
         }
         return Response.ok(keys).build();
@@ -179,6 +181,7 @@ public class SystemConfigurationController
                                             .withDescription(String.valueOf(
                                                             ((AbstractSysConfAttribute<?, ?>) link).getDescription()))
                                             .build())
+                            .sorted(Comparator.comparing(SystemConfigurationLinkDto::getKey))
                             .collect(Collectors.toList());
         }
         return Response.ok(keys).build();
