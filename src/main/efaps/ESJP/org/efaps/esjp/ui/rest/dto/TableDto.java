@@ -39,14 +39,16 @@ public class TableDto
     private final List<ColumnDto> columns;
     private final Collection<Map<String, ?>> values;
     private final String selectionMode;
+    private final boolean filtered;
 
-    private TableDto(final Builder builder)
+    private TableDto(Builder builder)
     {
-        menu = builder.menu;
-        header = builder.header;
-        columns = builder.columns;
-        values = builder.values;
-        selectionMode = builder.selectionMode;
+        this.menu = builder.menu;
+        this.header = builder.header;
+        this.columns = builder.columns;
+        this.values = builder.values;
+        this.selectionMode = builder.selectionMode;
+        this.filtered = builder.filtered;
     }
 
     public List<NavItemDto> getMenu()
@@ -75,25 +77,22 @@ public class TableDto
         return selectionMode;
     }
 
+    public boolean isFiltered()
+    {
+        return filtered;
+    }
+
     @Override
     public String toString()
     {
         return ToStringBuilder.reflectionToString(this);
     }
 
-    /**
-     * Creates builder to build {@link TableDto}.
-     *
-     * @return created builder
-     */
     public static Builder builder()
     {
         return new Builder();
     }
 
-    /**
-     * Builder to build {@link TableDto}.
-     */
     public static final class Builder
     {
 
@@ -102,38 +101,45 @@ public class TableDto
         private List<ColumnDto> columns = Collections.emptyList();
         private Collection<Map<String, ?>> values = Collections.emptyList();
         private String selectionMode;
+        private boolean filtered;
 
         private Builder()
         {
         }
 
-        public Builder withMenu(final List<NavItemDto> menu)
+        public Builder withMenu(List<NavItemDto> menu)
         {
             this.menu = menu;
             return this;
         }
 
-        public Builder withHeader(final String header)
+        public Builder withHeader(String header)
         {
             this.header = header;
             return this;
         }
 
-        public Builder withColumns(final List<ColumnDto> columns)
+        public Builder withColumns(List<ColumnDto> columns)
         {
             this.columns = columns;
             return this;
         }
 
-        public Builder withValues(final Collection<Map<String, ?>> values)
+        public Builder withValues(Collection<Map<String, ?>> values)
         {
             this.values = values;
             return this;
         }
 
-        public Builder withSelectionMode(final String selectionMode)
+        public Builder withSelectionMode(String selectionMode)
         {
             this.selectionMode = selectionMode;
+            return this;
+        }
+
+        public Builder withFiltered(boolean filtered)
+        {
+            this.filtered = filtered;
             return this;
         }
 

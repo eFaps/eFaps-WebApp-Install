@@ -16,6 +16,10 @@
  */
 package org.efaps.esjp.ui.rest;
 
+import org.efaps.admin.program.esjp.EFapsApplication;
+import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.util.EFapsException;
+
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -24,10 +28,6 @@ import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import org.efaps.admin.program.esjp.EFapsApplication;
-import org.efaps.admin.program.esjp.EFapsUUID;
-import org.efaps.util.EFapsException;
-
 @EFapsUUID("eaa16cf5-09d5-43aa-8c15-c8e758cfd9c2")
 @EFapsApplication("eFaps-WebApp")
 @Path("/ui/table")
@@ -35,12 +35,22 @@ public class TableController
     extends TableController_Base
 {
     @Override
-    @Path("/{id}")
+    @Path("/{cmdId}")
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response getTable(@PathParam("id") final String id, @QueryParam("oid") final String oid)
+    public Response getTable(@PathParam("cmdId") final String cmdId, @QueryParam("oid") final String oid)
         throws EFapsException
     {
-        return super.getTable(id, oid);
+        return super.getTable(cmdId, oid);
+    }
+
+    @Override
+    @Path("/{cmdId}/filters")
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON })
+    public Response getTableFilters(@PathParam("cmdId") final String cmdId)
+        throws EFapsException
+    {
+        return super.getTableFilters(cmdId);
     }
 }

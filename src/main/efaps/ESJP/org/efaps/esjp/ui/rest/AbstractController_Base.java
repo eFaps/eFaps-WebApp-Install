@@ -167,7 +167,8 @@ public abstract class AbstractController_Base
         throws EFapsException
     {
         Object ret = fieldValue;
-        final Attribute attr = _instance.getType() == null? null :  _instance.getType().getAttribute(field.getAttribute());
+        final Attribute attr = _instance.getType() == null ? null
+                        : _instance.getType().getAttribute(field.getAttribute());
         final var uiValue = RestUIValue.builder()
                         .withInstance(_instance)
                         .withField(field)
@@ -301,5 +302,4 @@ public abstract class AbstractController_Base
         }
         return ret;
     }
-
 }
