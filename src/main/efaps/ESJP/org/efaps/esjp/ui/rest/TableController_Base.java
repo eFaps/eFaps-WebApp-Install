@@ -233,7 +233,7 @@ public abstract class TableController_Base
                           final List<Field> fields)
         throws EFapsException
     {
-        final var key = getFilterKey(cmd);
+        final var key = getFilterKey(cmd.getUUID().toString());
         final var filterCache = InfinispanCache.get().<String, List<FilterDto>>getCache(TableController_Base.CACHENAME);
         List<FilterDto> filters = new ArrayList<>();
         if (filterCache.containsKey(key)) {
@@ -307,11 +307,11 @@ public abstract class TableController_Base
         return ret;
     }
 
-    protected String getFilterKey(AbstractCommand cmd)
+    protected String getFilterKey(final String cmdUUID)
         throws CacheReloadException, EFapsException
     {
         return Context.getThreadContext().getPersonId() + "-" + Context.getThreadContext().getCompany().getId()
-                        + "-" + cmd.getUUID();
+                        + "-" + cmdUUID;
 
     }
 
@@ -322,7 +322,7 @@ public abstract class TableController_Base
         if (cmd == null) {
             cmd = Menu.get(UUID.fromString(cmdId));
         }
-        final var key = getFilterKey(cmd);
+        final var key = getFilterKey(cmdId);
         final var filterCache = InfinispanCache.get().<String, List<FilterDto>>getCache(TableController_Base.CACHENAME);
         final Response ret;
         if (filterCache.containsKey(key)) {
@@ -337,4 +337,13 @@ public abstract class TableController_Base
         return ret;
     }
 
+    public Response updateTableFilters(final String cmdId,
+                                       final List<FilterDto> filters)
+        throws EFapsException
+    {
+        final var key = getFilterKey(cmdId);
+        final var filterCache = InfinispanCache.get().<String, List<FilterDto>>getCache(TableController_Base.CACHENAME);
+        filterCache.put(key, filters);
+        return Response.ok().build();
+    }
 }

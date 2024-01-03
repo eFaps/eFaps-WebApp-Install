@@ -16,11 +16,15 @@
  */
 package org.efaps.esjp.ui.rest;
 
+import java.util.List;
+
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.esjp.ui.rest.dto.FilterDto;
 import org.efaps.util.EFapsException;
 
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -52,5 +56,16 @@ public class TableController
         throws EFapsException
     {
         return super.getTableFilters(cmdId);
+    }
+
+    @Override
+    @Path("/{cmdId}/filters")
+    @PUT
+    @Produces({ MediaType.APPLICATION_JSON })
+    public Response updateTableFilters(@PathParam("cmdId") final String cmdId,
+                                      final List<FilterDto> filters)
+        throws EFapsException
+    {
+        return super.updateTableFilters(cmdId, filters);
     }
 }
