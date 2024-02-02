@@ -158,6 +158,19 @@
                     <sourceDirectory>${basedir}/src/main/efaps/ESJP</sourceDirectory>
                 </configuration>
             </plugin>
+             <plugin>
+                <groupId>com.mycila</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>license</id>
+                        <goals>
+                            <goal>format</goal>
+                        </goals>
+                         <phase>deactivated</phase>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
     <dependencies>
