@@ -555,8 +555,8 @@ public abstract class ContentController_Base
             if (attr.getAttributeType().getDbAttrType() instanceof StatusType) {
                 print.attribute(attr.getName()).as(field.getName());
             } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
-                final var baseSelect = type instanceof Classification ? "class[" + type.getName() + "]" : "";
-                add2Select4RangeValue(print, field.getName(), attr, baseSelect);
+                final var baseSelect = type instanceof Classification ? "class[" + type.getName() + "]." : "";
+                print.select(baseSelect + "linkto[" + attr.getName() + "].attribute[ID]").as( field.getName());
             } else if (type instanceof Classification) {
                 print.clazz(type.getName()).attribute(field.getAttribute()).as(field.getName());
             } else {
