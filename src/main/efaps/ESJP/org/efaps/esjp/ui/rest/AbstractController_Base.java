@@ -53,6 +53,7 @@ import org.efaps.esjp.ui.rest.dto.IFieldBuilder;
 import org.efaps.esjp.ui.rest.dto.OptionDto;
 import org.efaps.esjp.ui.rest.dto.PayloadDto;
 import org.efaps.esjp.ui.rest.dto.ValueType;
+import org.efaps.util.DateTimeUtil;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -195,6 +196,8 @@ public abstract class AbstractController_Base
                         ret = selectedOpt.get().getValue();
                     }
                 }
+            } else if (values instanceof org.joda.time.DateTime) {
+                ret = DateTimeUtil.toDateTime(values);
             }
         }
         return ret;
@@ -298,7 +301,18 @@ public abstract class AbstractController_Base
         if (EnumUtils.isValidEnum(UIType.class, uiTypeStr)) {
             ret = UIType.valueOf(uiTypeStr);
         } else {
-            ret = UIType.DEFAULT;
+            // as a second priority evaluate the provider
+            final var uiProvider = _field.getProperty(UIFormFieldProperty.UI_PROVIDER.value());
+            if (uiProvider != null) {
+                final var key = uiProvider.substring(uiProvider.lastIndexOf(".") + 1);
+                ret = switch (key) {
+                    case "DateUI" -> UIType.DATE;
+                    case "DateTimeUI" -> UIType.DATETIME;
+                    default -> UIType.DEFAULT;
+                };
+            } else {
+                ret = UIType.DEFAULT;
+            }
         }
         return ret;
     }

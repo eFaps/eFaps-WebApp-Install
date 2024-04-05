@@ -556,7 +556,7 @@ public abstract class ContentController_Base
                 print.attribute(attr.getName()).as(field.getName());
             } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
                 final var baseSelect = type instanceof Classification ? "class[" + type.getName() + "]." : "";
-                print.select(baseSelect + "linkto[" + attr.getName() + "].attribute[ID]").as( field.getName());
+                print.select(baseSelect + "linkto[" + attr.getName() + "].attribute[ID]").as(field.getName());
             } else if (type instanceof Classification) {
                 print.clazz(type.getName()).attribute(field.getAttribute()).as(field.getName());
             } else {
@@ -726,6 +726,19 @@ public abstract class ContentController_Base
                     callInstance = inst;
                 }
                 fieldValue = evalFieldValueEvent(callInstance, field, valueBldr, fieldValue, currentTargetMode);
+
+                if (UIType.DATE.equals(uiType)) {
+                    valueBldr.withType(ValueType.DATE);
+                    if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null) {
+                        fieldValue = LocalDate.now(Context.getThreadContext().getZoneId()).toString();
+                    }
+                } else if (UIType.DATETIME.equals(uiType)) {
+                    valueBldr.withType(ValueType.DATETIME);
+                    if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null) {
+                        fieldValue = LocalDateTime.now(Context.getThreadContext().getZoneId()).toString();
+                    }
+                }
+
             } else {
                 final var attr = type == null ? null : type.getAttribute(field.getAttribute());
                 if (attr != null) {
@@ -1163,6 +1176,7 @@ public abstract class ContentController_Base
                 this.object = object;
                 return this;
             }
+
             public Builder withDisplay(final Display display)
             {
                 this.display = display;
