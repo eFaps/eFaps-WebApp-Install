@@ -1,5 +1,5 @@
 /*
- * Copyright 2003 - 2020 The eFaps Team
+ * Copyright © 2003 - 2024 The eFaps Team (-)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -12,10 +12,10 @@
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
  * See the License for the specific language governing permissions and
  * limitations under the License.
- *
  */
 package org.efaps.esjp.ui.rest;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -27,6 +27,7 @@ import java.util.UUID;
 import org.efaps.admin.datamodel.Classification;
 import org.efaps.admin.event.EventType;
 import org.efaps.admin.event.Parameter.ParameterValues;
+import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
@@ -36,6 +37,7 @@ import org.efaps.db.Context;
 import org.efaps.db.Instance;
 import org.efaps.esjp.ui.rest.dto.ExecResponseDto;
 import org.efaps.esjp.ui.rest.dto.PayloadDto;
+import org.efaps.esjp.ui.util.FileUtil;
 import org.efaps.util.EFapsException;
 import org.efaps.util.cache.CacheReloadException;
 import org.slf4j.Logger;
@@ -144,9 +146,18 @@ public abstract class ExecController_Base
         }
         evalClassifications(dto, paraValues);
 
-        cmd.executeEvents(EventType.UI_COMMAND_EXECUTE, paraValues.toArray());
+        final var result = cmd.executeEvents(EventType.UI_COMMAND_EXECUTE, paraValues.toArray());
+        String downloadKey = null;
+        if (cmd.isTargetShowFile()) {
+            final var retVal = result.get(0).get(ReturnValues.VALUES);
+            if (retVal instanceof File) {
+                downloadKey = FileUtil.put((File) retVal);
+            }
+        }
+
         final var response = ExecResponseDto.builder()
                         .withReload(!cmd.isNoUpdateAfterCmd())
+                        .withDownloadKey(downloadKey)
                         .build();
 
         final Response ret = Response.ok()
@@ -160,6 +171,7 @@ public abstract class ExecController_Base
     {
         if (dto.getValues().containsKey("eFapsClassifications")) {
             paraValues.add(ParameterValues.CLASSIFICATIONS);
+            @SuppressWarnings("unchecked")
             final List<String> uuids = (List<String>) dto.getValues().get("eFapsClassifications");
             paraValues.add(uuids.stream().map(uuid -> {
                 try {
