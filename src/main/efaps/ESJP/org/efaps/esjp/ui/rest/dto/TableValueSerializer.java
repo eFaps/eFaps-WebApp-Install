@@ -17,7 +17,7 @@
 package org.efaps.esjp.ui.rest.dto;
 
 import java.io.IOException;
-import java.util.LinkedHashMap;
+import java.util.Map;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
@@ -29,11 +29,11 @@ import com.fasterxml.jackson.databind.SerializerProvider;
 @EFapsUUID("a0fd34e3-89bf-4bc6-a8c9-49b7b9a8eecd")
 @EFapsApplication("eFaps-WebApp")
 public class TableValueSerializer
-    extends AbstractSerializer<LinkedHashMap<String, Object>>
+    extends AbstractSerializer<Map<String, Object>>
 {
 
     @Override
-    public void serialize(final LinkedHashMap<String, Object> _value, final JsonGenerator _gen,
+    public void serialize(final Map<String, Object> _value, final JsonGenerator _gen,
                           final SerializerProvider _serializers)
         throws IOException, JsonProcessingException
     {
