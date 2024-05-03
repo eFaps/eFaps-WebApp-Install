@@ -18,7 +18,6 @@ package org.efaps.esjp.ui.rest;
 
 import java.io.StringReader;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -735,7 +734,7 @@ public abstract class ContentController_Base
                 } else if (UIType.DATETIME.equals(uiType)) {
                     valueBldr.withType(ValueType.DATETIME);
                     if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null) {
-                        fieldValue = LocalDateTime.now(Context.getThreadContext().getZoneId()).toString();
+                        fieldValue = OffsetDateTime.now(Context.getThreadContext().getZoneId()).withNano(0).toString();
                     }
                 }
 
@@ -829,7 +828,8 @@ public abstract class ContentController_Base
                             case "DateTime":
                                 valueBldr.withType(ValueType.DATETIME);
                                 if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null) {
-                                    fieldValue = LocalDateTime.now(Context.getThreadContext().getZoneId()).toString();
+                                    fieldValue = OffsetDateTime.now(Context.getThreadContext().getZoneId())
+                                                    .withNano(0).toString();
                                 }
                                 break;
                             default:
