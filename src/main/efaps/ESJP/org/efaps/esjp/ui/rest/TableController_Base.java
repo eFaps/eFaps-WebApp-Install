@@ -17,7 +17,6 @@
 package org.efaps.esjp.ui.rest;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
@@ -84,9 +83,8 @@ public abstract class TableController_Base
         ITableProvider provider = null;
         try {
             final Class<?> cls = Class.forName(className, true, EFapsClassLoader.getInstance());
-            if (Arrays.asList(cls.getInterfaces()).contains(ITableProvider.class)) {
-                provider = (ITableProvider) cls.getConstructor().newInstance();
-            }
+            LOG.info("TableProvider className {} ", className);
+            provider = (ITableProvider) cls.getConstructor().newInstance();
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
                         | InvocationTargetException | NoSuchMethodException | SecurityException e) {
             LOG.error("Could not instantiate TableProvider", e);
