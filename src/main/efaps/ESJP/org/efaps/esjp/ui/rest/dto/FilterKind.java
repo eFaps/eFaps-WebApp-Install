@@ -7,5 +7,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 @EFapsApplication("eFaps-WebApp")
 public enum FilterKind
 {
-    DATE
+    DATE,
+    STATUS
 }

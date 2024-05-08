@@ -23,15 +23,20 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.efaps.admin.datamodel.Attribute;
+import org.efaps.admin.datamodel.Status;
+import org.efaps.admin.datamodel.Status.StatusGroup;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.datamodel.attributetype.DateType;
 import org.efaps.admin.datamodel.attributetype.StatusType;
@@ -58,8 +63,10 @@ import org.efaps.esjp.ui.rest.TableController;
 import org.efaps.esjp.ui.rest.TableController_Base;
 import org.efaps.esjp.ui.rest.dto.FilterDto;
 import org.efaps.esjp.ui.rest.dto.FilterKind;
+import org.efaps.esjp.ui.rest.dto.OptionDto;
 import org.efaps.util.EFapsException;
 import org.efaps.util.UUIDUtil;
+import org.efaps.util.cache.CacheReloadException;
 import org.efaps.util.cache.InfinispanCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -238,10 +245,24 @@ public class StandardTableProvider
             }
             for (final var filter : filters) {
                 switch (filter.getKind()) {
-                    case DATE: {
+                    case DATE:
                         wherePart.attribute(filter.getAttribute()).greaterOrEq(filter.getValue1().toString())
                                         .and().attribute(filter.getAttribute()).lessOrEq(filter.getValue2().toString());
-                    }
+                        break;
+                    case STATUS:
+                        final var type = findCommonAncestor(types);
+                        final Set<Status> stati = new HashSet<>();
+                        for (final var oneType : types) {
+                            final Attribute attr = oneType.getStatusAttribute();
+                            stati.addAll(getStatus4Type(attr.getLink()));
+                        }
+                        @SuppressWarnings("unchecked") final Collection<String> selected = (Collection<String>) filter
+                                        .getValue2();
+                        final var selectedIds = stati.stream()
+                                        .filter(status -> selected.contains(status.getKey()))
+                                        .map(Status::getId).toArray(Long[]::new);
+                        wherePart.attribute(type.getStatusAttribute().getName()).in(selectedIds);
+                        break;
                 }
             }
         }
@@ -249,6 +270,7 @@ public class StandardTableProvider
 
     protected List<FilterDto> evalDefaultFilter(final List<Type> types,
                                                 final List<Field> fields)
+        throws CacheReloadException
     {
         final List<FilterDto> ret = new ArrayList<>();
         for (final var field : fields) {
@@ -274,18 +296,72 @@ public class StandardTableProvider
                                 final var fromSub = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
                                 final var rangeCount = parts.length > 2 ? Integer.parseInt(parts[2]) : 1;
                                 switch (range) {
-                                    case "WEEK": {
+                                    case "WEEK":
                                         filterBuilder.withValue1(LocalDate.now()
                                                         .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
                                                         .minusWeeks(fromSub));
                                         filterBuilder.withValue2(LocalDate.now().plusWeeks(rangeCount));
-                                    }
+                                        break;
+                                    case "MONTH":
+                                        filterBuilder.withValue1(LocalDate.now()
+                                                        .minusMonths(fromSub));
+                                        filterBuilder.withValue2(LocalDate.now().plusMonths(rangeCount));
+                                        break;
+                                    default:
+                                        LOG.warn("Missing default date filter: {}", range);
                                 }
                                 ret.add(filterBuilder.build());
                             }
                         }
                     }
+                } else if (FilterType.STATUS == field.getFilter().getType()) {
+                    final var filterBuilder = FilterDto.builder()
+                                    .withKind(FilterKind.STATUS)
+                                    .withField(field.getName());
+                    final var defaultValues = field.getFilter().getDefaultValue().split(";");
+
+                    final Set<Status> stati = new HashSet<>();
+                    for (final var type : types) {
+                        final Attribute attr = type.getStatusAttribute();
+                        stati.addAll(getStatus4Type(attr.getLink()));
+                    }
+                    final Map<String, OptionDto> options = new HashMap<>();
+                    final Set<String> selected = new HashSet<>();
+                    for (final Status statusTmp : stati) {
+                        for (final String defaultv : defaultValues) {
+                            if (defaultv.equals(statusTmp.getKey())) {
+                                selected.add(statusTmp.getKey());
+                            }
+                        }
+                        final OptionDto option;
+                        if (options.containsKey(statusTmp.getKey())) {
+                            option = options.get(statusTmp.getKey());
+                        } else {
+                            option = OptionDto.builder()
+                                            .withLabel(statusTmp.getLabel())
+                                            .withValue(statusTmp.getKey())
+                                            .build();
+                            options.put(statusTmp.getKey(), option);
+                        }
+                    }
+                    filterBuilder.withValue1(options.values()).withValue2(selected);
+                    ret.add(filterBuilder.build());
                 }
+            }
+        }
+        return ret;
+    }
+
+    protected Set<Status> getStatus4Type(final Type type)
+        throws CacheReloadException
+    {
+        final Set<Status> ret = new HashSet<>();
+        final StatusGroup grp = Status.get(type.getUUID());
+        if (grp != null) {
+            ret.addAll(grp.values());
+        } else {
+            for (final Type childType : type.getChildTypes()) {
+                ret.addAll(getStatus4Type(childType));
             }
         }
         return ret;
@@ -352,4 +428,38 @@ public class StandardTableProvider
         return ret;
     }
 
+    protected Type findCommonAncestor(final List<Type> types)
+    {
+        if (types.size() == 1) {
+            return types.get(0);
+        }
+        final List<List<Type>> typeLists = new ArrayList<>();
+        for (final Type type : types) {
+            final List<Type> ancestors = new ArrayList<>();
+            Type currentType = type;
+            ancestors.add(currentType);
+            while (currentType.getParentType() != null) {
+                currentType = currentType.getParentType();
+                ancestors.add(currentType);
+            }
+            typeLists.add(ancestors);
+        }
+        Type tempType = null;
+        final List<Type> compList = typeLists.get(0);
+        typeLists.remove(0);
+        for (final Type comp : compList) {
+            boolean found = true;
+            for (final List<Type> typeList : typeLists) {
+                if (!typeList.contains(comp)) {
+                    found = false;
+                    break;
+                }
+            }
+            if (found) {
+                tempType = comp;
+                break;
+            }
+        }
+        return tempType;
+    }
 }
