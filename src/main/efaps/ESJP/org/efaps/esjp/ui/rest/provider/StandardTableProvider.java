@@ -296,6 +296,10 @@ public class StandardTableProvider
                                 final var fromSub = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
                                 final var rangeCount = parts.length > 2 ? Integer.parseInt(parts[2]) : 1;
                                 switch (range) {
+                                    case "TODAY":
+                                        filterBuilder.withValue1(LocalDate.now());
+                                        filterBuilder.withValue2(LocalDate.now().plusDays(rangeCount));
+                                        break;
                                     case "WEEK":
                                         filterBuilder.withValue1(LocalDate.now()
                                                         .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
