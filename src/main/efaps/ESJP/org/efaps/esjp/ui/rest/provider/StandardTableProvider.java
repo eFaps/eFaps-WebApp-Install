@@ -21,6 +21,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -77,25 +78,35 @@ public class StandardTableProvider
     implements ITableProvider
 {
 
-    private static final Logger LOG = LoggerFactory.getLogger(TableController.class);
+    private static final Logger LOG = LoggerFactory.getLogger(StandardTableProvider.class);
 
     @Override
     @SuppressWarnings("unchecked")
     public Collection<Map<String, ?>> getValues(final AbstractCommand cmd,
                                                 final List<Field> fields,
-                                                final Map<String, String> properties,
+                                                final Map<String, String> propertiesMap,
                                                 final String oid)
         throws EFapsException
     {
-        final var types = evalTypes(properties);
+        final var types = evalTypes(propertiesMap);
         final var typeNames = types.stream().map(Type::getName).toArray(String[]::new);
+        LOG.debug("typeNames: {}", Arrays.toString(typeNames));
         final var query = EQL.builder()
                         .print()
                         .query(typeNames);
 
         Where where = null;
-        if (properties.containsKey("LinkFrom") && Instance.get(oid).isValid()) {
-            where = query.where().attribute(properties.get("LinkFrom")).eq(Instance.get(oid));
+        final var properties = new Properties();
+        properties.putAll(propertiesMap);
+        final var linkFroms = PropertiesUtil.analyseProperty(properties, "LinkFrom", 0);
+        boolean first = true;
+        for (final var linkfrom: linkFroms.entrySet()) {
+            if (first) {
+                first = false;
+                where = query.where().attribute(linkfrom.getValue()).eq(Instance.get(oid));
+            } else {
+                where.or().attribute(linkfrom.getValue()).eq(Instance.get(oid));
+            }
         }
 
         if (properties.containsKey("InstanceSelect")) {
@@ -193,7 +204,7 @@ public class StandardTableProvider
         properties.putAll(_propertiesMap);
         final var types = PropertiesUtil.analyseProperty(properties, "Type", 0);
         final var expandChildTypes = PropertiesUtil.analyseProperty(properties, "ExpandChildTypes", 0);
-
+        LOG.debug("evaluating types: {}, expandChildTypes: {}", types, expandChildTypes);
         for (final var typeEntry : types.entrySet()) {
             Type type;
             if (UUIDUtil.isUUID(typeEntry.getValue())) {
@@ -202,11 +213,9 @@ public class StandardTableProvider
                 type = Type.get(typeEntry.getValue());
             }
             typeList.add(type);
-            // default expand for children, if not deactiavted
-            if (types.size() == 1
-                            && (expandChildTypes.size() == 0
-                                            || expandChildTypes.size() == 1
-                                                            && !"false".equalsIgnoreCase(expandChildTypes.get(0)))) {
+            // default expand for children, if not deactivated
+            if (expandChildTypes.size() == 0 || expandChildTypes.size() == 1
+                            && !"false".equalsIgnoreCase(expandChildTypes.get(0))) {
                 type.getChildTypes().forEach(at -> typeList.add(at));
             }
             // if we have more specific ones evaluate for each type
