@@ -247,12 +247,20 @@ public class StandardTableProvider
             LOG.info("applying filter");
             filterCache.put(key, filters);
             Where wherePart;
+            boolean connect;
             if (where == null) {
                 wherePart = query.where();
+                connect = false;
             } else {
                 wherePart = where;
+                connect = true;
             }
             for (final var filter : filters) {
+                if (connect) {
+                    wherePart.and();
+                } else {
+                    connect = true;
+                }
                 switch (filter.getKind()) {
                     case DATE:
                         wherePart.attribute(filter.getAttribute()).greaterOrEq(filter.getValue1().toString())
