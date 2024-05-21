@@ -48,6 +48,7 @@ import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
+import org.efaps.admin.ui.AbstractUserInterfaceObject;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.admin.ui.field.Field.Display;
 import org.efaps.api.ui.FilterBase;
@@ -82,7 +83,7 @@ public class StandardTableProvider
 
     @Override
     @SuppressWarnings("unchecked")
-    public Collection<Map<String, ?>> getValues(final AbstractCommand cmd,
+    public Collection<Map<String, ?>> getValues(final AbstractUserInterfaceObject cmd,
                                                 final List<Field> fields,
                                                 final Map<String, String> propertiesMap,
                                                 final String oid)
@@ -118,7 +119,8 @@ public class StandardTableProvider
 
         final var print = query.select();
 
-        if (cmd.isTargetShowCheckBoxes() || fields.stream().anyMatch(field -> field.getReference() != null)) {
+        if (cmd instanceof AbstractCommand && ((AbstractCommand) cmd).isTargetShowCheckBoxes()
+                        || fields.stream().anyMatch(field -> field.getReference() != null)) {
             print.oid().as("OID");
         }
         for (final var field : fields) {
@@ -226,14 +228,14 @@ public class StandardTableProvider
         return typeList;
     }
 
-    public void addFilter(final AbstractCommand cmd,
+    public void addFilter(final AbstractUserInterfaceObject cmd,
                           final Query query,
                           final Where where,
                           final List<Type> types,
                           final List<Field> fields)
         throws EFapsException
     {
-        final var key = TableController.getFilterKey(cmd.getUUID().toString());
+        final var key = TableController.getFilterKey(cmd);
         final var filterCache = InfinispanCache.get().<String, List<FilterDto>>getCache(TableController_Base.CACHENAME);
         List<FilterDto> filters = new ArrayList<>();
         if (filterCache.containsKey(key)) {
@@ -241,7 +243,6 @@ public class StandardTableProvider
         } else if (fields.stream().anyMatch(field -> (field.getFilter() != null
                         && FilterBase.DATABASE.equals(field.getFilter().getBase())))) {
             filters = evalDefaultFilter(types, fields);
-
         }
         if (CollectionUtils.isNotEmpty(filters)) {
             LOG.info("applying filter");

@@ -17,6 +17,7 @@
 package org.efaps.esjp.ui.rest;
 
 import java.io.StringReader;
+import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
@@ -91,6 +92,7 @@ import org.efaps.esjp.ui.rest.dto.SectionType;
 import org.efaps.esjp.ui.rest.dto.TableSectionDto;
 import org.efaps.esjp.ui.rest.dto.ValueDto;
 import org.efaps.esjp.ui.rest.dto.ValueType;
+import org.efaps.esjp.ui.rest.provider.ITableProvider;
 import org.efaps.util.EFapsException;
 import org.efaps.util.UUIDUtil;
 import org.efaps.util.cache.CacheReloadException;
@@ -959,50 +961,38 @@ public abstract class ContentController_Base
         return ret;
     }
 
-    public Collection<Map<String, ?>> getValues(final AbstractUserInterfaceObject _cmd,
-                                                final org.efaps.admin.ui.Table _table,
-                                                final Instance _instance)
+    public Collection<Map<String, ?>> getValues(final AbstractUserInterfaceObject cmd,
+                                                final org.efaps.admin.ui.Table table,
+                                                final Instance instance)
         throws EFapsException
     {
         Collection<Map<String, ?>> ret;
         if (TargetMode.CREATE.equals(this.currentTargetMode)) {
             ret = new ArrayList<>();
         } else {
-            final var fields = getFields(_table);
-            final var typeList = evalTypes(_cmd);
-            final var types = typeList.stream().map(Type::getName).toArray(String[]::new);
-
-            final var propertiesMap = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
-            if (propertiesMap.containsKey("InstanceSelect")) {
-                LOG.warn("doe not work with InstanceSelect yet..");
+            final var event = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0);
+            String className;
+            if ("org.efaps.esjp.common.uitable.MultiPrint".equals(event.getResourceName())) {
+                className = "org.efaps.esjp.ui.rest.provider.StandardTableProvider";
+            } else {
+                className = event.getResourceName();
             }
-
-            final var query = EQL.builder()
-                            .print()
-                            .query(types);
-
-            if (propertiesMap.containsKey("LinkFrom")) {
-                final var linkfromAttr = propertiesMap.get("LinkFrom");
-                query.where().attr(linkfromAttr).eq(_instance);
+            ITableProvider provider = null;
+            try {
+                final Class<?> cls = Class.forName(className, true, EFapsClassLoader.getInstance());
+                LOG.info("TableProvider className {} ", className);
+                provider = (ITableProvider) cls.getConstructor().newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                            | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                LOG.error("Could not instantiate TableProvider", e);
             }
-            final var print = query.select();
+            if (provider == null) {
+                throw new EFapsException(this.getClass(), "No TableProvider");
+            }
+            final var fields = getFields(table);
+            final var properties = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
 
-            if (fields.stream().anyMatch(field -> field.getReference() != null)) {
-                print.oid().as("OID");
-            }
-            for (final var field : fields) {
-                if (field.getAttribute() != null) {
-                    add2Select4Attribute(print, field, typeList, null);
-                } else if (field.getSelect() != null) {
-                    print.select(field.getSelect()).as(field.getName());
-                } else if (field.getMsgPhrase() != null) {
-                    print.msgPhrase(getBaseSelect4MsgPhrase(field), field.getMsgPhrase()).as(field.getName());
-                }
-                if (field.getSelectAlternateOID() != null) {
-                    print.select(field.getSelectAlternateOID()).as(field.getName() + "_AOID");
-                }
-            }
-            ret = print.evaluate().getData();
+            ret = provider.getValues(cmd, fields, properties, instance.getOid());
         }
         return ret;
     }

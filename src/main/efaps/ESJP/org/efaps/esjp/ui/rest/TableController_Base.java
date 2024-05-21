@@ -26,6 +26,7 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsClassLoader;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
+import org.efaps.admin.ui.AbstractUserInterfaceObject;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
 import org.efaps.admin.ui.Menu;
@@ -131,7 +132,7 @@ public abstract class TableController_Base
         if (cmd == null) {
             cmd = Menu.get(UUID.fromString(cmdId));
         }
-        final var key = getFilterKey(cmdId);
+        final var key = getFilterKey(cmd);
         final var filterCache = InfinispanCache.get().<String, List<FilterDto>>getCache(TableController.CACHENAME);
         final Response ret;
         if (filterCache.containsKey(key)) {
@@ -150,17 +151,22 @@ public abstract class TableController_Base
                                        final List<FilterDto> filters)
         throws EFapsException
     {
-        final var key = getFilterKey(cmdId);
+        AbstractCommand cmd = Command.get(UUID.fromString(cmdId));
+        if (cmd == null) {
+            cmd = Menu.get(UUID.fromString(cmdId));
+        }
+        final var key = getFilterKey(cmd);
         final var filterCache = InfinispanCache.get().<String, List<FilterDto>>getCache(TableController.CACHENAME);
         filterCache.put(key, filters);
         return Response.ok().build();
     }
 
-    public static String getFilterKey(final String cmdUUID)
+    public static String getFilterKey(final AbstractUserInterfaceObject uiObject)
         throws CacheReloadException, EFapsException
     {
+        final var key = uiObject.getUUID() != null ? uiObject.getUUID().toString()
+                        : uiObject.getName() + uiObject.getId();
         return Context.getThreadContext().getPersonId() + "-" + Context.getThreadContext().getCompany().getId()
-                        + "-" + cmdUUID;
-
+                        + "-" + key;
     }
 }

@@ -22,7 +22,7 @@ import java.util.Map;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
-import org.efaps.admin.ui.AbstractCommand;
+import org.efaps.admin.ui.AbstractUserInterfaceObject;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.util.EFapsException;
 
@@ -31,7 +31,7 @@ import org.efaps.util.EFapsException;
 public interface ITableProvider
 {
 
-    Collection<Map<String, ?>> getValues(final AbstractCommand cmd,
+    Collection<Map<String, ?>> getValues(final AbstractUserInterfaceObject cmd,
                                          final List<Field> fields,
                                          final Map<String, String> properties,
                                          final String oid)
