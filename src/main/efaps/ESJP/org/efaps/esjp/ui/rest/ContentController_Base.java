@@ -801,7 +801,10 @@ public abstract class ContentController_Base
                                 }
                                 break;
                             case "Status":
-                                final var statusType = attr.getLink();
+                                var statusType = attr.getLink();
+                                if (statusType.isAbstract()) {
+                                    statusType = inst.getType().getStatusAttribute().getLink();
+                                }
                                 valueBldr.withType(ValueType.DROPDOWN)
                                                 .withOptions(Status.get(statusType.getUUID()).values().stream()
                                                                 .map(status -> OptionDto.builder()
