@@ -59,9 +59,7 @@ public abstract class TableController_Base
 
     public TableController_Base()
     {
-        if (!InfinispanCache.get().exists(TableController_Base.CACHENAME)) {
-            InfinispanCache.get().initCache(TableController_Base.CACHENAME);
-        }
+        InfinispanCache.get().initCache(TableController_Base.CACHENAME);
     }
 
     public Response getTable(final String cmdId,

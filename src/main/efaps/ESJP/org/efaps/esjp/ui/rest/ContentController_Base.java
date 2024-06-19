@@ -93,6 +93,7 @@ import org.efaps.esjp.ui.rest.dto.TableSectionDto;
 import org.efaps.esjp.ui.rest.dto.ValueDto;
 import org.efaps.esjp.ui.rest.dto.ValueType;
 import org.efaps.esjp.ui.rest.provider.ITableProvider;
+import org.efaps.esjp.ui.util.LabelUtils;
 import org.efaps.util.EFapsException;
 import org.efaps.util.UUIDUtil;
 import org.efaps.util.cache.CacheReloadException;
@@ -880,9 +881,9 @@ public abstract class ContentController_Base
         if (field.getLabel() != null) {
             ret = DBProperties.getProperty(field.getLabel());
         } else if (field.getAttribute() != null) {
-            final var attr = type.getAttribute(field.getAttribute());
-            if (attr != null) {
-                ret = DBProperties.getProperty(attr.getLabelKey());
+            final var labelOpt = LabelUtils.evalForTypeAndAttribute(type, field.getAttribute());
+            if (labelOpt.isPresent()) {
+                ret = labelOpt.get();
             }
         }
         if (ret == null && field.getSelect() != null) {
@@ -895,9 +896,9 @@ public abstract class ContentController_Base
                                     .filter(element -> (element instanceof AttributeSelectElement)).findFirst();
                     if (attrSelectEle.isPresent()) {
                         final var attrName = ((AttributeSelectElement) attrSelectEle.get()).getName();
-                        final var attr = linkAttr.getLink().getAttribute(attrName);
-                        if (attr != null) {
-                            ret = DBProperties.getProperty(attr.getLabelKey());
+                        final var labelOpt = LabelUtils.evalForTypeAndAttribute(linkAttr.getLink(), attrName);
+                        if (labelOpt.isPresent()) {
+                            ret = labelOpt.get();
                         }
                     }
                 }

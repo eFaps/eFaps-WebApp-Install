@@ -47,6 +47,7 @@ import org.efaps.esjp.ui.rest.dto.SearchDto;
 import org.efaps.esjp.ui.rest.dto.TableDto;
 import org.efaps.esjp.ui.rest.dto.ValueDto;
 import org.efaps.esjp.ui.rest.dto.ValueType;
+import org.efaps.esjp.ui.util.LabelUtils;
 import org.efaps.util.EFapsException;
 import org.efaps.util.UUIDUtil;
 import org.efaps.util.cache.CacheReloadException;
@@ -148,9 +149,9 @@ public abstract class SearchController_Base
                 final var typeOpt = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).stream()
                                 .map(eventDef -> eventDef.getProperty("Type")).filter(Objects::nonNull).findFirst();
                 if (typeOpt.isPresent()) {
-                    final var attr = Type.get(typeOpt.get()).getAttribute(_field.getAttribute());
-                    if (attr != null) {
-                        ret = DBProperties.getProperty(attr.getLabelKey());
+                    final var labelOpt = LabelUtils.evalForTypeAndAttribute(Type.get(typeOpt.get()), _field.getAttribute());
+                    if (labelOpt.isPresent()) {
+                        ret = labelOpt.get();
                     }
                 }
             }
@@ -165,11 +166,7 @@ public abstract class SearchController_Base
                                     .filter(element -> (element instanceof AttributeSelectElement)).findFirst();
                     if (attrSelectEle.isPresent()) {
                         final var attrName = ((AttributeSelectElement) attrSelectEle.get()).getName();
-                        final var attr = classification.getAttribute(attrName);
-
-                        if (attr != null) {
-                            ret = DBProperties.getProperty(attr.getLabelKey());
-                        }
+                        ret = LabelUtils.evalForTypeAndAttribute(classification, attrName).orElse("");
                     }
                 }
             }
