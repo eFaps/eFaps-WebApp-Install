@@ -62,14 +62,12 @@ import org.efaps.eql.builder.Query;
 import org.efaps.eql.builder.Where;
 import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.ui.rest.TableController;
-import org.efaps.esjp.ui.rest.TableController_Base;
 import org.efaps.esjp.ui.rest.dto.FilterDto;
 import org.efaps.esjp.ui.rest.dto.FilterKind;
 import org.efaps.esjp.ui.rest.dto.OptionDto;
 import org.efaps.util.EFapsException;
 import org.efaps.util.UUIDUtil;
 import org.efaps.util.cache.CacheReloadException;
-import org.efaps.util.cache.InfinispanCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -101,7 +99,7 @@ public class StandardTableProvider
         properties.putAll(propertiesMap);
         final var linkFroms = PropertiesUtil.analyseProperty(properties, "LinkFrom", 0);
         boolean first = true;
-        for (final var linkfrom: linkFroms.entrySet()) {
+        for (final var linkfrom : linkFroms.entrySet()) {
             if (first) {
                 first = false;
                 where = query.where().attribute(linkfrom.getValue()).eq(Instance.get(oid));
@@ -236,17 +234,14 @@ public class StandardTableProvider
         throws EFapsException
     {
         final var key = TableController.getFilterKey(cmd);
-        final var filterCache = InfinispanCache.get().<String, List<FilterDto>>getCache(TableController_Base.CACHENAME);
-        List<FilterDto> filters = new ArrayList<>();
-        if (filterCache.containsKey(key)) {
-            filters = filterCache.get(key);
-        } else if (fields.stream().anyMatch(field -> (field.getFilter() != null
+        var filters = TableController.getFilters(key);
+        if (filters.isEmpty() && fields.stream().anyMatch(field -> (field.getFilter() != null
                         && FilterBase.DATABASE.equals(field.getFilter().getBase())))) {
             filters = evalDefaultFilter(types, fields);
         }
         if (CollectionUtils.isNotEmpty(filters)) {
             LOG.info("applying filter");
-            filterCache.put(key, filters);
+            TableController.cacheFilters(key, filters);
             Where wherePart;
             boolean connect;
             if (where == null) {

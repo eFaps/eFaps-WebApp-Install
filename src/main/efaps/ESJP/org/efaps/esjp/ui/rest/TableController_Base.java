@@ -17,9 +17,10 @@
 package org.efaps.esjp.ui.rest;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 
 import org.efaps.admin.event.EventType;
 import org.efaps.admin.program.esjp.EFapsApplication;
@@ -36,11 +37,14 @@ import org.efaps.esjp.ui.rest.dto.FilterDto;
 import org.efaps.esjp.ui.rest.dto.NavItemDto;
 import org.efaps.esjp.ui.rest.dto.TableDto;
 import org.efaps.esjp.ui.rest.provider.ITableProvider;
+import org.efaps.esjp.ui.util.ValueUtils;
 import org.efaps.util.EFapsException;
 import org.efaps.util.cache.CacheReloadException;
 import org.efaps.util.cache.InfinispanCache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
 
 import jakarta.ws.rs.core.Response;
 
@@ -55,7 +59,7 @@ public abstract class TableController_Base
      */
     private static final Logger LOG = LoggerFactory.getLogger(TableController.class);
 
-    public static final String CACHENAME = TableController.class.getName() + ".Cache";
+    private static final String CACHENAME = TableController.class.getName() + ".Cache";
 
     public TableController_Base()
     {
@@ -131,18 +135,10 @@ public abstract class TableController_Base
             cmd = Menu.get(UUID.fromString(cmdId));
         }
         final var key = getFilterKey(cmd);
-        final var filterCache = InfinispanCache.get().<String, List<FilterDto>>getCache(TableController.CACHENAME);
-        final Response ret;
-        if (filterCache.containsKey(key)) {
-            ret = Response.ok()
-                            .entity(filterCache.get(key))
-                            .build();
-        } else {
-            ret = Response.ok()
-                            .entity(Collections.emptyList())
-                            .build();
-        }
-        return ret;
+        final var filters = getFilters(key);
+        return Response.ok()
+                        .entity(filters)
+                        .build();
     }
 
     public Response updateTableFilters(final String cmdId,
@@ -154,8 +150,7 @@ public abstract class TableController_Base
             cmd = Menu.get(UUID.fromString(cmdId));
         }
         final var key = getFilterKey(cmd);
-        final var filterCache = InfinispanCache.get().<String, List<FilterDto>>getCache(TableController.CACHENAME);
-        filterCache.put(key, filters);
+        cacheFilters(key, filters);
         return Response.ok().build();
     }
 
@@ -166,5 +161,36 @@ public abstract class TableController_Base
                         : uiObject.getName() + uiObject.getId();
         return Context.getThreadContext().getPersonId() + "-" + Context.getThreadContext().getCompany().getId()
                         + "-" + key;
+    }
+
+    public static List<FilterDto> getFilters(final String key)
+    {
+        List<FilterDto> ret;
+        final var filterCache = InfinispanCache.get().<String, String>getCache(CACHENAME);
+        final var json = filterCache.get(key);
+        if (json != null) {
+            try {
+                ret = ValueUtils.getObjectMapper().readValue(json, ValueUtils.getObjectMapper().getTypeFactory()
+                                .constructCollectionType(List.class, FilterDto.class));
+            } catch (final JsonProcessingException e) {
+                LOG.error("Catched", e);
+                ret = new ArrayList<>();
+            }
+        } else {
+            ret = new ArrayList<>();
+        }
+        return ret;
+    }
+
+    public static void cacheFilters(final String key,
+                                    final List<FilterDto> filters)
+    {
+        final var filterCache = InfinispanCache.get().<String, String>getCache(CACHENAME);
+        try {
+            final var json = ValueUtils.getObjectMapper().writeValueAsString(filters);
+            filterCache.put(key, json, 24, TimeUnit.HOURS);
+        } catch (final JsonProcessingException e) {
+            LOG.error("Catched", e);
+        }
     }
 }
