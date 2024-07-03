@@ -23,9 +23,11 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import java.util.TreeMap;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -80,6 +82,7 @@ import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.ui.rest.dto.ActionDto;
 import org.efaps.esjp.ui.rest.dto.ActionType;
 import org.efaps.esjp.ui.rest.dto.AttributeSetDto;
+import org.efaps.esjp.ui.rest.dto.AttributeSetEntryDto;
 import org.efaps.esjp.ui.rest.dto.ContentDto;
 import org.efaps.esjp.ui.rest.dto.FormSectionDto;
 import org.efaps.esjp.ui.rest.dto.HeaderSectionDto;
@@ -393,28 +396,7 @@ public abstract class ContentController_Base
                         groupCount--;
                     }
                     if (field instanceof FieldSet) {
-                        if (eval != null) {
-                            // what happens if that is in a group?
-                            final var attributeSet = AttributeSet.find(type.getName(), field.getAttribute());
-                            final var attrList = ((FieldSet) field).getOrder().isEmpty()
-                                            ? attributeSet.getSetAttributes()
-                                            : ((FieldSet) field).getOrder();
-                            if (attributeSet != null) {
-                                final var attrSetDto = AttributeSetDto.builder()
-                                                .withName(field.getName())
-                                                .withLabel(DBProperties.getProperty(field.getLabel()));
-                                final List<ValueDto> values = new ArrayList<>();
-                                for (final var attr : attrList) {
-                                    final var fieldValue = eval.get(field.getName() + "-" + attr);
-                                    final var valueBldr = ValueDto.builder()
-                                                    .withName(attr)
-                                                    .withValue(fieldValue)
-                                                    .withLabel(DBProperties.getProperty(field.getLabel() + "/" + attr));
-                                    values.add(valueBldr.build());
-                                }
-                                currentValues.add(attrSetDto.withValue(values).build());
-                            }
-                        }
+                        currentValues.add(evalFieldSet(type, field, eval));
                     } else {
                         currentValues.add(evalValue(eval, field, type, instance));
                     }
@@ -436,6 +418,120 @@ public abstract class ContentController_Base
                             .build());
         }
         return ret;
+    }
+
+    protected AttributeSetDto evalFieldSet(final Type type,
+                                           final Field field,
+                                           final Evaluator eval)
+        throws EFapsException
+    {
+        final var attrSetDto = AttributeSetDto.builder()
+                        .withName(field.getName())
+                        .withLabel(DBProperties.getProperty(field.getLabel()));
+        if (eval != null) {
+            final var attributeSet = AttributeSet.find(type.getName(), field.getAttribute());
+
+            final var idList = eval.<List<Long>>get(field.getName() + "-ID");
+            LOG.info("{}", idList);
+            final Map<Long, Integer> indicesMap = idList.stream()
+                            .collect(Collectors.toMap(e -> e,
+                                            idList::indexOf,
+                                            Math::max,
+                                            TreeMap::new));
+            LOG.info("{}", indicesMap);
+            final var indices = new ArrayList<>(indicesMap.values());
+            LOG.info("{}", indices);
+            if (attributeSet != null) {
+                final var attrList = ((FieldSet) field).getOrder().isEmpty()
+                                ? attributeSet.getSetAttributes()
+                                : ((FieldSet) field).getOrder();
+                final var att2val = new HashMap<String, List<ValueDto>>();
+                if (field.isEditableDisplay(currentTargetMode)) {
+                    for (final var attrName : attrList) {
+                        final List<ValueDto> columnValue = new ArrayList<>();
+                        final var attribute = attributeSet.getAttribute(attrName);
+                        if (attribute != null) {
+                            final var fieldValues = eval.<List<?>>get(field.getName() + "-" + attrName);
+                            for (var fieldValue : fieldValues) {
+                                if (attribute.hasEvents(EventType.RANGE_VALUE)) {
+                                    final var options = getRangeValue(attribute, fieldValue, currentTargetMode);
+                                    final var valueBldr = ValueDto.builder()
+                                                    .withName(attrName)
+                                                    .withType(ValueType.DROPDOWN)
+                                                    .withLabel(DBProperties
+                                                                    .getProperty(field.getLabel() + "/" + attrName))
+                                                    .withOptions(options.stream()
+                                                                    .map(opt -> OptionDto.builder()
+                                                                                    .withLabel(opt.getLabel())
+                                                                                    .withValue(opt.getValue())
+                                                                                    .build())
+                                                                    .collect(Collectors.toList()));
+                                    final var selectedOpt = options.stream().filter(IOption::isSelected).findFirst();
+                                    if (selectedOpt.isPresent()) {
+                                        fieldValue = selectedOpt.get().getValue();
+                                    }
+                                    valueBldr.withValue(fieldValue);
+                                    columnValue.add(valueBldr.build());
+                                } else {
+                                    final var valueBldr = ValueDto.builder()
+                                                    .withName(attrName)
+                                                    .withLabel(DBProperties
+                                                                    .getProperty(field.getLabel() + "/" + attrName));
+                                    fieldValue = evalValueOnAttributeType(field, attribute, null, valueBldr,
+                                                    fieldValue);
+
+                                    columnValue.add(valueBldr.withValue(fieldValue).build());
+                                }
+                            }
+                        }
+                        att2val.put(attrName, columnValue);
+                    }
+                } else {
+                    for (final var attrName : attrList) {
+                        final List<ValueDto> columnValue = new ArrayList<>();
+                        final var fieldValues = eval.<List<?>>get(field.getName() + "-" + attrName);
+                        if (fieldValues == null) {
+                            final var valueBldr = ValueDto.builder()
+                                            .withName(attrName)
+                                            .withLabel(DBProperties.getProperty(field.getLabel() + "/" + attrName));
+                            columnValue.add(valueBldr.build());
+                        } else {
+                            for (final var fieldValue : fieldValues) {
+                                final var valueBldr = ValueDto.builder()
+                                                .withName(attrName)
+                                                .withValue(fieldValue)
+                                                .withLabel(DBProperties.getProperty(field.getLabel() + "/" + attrName));
+                                columnValue.add(valueBldr.build());
+                            }
+                        }
+                        att2val.put(attrName, columnValue);
+                    }
+                }
+                final List<AttributeSetEntryDto> values = new ArrayList<>();
+
+                for (int i = 0; i < indices.size(); i++) {
+                    final var rowList = new ArrayList<ValueDto>();
+                    for (final var attrName : attrList) {
+                        final var valueList = att2val.get(attrName);
+                        final var index = indices.get(i);
+                        if (valueList != null) {
+                            if (valueList.size() > index) {
+                                final var value = valueList.get(index);
+                                rowList.add(value);
+                            } else {
+                                final var value = valueList.get(0);
+                                rowList.add(value);
+                            }
+                        }
+                    }
+                    values.add(AttributeSetEntryDto.builder()
+                                    .withRowId(idList.get(i))
+                                    .withValues(rowList).build());
+                }
+                attrSetDto.withValue(values);
+            }
+        }
+        return attrSetDto.build();
     }
 
     protected void evalSelects4Class(final AbstractCommand callCmd,
@@ -467,7 +563,11 @@ public abstract class ContentController_Base
                     final var typeName = clazz == null ? instance.getType().getName() : clazz.getName();
                     final var attributeSet = AttributeSet.find(typeName, field.getAttribute());
                     if (attributeSet != null) {
-                        add2Selects4AttributeSetInViewMode(print, (FieldSet) field, attributeSet, clazz);
+                        if (TargetMode.VIEW.equals(currentTargetMode)) {
+                            add2Selects4AttributeSetInViewMode(print, (FieldSet) field, attributeSet, clazz);
+                        } else {
+                            add2Selects4AttributeSetInEditMode(print, (FieldSet) field, attributeSet, clazz);
+                        }
                     }
                 } else if (field.getSelect() != null) {
                     if (clazz != null) {
@@ -511,6 +611,7 @@ public abstract class ContentController_Base
         final var attrList = fieldSet.getOrder().isEmpty()
                         ? attributeSet.getSetAttributes()
                         : fieldSet.getOrder();
+        print.attributeSet(fieldSet.getAttribute()).attribute("ID").as(fieldSet.getName() + "-ID");
         for (final var attrName : attrList) {
             final var attr = attributeSet.getAttribute(attrName);
             if (attr.hasEvents(EventType.RANGE_VALUE)) {
@@ -518,6 +619,27 @@ public abstract class ContentController_Base
                 baseSelect = baseSelect + "attributeset[" + fieldSet.getAttribute() + "]";
                 add2Select4RangeValue(print, fieldSet.getName() + "-" + attrName, attr, baseSelect);
             } else if (clazz != null) {
+                print.clazz(clazz.getName()).attributeSet(fieldSet.getAttribute()).attribute(attrName)
+                                .as(fieldSet.getName() + "-" + attrName);
+            } else {
+                print.attributeSet(fieldSet.getAttribute()).attribute(attrName)
+                                .as(fieldSet.getName() + "-" + attrName);
+            }
+        }
+    }
+
+    private void add2Selects4AttributeSetInEditMode(final Print print,
+                                                    final FieldSet fieldSet,
+                                                    final AttributeSet attributeSet,
+                                                    final Classification clazz)
+        throws EFapsException
+    {
+        final var attrList = fieldSet.getOrder().isEmpty()
+                        ? attributeSet.getSetAttributes()
+                        : fieldSet.getOrder();
+        print.attributeSet(fieldSet.getAttribute()).attribute("ID").as(fieldSet.getName() + "-ID");
+        for (final var attrName : attrList) {
+            if (clazz != null) {
                 print.clazz(clazz.getName()).attributeSet(fieldSet.getAttribute()).attribute(attrName)
                                 .as(fieldSet.getName() + "-" + attrName);
             } else {
@@ -759,90 +881,7 @@ public abstract class ContentController_Base
                             fieldValue = selectedOpt.get().getValue();
                         }
                     } else {
-                        final var attrType = attr.getAttributeType();
-                        switch (attrType.getName()) {
-                            case "Enum":
-                                try {
-                                    final Class<?> clazz = Class.forName(attr.getClassName(), false,
-                                                    EFapsClassLoader.getInstance());
-                                    valueBldr.withType(ValueType.RADIO)
-                                                    .withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
-                                                                    .map(ienum -> OptionDto.builder()
-                                                                                    .withValue(((IEnum) ienum).getInt())
-                                                                                    .withLabel(getEnumLabel(
-                                                                                                    (IEnum) ienum))
-                                                                                    .build())
-                                                                    .collect(Collectors.toList()));
-                                } catch (final ClassNotFoundException e) {
-                                    LOG.error("Catched", e);
-                                }
-                                if (TargetMode.EDIT.equals(currentTargetMode) && fieldValue instanceof IEnum) {
-                                    fieldValue = ((IEnum) fieldValue).getInt();
-                                }
-                                break;
-                            case "BitEnum":
-                                try {
-                                    final Class<?> clazz = Class.forName(attr.getClassName(), false,
-                                                    EFapsClassLoader.getInstance());
-                                    valueBldr.withType(ValueType.BITENUM)
-                                                    .withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
-                                                                    .map(ienum -> OptionDto.builder()
-                                                                                    .withValue(((IBitEnum) ienum)
-                                                                                                    .getInt())
-                                                                                    .withLabel(getEnumLabel(
-                                                                                                    (IEnum) ienum))
-                                                                                    .build())
-                                                                    .collect(Collectors.toList()));
-                                } catch (final ClassNotFoundException e) {
-                                    LOG.error("Catched", e);
-                                }
-                                if (TargetMode.EDIT.equals(currentTargetMode) && fieldValue instanceof Collection) {
-                                    fieldValue = ((Collection<?>) fieldValue).stream()
-                                                    .map(enumVal -> ((IBitEnum) enumVal).getInt()).toList();
-                                }
-                                break;
-                            case "Status":
-                                var statusType = attr.getLink();
-                                if (statusType.isAbstract()) {
-                                    statusType = inst.getType().getStatusAttribute().getLink();
-                                }
-                                valueBldr.withType(ValueType.DROPDOWN)
-                                                .withOptions(Status.get(statusType.getUUID()).values().stream()
-                                                                .map(status -> OptionDto.builder()
-                                                                                .withValue(status.getId())
-                                                                                .withLabel(status.getLabel())
-                                                                                .build())
-                                                                .collect(Collectors.toList()));
-                                break;
-                            case "Boolean":
-                                valueBldr.withType(ValueType.RADIO);
-                                valueBldr.withOptions(Arrays.asList(OptionDto.builder()
-                                                .withValue(true)
-                                                .withLabel(getBooleanLabel(attr, field, true))
-                                                .build(),
-                                                OptionDto.builder()
-                                                                .withValue(false)
-                                                                .withLabel(getBooleanLabel(attr, field, false))
-                                                                .build()));
-                                break;
-                            case "Date":
-                                valueBldr.withType(ValueType.DATE);
-                                if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null) {
-                                    fieldValue = LocalDate.now(Context.getThreadContext().getZoneId()).toString();
-                                }
-                                break;
-                            case "DateTime":
-                                valueBldr.withType(ValueType.DATETIME);
-                                if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null) {
-                                    fieldValue = OffsetDateTime.now(Context.getThreadContext().getZoneId())
-                                                    .withNano(0).toString();
-                                }
-                                break;
-                            default:
-                                final var valueType = field.getRows() > 1 ? ValueType.TEXTAREA : ValueType.INPUT;
-                                valueBldr.withType(valueType);
-                                break;
-                        }
+                        fieldValue = evalValueOnAttributeType(field, attr, inst, valueBldr, fieldValue);
                     }
                 } else {
                     final var valueType = field.getRows() > 1 ? ValueType.TEXTAREA : ValueType.INPUT;
@@ -871,6 +910,101 @@ public abstract class ContentController_Base
                         .withName(field.getName())
                         .withValue(fieldValue)
                         .build();
+    }
+
+    protected Object evalValueOnAttributeType(final Field field,
+                                              final Attribute attr,
+                                              final Instance instance,
+                                              final ValueDto.Builder valueBldr,
+                                              final Object inFieldValue)
+        throws EFapsException
+    {
+        Object fieldValue = inFieldValue;
+        final var attrType = attr.getAttributeType();
+        switch (attrType.getName()) {
+            case "Enum":
+                try {
+                    final Class<?> clazz = Class.forName(attr.getClassName(), false,
+                                    EFapsClassLoader.getInstance());
+                    valueBldr.withType(ValueType.RADIO)
+                                    .withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
+                                                    .map(ienum -> OptionDto.builder()
+                                                                    .withValue(((IEnum) ienum).getInt())
+                                                                    .withLabel(getEnumLabel(
+                                                                                    (IEnum) ienum))
+                                                                    .build())
+                                                    .collect(Collectors.toList()));
+                } catch (final ClassNotFoundException e) {
+                    LOG.error("Catched", e);
+                }
+                if (TargetMode.EDIT.equals(currentTargetMode) && fieldValue instanceof IEnum) {
+                    fieldValue = ((IEnum) fieldValue).getInt();
+                }
+                break;
+            case "BitEnum":
+                try {
+                    final Class<?> clazz = Class.forName(attr.getClassName(), false,
+                                    EFapsClassLoader.getInstance());
+                    valueBldr.withType(ValueType.BITENUM)
+                                    .withOptions(Arrays.asList(clazz.getEnumConstants()).stream()
+                                                    .map(ienum -> OptionDto.builder()
+                                                                    .withValue(((IBitEnum) ienum)
+                                                                                    .getInt())
+                                                                    .withLabel(getEnumLabel(
+                                                                                    (IEnum) ienum))
+                                                                    .build())
+                                                    .collect(Collectors.toList()));
+                } catch (final ClassNotFoundException e) {
+                    LOG.error("Catched", e);
+                }
+                if (TargetMode.EDIT.equals(currentTargetMode) && fieldValue instanceof Collection) {
+                    fieldValue = ((Collection<?>) fieldValue).stream()
+                                    .map(enumVal -> ((IBitEnum) enumVal).getInt()).toList();
+                }
+                break;
+            case "Status":
+                var statusType = attr.getLink();
+                if (statusType.isAbstract()) {
+                    statusType = instance.getType().getStatusAttribute().getLink();
+                }
+                valueBldr.withType(ValueType.DROPDOWN)
+                                .withOptions(Status.get(statusType.getUUID()).values().stream()
+                                                .map(status -> OptionDto.builder()
+                                                                .withValue(status.getId())
+                                                                .withLabel(status.getLabel())
+                                                                .build())
+                                                .collect(Collectors.toList()));
+                break;
+            case "Boolean":
+                valueBldr.withType(ValueType.RADIO);
+                valueBldr.withOptions(Arrays.asList(OptionDto.builder()
+                                .withValue(true)
+                                .withLabel(getBooleanLabel(attr, field, true))
+                                .build(),
+                                OptionDto.builder()
+                                                .withValue(false)
+                                                .withLabel(getBooleanLabel(attr, field, false))
+                                                .build()));
+                break;
+            case "Date":
+                valueBldr.withType(ValueType.DATE);
+                if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null) {
+                    fieldValue = LocalDate.now(Context.getThreadContext().getZoneId()).toString();
+                }
+                break;
+            case "DateTime":
+                valueBldr.withType(ValueType.DATETIME);
+                if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null) {
+                    fieldValue = OffsetDateTime.now(Context.getThreadContext().getZoneId())
+                                    .withNano(0).toString();
+                }
+                break;
+            default:
+                final var valueType = field.getRows() > 1 ? ValueType.TEXTAREA : ValueType.INPUT;
+                valueBldr.withType(valueType);
+                break;
+        }
+        return fieldValue;
     }
 
     private String getLabel(final Type type,
