@@ -23,6 +23,10 @@ import org.efaps.util.EFapsException;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.Application;
+import jakarta.ws.rs.core.Context;
+import jakarta.ws.rs.core.HttpHeaders;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -37,10 +41,12 @@ public class UserController
     @GET
     @Path("/current")
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response getCurrent()
+    public Response getCurrent(@Context final Application app,
+                               @Context final HttpHeaders headers,
+                               @QueryParam("sync") final Boolean sync)
         throws EFapsException
     {
-        return super.getCurrent();
+        return super.getCurrent(app, headers, sync);
     }
 
     @Override

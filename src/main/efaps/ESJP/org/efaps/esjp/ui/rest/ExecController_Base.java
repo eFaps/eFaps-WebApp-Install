@@ -127,6 +127,9 @@ public abstract class ExecController_Base
         final AbstractCommand cmd = Command.get(UUID.fromString(cmdId));
 
         final var paraValues = new ArrayList<>();
+        paraValues.add(ParameterValues.PAYLOAD);
+        paraValues.add(dto.getValues());
+
         paraValues.add(ParameterValues.PARAMETERS);
         paraValues.add(parameters);
 
