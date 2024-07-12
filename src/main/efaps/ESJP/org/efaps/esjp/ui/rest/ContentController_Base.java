@@ -805,90 +805,103 @@ public abstract class ContentController_Base
             fieldValue = eval == null ? null : eval.get(field.getName());
         }
 
-        final UIType uiType = getUIType(field);
-        if (UIType.SNIPPLET.equals(uiType)) {
-            fieldValue = getSnipplet(inst, field);
-            valueBldr.withType(ValueType.SNIPPLET);
-        } else if (UIType.UPLOAD.equals(uiType)) {
-            valueBldr.withType(ValueType.UPLOAD);
-        } else if (UIType.UPLOADMULTIPLE.equals(uiType)) {
-            valueBldr.withType(ValueType.UPLOADMULTIPLE);
-        } else if (UIType.BUTTON.equals(uiType) || field instanceof FieldCommand) {
-            valueBldr.withType(ValueType.BUTTON).withRef(String.valueOf(field.getId()));
-        } else if (field.hasEvents(EventType.UI_FIELD_FORMAT)) {
-            fieldValue = evalFieldFormatEvent(inst, field, valueBldr, fieldValue, currentTargetMode);
-        } else if ((TargetMode.CREATE.equals(currentTargetMode) || TargetMode.EDIT.equals(currentTargetMode))
-                        && field.isEditableDisplay(currentTargetMode)) {
-            if (field instanceof FieldClassification) {
-                valueBldr.withType(ValueType.CLASSIFICATION);
-                final String[] names = field.getClassificationName().split(";");
-                final List<UUID> classifications = new ArrayList<>();
-                for (final var name : names) {
-                    if (UUIDUtil.isUUID(name)) {
-                        classifications.add(UUID.fromString(name));
-                    } else {
-                        final var classification = Classification.get(name);
-                        if (classification != null) {
-                            classifications.add(classification.getUUID());
+        final var valueType = getValueType(field);
+        if (valueType != null) {
+            fieldValue = switch (valueType) {
+                case IMAGE -> {
+                    valueBldr.withType(ValueType.IMAGE);
+                    yield prepareImage(eval.inst().getOid());
+                }
+                default -> throw new IllegalArgumentException("Unexpected value: " + valueType);
+            };
+        } else {
+            final UIType uiType = getUIType(field);
+            if (UIType.SNIPPLET.equals(uiType)) {
+                fieldValue = getSnipplet(inst, field);
+                valueBldr.withType(ValueType.SNIPPLET);
+            } else if (UIType.UPLOAD.equals(uiType)) {
+                valueBldr.withType(ValueType.UPLOAD);
+            } else if (UIType.UPLOADMULTIPLE.equals(uiType)) {
+                valueBldr.withType(ValueType.UPLOADMULTIPLE);
+            } else if (UIType.BUTTON.equals(uiType) || field instanceof FieldCommand) {
+                valueBldr.withType(ValueType.BUTTON).withRef(String.valueOf(field.getId()));
+            } else if (field.hasEvents(EventType.UI_FIELD_FORMAT)) {
+                fieldValue = evalFieldFormatEvent(inst, field, valueBldr, fieldValue, currentTargetMode);
+            } else if ((TargetMode.CREATE.equals(currentTargetMode) || TargetMode.EDIT.equals(currentTargetMode))
+                            && field.isEditableDisplay(currentTargetMode)) {
+                if (field instanceof FieldClassification) {
+                    valueBldr.withType(ValueType.CLASSIFICATION);
+                    final String[] names = field.getClassificationName().split(";");
+                    final List<UUID> classifications = new ArrayList<>();
+                    for (final var name : names) {
+                        if (UUIDUtil.isUUID(name)) {
+                            classifications.add(UUID.fromString(name));
+                        } else {
+                            final var classification = Classification.get(name);
+                            if (classification != null) {
+                                classifications.add(classification.getUUID());
+                            }
                         }
                     }
-                }
-                fieldValue = classifications;
-            } else if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {
-                valueBldr.withType(ValueType.AUTOCOMPLETE)
-                                .withRef(String.valueOf(field.getId()));
-                final var alterOid = eval == null ? null : eval.get(field.getName() + "_AOID");
-                if (alterOid != null) {
-                    valueBldr.withOptions(List.of(OptionDto.builder()
-                                    .withLabel(String.valueOf(fieldValue))
-                                    .withValue(alterOid)
-                                    .build()));
-                    fieldValue = alterOid;
-                }
-            } else if (field.hasEvents(EventType.UI_FIELD_VALUE)) {
-                Instance callInstance;
-                if (type instanceof Classification) {
-                    callInstance = eval.inst(type.getName());
+                    fieldValue = classifications;
+                } else if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {
+                    valueBldr.withType(ValueType.AUTOCOMPLETE)
+                                    .withRef(String.valueOf(field.getId()));
+                    final var alterOid = eval == null ? null : eval.get(field.getName() + "_AOID");
+                    if (alterOid != null) {
+                        valueBldr.withOptions(List.of(OptionDto.builder()
+                                        .withLabel(String.valueOf(fieldValue))
+                                        .withValue(alterOid)
+                                        .build()));
+                        fieldValue = alterOid;
+                    }
+                } else if (field.hasEvents(EventType.UI_FIELD_VALUE)) {
+                    Instance callInstance;
+                    if (type instanceof Classification) {
+                        callInstance = eval.inst(type.getName());
+                    } else {
+                        callInstance = inst;
+                    }
+                    fieldValue = evalFieldValueEvent(callInstance, field, valueBldr, fieldValue, currentTargetMode);
+
+                    if (UIType.DATE.equals(uiType)) {
+                        valueBldr.withType(ValueType.DATE);
+                        if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null) {
+                            fieldValue = LocalDate.now(Context.getThreadContext().getZoneId()).toString();
+                        }
+                    } else if (UIType.DATETIME.equals(uiType)) {
+                        valueBldr.withType(ValueType.DATETIME);
+                        if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null) {
+                            fieldValue = OffsetDateTime.now(Context.getThreadContext().getZoneId()).withNano(0)
+                                            .toString();
+                        }
+                    }
+
                 } else {
-                    callInstance = inst;
-                }
-                fieldValue = evalFieldValueEvent(callInstance, field, valueBldr, fieldValue, currentTargetMode);
-
-                if (UIType.DATE.equals(uiType)) {
-                    valueBldr.withType(ValueType.DATE);
-                    if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null) {
-                        fieldValue = LocalDate.now(Context.getThreadContext().getZoneId()).toString();
-                    }
-                } else if (UIType.DATETIME.equals(uiType)) {
-                    valueBldr.withType(ValueType.DATETIME);
-                    if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null) {
-                        fieldValue = OffsetDateTime.now(Context.getThreadContext().getZoneId()).withNano(0).toString();
-                    }
-                }
-
-            } else {
-                final var attr = type == null ? null : type.getAttribute(field.getAttribute());
-                if (attr != null) {
-                    if (attr.hasEvents(EventType.RANGE_VALUE) && !"Status".equals(attr.getAttributeType().getName())) {
-                        final var options = getRangeValue(attr, fieldValue, currentTargetMode);
-                        valueBldr
-                                        .withType(ValueType.DROPDOWN)
-                                        .withOptions(options.stream()
-                                                        .map(opt -> OptionDto.builder()
-                                                                        .withLabel(opt.getLabel())
-                                                                        .withValue(opt.getValue())
-                                                                        .build())
-                                                        .collect(Collectors.toList()));
-                        final var selectedOpt = options.stream().filter(IOption::isSelected).findFirst();
-                        if (selectedOpt.isPresent()) {
-                            fieldValue = selectedOpt.get().getValue();
+                    final var attr = type == null ? null : type.getAttribute(field.getAttribute());
+                    if (attr != null) {
+                        if (attr.hasEvents(EventType.RANGE_VALUE)
+                                        && !"Status".equals(attr.getAttributeType().getName())) {
+                            final var options = getRangeValue(attr, fieldValue, currentTargetMode);
+                            valueBldr
+                                            .withType(ValueType.DROPDOWN)
+                                            .withOptions(options.stream()
+                                                            .map(opt -> OptionDto.builder()
+                                                                            .withLabel(opt.getLabel())
+                                                                            .withValue(opt.getValue())
+                                                                            .build())
+                                                            .collect(Collectors.toList()));
+                            final var selectedOpt = options.stream().filter(IOption::isSelected).findFirst();
+                            if (selectedOpt.isPresent()) {
+                                fieldValue = selectedOpt.get().getValue();
+                            }
+                        } else {
+                            fieldValue = evalValueOnAttributeType(field, attr, inst, valueBldr, fieldValue);
                         }
                     } else {
-                        fieldValue = evalValueOnAttributeType(field, attr, inst, valueBldr, fieldValue);
+                        final var txtValueType = field.getRows() > 1 ? ValueType.TEXTAREA : ValueType.INPUT;
+                        valueBldr.withType(txtValueType);
                     }
-                } else {
-                    final var valueType = field.getRows() > 1 ? ValueType.TEXTAREA : ValueType.INPUT;
-                    valueBldr.withType(valueType);
                 }
             }
         }

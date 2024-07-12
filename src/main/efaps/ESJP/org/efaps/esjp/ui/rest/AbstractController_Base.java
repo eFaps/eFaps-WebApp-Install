@@ -16,6 +16,10 @@
  */
 package org.efaps.esjp.ui.rest;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.efaps.admin.datamodel.Attribute;
@@ -44,6 +49,7 @@ import org.efaps.api.ui.IOption;
 import org.efaps.api.ui.UIType;
 import org.efaps.beans.valueparser.ParseException;
 import org.efaps.beans.valueparser.ValueParser;
+import org.efaps.db.Checkout;
 import org.efaps.db.Instance;
 import org.efaps.db.PrintQuery;
 import org.efaps.eql.builder.Print;
@@ -53,6 +59,7 @@ import org.efaps.esjp.ui.rest.dto.IFieldBuilder;
 import org.efaps.esjp.ui.rest.dto.OptionDto;
 import org.efaps.esjp.ui.rest.dto.PayloadDto;
 import org.efaps.esjp.ui.rest.dto.ValueType;
+import org.efaps.esjp.ui.util.ImageUtil;
 import org.efaps.util.DateTimeUtil;
 import org.efaps.util.EFapsException;
 import org.slf4j.Logger;
@@ -315,5 +322,37 @@ public abstract class AbstractController_Base
             }
         }
         return ret;
+    }
+
+    protected ValueType getValueType(final Field field)
+    {
+        ValueType ret = null;
+        final String valueTypeStr = field.getProperty("ValueType");
+        if (EnumUtils.isValidEnum(ValueType.class, valueTypeStr)) {
+            ret = ValueType.valueOf(valueTypeStr);
+        }
+        return ret;
+    }
+
+    protected String prepareImage(final String oid)
+        throws EFapsException
+    {
+        String url = null;
+        final var checkout = new Checkout(oid);
+        final InputStream input = checkout.execute();
+        if (input != null) {
+            final var temp = new org.efaps.esjp.common.file.FileUtil().getFile(checkout.getFileName());
+            try {
+                final OutputStream out = new FileOutputStream(temp);
+                IOUtils.copy(input, out);
+                input.close();
+                out.close();
+            } catch (final IOException e) {
+                // TODO: handle exception
+            }
+            final var imageKey = ImageUtil.put(temp);
+            url = "/image/" + imageKey;
+        }
+        return url;
     }
 }

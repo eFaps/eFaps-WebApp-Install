@@ -39,5 +39,6 @@ public enum ValueType
     TEXTAREA,
     BUTTON,
     CLASSIFICATION,
-    DATETIMELABEL
+    DATETIMELABEL,
+    IMAGE
 }
