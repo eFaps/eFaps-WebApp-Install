@@ -38,7 +38,7 @@ public class DownloadController
 {
 
     @GET
-    @Path("{downloadKey}")
+    @Path("/{downloadKey}")
     @Produces({ MediaType.APPLICATION_OCTET_STREAM, MediaType.APPLICATION_JSON })
     public Response download(@PathParam("downloadKey") final String downloadKey)
         throws EFapsException, IOException

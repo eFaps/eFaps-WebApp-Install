@@ -50,6 +50,7 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsClassLoader;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
+import org.efaps.admin.ui.AbstractCommand.Target;
 import org.efaps.admin.ui.AbstractUserInterfaceObject;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
@@ -151,6 +152,8 @@ public abstract class ContentController_Base
                     actionType = ActionType.GRID;
                 } else if (command.getTargetForm() != null) {
                     actionType = ActionType.FORM;
+                } else if (command.getTarget() == Target.HIDDEN) {
+                    actionType = ActionType.EXEC;
                 }
                 navItems.add(NavItemDto.builder()
                                 .withId(command.getUUID().toString())
