@@ -40,5 +40,6 @@ public enum ValueType
     BUTTON,
     CLASSIFICATION,
     DATETIMELABEL,
-    IMAGE
+    IMAGE,
+    TIME
 }

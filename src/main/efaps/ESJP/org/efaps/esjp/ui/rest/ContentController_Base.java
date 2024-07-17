@@ -19,6 +19,7 @@ package org.efaps.esjp.ui.rest;
 import java.io.StringReader;
 import java.lang.reflect.InvocationTargetException;
 import java.time.LocalDate;
+import java.time.LocalTime;
 import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -1013,6 +1014,12 @@ public abstract class ContentController_Base
                 if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null) {
                     fieldValue = OffsetDateTime.now(Context.getThreadContext().getZoneId())
                                     .withNano(0).toString();
+                }
+                break;
+            case "Time":
+                valueBldr.withType(ValueType.TIME);
+                if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null) {
+                    fieldValue = LocalTime.now(Context.getThreadContext().getZoneId()).toString();
                 }
                 break;
             default:
