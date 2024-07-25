@@ -907,9 +907,7 @@ public abstract class ContentController_Base
             }
         }
         if (fieldValue != null && valueBldr.getType() == null) {
-            if (fieldValue instanceof OffsetDateTime) {
-                valueBldr.withType(ValueType.DATETIMELABEL);
-            }
+            fieldValue = evalReadOnlyValue(fieldValue, valueBldr);
         }
         if (field.hasEvents(EventType.UI_FIELD_UPDATE)) {
             valueBldr.withUpdateRef(String.valueOf(field.getId()));
@@ -927,6 +925,20 @@ public abstract class ContentController_Base
                         .withName(field.getName())
                         .withValue(fieldValue)
                         .build();
+    }
+
+    protected Object evalReadOnlyValue(final Object fieldValue,
+                                       final ValueDto.Builder valueBldr)
+    {
+        Object ret = fieldValue;
+        if (fieldValue instanceof OffsetDateTime && valueBldr != null) {
+            valueBldr.withType(ValueType.DATETIMELABEL);
+        } else if (fieldValue instanceof IEnum) {
+            ret = getEnumLabel((IEnum) fieldValue);
+        } else if (fieldValue instanceof List) {
+            ret = ((List<?>) fieldValue).stream().map(entry -> evalReadOnlyValue(entry, null)).toList();
+        }
+        return ret;
     }
 
     protected Object evalValueOnAttributeType(final Field field,
