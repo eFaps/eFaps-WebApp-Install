@@ -41,6 +41,7 @@ import org.efaps.esjp.ui.util.ValueUtils;
 import org.efaps.util.EFapsException;
 import org.efaps.util.cache.CacheReloadException;
 import org.efaps.util.cache.InfinispanCache;
+import org.infinispan.Cache;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -60,11 +61,6 @@ public abstract class TableController_Base
     private static final Logger LOG = LoggerFactory.getLogger(TableController.class);
 
     private static final String CACHENAME = TableController.class.getName() + ".Cache";
-
-    public TableController_Base()
-    {
-        InfinispanCache.get().initCache(TableController_Base.CACHENAME);
-    }
 
     public Response getTable(final String cmdId,
                              final String oid)
@@ -166,7 +162,7 @@ public abstract class TableController_Base
     public static List<FilterDto> getFilters(final String key)
     {
         List<FilterDto> ret;
-        final var filterCache = InfinispanCache.get().<String, String>getCache(CACHENAME);
+        final var filterCache = getCache();
         final var json = filterCache.get(key);
         if (json != null) {
             try {
@@ -185,12 +181,21 @@ public abstract class TableController_Base
     public static void cacheFilters(final String key,
                                     final List<FilterDto> filters)
     {
-        final var filterCache = InfinispanCache.get().<String, String>getCache(CACHENAME);
+        final var filterCache = getCache();
         try {
             final var json = ValueUtils.getObjectMapper().writeValueAsString(filters);
             filterCache.put(key, json, 24, TimeUnit.HOURS);
         } catch (final JsonProcessingException e) {
             LOG.error("Catched", e);
         }
+    }
+
+
+    private static Cache<String, String> getCache()
+    {
+        if (!InfinispanCache.get().exists(CACHENAME)) {
+            InfinispanCache.get().initCache(CACHENAME);
+        }
+        return InfinispanCache.get().<String, String>getCache(CACHENAME);
     }
 }
