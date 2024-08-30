@@ -38,14 +38,31 @@ import jakarta.ws.rs.core.Response;
 public class TableController
     extends TableController_Base
 {
+
     @Override
     @Path("/{cmdId}")
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response getTable(@PathParam("cmdId") final String cmdId, @QueryParam("oid") final String oid)
+    public Response getTable(@PathParam("cmdId") final String cmdId,
+                             @QueryParam("oid") final String oid)
         throws EFapsException
     {
         return super.getTable(cmdId, oid);
+    }
+
+    @Override
+    @Path("/{cmdId}/pagination")
+    @GET
+    @Produces({ MediaType.APPLICATION_JSON })
+    public Response getPageData(@PathParam("cmdId") final String cmdId,
+                                @QueryParam("oid") final String oid,
+                                @QueryParam("pageSize") final int pageSize,
+                                @QueryParam("pageNo") final int pageNo,
+                                @QueryParam("sortBy") final String sortBy)
+
+        throws EFapsException
+    {
+        return super.getPageData(cmdId, oid, pageSize, pageNo, sortBy);
     }
 
     @Override
@@ -63,7 +80,7 @@ public class TableController
     @PUT
     @Produces({ MediaType.APPLICATION_JSON })
     public Response updateTableFilters(@PathParam("cmdId") final String cmdId,
-                                      final List<FilterDto> filters)
+                                       final List<FilterDto> filters)
         throws EFapsException
     {
         return super.updateTableFilters(cmdId, filters);

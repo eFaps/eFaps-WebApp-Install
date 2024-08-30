@@ -31,10 +31,12 @@ import org.efaps.admin.ui.AbstractUserInterfaceObject;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
 import org.efaps.admin.ui.Menu;
+import org.efaps.admin.ui.field.Field;
 import org.efaps.api.ui.FilterBase;
 import org.efaps.db.Context;
 import org.efaps.esjp.ui.rest.dto.FilterDto;
 import org.efaps.esjp.ui.rest.dto.NavItemDto;
+import org.efaps.esjp.ui.rest.dto.PagedDataDto;
 import org.efaps.esjp.ui.rest.dto.TableDto;
 import org.efaps.esjp.ui.rest.provider.ITableProvider;
 import org.efaps.esjp.ui.util.ValueUtils;
@@ -47,6 +49,8 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.Response;
 
 @EFapsUUID("708d3d0d-e230-44e1-99f4-aadb45f70be9")
@@ -66,37 +70,12 @@ public abstract class TableController_Base
                              final String oid)
         throws EFapsException
     {
-        AbstractCommand cmd = Command.get(UUID.fromString(cmdId));
-        if (cmd == null) {
-            cmd = Menu.get(UUID.fromString(cmdId));
-        }
+        final AbstractCommand cmd = evalCmd(cmdId);
+        final var fields = getFields(cmd.getTargetTable());
 
-        final var event = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0);
-        String className;
-        if ("org.efaps.esjp.common.uitable.MultiPrint".equals(event.getResourceName())) {
-            className = "org.efaps.esjp.ui.rest.provider.StandardTableProvider";
-        } else {
-            className = event.getResourceName();
-        }
+        final ITableProvider provider = evalTableProvider(cmd, fields, oid);
 
-        ITableProvider provider = null;
-        try {
-            final Class<?> cls = Class.forName(className, true, EFapsClassLoader.getInstance());
-            LOG.info("TableProvider className {} ", className);
-            provider = (ITableProvider) cls.getConstructor().newInstance();
-        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
-                        | InvocationTargetException | NoSuchMethodException | SecurityException e) {
-            LOG.error("Could not instantiate TableProvider", e);
-        }
-        if (provider == null) {
-            throw new EFapsException(this.getClass(), "No TableProvider");
-        }
-
-        final var table = cmd.getTargetTable();
-        LOG.info("Get TABLE {} ", table);
-        final var properties = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
-        final var fields = getFields(table);
-        final var values = provider.getValues(cmd, fields, properties, oid);
+        final var values = provider.getValues();
 
         final var menu = cmd.getTargetMenu();
 
@@ -109,8 +88,9 @@ public abstract class TableController_Base
         final var dto = TableDto.builder()
                         .withMenu(menus)
                         .withHeader(getHeader(cmd, oid))
-                        .withColumns(getColumns(table, TargetMode.VIEW, null))
+                        .withColumns(getColumns(cmd.getTargetTable(), TargetMode.VIEW, null))
                         .withValues(values)
+                        .withPage(provider.getPage())
                         .withSelectionMode(selectionMode)
                         .withFiltered(fields.stream()
                                         .anyMatch(field -> (field.getFilter() != null
@@ -148,6 +128,52 @@ public abstract class TableController_Base
         final var key = getFilterKey(cmd);
         cacheFilters(key, filters);
         return Response.ok().build();
+    }
+
+    protected ITableProvider evalTableProvider(final AbstractCommand cmd,final List<Field> fields, final String oid)
+        throws EFapsException
+    {
+        ITableProvider provider = null;
+        final var event = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0);
+        String className;
+        if ("org.efaps.esjp.common.uitable.MultiPrint".equals(event.getResourceName())) {
+            className = "org.efaps.esjp.ui.rest.provider.StandardTableProvider";
+        } else {
+            className = event.getResourceName();
+        }
+
+        try {
+            final Class<?> cls = Class.forName(className, true, EFapsClassLoader.getInstance());
+            LOG.info("TableProvider className {} ", className);
+            provider = (ITableProvider) cls.getConstructor().newInstance();
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                        | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+            LOG.error("Could not instantiate TableProvider", e);
+        }
+        if (provider == null) {
+            throw new EFapsException(this.getClass(), "No TableProvider");
+        }
+        final var properties = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
+        return provider.init(cmd, fields, properties, oid);
+    }
+
+    public Response getPageData(@PathParam("cmdId") final String cmdId,
+                                @QueryParam("oid") final String oid,
+                                @QueryParam("pageSize") final int pageSize,
+                                @QueryParam("pageNo") final int pageNo,
+                                @QueryParam("sortBy") final String sortBy)
+
+        throws EFapsException
+    {
+        final AbstractCommand cmd = evalCmd(cmdId);
+        final var fields = getFields(cmd.getTargetTable());
+        final var tableProvider = evalTableProvider(cmd, fields, oid);
+        final var values = tableProvider.withPageRequest(pageSize, pageNo, sortBy).getValues();
+        final var dto = PagedDataDto.builder()
+                        .withValues(values)
+                        .withPage(tableProvider.getPage())
+                        .build();
+        return Response.ok(dto).build();
     }
 
     public static String getFilterKey(final AbstractUserInterfaceObject uiObject)
@@ -189,7 +215,6 @@ public abstract class TableController_Base
             LOG.error("Catched", e);
         }
     }
-
 
     private static Cache<String, String> getCache()
     {

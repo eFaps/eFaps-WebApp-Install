@@ -23,7 +23,6 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -48,7 +47,6 @@ import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand;
-import org.efaps.admin.ui.AbstractUserInterfaceObject;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.admin.ui.field.Field.Display;
 import org.efaps.api.ui.FilterBase;
@@ -57,6 +55,7 @@ import org.efaps.beans.valueparser.ParseException;
 import org.efaps.beans.valueparser.ValueParser;
 import org.efaps.db.Instance;
 import org.efaps.eql.EQL;
+import org.efaps.eql.builder.Count;
 import org.efaps.eql.builder.Print;
 import org.efaps.eql.builder.Query;
 import org.efaps.eql.builder.Where;
@@ -65,6 +64,8 @@ import org.efaps.esjp.ui.rest.TableController;
 import org.efaps.esjp.ui.rest.dto.FilterDto;
 import org.efaps.esjp.ui.rest.dto.FilterKind;
 import org.efaps.esjp.ui.rest.dto.OptionDto;
+import org.efaps.esjp.ui.rest.dto.PageDto;
+import org.efaps.esjp.ui.util.WebApp;
 import org.efaps.util.EFapsException;
 import org.efaps.util.UUIDUtil;
 import org.efaps.util.cache.CacheReloadException;
@@ -73,55 +74,60 @@ import org.slf4j.LoggerFactory;
 
 @EFapsUUID("d6494966-e942-4ca5-8c93-bb794ff70c2d")
 @EFapsApplication("eFaps-WebApp")
-public class StandardTableProvider
+public class StandardTableProvider extends AbstractTableProvider
     implements ITableProvider
 {
 
     private static final Logger LOG = LoggerFactory.getLogger(StandardTableProvider.class);
 
+    private int pageSize;
+
+    private int pageNo;
+
+    private int[] pageOptions;
+
+    private String sortBy;
+
+    protected int getPageSize()
+    {
+        return pageSize;
+    }
+
+    protected int getPageNo()
+    {
+        return pageNo;
+    }
+
+    protected String getSortBy()
+    {
+        return sortBy;
+    }
+
     @Override
     @SuppressWarnings("unchecked")
-    public Collection<Map<String, ?>> getValues(final AbstractUserInterfaceObject cmd,
-                                                final List<Field> fields,
-                                                final Map<String, String> propertiesMap,
-                                                final String oid)
+    public Collection<Map<String, ?>> getValues()
         throws EFapsException
     {
-        final var types = evalTypes(propertiesMap);
-        final var typeNames = types.stream().map(Type::getName).toArray(String[]::new);
-        LOG.debug("typeNames: {}", Arrays.toString(typeNames));
-        final var query = EQL.builder()
-                        .print()
-                        .query(typeNames);
-
-        Where where = null;
-        final var properties = new Properties();
-        properties.putAll(propertiesMap);
-        final var linkFroms = PropertiesUtil.analyseProperty(properties, "LinkFrom", 0);
-        boolean first = true;
-        for (final var linkfrom : linkFroms.entrySet()) {
-            if (first) {
-                first = false;
-                where = query.where().attribute(linkfrom.getValue()).eq(Instance.get(oid));
-            } else {
-                where.or().attribute(linkfrom.getValue()).eq(Instance.get(oid));
-            }
-        }
-
-        if (properties.containsKey("InstanceSelect")) {
-            LOG.error("Cmd uses unsuported InstanceSelect: {}", cmd);
-            return Collections.emptyList();
-        }
-
-        addFilter(cmd, query, where, types, fields);
+        final var types = evalTypes();
+        final var query = evalQuery(types);
 
         final var print = query.select();
 
-        if (cmd instanceof AbstractCommand && ((AbstractCommand) cmd).isTargetShowCheckBoxes()
-                        || fields.stream().anyMatch(field -> field.getReference() != null)) {
+        if (isPaginated()) {
+            String orderBy;
+            if (getSortBy() == null) {
+                orderBy = getFields().get(0).getName();
+            } else {
+                orderBy = getSortBy();
+            }
+            print.limit(pageSize).offset(pageNo * pageSize).orderBy(orderBy);
+        }
+
+        if (getCmd() instanceof AbstractCommand && ((AbstractCommand) getCmd()).isTargetShowCheckBoxes()
+                        || getFields().stream().anyMatch(field -> field.getReference() != null)) {
             print.oid().as("OID");
         }
-        for (final var field : fields) {
+        for (final var field : getFields()) {
             if (field.getAttribute() != null) {
                 add2Select4Attribute(print, field, types);
             } else if (field.getSelect() != null) {
@@ -140,7 +146,7 @@ public class StandardTableProvider
             }
         }
         final var data = print.evaluate().getData();
-        final var fieldsWithFormat = fields.stream().filter(field -> field.hasEvents(EventType.UI_FIELD_FORMAT))
+        final var fieldsWithFormat = getFields().stream().filter(field -> field.hasEvents(EventType.UI_FIELD_FORMAT))
                         .collect(Collectors.toList());
 
         for (final var fieldWithFormat : fieldsWithFormat) {
@@ -196,12 +202,117 @@ public class StandardTableProvider
         return data;
     }
 
-    protected List<Type> evalTypes(final Map<String, String> _propertiesMap)
+    protected Query evalQuery(final List<Type> types)
+        throws EFapsException
+    {
+
+        final var typeNames = types.stream().map(Type::getName).toArray(String[]::new);
+        LOG.debug("typeNames: {}", Arrays.toString(typeNames));
+        final var query = EQL.builder()
+                        .print()
+                        .query(typeNames);
+
+        Where where = null;
+        final var properties = new Properties();
+        properties.putAll(getPropertiesMap());
+        final var linkFroms = PropertiesUtil.analyseProperty(properties, "LinkFrom", 0);
+        boolean first = true;
+        for (final var linkfrom : linkFroms.entrySet()) {
+            if (first) {
+                first = false;
+                where = query.where().attribute(linkfrom.getValue()).eq(Instance.get(getOid()));
+            } else {
+                where.or().attribute(linkfrom.getValue()).eq(Instance.get(getOid()));
+            }
+        }
+
+        addFilter(query, where, types);
+        return query;
+    }
+
+    protected boolean isPaginated()
+        throws EFapsException
+    {
+        if (this.pageSize == 0) {
+            final var paginationConfig = WebApp.PAGINATION.get();
+            final var cmds = PropertiesUtil.analyseProperty(paginationConfig, "cmd", 0).values();
+            final var key = cmds.stream().filter(
+                            cmd -> (cmd.equals(getCmd().getName()) || cmd.equals(getCmd().getUUID().toString())))
+                            .findFirst();
+            if (key.isPresent()) {
+                final var pagConf = PropertiesUtil.getProperties4Prefix(paginationConfig, key.get(), true);
+                this.pageSize = Integer.valueOf(pagConf.getProperty("pageSize", "10"));
+                 final var optionStr = pagConf.getProperty("pageOptions", "10,20,30");
+                 this.pageOptions = Arrays.stream(optionStr.split(",")).mapToInt(Integer::parseInt).toArray();
+            } else {
+                this.pageSize = -1;
+            }
+        }
+        return this.pageSize > 0;
+    }
+
+    @Override
+    public ITableProvider withPageRequest(final int pageSize,
+                                          final int pageNo,
+                                          final String sortBy)
+    {
+        this.pageSize = pageSize;
+        this.pageNo = pageNo;
+        this.sortBy = sortBy;
+        return this;
+    }
+
+    @Override
+    public PageDto getPage()
+        throws EFapsException
+    {
+        PageDto ret = null;
+        if (isPaginated()) {
+            final var types = evalTypes();
+            final var eval = evalCount(types).stmt().evaluate();
+
+            ret = PageDto.builder()
+                            .withPageSize(pageSize)
+                            .withPageOptions(pageOptions)
+                            .withTotalItems(eval.count())
+                            .build();
+        }
+        return ret;
+    }
+
+    protected Count evalCount(final List<Type> types)
+        throws EFapsException
+    {
+
+        final var typeNames = types.stream().map(Type::getName).toArray(String[]::new);
+        LOG.debug("typeNames: {}", Arrays.toString(typeNames));
+        final var count = EQL.builder()
+                        .count(typeNames);
+
+        Where where = null;
+        final var properties = new Properties();
+        properties.putAll(getPropertiesMap());
+        final var linkFroms = PropertiesUtil.analyseProperty(properties, "LinkFrom", 0);
+        boolean first = true;
+        for (final var linkfrom : linkFroms.entrySet()) {
+            if (first) {
+                first = false;
+                where = count.where().attribute(linkfrom.getValue()).eq(Instance.get(getOid()));
+            } else {
+                where.or().attribute(linkfrom.getValue()).eq(Instance.get(getOid()));
+            }
+        }
+
+        // addFilter(query, where, types);
+        return count;
+    }
+
+    protected List<Type> evalTypes()
         throws EFapsException
     {
         final var typeList = new ArrayList<Type>();
         final var properties = new Properties();
-        properties.putAll(_propertiesMap);
+        properties.putAll(getPropertiesMap());
         final var types = PropertiesUtil.analyseProperty(properties, "Type", 0);
         final var expandChildTypes = PropertiesUtil.analyseProperty(properties, "ExpandChildTypes", 0);
         LOG.debug("evaluating types: {}, expandChildTypes: {}", types, expandChildTypes);
@@ -226,18 +337,16 @@ public class StandardTableProvider
         return typeList;
     }
 
-    public void addFilter(final AbstractUserInterfaceObject cmd,
-                          final Query query,
+    public void addFilter(final Query query,
                           final Where where,
-                          final List<Type> types,
-                          final List<Field> fields)
+                          final List<Type> types)
         throws EFapsException
     {
-        final var key = TableController.getFilterKey(cmd);
+        final var key = TableController.getFilterKey(getCmd());
         var filters = TableController.getFilters(key);
-        if (filters.isEmpty() && fields.stream().anyMatch(field -> (field.getFilter() != null
+        if (filters.isEmpty() && getFields().stream().anyMatch(field -> (field.getFilter() != null
                         && FilterBase.DATABASE.equals(field.getFilter().getBase())))) {
-            filters = evalDefaultFilter(types, fields);
+            filters = evalDefaultFilter(types);
         }
         if (CollectionUtils.isNotEmpty(filters)) {
             LOG.info("applying filter");
@@ -281,12 +390,11 @@ public class StandardTableProvider
         }
     }
 
-    protected List<FilterDto> evalDefaultFilter(final List<Type> types,
-                                                final List<Field> fields)
+    protected List<FilterDto> evalDefaultFilter(final List<Type> types)
         throws CacheReloadException
     {
         final List<FilterDto> ret = new ArrayList<>();
-        for (final var field : fields) {
+        for (final var field : getFields()) {
             if (field.getFilter() != null && FilterBase.DATABASE.equals(field.getFilter().getBase())) {
                 if (FilterType.FREETEXT == field.getFilter().getType()) {
                     if (field.getAttribute() != null) {

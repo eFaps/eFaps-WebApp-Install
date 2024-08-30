@@ -1165,7 +1165,7 @@ public abstract class ContentController_Base
             final var fields = getFields(table);
             final var properties = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
 
-            ret = provider.getValues(cmd, fields, properties, instance.getOid());
+            ret = provider.init(cmd, fields, properties, instance.getOid()).getValues();
         }
         return ret;
     }

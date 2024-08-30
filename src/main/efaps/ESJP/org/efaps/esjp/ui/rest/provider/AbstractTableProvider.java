@@ -16,7 +16,6 @@
  */
 package org.efaps.esjp.ui.rest.provider;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
@@ -24,36 +23,53 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractUserInterfaceObject;
 import org.efaps.admin.ui.field.Field;
-import org.efaps.esjp.ui.rest.dto.PageDto;
 import org.efaps.util.EFapsException;
 
-@EFapsUUID("d3997c61-839c-435b-a82f-995eb9c4bc52")
+@EFapsUUID("f7ae6ba9-9204-42d3-b8b4-2d437b1611fd")
 @EFapsApplication("eFaps-WebApp")
-public interface ITableProvider
+public abstract class AbstractTableProvider
+    implements ITableProvider
 {
 
-    Collection<Map<String, ?>> getValues()
-        throws EFapsException;
+    private AbstractUserInterfaceObject cmd;
 
-    default ITableProvider init(final AbstractUserInterfaceObject cmd,
-                                final List<Field> fields,
-                                final Map<String, String> properties,
-                                final String oid)
-        throws EFapsException
+    private List<Field> fields;
+
+    private Map<String, String> propertiesMap;
+
+    private String oid;
+
+    protected AbstractUserInterfaceObject getCmd()
     {
-        return this;
+        return cmd;
     }
 
-    default PageDto getPage()
-        throws EFapsException
+    protected List<Field> getFields()
     {
-        return null;
+        return fields;
     }
 
-    default ITableProvider withPageRequest(final int pageSize,
-                                           final int pageNo,
-                                           final String sortBy)
+    protected Map<String, String> getPropertiesMap()
     {
+        return propertiesMap;
+    }
+
+    protected String getOid()
+    {
+        return oid;
+    }
+
+    @Override
+    public ITableProvider init(final AbstractUserInterfaceObject cmd,
+                               final List<Field> fields,
+                               final Map<String, String> propertiesMap,
+                               final String oid)
+        throws EFapsException
+    {
+        this.cmd = cmd;
+        this.fields = fields;
+        this.propertiesMap = propertiesMap;
+        this.oid = oid;
         return this;
     }
 }

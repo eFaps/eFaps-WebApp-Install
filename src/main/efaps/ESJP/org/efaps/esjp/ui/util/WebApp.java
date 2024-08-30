@@ -24,6 +24,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.api.annotation.EFapsSysConfAttribute;
 import org.efaps.api.annotation.EFapsSystemConfiguration;
 import org.efaps.esjp.admin.common.systemconfiguration.BooleanSysConfAttribute;
+import org.efaps.esjp.admin.common.systemconfiguration.PropertiesSysConfAttribute;
 import org.efaps.esjp.admin.common.systemconfiguration.StringSysConfAttribute;
 import org.efaps.util.cache.CacheReloadException;
 
@@ -52,6 +53,19 @@ public class WebApp
                     .key(BASE + "dashboard.Active")
                     .defaultValue(false)
                     .description("Activate the dashboard");
+
+
+    @EFapsSysConfAttribute
+    public static final PropertiesSysConfAttribute PAGINATION = new PropertiesSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "pagination.Config")
+                    .addDefaultValue("cmd01", "6e81cc23-4d06-4827-bc15-4b70fcd0cc80")
+                    .addDefaultValue("6e81cc23-4d06-4827-bc15-4b70fcd0cc80.pageSize", "1000")
+                    .addDefaultValue("6e81cc23-4d06-4827-bc15-4b70fcd0cc80.pageOptions", "500,1000,1500")
+                    .description("""
+                        cmdNN=UUID or Name of a Cmd (KEY)\s
+                        KEY.pageSize=10 Size of the page, default 10
+                        KEY.pageOptions=500,1000,1500  comma sperated list of page sizes""");
 
     /**
      * @return the SystemConfigruation for Sales

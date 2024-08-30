@@ -25,15 +25,29 @@ import java.util.UUID;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.ui.AbstractCommand;
+import org.efaps.admin.ui.Command;
+import org.efaps.admin.ui.Menu;
 import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.util.EFapsException;
 import org.efaps.util.UUIDUtil;
+import org.efaps.util.cache.CacheReloadException;
 
 @EFapsUUID("192d405d-9819-43d9-9dfd-892b15a2abf9")
 @EFapsApplication("eFaps-WebApp")
 public class AbstractTableController
     extends AbstractController
 {
+
+    protected AbstractCommand evalCmd(final String cmdId)
+        throws CacheReloadException
+    {
+        AbstractCommand cmd = Command.get(UUID.fromString(cmdId));
+        if (cmd == null) {
+            cmd = Menu.get(UUID.fromString(cmdId));
+        }
+        return cmd;
+    }
 
     protected List<Type> evalTypes(final Map<String, String> _propertiesMap)
         throws EFapsException
