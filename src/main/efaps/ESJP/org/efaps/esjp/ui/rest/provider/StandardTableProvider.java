@@ -74,7 +74,8 @@ import org.slf4j.LoggerFactory;
 
 @EFapsUUID("d6494966-e942-4ca5-8c93-bb794ff70c2d")
 @EFapsApplication("eFaps-WebApp")
-public class StandardTableProvider extends AbstractTableProvider
+public class StandardTableProvider
+    extends AbstractTableProvider
     implements ITableProvider
 {
 
@@ -237,13 +238,14 @@ public class StandardTableProvider extends AbstractTableProvider
             final var paginationConfig = WebApp.PAGINATION.get();
             final var cmds = PropertiesUtil.analyseProperty(paginationConfig, "cmd", 0).values();
             final var key = cmds.stream().filter(
-                            cmd -> (cmd.equals(getCmd().getName()) || cmd.equals(getCmd().getUUID().toString())))
+                            cmd -> (cmd.equals(getCmd().getName()) || getCmd().getUUID() != null
+                                            && cmd.equals(getCmd().getUUID().toString())))
                             .findFirst();
             if (key.isPresent()) {
                 final var pagConf = PropertiesUtil.getProperties4Prefix(paginationConfig, key.get(), true);
                 this.pageSize = Integer.valueOf(pagConf.getProperty("pageSize", "10"));
-                 final var optionStr = pagConf.getProperty("pageOptions", "10,20,30");
-                 this.pageOptions = Arrays.stream(optionStr.split(",")).mapToInt(Integer::parseInt).toArray();
+                final var optionStr = pagConf.getProperty("pageOptions", "10,20,30");
+                this.pageOptions = Arrays.stream(optionStr.split(",")).mapToInt(Integer::parseInt).toArray();
             } else {
                 this.pageSize = -1;
             }
