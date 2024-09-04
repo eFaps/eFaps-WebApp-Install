@@ -182,6 +182,7 @@ public abstract class AbstractController_Base
                         .withField(field)
                         .withAttribute(attr)
                         .withDisplay(field.getDisplay(targetMode))
+                        .withObject(fieldValue)
                         .build();
         for (final Return aReturn : field.executeEvents(EventType.UI_FIELD_VALUE,
                         ParameterValues.ACCESSMODE, targetMode,
