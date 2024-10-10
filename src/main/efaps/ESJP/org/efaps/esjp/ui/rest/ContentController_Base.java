@@ -148,21 +148,23 @@ public abstract class ContentController_Base
                                             .build())
                             .build());
             for (final var command : typeMenu.getCommands()) {
-                ActionType actionType = null;
-                if (command.getTargetTable() != null) {
-                    actionType = ActionType.GRID;
-                } else if (command.getTargetForm() != null) {
-                    actionType = ActionType.FORM;
-                } else if (command.getTarget() == Target.HIDDEN) {
-                    actionType = ActionType.EXEC;
+                if (command.hasAccess(currentTargetMode, instance)) {
+                    ActionType actionType = null;
+                    if (command.getTargetTable() != null) {
+                        actionType = ActionType.GRID;
+                    } else if (command.getTargetForm() != null) {
+                        actionType = ActionType.FORM;
+                    } else if (command.getTarget() == Target.HIDDEN) {
+                        actionType = ActionType.EXEC;
+                    }
+                    navItems.add(NavItemDto.builder()
+                                    .withId(command.getUUID().toString())
+                                    .withLabel(command.getLabelProperty())
+                                    .withAction(ActionDto.builder()
+                                                    .withType(actionType)
+                                                    .build())
+                                    .build());
                 }
-                navItems.add(NavItemDto.builder()
-                                .withId(command.getUUID().toString())
-                                .withLabel(command.getLabelProperty())
-                                .withAction(ActionDto.builder()
-                                                .withType(actionType)
-                                                .build())
-                                .build());
             }
             final var outline = OutlineDto.builder()
                             .withOid(_oid)
@@ -811,7 +813,13 @@ public abstract class ContentController_Base
             fieldValue = switch (valueType) {
                 case IMAGE -> {
                     valueBldr.withType(ValueType.IMAGE);
-                    yield prepareImage(eval.inst().getOid());
+                    String imageOid;
+                    if (field.getSelectAlternateOID() != null) {
+                        imageOid = eval.get(field.getName() + "_AOID");
+                    } else {
+                        imageOid = eval.inst().getOid();
+                    }
+                    yield prepareImage(imageOid);
                 }
                 default -> throw new IllegalArgumentException("Unexpected value: " + valueType);
             };

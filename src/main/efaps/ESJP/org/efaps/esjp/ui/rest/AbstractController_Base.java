@@ -339,20 +339,22 @@ public abstract class AbstractController_Base
         throws EFapsException
     {
         String url = null;
-        final var checkout = new Checkout(oid);
-        final InputStream input = checkout.execute();
-        if (input != null) {
-            final var temp = new org.efaps.esjp.common.file.FileUtil().getFile(checkout.getFileName());
-            try {
-                final OutputStream out = new FileOutputStream(temp);
-                IOUtils.copy(input, out);
-                input.close();
-                out.close();
-            } catch (final IOException e) {
-                // TODO: handle exception
+        if (oid != null) {
+            final var checkout = new Checkout(oid);
+            final InputStream input = checkout.execute();
+            if (input != null) {
+                final var temp = new org.efaps.esjp.common.file.FileUtil().getFile(checkout.getFileName());
+                try {
+                    final OutputStream out = new FileOutputStream(temp);
+                    IOUtils.copy(input, out);
+                    input.close();
+                    out.close();
+                } catch (final IOException e) {
+                    // TODO: handle exception
+                }
+                final var imageKey = ImageUtil.put(temp);
+                url = "/image/" + imageKey;
             }
-            final var imageKey = ImageUtil.put(temp);
-            url = "/image/" + imageKey;
         }
         return url;
     }
