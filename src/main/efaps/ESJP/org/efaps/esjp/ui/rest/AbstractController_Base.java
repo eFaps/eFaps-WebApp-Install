@@ -294,10 +294,8 @@ public abstract class AbstractController_Base
                     }
                 }
             } catch (final ParseException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOG.error("Catched error while evaluation header for oid: {}", oid);
             }
-
         }
         return header;
     }
@@ -340,20 +338,22 @@ public abstract class AbstractController_Base
     {
         String url = null;
         if (oid != null) {
-            final var checkout = new Checkout(oid);
-            final InputStream input = checkout.execute();
-            if (input != null) {
-                final var temp = new org.efaps.esjp.common.file.FileUtil().getFile(checkout.getFileName());
-                try {
+            try {
+                final var checkout = new Checkout(oid);
+                final InputStream input = checkout.execute();
+                if (input != null) {
+                    final var temp = new org.efaps.esjp.common.file.FileUtil().getFile(checkout.getFileName());
+
                     final OutputStream out = new FileOutputStream(temp);
                     IOUtils.copy(input, out);
                     input.close();
                     out.close();
-                } catch (final IOException e) {
-                    // TODO: handle exception
+
+                    final var imageKey = ImageUtil.put(temp);
+                    url = "/image/" + imageKey;
                 }
-                final var imageKey = ImageUtil.put(temp);
-                url = "/image/" + imageKey;
+            } catch (EFapsException | IOException e) {
+                LOG.error("Catched error while preparing image for oid: {}", oid);
             }
         }
         return url;
