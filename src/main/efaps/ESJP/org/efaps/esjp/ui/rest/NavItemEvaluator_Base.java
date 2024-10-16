@@ -28,6 +28,7 @@ import org.efaps.esjp.ui.rest.dto.ActionDto;
 import org.efaps.esjp.ui.rest.dto.ActionType;
 import org.efaps.esjp.ui.rest.dto.NavItemDto;
 import org.efaps.esjp.ui.rest.dto.VerifyDto;
+import org.efaps.util.cache.CacheReloadException;
 
 @EFapsUUID("ab1cb434-e7b5-424f-9917-0d84ea2dc9c7")
 @EFapsApplication("eFaps-WebApp")
@@ -35,12 +36,13 @@ public abstract class NavItemEvaluator_Base
 {
 
     public List<NavItemDto> getMenu(final AbstractMenu _menu)
+        throws CacheReloadException
     {
         final var ret = new ArrayList<NavItemDto>();
         for (final var command : _menu.getCommands()) {
             final var actionBldr = ActionDto.builder()
                             .withModal(command.getTarget() == Target.MODAL);
-            if (command.getTargetForm() != null) {
+            if (command.getTargetForm() != null || command.getTargetModule() != null) {
                 actionBldr.withType(ActionType.FORM);
             } else if (command.getTargetSearch() != null) {
                 actionBldr.withType(ActionType.SEARCH);
@@ -50,11 +52,10 @@ public abstract class NavItemEvaluator_Base
                 actionBldr.withType(ActionType.EXEC);
             } else if (command.getTarget() == Target.UNKNOWN && command.isSubmit() && command.isAskUser()) {
                 actionBldr.withType(ActionType.EXEC)
-                    .withVerify(VerifyDto.builder()
-                                        .withQuestion(DBProperties.getProperty(command.getName() + ".Question"))
-                                        .withSelectedRows(command.getSubmitSelectedRows())
-                                        .build()
-                                        );
+                                .withVerify(VerifyDto.builder()
+                                                .withQuestion(DBProperties.getProperty(command.getName() + ".Question"))
+                                                .withSelectedRows(command.getSubmitSelectedRows())
+                                                .build());
             }
 
             List<NavItemDto> children = null;

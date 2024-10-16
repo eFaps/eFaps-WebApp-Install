@@ -201,10 +201,18 @@ public abstract class ContentController_Base
         }
         if (cmd.getTargetModule() != null) {
             final var module = cmd.getTargetModule();
+            final var allModulePropertyMap = module.getPropertyMap();
+            final var props = new Properties();
+            props.putAll(allModulePropertyMap);
+            final var propertyMap = new HashMap<String, String>();
+            PropertiesUtil.analyseProperty(props, "ModuleProperty", 0).values().forEach(key -> {
+                propertyMap.put(key, allModulePropertyMap.get(key));
+            });
             final var dto = ModuleDto.builder()
                             .withId(module.getUUID().toString())
                             .withKey(module.getProperty("ModuleKey"))
                             .withTargetMode(cmd.getTargetMode())
+                            .withProperties(propertyMap)
                             .build();
             return Response.ok()
                             .entity(dto)

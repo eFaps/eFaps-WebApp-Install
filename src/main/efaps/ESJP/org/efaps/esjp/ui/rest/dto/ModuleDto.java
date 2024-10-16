@@ -16,6 +16,9 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
+import java.util.Collections;
+import java.util.Map;
+
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
@@ -32,12 +35,14 @@ public class ModuleDto
     private final String id;
     private final String key;
     private final TargetMode targetMode;
+    private final Map<String, String> properties;
 
     private ModuleDto(Builder builder)
     {
         this.id = builder.id;
         this.key = builder.key;
         this.targetMode = builder.targetMode;
+        this.properties = builder.properties;
     }
 
     public String getId()
@@ -53,6 +58,11 @@ public class ModuleDto
     public TargetMode getTargetMode()
     {
         return targetMode;
+    }
+
+    public Map<String, String> getProperties()
+    {
+        return properties;
     }
 
     @Override
@@ -72,6 +82,7 @@ public class ModuleDto
         private String id;
         private String key;
         private TargetMode targetMode;
+        private Map<String, String> properties = Collections.emptyMap();
 
         private Builder()
         {
@@ -92,6 +103,12 @@ public class ModuleDto
         public Builder withTargetMode(TargetMode targetMode)
         {
             this.targetMode = targetMode;
+            return this;
+        }
+
+        public Builder withProperties(Map<String, String> properties)
+        {
+            this.properties = properties;
             return this;
         }
 
