@@ -19,7 +19,9 @@ package org.efaps.esjp.ui.rest;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.efaps.admin.dbproperty.DBProperties;
+import org.efaps.admin.event.EventType;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand.Target;
@@ -58,6 +60,9 @@ public abstract class NavItemEvaluator_Base
                                                     .withQuestion(DBProperties.getProperty(command.getName() + ".Question"))
                                                     .withSelectedRows(command.getSubmitSelectedRows())
                                                     .build());
+                } else if (command.getTarget() == Target.UNKNOWN
+                                && CollectionUtils.isNotEmpty(command.getEvents(EventType.UI_COMMAND_EXECUTE))) {
+                    actionBldr.withType(ActionType.EXEC);
                 }
 
                 List<NavItemDto> children = null;
