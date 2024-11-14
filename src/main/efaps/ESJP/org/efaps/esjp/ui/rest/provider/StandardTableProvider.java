@@ -38,6 +38,7 @@ import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.datamodel.Status.StatusGroup;
 import org.efaps.admin.datamodel.Type;
+import org.efaps.admin.datamodel.attributetype.CreatedType;
 import org.efaps.admin.datamodel.attributetype.DateType;
 import org.efaps.admin.datamodel.attributetype.StatusType;
 import org.efaps.admin.datamodel.ui.IUIValue;
@@ -408,7 +409,8 @@ public class StandardTableProvider
                             }
                         }
                         if (attr != null) {
-                            if (attr.getAttributeType().getDbAttrType() instanceof DateType) {
+                            if (attr.getAttributeType().getDbAttrType() instanceof DateType
+                                            || attr.getAttributeType().getDbAttrType() instanceof CreatedType) {
                                 final var filterBuilder = FilterDto.builder()
                                                 .withKind(FilterKind.DATE)
                                                 .withField(field.getName())
