@@ -446,12 +446,16 @@ public abstract class ContentController_Base
             final var attributeSet = AttributeSet.find(type.getName(), field.getAttribute());
 
             final var idList = eval.<List<Long>>get(field.getName() + "-ID");
-            LOG.info("{}", idList);
-            final Map<Long, Integer> indicesMap = idList.stream()
-                            .collect(Collectors.toMap(e -> e,
-                                            idList::indexOf,
-                                            Math::max,
-                                            TreeMap::new));
+            final Map<Long, Integer> indicesMap;
+            if (idList != null) {
+                indicesMap = idList.stream()
+                                .collect(Collectors.toMap(e -> e,
+                                                idList::indexOf,
+                                                Math::max,
+                                                TreeMap::new));
+            } else {
+                indicesMap = new HashMap<>();
+            }
             LOG.info("{}", indicesMap);
             final var indices = new ArrayList<>(indicesMap.values());
             LOG.info("{}", indices);
@@ -930,8 +934,16 @@ public abstract class ContentController_Base
         }
         if (fieldValue != null && TargetMode.VIEW.equals(currentTargetMode) && field.getReference() != null) {
             final var alternativeOid = eval.get(field.getName() + "_AOID");
-            if (alternativeOid != null && alternativeOid instanceof String) {
-                valueBldr.withNavRef((String) alternativeOid);
+            if (alternativeOid != null) {
+                if (alternativeOid instanceof String) {
+                    valueBldr.withNavRef((String) alternativeOid);
+                } else if (alternativeOid instanceof final Collection alterOidCol) {
+                    if (!alterOidCol.isEmpty()) {
+                        valueBldr.withNavRef(String.valueOf(alterOidCol.iterator().next()));
+                    }
+                } else {
+                    LOG.warn("Cannot evluate alternate oid for {}", field.getName());
+                }
             } else {
                 valueBldr.withNavRef(eval.inst().getOid());
             }
