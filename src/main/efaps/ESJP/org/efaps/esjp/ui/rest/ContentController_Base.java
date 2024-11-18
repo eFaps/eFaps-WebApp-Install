@@ -629,7 +629,12 @@ public abstract class ContentController_Base
         final var attrList = fieldSet.getOrder().isEmpty()
                         ? attributeSet.getSetAttributes()
                         : fieldSet.getOrder();
-        print.attributeSet(fieldSet.getAttribute()).attribute("ID").as(fieldSet.getName() + "-ID");
+        if (clazz != null) {
+            print.clazz(clazz.getName())
+                .attributeSet(fieldSet.getAttribute()).attribute("ID").as(fieldSet.getName() + "-ID");
+        } else {
+            print.attributeSet(fieldSet.getAttribute()).attribute("ID").as(fieldSet.getName() + "-ID");
+        }
         for (final var attrName : attrList) {
             final var attr = attributeSet.getAttribute(attrName);
             if (attr.hasEvents(EventType.RANGE_VALUE)) {
@@ -655,7 +660,12 @@ public abstract class ContentController_Base
         final var attrList = fieldSet.getOrder().isEmpty()
                         ? attributeSet.getSetAttributes()
                         : fieldSet.getOrder();
-        print.attributeSet(fieldSet.getAttribute()).attribute("ID").as(fieldSet.getName() + "-ID");
+        if (clazz != null) {
+            print.clazz(clazz.getName())
+                .attributeSet(fieldSet.getAttribute()).attribute("ID").as(fieldSet.getName() + "-ID");
+        } else {
+            print.attributeSet(fieldSet.getAttribute()).attribute("ID").as(fieldSet.getName() + "-ID");
+        }
         for (final var attrName : attrList) {
             if (clazz != null) {
                 print.clazz(clazz.getName()).attributeSet(fieldSet.getAttribute()).attribute(attrName)
