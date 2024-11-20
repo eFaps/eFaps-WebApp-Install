@@ -27,6 +27,7 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCommand.Target;
 import org.efaps.admin.ui.AbstractMenu;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
+import org.efaps.db.Instance;
 import org.efaps.esjp.ui.rest.dto.ActionDto;
 import org.efaps.esjp.ui.rest.dto.ActionType;
 import org.efaps.esjp.ui.rest.dto.NavItemDto;
@@ -38,12 +39,13 @@ import org.efaps.util.EFapsException;
 public abstract class NavItemEvaluator_Base
 {
 
-    public List<NavItemDto> getMenu(final AbstractMenu _menu)
+    public List<NavItemDto> getMenu(final AbstractMenu menu,
+                                    final String oid)
         throws EFapsException
     {
         final var ret = new ArrayList<NavItemDto>();
-        for (final var command : _menu.getCommands()) {
-            if (command.hasAccess(TargetMode.VIEW, null)) {
+        for (final var command : menu.getCommands()) {
+            if (command.hasAccess(TargetMode.VIEW, Instance.get(oid))) {
                 final var actionBldr = ActionDto.builder()
                                 .withModal(command.getTarget() == Target.MODAL);
                 if (command.getTargetForm() != null || command.getTargetModule() != null) {
@@ -57,7 +59,8 @@ public abstract class NavItemEvaluator_Base
                 } else if (command.getTarget() == Target.UNKNOWN && command.isSubmit() && command.isAskUser()) {
                     actionBldr.withType(ActionType.EXEC)
                                     .withVerify(VerifyDto.builder()
-                                                    .withQuestion(DBProperties.getProperty(command.getName() + ".Question"))
+                                                    .withQuestion(DBProperties
+                                                                    .getProperty(command.getName() + ".Question"))
                                                     .withSelectedRows(command.getSubmitSelectedRows())
                                                     .build());
                 } else if (command.getTarget() == Target.UNKNOWN
@@ -67,7 +70,7 @@ public abstract class NavItemEvaluator_Base
 
                 List<NavItemDto> children = null;
                 if (command instanceof AbstractMenu) {
-                    children = getMenu((AbstractMenu) command);
+                    children = getMenu((AbstractMenu) command, oid);
                 }
                 ret.add(NavItemDto.builder()
                                 .withId(command.getUUID().toString())

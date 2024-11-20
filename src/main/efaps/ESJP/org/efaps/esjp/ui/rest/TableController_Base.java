@@ -79,7 +79,7 @@ public abstract class TableController_Base
 
         final var menu = cmd.getTargetMenu();
 
-        final List<NavItemDto> menus = menu == null ? null : new NavItemEvaluator().getMenu(menu);
+        final List<NavItemDto> menus = menu == null ? null : new NavItemEvaluator().getMenu(menu, oid);
 
         final String selectionMode = cmd.isTargetShowCheckBoxes()
                         ? cmd.getSubmitSelectedRows() == 1 ? "single" : "multiple"

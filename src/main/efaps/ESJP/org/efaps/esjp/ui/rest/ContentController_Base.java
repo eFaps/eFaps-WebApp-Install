@@ -122,13 +122,13 @@ public abstract class ContentController_Base
     protected TargetMode currentTargetMode;
     protected List<Classification> classifications;
 
-    public Response getContent(final String _oid)
+    public Response getContent(final String oid)
         throws EFapsException
     {
-        LOG.info("Get content for oid: {}", _oid);
+        LOG.info("Get content for oid: {}", oid);
 
         ContentDto dto = null;
-        final var instance = Instance.get(_oid);
+        final var instance = Instance.get(oid);
         if (instance.isValid()) {
 
             final var typeMenu = instance.getType().getTypeMenu();
@@ -136,7 +136,7 @@ public abstract class ContentController_Base
                             .findFirst();
 
             final var targetMenu = typeMenu.getTargetMenu();
-            final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu);
+            final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu, oid);
             final var header = getLabel(instance, typeMenu.getTargetTitle());
 
             final List<NavItemDto> navItems = new ArrayList<>();
@@ -167,7 +167,7 @@ public abstract class ContentController_Base
                 }
             }
             final var outline = OutlineDto.builder()
-                            .withOid(_oid)
+                            .withOid(oid)
                             .withMenu(menus)
                             .withHeader(header)
                             .withSections(evalSections(instance, typeMenu))
@@ -220,7 +220,7 @@ public abstract class ContentController_Base
         }
 
         final var targetMenu = cmd.getTargetMenu();
-        final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu);
+        final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu, oid);
         final var header = getLabel(instance, cmd.getTargetTitle());
         ActionDto action = null;
         if (cmd.getTargetMode().equals(TargetMode.CREATE) && cmd.hasEvents(EventType.UI_COMMAND_EXECUTE)) {
