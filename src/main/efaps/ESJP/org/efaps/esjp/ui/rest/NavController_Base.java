@@ -84,7 +84,7 @@ public abstract class NavController_Base
                     if (command.getTargetTable() != null) {
                         actionType = command.getTargetStructurBrowserField() == null ? ActionType.GRID
                                         : ActionType.STRBRWSR;
-                    } else if (command.getTargetForm() != null) {
+                    } else if (command.getTargetForm() != null || command.getTargetModule() != null) {
                         actionType = ActionType.FORM;
                     } else if (command.getTargetSearch() != null) {
                         actionType = ActionType.SEARCH;
