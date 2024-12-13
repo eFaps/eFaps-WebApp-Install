@@ -67,6 +67,16 @@ public class WebApp
                         KEY.pageSize=10 Size of the page, default 10
                         KEY.pageOptions=500,1000,1500  comma sperated list of page sizes""");
 
+    @EFapsSysConfAttribute
+    public static final PropertiesSysConfAttribute SEARCH = new PropertiesSysConfAttribute()
+                    .sysConfUUID(SYSCONFUUID)
+                    .key(BASE + "search.Config")
+                    .addDefaultValue("default.limit", "1000")
+                    .description("""
+                        default. ==> default values
+                        cmdNN = UUID or Name of a Cmd (KEY)\s
+                        KEY.limit=1000 limit of the search""");
+
     /**
      * @return the SystemConfigruation for Sales
      * @throws CacheReloadException on error

@@ -43,11 +43,13 @@ import org.efaps.eql2.impl.AttributeSelectElement;
 import org.efaps.eql2.impl.ClassSelectElement;
 import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.ui.rest.dto.FormSectionDto;
+import org.efaps.esjp.ui.rest.dto.PageDto;
 import org.efaps.esjp.ui.rest.dto.SearchDto;
 import org.efaps.esjp.ui.rest.dto.TableDto;
 import org.efaps.esjp.ui.rest.dto.ValueDto;
 import org.efaps.esjp.ui.rest.dto.ValueType;
 import org.efaps.esjp.ui.util.LabelUtils;
+import org.efaps.esjp.ui.util.WebApp;
 import org.efaps.util.EFapsException;
 import org.efaps.util.UUIDUtil;
 import org.efaps.util.cache.CacheReloadException;
@@ -189,11 +191,28 @@ public abstract class SearchController_Base
                         ? cmd.getSubmitSelectedRows() == 1 ? "single" : "multiple"
                         : null;
 
+        final var searchConfig = WebApp.SEARCH.get();
+        final var cmds = PropertiesUtil.analyseProperty(searchConfig, "cmd", 0).values();
+        final var key = cmds.stream().filter(
+                        cmdkey -> (cmdkey.equals(cmd.getName()) || cmd.getUUID() != null
+                                        && cmdkey.equals(cmd.getUUID().toString())))
+                        .findFirst();
+        String prefix;
+        if (key.isPresent()) {
+            prefix = key.get();
+        } else {
+            prefix = "default";
+        }
+        final var searchProperties = PropertiesUtil.getProperties4Prefix(searchConfig, prefix, true);
+        final var limit = Integer.valueOf(searchProperties.getProperty("limit", "1000"));
+
         final var dto = TableDto.builder()
                         .withHeader(getHeader(cmd, null))
                         .withColumns(getColumns(table, TargetMode.SEARCH, null))
-                        .withValues(getValues(cmd, table, queryParameters))
+                        .withValues(getValues(cmd, table, queryParameters, limit))
                         .withSelectionMode(selectionMode)
+                        .withPage(PageDto.builder()
+                                        .withPageSize(limit).build())
                         .build();
 
         final Response ret = Response.ok()
@@ -202,13 +221,14 @@ public abstract class SearchController_Base
         return ret;
     }
 
-    public Collection<Map<String, ?>> getValues(final AbstractUserInterfaceObject _cmd,
+    public Collection<Map<String, ?>> getValues(final AbstractUserInterfaceObject uiObj,
                                                 final org.efaps.admin.ui.Table _table,
-                                                MultivaluedMap<String, String> queryParameters)
+                                                final MultivaluedMap<String, String> queryParameters,
+                                                final int limit)
         throws EFapsException
     {
         final var fields = getFields(_table);
-        final var typeList = evalTypes(_cmd);
+        final var typeList = evalTypes(uiObj);
         final var types = typeList.stream().map(Type::getName).toArray(String[]::new);
         final var query = EQL.builder()
                         .print()
@@ -223,8 +243,10 @@ public abstract class SearchController_Base
             }
         }
 
-        final var print = query.select();
 
+
+        final var print = query.select();
+        print.limit(limit);
         if (fields.stream().anyMatch(field -> field.getReference() != null)) {
             print.oid().as("OID");
         }
