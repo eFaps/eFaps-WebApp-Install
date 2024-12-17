@@ -170,6 +170,7 @@ public abstract class UserController_Base
         final Person person = getPerson(jwtClaimsSet.getSubject());
         boolean ret = false;
         if (person != null) {
+            LOG.info("   existing person: {}", person.getName());
             ret = true;
         } else if (KernelConfigurations.SSO_PERMITCREATEPERSON.get()) {
             LOG.debug("{} is activated", KernelConfigurations.SSO_PERMITCREATEPERSON.getKey());
@@ -179,6 +180,7 @@ public abstract class UserController_Base
             Person.createPerson(JAASSystem.getJAASSystem("eFaps"), userName, userName,
                             UUIDUtil.isUUID(jwtClaimsSet.getSubject()) ? jwtClaimsSet.getSubject() : null, true);
             ret = true;
+            LOG.info("   newly created person: {}", userName);
         }
         return ret;
     }
@@ -192,7 +194,7 @@ public abstract class UserController_Base
         if (KernelConfigurations.SSO_PERMITROLEUPDATE.get()) {
             LOG.debug("{} is activated", KernelConfigurations.SSO_PERMITROLEUPDATE.getKey());
             final var resource = jwtClaimsSet.getJSONObjectClaim(RESOURCE_ACCESS);
-            LOG.info("resource: {}", resource);
+            LOG.info("   resource: {}", resource);
             final var resourceElement = resource.get(audience);
             if (resourceElement == null) {
                 LOG.warn("Cannot sync roles due to missing 'resource_access' for {}", audience);
