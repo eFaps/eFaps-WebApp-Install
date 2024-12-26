@@ -46,6 +46,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
@@ -99,7 +100,7 @@ public class SystemConfigurationController
             EQL.builder().insert(CIAdminCommon.SystemConfigurationAttribute)
                             .set(CIAdminCommon.SystemConfigurationAttribute.AbstractLink, inst)
                             .set(CIAdminCommon.SystemConfigurationAttribute.Key, dto.getKey())
-                            .set(CIAdminCommon.SystemConfigurationAttribute.Value, dto.getValue())
+                            .set(CIAdminCommon.SystemConfigurationAttribute.Value, evalValue(dto))
                             .set(CIAdminCommon.SystemConfigurationAttribute.Description, dto.getDescription())
                             .set(CIAdminCommon.SystemConfigurationAttribute.AppKey, dto.getAppKey())
                             .set(CIAdminCommon.SystemConfigurationAttribute.CompanyLink, dto.getCompanyLink())
@@ -153,7 +154,7 @@ public class SystemConfigurationController
         if (InstanceUtils.isType(inst, CIAdminCommon.SystemConfigurationAttribute)) {
             EQL.builder().update(inst)
                             .set(CIAdminCommon.SystemConfigurationAttribute.Key, dto.getKey())
-                            .set(CIAdminCommon.SystemConfigurationAttribute.Value, dto.getValue())
+                            .set(CIAdminCommon.SystemConfigurationAttribute.Value, evalValue(dto))
                             .set(CIAdminCommon.SystemConfigurationAttribute.Description, dto.getDescription())
                             .set(CIAdminCommon.SystemConfigurationAttribute.AppKey, dto.getAppKey())
                             .set(CIAdminCommon.SystemConfigurationAttribute.CompanyLink, dto.getCompanyLink())
@@ -300,4 +301,27 @@ public class SystemConfigurationController
                         .withDescription(description)
                         .build();
     }
+
+    protected String evalValue(final SystemConfigurationAttributeValueDto dto)
+    {
+        return switch (dto.getType()) {
+            case LIST: {
+                String strValue = null;
+                try {
+                    if (dto.getValue() != null) {
+                        final var mapper = ValueUtils.getObjectMapper();
+                        strValue = mapper.readValue(dto.getValue(), new TypeReference<List<String>>()
+                        {
+                        }).stream().collect(Collectors.joining("\n"));
+                    }
+                } catch (final JsonProcessingException e) {
+                    LOG.error("Catched", e);
+                }
+                yield strValue;
+            }
+            default:
+                yield dto.getValue();
+        };
+    }
+
 }
