@@ -37,21 +37,21 @@ public class ImageUtil
 
     public static String put(final File file)
     {
-        final var key = RandomStringUtils.randomAlphanumeric(32);
-        getCache().put(key, file, 5, TimeUnit.MINUTES);
+        final var key = RandomStringUtils.secure().nextAlphanumeric(32);
+        getCache().put(key, file.getAbsolutePath(), 5, TimeUnit.MINUTES);
         return key;
     }
 
     public static File get(final String key)
     {
-        return getCache().get(key);
+        return new File(getCache().get(key));
     }
 
-    private static Cache<String, File> getCache()
+    private static Cache<String, String> getCache()
     {
         if (!InfinispanCache.get().exists(ImageUtil.CACHENAME)) {
             InfinispanCache.get().initCache(ImageUtil.CACHENAME);
         }
-        return InfinispanCache.get().<String, File>getCache(ImageUtil.CACHENAME);
+        return InfinispanCache.get().<String, String>getCache(ImageUtil.CACHENAME);
     }
 }
