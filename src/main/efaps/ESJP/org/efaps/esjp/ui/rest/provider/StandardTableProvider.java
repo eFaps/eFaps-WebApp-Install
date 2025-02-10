@@ -386,7 +386,9 @@ public class StandardTableProvider
                         final var selectedIds = stati.stream()
                                         .filter(status -> selected.contains(status.getKey()))
                                         .map(Status::getId).toArray(Long[]::new);
-                        wherePart.attribute(type.getStatusAttribute().getName()).in(selectedIds);
+                        if (selectedIds.length > 0) {
+                            wherePart.attribute(type.getStatusAttribute().getName()).in(selectedIds);
+                        }
                         break;
                 }
             }
@@ -474,7 +476,9 @@ public class StandardTableProvider
                         }
                     }
                     filterBuilder.withValue1(options.values()).withValue2(selected);
-                    ret.add(filterBuilder.build());
+                    if (!selected.isEmpty()) {
+                        ret.add(filterBuilder.build());
+                    }
                 }
             }
         }
