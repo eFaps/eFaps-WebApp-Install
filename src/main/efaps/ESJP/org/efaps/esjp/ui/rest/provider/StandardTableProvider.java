@@ -40,6 +40,7 @@ import org.efaps.admin.datamodel.Status.StatusGroup;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.datamodel.attributetype.CreatedType;
 import org.efaps.admin.datamodel.attributetype.DateType;
+import org.efaps.admin.datamodel.attributetype.RateType;
 import org.efaps.admin.datamodel.attributetype.StatusType;
 import org.efaps.admin.datamodel.ui.IUIValue;
 import org.efaps.admin.event.EventType;
@@ -500,26 +501,28 @@ public class StandardTableProvider
         return ret;
     }
 
-    protected void add2Select4Attribute(final Print _print,
-                                        final Field _field,
-                                        final Collection<Type> _types)
+    protected void add2Select4Attribute(final Print print,
+                                        final Field field,
+                                        final Collection<Type> types)
         throws EFapsException
     {
         Attribute attr = null;
-        for (final var type : _types) {
-            attr = type.getAttribute(_field.getAttribute());
+        for (final var type : types) {
+            attr = type.getAttribute(field.getAttribute());
             if (attr != null) {
                 break;
             }
         }
         if (attr == null) {
-            _print.attribute(_field.getAttribute()).as(_field.getName());
+            print.attribute(field.getAttribute()).as(field.getName());
         } else if (attr.getAttributeType().getDbAttrType() instanceof StatusType) {
-            _print.select("status.label").as(_field.getName());
+            print.select("status.label").as(field.getName());
+        } else if (attr.getAttributeType().getDbAttrType() instanceof RateType) {
+            print.attribute(field.getAttribute()).value().as(field.getName());
         } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
-            add2Select4RangeValue(_print, _field.getName(), attr, "");
+            add2Select4RangeValue(print, field.getName(), attr, "");
         } else {
-            _print.attribute(_field.getAttribute()).as(_field.getName());
+            print.attribute(field.getAttribute()).as(field.getName());
         }
     }
 

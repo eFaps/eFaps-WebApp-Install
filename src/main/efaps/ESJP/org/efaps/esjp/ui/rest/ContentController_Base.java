@@ -40,6 +40,7 @@ import org.efaps.admin.datamodel.IBitEnum;
 import org.efaps.admin.datamodel.IEnum;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.datamodel.Type;
+import org.efaps.admin.datamodel.attributetype.RateType;
 import org.efaps.admin.datamodel.attributetype.StatusType;
 import org.efaps.admin.datamodel.ui.IUIValue;
 import org.efaps.admin.dbproperty.DBProperties;
@@ -689,6 +690,8 @@ public abstract class ContentController_Base
             } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
                 final var baseSelect = type instanceof Classification ? "class[" + type.getName() + "]" : "";
                 add2Select4RangeValue(print, field.getName(), attr, baseSelect);
+            } else if (attr.getAttributeType().getDbAttrType() instanceof RateType) {
+                print.attribute(field.getAttribute()).value().as(field.getName());
             } else if (type instanceof Classification) {
                 print.clazz(type.getName()).attribute(field.getAttribute()).as(field.getName());
             } else {
@@ -709,6 +712,8 @@ public abstract class ContentController_Base
             } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
                 final var baseSelect = type instanceof Classification ? "class[" + type.getName() + "]." : "";
                 print.select(baseSelect + "linkto[" + attr.getName() + "].attribute[ID]").as(field.getName());
+            } else if (attr.getAttributeType().getDbAttrType() instanceof RateType) {
+                print.attribute(field.getAttribute()).value().as(field.getName());
             } else if (type instanceof Classification) {
                 print.clazz(type.getName()).attribute(field.getAttribute()).as(field.getName());
             } else {
@@ -740,7 +745,6 @@ public abstract class ContentController_Base
             if (clazz != null) {
 
             } else {
-
                 _print.select("status.label").as(_field.getName());
             }
         } else if (attr.hasEvents(EventType.RANGE_VALUE)) {
