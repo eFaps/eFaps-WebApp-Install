@@ -41,5 +41,6 @@ public enum ValueType
     CLASSIFICATION,
     DATETIMELABEL,
     IMAGE,
-    TIME
+    TIME,
+    PICKLIST
 }

@@ -36,6 +36,7 @@ public class ModuleDto
     private final String key;
     private final TargetMode targetMode;
     private final Map<String, String> properties;
+    private final String header;
 
     private ModuleDto(Builder builder)
     {
@@ -43,6 +44,7 @@ public class ModuleDto
         this.key = builder.key;
         this.targetMode = builder.targetMode;
         this.properties = builder.properties;
+        this.header = builder.header;
     }
 
     public String getId()
@@ -65,6 +67,11 @@ public class ModuleDto
         return properties;
     }
 
+    public String getHeader()
+    {
+        return header;
+    }
+
     @Override
     public String toString()
     {
@@ -83,6 +90,7 @@ public class ModuleDto
         private String key;
         private TargetMode targetMode;
         private Map<String, String> properties = Collections.emptyMap();
+        private String header;
 
         private Builder()
         {
@@ -109,6 +117,12 @@ public class ModuleDto
         public Builder withProperties(Map<String, String> properties)
         {
             this.properties = properties;
+            return this;
+        }
+
+        public Builder withHeader(String header)
+        {
+            this.header = header;
             return this;
         }
 

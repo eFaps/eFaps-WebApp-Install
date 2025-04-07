@@ -200,6 +200,9 @@ public abstract class ContentController_Base
         if (cmd == null) {
             cmd = Menu.get(UUID.fromString(cmdId));
         }
+        final var targetMenu = cmd.getTargetMenu();
+        final var header = getLabel(instance, cmd.getTargetTitle());
+
         if (cmd.getTargetModule() != null) {
             final var module = cmd.getTargetModule();
             final var allModulePropertyMap = module.getPropertyMap();
@@ -214,15 +217,14 @@ public abstract class ContentController_Base
                             .withKey(module.getProperty("ModuleKey"))
                             .withTargetMode(cmd.getTargetMode())
                             .withProperties(propertyMap)
+                            .withHeader(header)
                             .build();
             return Response.ok()
                             .entity(dto)
                             .build();
         }
 
-        final var targetMenu = cmd.getTargetMenu();
         final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu, oid);
-        final var header = getLabel(instance, cmd.getTargetTitle());
         ActionDto action = null;
         if (cmd.getTargetMode().equals(TargetMode.CREATE) && cmd.hasEvents(EventType.UI_COMMAND_EXECUTE)) {
             action = ActionDto.builder()
