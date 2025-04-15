@@ -38,6 +38,7 @@ import org.efaps.admin.datamodel.AttributeSet;
 import org.efaps.admin.datamodel.Classification;
 import org.efaps.admin.datamodel.IBitEnum;
 import org.efaps.admin.datamodel.IEnum;
+import org.efaps.admin.datamodel.IJaxb;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.datamodel.attributetype.RateType;
@@ -794,13 +795,13 @@ public abstract class ContentController_Base
         final var valueBldr = ValueDto.builder()
                         .withRequired(field.isRequired() && field.isEditableDisplay(currentTargetMode));
         Object fieldValue = null;
-        boolean rangeValue = false;
+        boolean valueSet = false;
         // range value
         if (TargetMode.VIEW.equals(currentTargetMode) && field.getAttribute() != null) {
             final var attr = type.getAttribute(field.getAttribute());
             if (attr != null && attr.hasEvents(EventType.RANGE_VALUE)
                             && !"Status".equals(attr.getAttributeType().getName())) {
-                rangeValue = true;
+                valueSet = true;
                 final var event = attr.getEvents(EventType.RANGE_VALUE).get(0);
                 final var valueStr = event.getProperty("Value");
                 if (valueStr.contains("$<")) {
@@ -830,9 +831,25 @@ public abstract class ContentController_Base
                 } else {
                     fieldValue = eval.get(field.getName());
                 }
+            } else if (attr != null && "Jaxb".equals(attr.getAttributeType().getName())) {
+                valueSet = true;
+                try {
+                    final var jaxb =(IJaxb) Class.forName(attr.getClassName(), false,
+                                    EFapsClassLoader.getInstance()).getConstructor().newInstance();
+                    final var uiValue = RestUIValue.builder()
+                                    .withInstance(inst)
+                                    .withField(field)
+                                    .withObject(eval.get(field.getName()))
+                                    .withDisplay(field.getDisplay(currentTargetMode))
+                                    .build();
+                    fieldValue = jaxb.getUISnipplet(currentTargetMode, uiValue);
+                    valueBldr.withType(ValueType.SNIPPLET);
+                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                    LOG.error("Catched", e);
+                }
             }
         }
-        if (!rangeValue) {
+        if (!valueSet) {
             fieldValue = eval == null ? null : eval.get(field.getName());
         }
 
