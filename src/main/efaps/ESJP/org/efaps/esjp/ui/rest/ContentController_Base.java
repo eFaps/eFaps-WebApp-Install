@@ -635,7 +635,7 @@ public abstract class ContentController_Base
                         : fieldSet.getOrder();
         if (clazz != null) {
             print.clazz(clazz.getName())
-                .attributeSet(fieldSet.getAttribute()).attribute("ID").as(fieldSet.getName() + "-ID");
+                            .attributeSet(fieldSet.getAttribute()).attribute("ID").as(fieldSet.getName() + "-ID");
         } else {
             print.attributeSet(fieldSet.getAttribute()).attribute("ID").as(fieldSet.getName() + "-ID");
         }
@@ -666,7 +666,7 @@ public abstract class ContentController_Base
                         : fieldSet.getOrder();
         if (clazz != null) {
             print.clazz(clazz.getName())
-                .attributeSet(fieldSet.getAttribute()).attribute("ID").as(fieldSet.getName() + "-ID");
+                            .attributeSet(fieldSet.getAttribute()).attribute("ID").as(fieldSet.getName() + "-ID");
         } else {
             print.attributeSet(fieldSet.getAttribute()).attribute("ID").as(fieldSet.getName() + "-ID");
         }
@@ -834,7 +834,7 @@ public abstract class ContentController_Base
             } else if (attr != null && "Jaxb".equals(attr.getAttributeType().getName())) {
                 valueSet = true;
                 try {
-                    final var jaxb =(IJaxb) Class.forName(attr.getClassName(), false,
+                    final var jaxb = (IJaxb) Class.forName(attr.getClassName(), false,
                                     EFapsClassLoader.getInstance()).getConstructor().newInstance();
                     final var uiValue = RestUIValue.builder()
                                     .withInstance(inst)
@@ -844,7 +844,9 @@ public abstract class ContentController_Base
                                     .build();
                     fieldValue = jaxb.getUISnipplet(currentTargetMode, uiValue);
                     valueBldr.withType(ValueType.SNIPPLET);
-                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                } catch (ClassNotFoundException | InstantiationException | IllegalAccessException
+                                | IllegalArgumentException | InvocationTargetException | NoSuchMethodException
+                                | SecurityException e) {
                     LOG.error("Catched", e);
                 }
             }
@@ -883,20 +885,11 @@ public abstract class ContentController_Base
                 fieldValue = evalFieldFormatEvent(inst, field, valueBldr, fieldValue, currentTargetMode);
             } else if ((TargetMode.CREATE.equals(currentTargetMode) || TargetMode.EDIT.equals(currentTargetMode))
                             && field.isEditableDisplay(currentTargetMode)) {
-                if (field instanceof FieldClassification) {
+                if (field instanceof final FieldClassification fieldClass) {
                     valueBldr.withType(ValueType.CLASSIFICATION);
-                    final String[] names = field.getClassificationName().split(";");
-                    final List<UUID> classifications = new ArrayList<>();
-                    for (final var name : names) {
-                        if (UUIDUtil.isUUID(name)) {
-                            classifications.add(UUID.fromString(name));
-                        } else {
-                            final var classification = Classification.get(name);
-                            if (classification != null) {
-                                classifications.add(classification.getUUID());
-                            }
-                        }
-                    }
+                    final List<UUID> classifications = fieldClass.evalRootClassifications().stream()
+                                    .map(Classification::getUUID)
+                                    .toList();
                     fieldValue = classifications;
                 } else if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {
                     valueBldr.withType(ValueType.AUTOCOMPLETE)
