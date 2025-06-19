@@ -63,4 +63,14 @@ public class DashboardController
     {
         return super.getWidget(_widgetId);
     }
+
+    @Override
+    @GET
+    @Path("/widget-templates")
+    @Produces({ MediaType.APPLICATION_JSON })
+    public Response getTemplates()
+        throws EFapsException
+    {
+        return super.getTemplates();
+    }
 }

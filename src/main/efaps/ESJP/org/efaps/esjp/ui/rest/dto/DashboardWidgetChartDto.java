@@ -32,12 +32,14 @@ public class DashboardWidgetChartDto
 
     private final List<String> groupBy;
     private final List<DashboardWidgetChartMetricDto> metrics;
+    private final String chartType;
 
     private DashboardWidgetChartDto(final Builder builder)
     {
         super(builder);
         this.groupBy = builder.groupBy;
         this.metrics = builder.metrics;
+        this.chartType = builder.chartType;
     }
 
     public List<String> getGroupBy()
@@ -48,6 +50,11 @@ public class DashboardWidgetChartDto
     public List<DashboardWidgetChartMetricDto> getMetrics()
     {
         return metrics;
+    }
+
+    public String getChartType()
+    {
+        return chartType;
     }
 
     /**
@@ -69,6 +76,7 @@ public class DashboardWidgetChartDto
 
         private List<String> groupBy;
         private List<DashboardWidgetChartMetricDto> metrics;
+        private String chartType;
 
         private Builder()
         {
@@ -84,6 +92,12 @@ public class DashboardWidgetChartDto
         public Builder withMetrics(List<DashboardWidgetChartMetricDto> metrics)
         {
             this.metrics = metrics;
+            return this;
+        }
+
+        public Builder withChartType(String chartType)
+        {
+            this.chartType = chartType;
             return this;
         }
 

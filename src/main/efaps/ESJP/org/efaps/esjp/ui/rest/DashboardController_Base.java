@@ -17,8 +17,9 @@
 package org.efaps.esjp.ui.rest;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -30,16 +31,18 @@ import org.efaps.db.stmt.PrintStmt;
 import org.efaps.eql.EQL;
 import org.efaps.esjp.ci.CICommon;
 import org.efaps.esjp.ui.rest.dto.DashboardDto;
-import org.efaps.esjp.ui.rest.dto.DashboardItemDto;
-import org.efaps.esjp.ui.rest.dto.DashboardPageDto;
+import org.efaps.esjp.ui.rest.dto.DashboardTemplateDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetChartDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetChartMetricDto;
+import org.efaps.esjp.ui.rest.dto.DashboardWidgetDataDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetDto;
 import org.efaps.esjp.ui.rest.dto.DashboardWidgetTableDto;
+import org.efaps.esjp.ui.rest.dto.DashboardWidgetType;
 import org.efaps.esjp.ui.util.ValueUtils;
 import org.efaps.esjp.ui.util.WebApp;
+import org.efaps.json.data.DataList;
 import org.efaps.util.EFapsException;
-import org.efaps.util.RandomUtil;
+import org.efaps.util.OIDUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -64,7 +67,7 @@ public abstract class DashboardController_Base
             final var dashboardStr = userAttributesSet.getString(KEY);
             DashboardDto dto = null;
             if (dashboardStr == null) {
-                dto = getDefaultDashboard();
+                dto = DashboardDto.builder().build();
             } else {
                 final var mapper = ValueUtils.getObjectMapper();
                 try {
@@ -80,39 +83,6 @@ public abstract class DashboardController_Base
             response = Response.ok().build();
         }
         return response;
-    }
-
-    protected DashboardDto getDefaultDashboard()
-    {
-        final var tableDto = DashboardWidgetTableDto.builder()
-                        .withTitle("TableTest")
-                        .withIdentifier("e543f8d7-1f26-4bc2-bd20-0ce00b6078ed")
-                        .build();
-        final var chartDto = DashboardWidgetChartDto.builder()
-                        .withTitle("Chart Test")
-                        .withIdentifier("eb70f1aa-1b0a-4739-9ea6-b1d0bb54436d")
-                        .build();
-        return DashboardDto.builder()
-                        .withPages(Arrays.asList(DashboardPageDto
-                                        .builder()
-                                        .withKey(RandomUtil.randomAlphabetic(4))
-                                        .withLabel("Page 1")
-                                        .withItems(Arrays.asList(
-                                                        DashboardItemDto.builder().withCols(1).withRows(1).withx(0)
-                                                                        .withy(0)
-                                                                        .withWidget(tableDto).build(),
-                                                        DashboardItemDto.builder().withCols(1).withRows(1).withx(1)
-                                                                        .withy(0)
-                                                                        .withWidget(chartDto).build(),
-                                                        DashboardItemDto.builder().withCols(1).withRows(1).withx(0)
-                                                                        .withy(1).build()))
-                                        .build(),
-                                        DashboardPageDto
-                                                        .builder()
-                                                        .withKey(RandomUtil.randomAlphabetic(4))
-                                                        .withLabel("Page 2")
-                                                        .build()))
-                        .build();
     }
 
     public Response updateDashboard(final DashboardDto _dashboardDto)
@@ -134,26 +104,31 @@ public abstract class DashboardController_Base
         return Response.ok().build();
     }
 
-
-    protected void persistWidget(final DashboardWidgetDto _dashboardWidgetDto)
+    protected void persistWidget(final DashboardWidgetDto dashboardWidgetDto)
     {
-        if (_dashboardWidgetDto != null) {
+        if (dashboardWidgetDto != null) {
             try {
                 final var mapper = ValueUtils.getObjectMapper();
-                final var config = mapper.writeValueAsString(_dashboardWidgetDto);
+                final var config = mapper.writeValueAsString(dashboardWidgetDto);
                 final var eval = EQL.builder().print()
                                 .query(CICommon.DashboardWidget).where()
                                 .attribute(CICommon.DashboardWidget.Identifier)
-                                .eq(_dashboardWidgetDto.getIdentifier())
+                                .eq(dashboardWidgetDto.getIdentifier())
                                 .select().oid()
                                 .evaluate();
                 if (eval.next()) {
-                    EQL.builder().update(eval.inst())
-                                    .set(CICommon.DashboardWidget.Config, config)
-                                    .stmt().execute();
-                } else {
+                    if (DashboardWidgetType.CHART.equals(dashboardWidgetDto.getType())
+                                    || DashboardWidgetType.TABLE.equals(dashboardWidgetDto.getType())) {
+                        EQL.builder().update(eval.inst())
+                                        .set(CICommon.DashboardWidget.Config, config)
+                                        .stmt().execute();
+                    } else {
+                        EQL.builder().delete(eval.inst()).stmt().execute();
+                    }
+                } else if (DashboardWidgetType.CHART.equals(dashboardWidgetDto.getType())
+                                || DashboardWidgetType.TABLE.equals(dashboardWidgetDto.getType())) {
                     EQL.builder().insert(CICommon.DashboardWidget)
-                                    .set(CICommon.DashboardWidget.Identifier, _dashboardWidgetDto.getIdentifier())
+                                    .set(CICommon.DashboardWidget.Identifier, dashboardWidgetDto.getIdentifier())
                                     .set(CICommon.DashboardWidget.Config, config)
                                     .stmt().execute();
                 }
@@ -163,21 +138,31 @@ public abstract class DashboardController_Base
         }
     }
 
-    public Response getWidget(final String _widgetId)
+    public Response getWidget(final String widgetId)
         throws EFapsException
     {
-        final var eval = EQL.builder().print()
-                        .query(CICommon.DashboardWidget).where()
-                        .attribute(CICommon.DashboardWidget.Identifier)
-                        .eq(_widgetId)
-                        .select().attribute(CICommon.DashboardWidget.Config)
-                        .evaluate();
-        var entity = new Object();
-        if (eval.next()) {
+        Object entity = null;
+        String configStr = null;
+        if (OIDUtil.isOID(widgetId)) {
+            final var eval = EQL.builder().print(widgetId).attribute(CICommon.DashboardTemplate.Config).evaluate();
+            if (eval.next()) {
+                configStr = eval.<String>get(CICommon.DashboardTemplate.Config);
+            }
+        } else {
+            final var eval = EQL.builder().print()
+                            .query(CICommon.DashboardWidget).where()
+                            .attribute(CICommon.DashboardWidget.Identifier)
+                            .eq(widgetId)
+                            .select().attribute(CICommon.DashboardWidget.Config)
+                            .evaluate();
+            if (eval.next()) {
+                configStr = eval.<String>get(CICommon.DashboardWidget.Config);
+            }
+        }
+        if (configStr != null) {
             final var mapper = ValueUtils.getObjectMapper();
             try {
-                final var dto = mapper.readValue(eval.<String>get(CICommon.DashboardWidget.Config),
-                                DashboardWidgetDto.class);
+                final var dto = mapper.readValue(configStr, DashboardWidgetDto.class);
                 switch (dto.getType()) {
                     case TABLE:
                         entity = getTable((DashboardWidgetTableDto) dto);
@@ -189,8 +174,7 @@ public abstract class DashboardController_Base
                         break;
                 }
             } catch (JsonProcessingException | EFapsException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
+                LOG.error("Catched", e);
             }
         }
         return Response.ok()
@@ -198,45 +182,78 @@ public abstract class DashboardController_Base
                         .build();
     }
 
-    protected Object getTable(final DashboardWidgetTableDto _widgetDto)
+    protected DashboardWidgetDataDto getTable(final DashboardWidgetTableDto widgetDto)
         throws EFapsException
     {
-        final var stmt = EQL.getStatement(_widgetDto.getEql());
-        final var eval = ((PrintStmt) stmt).evaluate();
-        return eval.getDataList();
+        final var stmt = EQL.getStatement(widgetDto.getEql());
+        DataList data = null;
+        if (stmt != null) {
+            final var eval = ((PrintStmt) stmt).evaluate();
+            data = eval.getDataList();
+        }
+        return DashboardWidgetDataDto.builder()
+                        .withWidget(widgetDto)
+                        .withData(data)
+                        .build();
     }
 
-    protected Object getChart(final DashboardWidgetChartDto _widgetDto)
+    protected DashboardWidgetDataDto getChart(final DashboardWidgetChartDto widgetDto)
         throws EFapsException
     {
-        final var stmt = EQL.getStatement(_widgetDto.getEql());
-        final var eval = ((PrintStmt) stmt).evaluate();
-
-        final var groupDefs = _widgetDto.getGroupBy();
-        final var metrics = _widgetDto.getMetrics().stream().map(DashboardWidgetChartMetricDto::getKey)
-                        .collect(Collectors.toList());
         final Map<Object, Map<String, BigDecimal>> groupedValues = new HashMap<>();
-        while (eval.next()) {
-            for (final var groupDef : groupDefs) {
-                final var groupBy = eval.get(groupDef);
-                if (!groupedValues.containsKey(groupBy)) {
-                    groupedValues.put(groupBy, new HashMap<>());
-                }
+        final var stmt = EQL.getStatement(widgetDto.getEql());
+        if (stmt != null) {
+            final var eval = ((PrintStmt) stmt).evaluate();
 
-                for (final var metric : metrics) {
-                    var metricValue = eval.get(metric);
-                    if (metricValue == null) {
-                        metricValue = BigDecimal.ZERO;
+            final var groupDefs = widgetDto.getGroupBy();
+            final var metrics = widgetDto.getMetrics().stream().map(DashboardWidgetChartMetricDto::getKey)
+                            .collect(Collectors.toList());
+            while (eval.next()) {
+                for (final var groupDef : groupDefs) {
+                    final var groupBy = eval.get(groupDef);
+                    if (!groupedValues.containsKey(groupBy)) {
+                        groupedValues.put(groupBy, new HashMap<>());
                     }
-                    final var values = groupedValues.get(groupBy);
-                    if (!values.containsKey(metric)) {
-                        values.put(metric, BigDecimal.ZERO);
+
+                    for (final var metric : metrics) {
+                        var metricValue = eval.get(metric);
+                        if (metricValue == null) {
+                            metricValue = BigDecimal.ZERO;
+                        }
+                        final var values = groupedValues.get(groupBy);
+                        if (!values.containsKey(metric)) {
+                            values.put(metric, BigDecimal.ZERO);
+                        }
+                        final var currentValue = values.get(metric);
+                        values.put(metric, currentValue.add((BigDecimal) metricValue));
                     }
-                    final var currentValue = values.get(metric);
-                    values.put(metric, currentValue.add((BigDecimal) metricValue));
                 }
             }
         }
-        return groupedValues;
+        return DashboardWidgetDataDto.builder()
+                        .withWidget(widgetDto)
+                        .withData(groupedValues)
+                        .build();
+    }
+
+    public Response getTemplates()
+        throws EFapsException
+    {
+        final var eval = EQL.builder().print()
+                        .query(CICommon.DashboardTemplate)
+                        .select()
+                        .attribute(CICommon.DashboardTemplate.Name, CICommon.DashboardTemplate.Description)
+                        .evaluate();
+        final List<DashboardTemplateDto> dtos = new ArrayList<>();
+        while (eval.next()) {
+            dtos.add(DashboardTemplateDto.builder()
+                            .withOid(eval.inst().getOid())
+                            .withName(eval.get(CICommon.DashboardTemplate.Name))
+                            .withDescription(eval.get(CICommon.DashboardTemplate.Description))
+                            .build());
+        }
+        return Response.ok()
+                        .entity(dtos)
+                        .build();
     }
 }

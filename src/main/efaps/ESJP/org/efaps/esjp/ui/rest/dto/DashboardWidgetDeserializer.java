@@ -17,7 +17,8 @@
 package org.efaps.esjp.ui.rest.dto;
 
 import java.io.IOException;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -32,7 +33,6 @@ import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @EFapsUUID("149f8a15-c42b-4e4d-8748-bc6465c006a0")
@@ -74,14 +74,19 @@ public class DashboardWidgetDeserializer
                                 .stream(node.get("groupBy").spliterator(), false)
                                 .map(JsonNode::asText)
                                 .collect(Collectors.toList()) : null;
-                DashboardWidgetChartMetricDto metricDto = null;
+                final List<DashboardWidgetChartMetricDto> metric = new ArrayList<>();
                 if (node.has("metrics")) {
-                    final ObjectNode obj = (ObjectNode) node.get("metrics").get(0);
-                    if (obj != null) {
-                        metricDto = DashboardWidgetChartMetricDto.builder()
-                                        .withKey(obj.get("key").textValue())
-                                        .withType(MetricFunction.SUM)
-                                    .build();
+                    final var metricsNode = node.get("metrics");
+                    for (final var metricNode : metricsNode) {
+                        final var function = metricNode.has("function")
+                                        ? EnumUtils.getEnum(MetricFunction.class,
+                                                        metricNode.get("function").textValue())
+                                        : MetricFunction.SUM;
+                        final var key = metricNode.has("key") ? metricNode.get("key").textValue() : "NOKEY";
+                        metric.add(DashboardWidgetChartMetricDto.builder()
+                                        .withKey(key)
+                                        .withType(function)
+                                        .build());
                     }
                 }
                 ret = DashboardWidgetChartDto.builder()
@@ -89,14 +94,20 @@ public class DashboardWidgetDeserializer
                                 .withTitle(title)
                                 .withEql(eql)
                                 .withGroupBy(groupBy)
-                                .withMetrics(metricDto == null
-                                                ? Collections.emptyList()
-                                                : Collections.singletonList(metricDto))
+                                .withMetrics(metric)
+                                .withChartType(node.has("chartType") ? node.get("chartType").textValue() : "bar")
                                 .build();
                 break;
             case PLACEHOLDER:
                 ret = DashboardWidgetPlaceholderDto.builder()
                                 .withIdentifier(identifier)
+                                .withTitle(title)
+                                .build();
+            case TEMPLATE:
+                ret = DashboardWidgetTemplateDto.builder()
+                                .withIdentifier(identifier)
+                                .withTitle(title)
+                                .withEql(eql)
                                 .build();
             default:
                 break;

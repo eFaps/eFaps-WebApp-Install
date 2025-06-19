@@ -25,5 +25,6 @@ public enum DashboardWidgetType
 {
     CHART,
     TABLE,
-    PLACEHOLDER;
+    PLACEHOLDER,
+    TEMPLATE;
 }
