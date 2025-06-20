@@ -24,6 +24,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -95,7 +96,6 @@ import org.efaps.esjp.ui.rest.dto.ModuleDto;
 import org.efaps.esjp.ui.rest.dto.NavItemDto;
 import org.efaps.esjp.ui.rest.dto.OptionDto;
 import org.efaps.esjp.ui.rest.dto.OutlineDto;
-import org.efaps.esjp.ui.rest.dto.SectionType;
 import org.efaps.esjp.ui.rest.dto.TableSectionDto;
 import org.efaps.esjp.ui.rest.dto.ValueDto;
 import org.efaps.esjp.ui.rest.dto.ValueType;
@@ -302,12 +302,15 @@ public abstract class ContentController_Base
         throws EFapsException
     {
         classifications = new ArrayList<>();
-        final var clazzes = mainInstance.getType().getClassifiedByTypes();
+        final var clazzes = mainInstance.getType().getClassifiedByTypes().stream()
+                        .sorted(Comparator.comparing(Classification::getLabel))
+                        .collect(Collectors.toList());
         for (final var clazz : clazzes) {
             if (clazz.isRoot() && !currentTargetMode.equals(TargetMode.CREATE)) {
                 classifications.addAll(evalClassificationsForInstance(clazz, mainInstance));
             }
         }
+
     }
 
     protected List<Classification> getClassifications()
@@ -329,6 +332,8 @@ public abstract class ContentController_Base
             final var form = classification.getTypeForm();
             ret.addAll(evalSections4Form(form, classification, instance, eval));
         }
+        // sort by the classifcation tree
+        /**
         ret.sort((arg0,
                   arg1) -> {
             if (SectionType.FORM.equals(arg0.getType()) && SectionType.HEADING.equals(arg1.getType())) {
@@ -338,7 +343,7 @@ public abstract class ContentController_Base
                 return ((HeaderSectionDto) arg0).getHeader().compareTo(((HeaderSectionDto) arg1).getHeader());
             }
             return 0;
-        });
+        });**/
         return ret;
     }
 
@@ -1235,7 +1240,11 @@ public abstract class ContentController_Base
                 ret.add(classification);
             }
         }
-        for (final var childClassification : classification.getChildClassifications()) {
+        final var childClassifications = classification.getChildClassifications().stream()
+            .sorted(Comparator.comparing(Classification::getLabel))
+            .collect(Collectors.toList());
+
+        for (final var childClassification : childClassifications) {
             final var eval = EQL.builder().print(instance).clazz(childClassification.getName()).instance().evaluate();
             if (eval.next() && eval.get(1) != null) {
                 ret.add(childClassification);

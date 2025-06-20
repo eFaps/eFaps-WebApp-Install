@@ -17,6 +17,7 @@
 package org.efaps.esjp.ui.rest;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -57,7 +58,10 @@ public class ClassificationController
             classifications.add(Classification.get(UUID.fromString(uuid)));
         }
 
-        final var entity = classifications.stream().map(ClassificationController::toDto).collect(Collectors.toList());
+        final var entity = classifications.stream()
+                        .map(ClassificationController::toDto)
+                        .sorted(Comparator.comparing(ClassificationDto::getLabel))
+                        .collect(Collectors.toList());
 
         return Response.ok()
                         .entity(entity)
@@ -67,7 +71,9 @@ public class ClassificationController
     @GET
     @Path("{id}/sections")
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response getSections4Classification(@PathParam("id") final String uuid) throws EFapsException {
+    public Response getSections4Classification(@PathParam("id") final String uuid)
+        throws EFapsException
+    {
         final var classification = Classification.get(UUID.fromString(uuid));
         final var form = classification.getTypeForm();
         final var content = new ContentController();
@@ -82,7 +88,9 @@ public class ClassificationController
     {
         List<ClassificationDto> children = new ArrayList<>();
         try {
-            children = clazz.getChildClassifications().stream().map(ClassificationController::toDto)
+            children = clazz.getChildClassifications().stream()
+                            .map(ClassificationController::toDto)
+                            .sorted(Comparator.comparing(ClassificationDto::getLabel))
                             .collect(Collectors.toList());
         } catch (final CacheReloadException e) {
             LOG.error("Catched", e);
