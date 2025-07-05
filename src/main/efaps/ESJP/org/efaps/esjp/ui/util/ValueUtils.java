@@ -22,13 +22,20 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.Type;
+import org.efaps.admin.event.EventType;
+import org.efaps.admin.event.Parameter.ParameterValues;
+import org.efaps.admin.event.Return;
+import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractCollection;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.field.Field;
+import org.efaps.db.Instance;
 import org.efaps.db.stmt.selection.Evaluator;
+import org.efaps.esjp.ui.rest.ContentController_Base.RestUIValue;
 import org.efaps.util.EFapsException;
 import org.efaps.util.UUIDUtil;
 import org.efaps.util.cache.CacheReloadException;
@@ -80,16 +87,48 @@ public class ValueUtils
         throws EFapsException
     {
         final var map = new HashMap<String, Object>();
+        map.put("OID", eval.inst().getOid());
         for (final var field : fields) {
-            map.put("OID", eval.inst().getOid());
-            map.put(field.getName(), eval.get(field.getName()));
-
+            if (field.hasEvents(EventType.UI_FIELD_VALUE)) {
+                map.put(field.getName(), evalFieldValueEvent(eval.inst(), field, eval.get(field.getName())));
+            } else {
+                map.put(field.getName(), eval.get(field.getName()));
+            }
             if (field.getSelectAlternateOID() != null) {
                 map.put(field.getName() + "_AOID", eval.get(field.getName() + "_AOID"));
             }
         }
         return map;
     }
+
+
+    static Object evalFieldValueEvent(final Instance instance,
+                                         final Field field,
+                                         final Object fieldValue)
+        throws EFapsException
+    {
+        Object ret = fieldValue;
+        final Attribute attr = instance.getType() == null ? null
+                        : instance.getType().getAttribute(field.getAttribute());
+        final var uiValue = RestUIValue.builder()
+                        .withInstance(instance)
+                        .withField(field)
+                        .withAttribute(attr)
+                        .withDisplay(field.getDisplay(TargetMode.VIEW))
+                        .withObject(fieldValue)
+                        .build();
+        for (final Return aReturn : field.executeEvents(EventType.UI_FIELD_VALUE,
+                        ParameterValues.ACCESSMODE, TargetMode.VIEW,
+                        ParameterValues.UIOBJECT, uiValue,
+                        ParameterValues.OTHERS, fieldValue,
+                        ParameterValues.CALL_INSTANCE, instance,
+                        ParameterValues.INSTANCE, instance)) {
+            ret = aReturn.get(ReturnValues.VALUES);
+        }
+        return ret;
+    }
+
+
 
     public static ObjectMapper getObjectMapper()
     {
