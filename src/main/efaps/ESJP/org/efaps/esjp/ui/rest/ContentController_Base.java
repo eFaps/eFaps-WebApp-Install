@@ -89,6 +89,7 @@ import org.efaps.esjp.ui.rest.dto.ActionType;
 import org.efaps.esjp.ui.rest.dto.AttributeSetDto;
 import org.efaps.esjp.ui.rest.dto.AttributeSetEntryDto;
 import org.efaps.esjp.ui.rest.dto.ContentDto;
+import org.efaps.esjp.ui.rest.dto.FieldModuleDto;
 import org.efaps.esjp.ui.rest.dto.FormSectionDto;
 import org.efaps.esjp.ui.rest.dto.HeaderSectionDto;
 import org.efaps.esjp.ui.rest.dto.ISection;
@@ -418,7 +419,19 @@ public abstract class ContentController_Base
                     if (groupCount > 0) {
                         groupCount--;
                     }
-                    if (field instanceof FieldSet) {
+                    if (field.hasModule()) {
+                        final var module = field.getModule();
+                        final var dto = FieldModuleDto.builder()
+                                        .withName(field.getName())
+                                        .withType(ValueType.UIMODULE)
+                                        .withValue(ModuleDto.builder()
+                                                        .withId(module.getUUID().toString())
+                                                        .withKey(module.getProperty("ModuleKey"))
+                                                        .withTargetMode(currentTargetMode)
+                                                        .build())
+                                        .build();
+                        currentFormSectionBldr.addItem(dto);
+                    } else if (field instanceof FieldSet) {
                         currentValues.add(evalFieldSet(type, field, eval));
                     } else {
                         currentValues.add(evalValue(eval, field, type, instance));

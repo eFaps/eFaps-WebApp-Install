@@ -42,5 +42,6 @@ public enum ValueType
     DATETIMELABEL,
     IMAGE,
     TIME,
-    PICKLIST
+    PICKLIST,
+    UIMODULE
 }
