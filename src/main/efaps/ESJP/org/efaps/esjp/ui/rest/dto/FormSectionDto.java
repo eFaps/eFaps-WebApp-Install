@@ -19,6 +19,8 @@ package org.efaps.esjp.ui.rest.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
@@ -28,11 +30,13 @@ public class FormSectionDto
     implements ISection
 {
 
+    private final String id;
     private final List<Object> items;
     private final String ref;
 
     private FormSectionDto(final Builder builder)
     {
+        id = builder.id;
         items = builder.items;
         ref = builder.ref;
     }
@@ -54,6 +58,18 @@ public class FormSectionDto
         return items;
     }
 
+    @Override
+    public String getId()
+    {
+        return id;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
+    }
+
     /**
      * Creates builder to build {@link FormSectionDto}.
      *
@@ -70,11 +86,18 @@ public class FormSectionDto
     public static final class Builder
     {
 
+        private String id;
         private List<Object> items = new ArrayList<>();
         private String ref;
 
         private Builder()
         {
+        }
+
+        public Builder withId(final String id)
+        {
+            this.id = id;
+            return this;
         }
 
         public Builder withItems(final List<Object> items)

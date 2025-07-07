@@ -25,5 +25,7 @@ public interface ISection
 {
     SectionType getType();
 
+    String getId();
+
     String getRef();
 }

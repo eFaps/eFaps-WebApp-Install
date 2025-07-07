@@ -19,6 +19,8 @@ package org.efaps.esjp.ui.rest.dto;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
@@ -28,6 +30,7 @@ public class HeaderSectionDto
     implements ISection
 {
 
+    private final String id;
     private final String header;
     private final int level;
     private final List<ISection> sections;
@@ -35,6 +38,7 @@ public class HeaderSectionDto
 
     private HeaderSectionDto(final Builder builder)
     {
+        id = builder.id;
         header = builder.header;
         level = builder.level;
         sections = builder.getSections();
@@ -68,6 +72,18 @@ public class HeaderSectionDto
         return sections;
     }
 
+    @Override
+    public String getId()
+    {
+        return id;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
+    }
+
     /**
      * Creates builder to build {@link HeaderSectionDto}.
      *
@@ -84,6 +100,7 @@ public class HeaderSectionDto
     public static final class Builder
     {
 
+        private String id;
         private String header;
         private int level;
         private List<Object> sections;
@@ -91,6 +108,12 @@ public class HeaderSectionDto
 
         private Builder()
         {
+        }
+
+        public Builder withId(final String id)
+        {
+            this.id = id;
+            return this;
         }
 
         public Builder withRef(final String ref)

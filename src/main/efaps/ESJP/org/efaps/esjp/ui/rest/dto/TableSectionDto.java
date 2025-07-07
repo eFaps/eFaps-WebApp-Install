@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
@@ -18,6 +20,7 @@ public class TableSectionDto
     implements ISection
 {
 
+    private final String id;
     private final List<ColumnDto> columns;
     private final Collection<Map<String, ?>> values;
     private final boolean editable;
@@ -25,6 +28,7 @@ public class TableSectionDto
 
     private TableSectionDto(final Builder builder)
     {
+        id = builder.id;
         columns = builder.columns;
         values = builder.values;
         editable = builder.editable;
@@ -59,6 +63,18 @@ public class TableSectionDto
         return editable;
     }
 
+    @Override
+    public String getId()
+    {
+        return id;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
+    }
+
     /**
      * Creates builder to build {@link TableSectionDto}.
      *
@@ -75,6 +91,7 @@ public class TableSectionDto
     public static final class Builder
     {
 
+        private String id;
         private List<ColumnDto> columns = Collections.emptyList();
         private Collection<Map<String, ?>> values = Collections.emptyList();
         private boolean editable;
@@ -82,6 +99,12 @@ public class TableSectionDto
 
         private Builder()
         {
+        }
+
+        public Builder withId(final String id)
+        {
+            this.id = id;
+            return this;
         }
 
         public Builder withRef(final String ref)

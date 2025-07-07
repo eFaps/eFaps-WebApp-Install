@@ -335,16 +335,14 @@ public abstract class ContentController_Base
         }
         // sort by the classifcation tree
         /**
-        ret.sort((arg0,
-                  arg1) -> {
-            if (SectionType.FORM.equals(arg0.getType()) && SectionType.HEADING.equals(arg1.getType())) {
-                return -1;
-            }
-            if (SectionType.HEADING.equals(arg0.getType()) && SectionType.HEADING.equals(arg1.getType())) {
-                return ((HeaderSectionDto) arg0).getHeader().compareTo(((HeaderSectionDto) arg1).getHeader());
-            }
-            return 0;
-        });**/
+         * ret.sort((arg0, arg1) -> { if
+         * (SectionType.FORM.equals(arg0.getType()) &&
+         * SectionType.HEADING.equals(arg1.getType())) { return -1; } if
+         * (SectionType.HEADING.equals(arg0.getType()) &&
+         * SectionType.HEADING.equals(arg1.getType())) { return
+         * ((HeaderSectionDto) arg0).getHeader().compareTo(((HeaderSectionDto)
+         * arg1).getHeader()); } return 0; });
+         **/
         return ret;
     }
 
@@ -371,7 +369,7 @@ public abstract class ContentController_Base
                 if (field instanceof final FieldGroup group) {
                     groupCount = group.getGroupCount();
                 } else if (field instanceof FieldTable) {
-                    if (currentFormSectionBldr != null) {
+                    if (currentFormSectionBldr != null && currentHeaderSectionBldr == null) {
                         ret.add(currentFormSectionBldr
                                         .withRef(type instanceof Classification && ret.size() == 0
                                                         ? type.getUUID().toString()
@@ -382,6 +380,7 @@ public abstract class ContentController_Base
                     final var fieldTable = ((FieldTable) field).getTargetTable();
                     final var columns = getColumns(fieldTable, currentTargetMode, evalTypes(field));
                     final var tableSection = TableSectionDto.builder()
+                                    .withId(fieldTable.getUUID().toString())
                                     .withEditable(field.isEditableDisplay(currentTargetMode))
                                     .withColumns(columns)
                                     .withValues(getValues(field, fieldTable, instance))
@@ -407,11 +406,15 @@ public abstract class ContentController_Base
                     }
                     currentFormSectionBldr = null;
                     currentHeaderSectionBldr = HeaderSectionDto.builder()
-                                    .withHeader(DBProperties.getProperty(field.getLabel()))
+                                    .withId(form.getUUID().toString() + "-" + field.getId())
                                     .withLevel(((FieldHeading) field).getLevel());
+                    if (field.getLabel() != null) {
+                        currentHeaderSectionBldr.withHeader(DBProperties.getProperty(field.getLabel()));
+                    }
                 } else {
                     if (currentFormSectionBldr == null) {
-                        currentFormSectionBldr = FormSectionDto.builder();
+                        currentFormSectionBldr = FormSectionDto.builder()
+                                        .withId(form.getUUID().toString());
                         if (currentHeaderSectionBldr != null) {
                             currentHeaderSectionBldr.addSection(currentFormSectionBldr);
                         }
@@ -897,7 +900,7 @@ public abstract class ContentController_Base
             };
         }
 
-        if (!skippEvaluation){
+        if (!skippEvaluation) {
             final UIType uiType = getUIType(field);
             if (UIType.SNIPPLET.equals(uiType)) {
                 fieldValue = getSnipplet(inst, field);
@@ -995,12 +998,15 @@ public abstract class ContentController_Base
                     valueBldr.withNavRef((String) alternativeOid);
                 } else if (alternativeOid instanceof final Collection alterOidCol) {
                     if (!alterOidCol.isEmpty()) {
-                        valueBldr.withNavRef(String.valueOf(alterOidCol.iterator().next()));
+                        final var alterIterValue = alterOidCol.iterator().next();
+                        if (alterIterValue != null) {
+                            valueBldr.withNavRef(String.valueOf(alterIterValue));
+                        }
                     }
                 } else {
                     LOG.warn("Cannot evluate alternate oid for {}", field.getName());
                 }
-            } else {
+            } else if (eval.inst().getOid() != null){
                 valueBldr.withNavRef(eval.inst().getOid());
             }
         }
@@ -1266,8 +1272,8 @@ public abstract class ContentController_Base
             }
         }
         final var childClassifications = classification.getChildClassifications().stream()
-            .sorted(Comparator.comparing(Classification::getLabel))
-            .collect(Collectors.toList());
+                        .sorted(Comparator.comparing(Classification::getLabel))
+                        .collect(Collectors.toList());
 
         for (final var childClassification : childClassifications) {
             final var eval = EQL.builder().print(instance).clazz(childClassification.getName()).instance().evaluate();

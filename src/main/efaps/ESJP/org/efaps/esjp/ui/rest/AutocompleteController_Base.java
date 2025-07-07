@@ -66,6 +66,7 @@ public abstract class AutocompleteController_Base
                     options.add(OptionDto.builder()
                                     .withLabel(label)
                                     .withValue(map.get("eFapsAutoCompleteKEY"))
+                                    .withDisplay(map.get("eFapsAutoCompleteVALUE"))
                                     .build());
                 });
             }

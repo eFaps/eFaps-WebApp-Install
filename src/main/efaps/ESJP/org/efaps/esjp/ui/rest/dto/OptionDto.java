@@ -16,6 +16,8 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
@@ -28,12 +30,14 @@ public class OptionDto
 {
 
     private final String label;
+    private final String display;
     private final Object value;
 
     private OptionDto(final Builder builder)
     {
         label = builder.label;
         value = builder.value;
+        display = builder.display;
     }
 
     public String getLabel()
@@ -44,6 +48,17 @@ public class OptionDto
     public Object getValue()
     {
         return value;
+    }
+
+    public String getDisplay()
+    {
+        return display;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
     }
 
     /**
@@ -63,6 +78,7 @@ public class OptionDto
     {
 
         private String label;
+        private String display;
         private Object value;
 
         private Builder()
@@ -72,6 +88,12 @@ public class OptionDto
         public Builder withLabel(final String label)
         {
             this.label = label;
+            return this;
+        }
+
+        public Builder withDisplay(final String display)
+        {
+            this.display = display;
             return this;
         }
 
