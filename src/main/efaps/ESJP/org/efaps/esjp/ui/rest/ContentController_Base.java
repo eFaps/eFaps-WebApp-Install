@@ -423,7 +423,9 @@ public abstract class ContentController_Base
                         final var module = field.getModule();
                         final var dto = FieldModuleDto.builder()
                                         .withName(field.getName())
+                                        .withLabel(getLabel(type, field))
                                         .withType(ValueType.UIMODULE)
+                                        .withRequired(field.isRequired() && field.isEditableDisplay(currentTargetMode))
                                         .withValue(ModuleDto.builder()
                                                         .withId(module.getUUID().toString())
                                                         .withKey(module.getProperty("ModuleKey"))
@@ -437,7 +439,7 @@ public abstract class ContentController_Base
                         currentValues.add(evalValue(eval, field, type, instance));
                     }
 
-                    if (groupCount < 1) {
+                    if (groupCount < 1 && !field.hasModule()) {
                         currentFormSectionBldr.addItem(currentValues);
                         currentValues = new ArrayList<>();
                     }
@@ -874,6 +876,7 @@ public abstract class ContentController_Base
         }
 
         final var valueType = getValueType(field);
+        boolean skippEvaluation = false;
         if (valueType != null) {
             fieldValue = switch (valueType) {
                 case IMAGE -> {
@@ -884,11 +887,17 @@ public abstract class ContentController_Base
                     } else {
                         imageOid = eval.inst().getOid();
                     }
+                    skippEvaluation = true;
                     yield prepareImage(imageOid);
+                }
+                case INPUT -> {
+                    yield fieldValue;
                 }
                 default -> throw new IllegalArgumentException("Unexpected value: " + valueType);
             };
-        } else {
+        }
+
+        if (!skippEvaluation){
             final UIType uiType = getUIType(field);
             if (UIType.SNIPPLET.equals(uiType)) {
                 fieldValue = getSnipplet(inst, field);
@@ -901,6 +910,9 @@ public abstract class ContentController_Base
                 valueBldr.withType(ValueType.BUTTON).withRef(String.valueOf(field.getId()));
             } else if (field.hasEvents(EventType.UI_FIELD_FORMAT)) {
                 fieldValue = evalFieldFormatEvent(inst, field, valueBldr, fieldValue, currentTargetMode);
+                if (valueType != null) {
+                    valueBldr.withType(valueType);
+                }
             } else if ((TargetMode.CREATE.equals(currentTargetMode) || TargetMode.EDIT.equals(currentTargetMode))
                             && field.isEditableDisplay(currentTargetMode)) {
                 if (field instanceof final FieldClassification fieldClass) {

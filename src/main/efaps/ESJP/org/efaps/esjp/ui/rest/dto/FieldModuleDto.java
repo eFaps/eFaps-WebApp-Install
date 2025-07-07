@@ -16,6 +16,8 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
@@ -30,6 +32,7 @@ public class FieldModuleDto
     private final ValueType type;
     private final String name;
     private final String label;
+    private final boolean required;
     private final ModuleDto value;
 
     private FieldModuleDto(Builder builder)
@@ -38,6 +41,7 @@ public class FieldModuleDto
         this.name = builder.name;
         this.label = builder.label;
         this.value = builder.value;
+        this.required = builder.required;
     }
 
     public ValueType getType()
@@ -60,6 +64,17 @@ public class FieldModuleDto
         return value;
     }
 
+    public boolean isRequired()
+    {
+        return required;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.SIMPLE_STYLE);
+    }
+
     public static Builder builder()
     {
         return new Builder();
@@ -72,6 +87,7 @@ public class FieldModuleDto
         private String name;
         private String label;
         private ModuleDto value;
+        private boolean required;
 
         private Builder()
         {
@@ -98,6 +114,12 @@ public class FieldModuleDto
         public Builder withValue(ModuleDto value)
         {
             this.value = value;
+            return this;
+        }
+
+        public Builder withRequired(Boolean required)
+        {
+            this.required = required;
             return this;
         }
 
