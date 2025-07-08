@@ -227,7 +227,7 @@ public abstract class SearchController_Base
                                                 final int limit)
         throws EFapsException
     {
-        final var fields = getFields(_table);
+        final var fields = getFields(_table, TargetMode.SEARCH);
         final var typeList = evalTypes(uiObj);
         final var types = typeList.stream().map(Type::getName).toArray(String[]::new);
         final var query = EQL.builder()

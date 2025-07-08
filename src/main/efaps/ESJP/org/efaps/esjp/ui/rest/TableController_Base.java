@@ -71,7 +71,7 @@ public abstract class TableController_Base
         throws EFapsException
     {
         final AbstractCommand cmd = evalCmd(cmdId);
-        final var fields = getFields(cmd.getTargetTable());
+        final var fields = getFields(cmd.getTargetTable(), TargetMode.VIEW);
 
         final ITableProvider provider = evalTableProvider(cmd, fields, oid);
 
@@ -166,7 +166,7 @@ public abstract class TableController_Base
         throws EFapsException
     {
         final AbstractCommand cmd = evalCmd(cmdId);
-        final var fields = getFields(cmd.getTargetTable());
+        final var fields = getFields(cmd.getTargetTable(), TargetMode.VIEW);
         final var tableProvider = evalTableProvider(cmd, fields, oid);
         final var values = tableProvider.withPageRequest(pageSize, pageNo, sortBy).getValues();
         final var dto = PagedDataDto.builder()

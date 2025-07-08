@@ -131,15 +131,25 @@ public abstract class AbstractController_Base
         if (dto != null && dto.getValues() != null) {
             for (final var entry : dto.getValues().entrySet()) {
                 if (entry.getValue() instanceof Collection) {
-                    ret.put(entry.getKey(), ((Collection<?>) entry.getValue()).stream().map(String::valueOf)
+                    ret.put(entry.getKey(), ((Collection<?>) entry.getValue()).stream()
+                                    .map(this::toString)
                                     .toArray(String[]::new));
                 } else {
-                    ret.put(entry.getKey(), new String[] { String.valueOf(entry.getValue()) });
+                    ret.put(entry.getKey(), new String[] { toString(entry.getValue()) });
                 }
             }
         }
         return ret;
     }
+
+    protected String toString(Object object) {
+        String ret = null;
+        if (object != null) {
+            ret = String.valueOf(object);
+        }
+        return ret;
+    }
+
 
     protected Object evalFieldFormatEvent(final Instance instance,
                                           final Field field,
@@ -167,7 +177,7 @@ public abstract class AbstractController_Base
     }
 
     @SuppressWarnings("unchecked")
-    protected Object evalFieldValueEvent(final Instance _instance,
+    protected Object evalFieldValueEvent(final Instance instance,
                                          final Field field,
                                          final IFieldBuilder bldr,
                                          final Object fieldValue,
@@ -175,20 +185,21 @@ public abstract class AbstractController_Base
         throws EFapsException
     {
         Object ret = fieldValue;
-        final Attribute attr = _instance.getType() == null ? null
-                        : _instance.getType().getAttribute(field.getAttribute());
+        final Attribute attr = instance.getType() == null ? null
+                        : instance.getType().getAttribute(field.getAttribute());
         final var uiValue = RestUIValue.builder()
-                        .withInstance(_instance)
+                        .withInstance(instance)
                         .withField(field)
                         .withAttribute(attr)
                         .withDisplay(field.getDisplay(targetMode))
                         .withObject(fieldValue)
                         .build();
         for (final Return aReturn : field.executeEvents(EventType.UI_FIELD_VALUE,
+                        ParameterValues.INSTANCE, instance,
                         ParameterValues.ACCESSMODE, targetMode,
                         ParameterValues.UIOBJECT, uiValue,
                         ParameterValues.OTHERS, fieldValue,
-                        ParameterValues.CALL_INSTANCE, _instance)) {
+                        ParameterValues.CALL_INSTANCE, instance)) {
             final var values = aReturn.get(ReturnValues.VALUES);
             if (values instanceof List && !((List<?>) values).isEmpty()) {
                 if (((List<?>) values).get(0) instanceof IOption) {
@@ -261,11 +272,11 @@ public abstract class AbstractController_Base
         return ret;
     }
 
-    protected List<Field> getFields(final org.efaps.admin.ui.Table _table)
+    protected List<Field> getFields(final org.efaps.admin.ui.Table table, TargetMode targetMode)
     {
-        return _table.getFields().stream().filter(field -> {
+        return table.getFields().stream().filter(field -> {
             try {
-                return field.hasAccess(TargetMode.VIEW, null) && !field.isNoneDisplay(TargetMode.VIEW);
+                return field.hasAccess( targetMode, null) && !field.isNoneDisplay(targetMode);
             } catch (final EFapsException e) {
                 LOG.error("Catched error while evaluation access for Field: {}", field);
             }

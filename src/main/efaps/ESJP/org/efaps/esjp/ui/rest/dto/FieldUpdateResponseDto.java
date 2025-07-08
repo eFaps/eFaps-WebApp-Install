@@ -17,6 +17,7 @@
 package org.efaps.esjp.ui.rest.dto;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
@@ -29,14 +30,15 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 @EFapsApplication("eFaps-WebApp")
 public class FieldUpdateResponseDto
 {
-    private final Map<String, ?> values;
+
+    private final List<Map<String, ?>> values;
 
     private FieldUpdateResponseDto(final Builder builder)
     {
         values = builder.values;
     }
 
-    public Map<String, ?> getValues()
+    public List<Map<String, ?>> getValues()
     {
         return values;
     }
@@ -49,7 +51,7 @@ public class FieldUpdateResponseDto
     public static final class Builder
     {
 
-        private Map<String, ?> values = Collections.emptyMap();
+        private List<Map<String, ?>> values = Collections.emptyList();
 
         private Builder()
         {
@@ -60,7 +62,7 @@ public class FieldUpdateResponseDto
             return new FieldUpdateResponseDto(this);
         }
 
-        public Builder withValues(final Map<String, ?> values)
+        public Builder withValues(final List<Map<String, ?>> values)
         {
             this.values = values;
             return this;
