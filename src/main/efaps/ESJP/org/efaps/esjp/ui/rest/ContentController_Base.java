@@ -955,8 +955,22 @@ public abstract class ContentController_Base
                             fieldValue = OffsetDateTime.now(Context.getThreadContext().getZoneId()).withNano(0)
                                             .toString();
                         }
+                    } else if (uiType != null){
+                        valueBldr.withType(switch (uiType) {
+                            case CHECKBOX: {
+                                yield ValueType.CHECKBOX;
+                            }
+                            case DROPDOWN: {
+                                yield ValueType.DROPDOWN;
+                            }
+                            case DEFAULT: {
+                                yield null;
+                            }
+                            default:
+                                LOG.warn("Do not know what to do here for : {}", uiType);
+                                yield null;
+                        });
                     }
-
                 } else {
                     final var attr = type == null ? null : type.getAttribute(field.getAttribute());
                     if (attr != null) {
@@ -983,6 +997,16 @@ public abstract class ContentController_Base
                         valueBldr.withType(txtValueType);
                     }
                 }
+            } else if ((TargetMode.CREATE.equals(currentTargetMode) || TargetMode.EDIT.equals(currentTargetMode))
+                            && field.isReadonlyDisplay(currentTargetMode)
+                            && field.hasEvents(EventType.UI_FIELD_VALUE)) {
+                Instance callInstance;
+                if (type instanceof Classification) {
+                    callInstance = eval.inst(type.getName());
+                } else {
+                    callInstance = inst;
+                }
+                fieldValue = evalFieldValueEvent(callInstance, field, valueBldr, fieldValue, currentTargetMode);
             }
         }
         if (fieldValue != null && valueBldr.getType() == null) {
@@ -1006,7 +1030,7 @@ public abstract class ContentController_Base
                 } else {
                     LOG.warn("Cannot evluate alternate oid for {}", field.getName());
                 }
-            } else if (eval.inst().getOid() != null){
+            } else if (eval.inst().getOid() != null) {
                 valueBldr.withNavRef(eval.inst().getOid());
             }
         }

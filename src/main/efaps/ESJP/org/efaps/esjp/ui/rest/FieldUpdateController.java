@@ -60,6 +60,8 @@ public class FieldUpdateController
         final var parameters = convertToMap(payloadDto);
 
         final var paraValues = new ArrayList<>();
+        paraValues.add(ParameterValues.PAYLOAD);
+        paraValues.add(payloadDto.getValues());
         paraValues.add(ParameterValues.PARAMETERS);
         paraValues.add(parameters);
 
