@@ -22,6 +22,7 @@ import java.util.Map;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractUserInterfaceObject;
+import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.util.EFapsException;
 
@@ -36,6 +37,8 @@ public abstract class AbstractTableProvider
     private List<Field> fields;
 
     private Map<String, String> propertiesMap;
+
+    private TargetMode targetMode;
 
     private String oid;
 
@@ -59,10 +62,16 @@ public abstract class AbstractTableProvider
         return oid;
     }
 
+    protected TargetMode getTargetMode()
+    {
+        return targetMode;
+    }
+
     @Override
     public ITableProvider init(final AbstractUserInterfaceObject cmd,
                                final List<Field> fields,
                                final Map<String, String> propertiesMap,
+                               final TargetMode targetMode,
                                final String oid)
         throws EFapsException
     {
@@ -70,6 +79,7 @@ public abstract class AbstractTableProvider
         this.fields = fields;
         this.propertiesMap = propertiesMap;
         this.oid = oid;
+        this.targetMode = targetMode;
         return this;
     }
 }

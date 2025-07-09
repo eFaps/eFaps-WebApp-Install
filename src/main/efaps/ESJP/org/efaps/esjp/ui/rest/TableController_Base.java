@@ -154,7 +154,7 @@ public abstract class TableController_Base
             throw new EFapsException(this.getClass(), "No TableProvider");
         }
         final var properties = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
-        return provider.init(cmd, fields, properties, oid);
+        return provider.init(cmd, fields, properties, TargetMode.VIEW, oid);
     }
 
     public Response getPageData(@PathParam("cmdId") final String cmdId,

@@ -30,7 +30,6 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +41,6 @@ import org.efaps.admin.datamodel.attributetype.CreatedType;
 import org.efaps.admin.datamodel.attributetype.DateType;
 import org.efaps.admin.datamodel.attributetype.RateType;
 import org.efaps.admin.datamodel.attributetype.StatusType;
-import org.efaps.admin.datamodel.ui.IUIValue;
 import org.efaps.admin.event.EventType;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return.ReturnValues;
@@ -62,6 +60,7 @@ import org.efaps.eql.builder.Print;
 import org.efaps.eql.builder.Query;
 import org.efaps.eql.builder.Where;
 import org.efaps.esjp.common.properties.PropertiesUtil;
+import org.efaps.esjp.ui.rest.ContentController_Base.RestUIValue;
 import org.efaps.esjp.ui.rest.TableController;
 import org.efaps.esjp.ui.rest.dto.FilterDto;
 import org.efaps.esjp.ui.rest.dto.FilterKind;
@@ -149,60 +148,40 @@ public class StandardTableProvider
             }
         }
         final var data = print.evaluate().getData();
-        final var fieldsWithFormat = getFields().stream().filter(field -> field.hasEvents(EventType.UI_FIELD_FORMAT))
-                        .collect(Collectors.toList());
 
-        for (final var fieldWithFormat : fieldsWithFormat) {
-            for (final var map : data) {
-                final var obj = map.get(fieldWithFormat.getName());
-                final var value = new IUIValue()
-                {
-
-                    @Override
-                    public Display getDisplay()
-                    {
-                        return null;
-                    }
-
-                    @Override
-                    public Field getField()
-                    {
-                        return null;
-                    }
-
-                    @Override
-                    public Instance getInstance()
-                    {
-                        return obj instanceof Instance ? (Instance) obj : null;
-                    }
-
-                    @Override
-                    public Instance getCallInstance()
-                    {
-                        return null;
-                    }
-
-                    @Override
-                    public Object getObject()
-                    {
-                        return obj;
-                    }
-
-                    @Override
-                    public Attribute getAttribute()
-                        throws EFapsException
-                    {
-                        return null;
-                    }
-                };
-                final var returns = fieldWithFormat.executeEvents(EventType.UI_FIELD_FORMAT, ParameterValues.UIOBJECT,
-                                value);
-                for (final var ret : returns) {
-                    ((Map<String, Object>) map).put(fieldWithFormat.getName(), ret.get(ReturnValues.VALUES));
+        for (final var field : getFields()) {
+            if (field.hasEvents(EventType.UI_FIELD_VALUE) || field.hasEvents(EventType.UI_FIELD_FORMAT)) {
+                for (final var map : data) {
+                    applyEvent(map, field, EventType.UI_FIELD_VALUE);
+                    applyEvent(map, field, EventType.UI_FIELD_FORMAT);
                 }
             }
         }
         return data;
+    }
+
+    @SuppressWarnings("unchecked")
+    protected void applyEvent(final Map<String, ?> map,
+                              final Field field,
+                              final EventType eventType)
+        throws EFapsException
+    {
+        if (field.hasEvents(eventType)) {
+            final var obj = map.get(field.getName());
+            final var value = RestUIValue.builder()
+                            .withObject(obj)
+                            .withInstance(obj instanceof final Instance i ? i : null)
+                            .withField(field)
+                            .withDisplay(field.isEditableDisplay(getTargetMode()) ? Display.EDITABLE : Display.READONLY)
+                            .build();
+
+            final var returns = field.executeEvents(eventType,
+                            ParameterValues.UIOBJECT, value,
+                            ParameterValues.ACCESSMODE, getTargetMode());
+            for (final var ret : returns) {
+                ((Map<String, Object>) map).put(field.getName(), ret.get(ReturnValues.VALUES));
+            }
+        }
     }
 
     protected Query evalQuery(final List<Type> types)

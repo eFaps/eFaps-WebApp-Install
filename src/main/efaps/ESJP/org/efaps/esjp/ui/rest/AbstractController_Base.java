@@ -251,11 +251,17 @@ public abstract class AbstractController_Base
                         final var typeOpt = types.stream()
                                         .filter(type -> (type.getAttribute(field.getAttribute()) != null)).findFirst();
                         if (typeOpt.isPresent()) {
-                            final var attr = typeOpt.get().getAttribute(field.getAttribute());
-                            final var attrType = attr.getAttributeType();
-                            switch (attrType.getName()) {
-                                default:
-                                    columBldr.withType(ValueType.INPUT);
+                            final var uiType = getUIType(field);
+                            if (UIType.DEFAULT.equals(uiType)) {
+                                columBldr.withType(ValueType.INPUT);
+                            } else {
+                                switch (uiType) {
+                                    case DROPDOWN:
+                                        columBldr.withType(ValueType.DROPDOWN);
+                                        break;
+                                    default:
+                                        columBldr.withType(ValueType.INPUT);
+                                }
                             }
                         }
                     } else if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {

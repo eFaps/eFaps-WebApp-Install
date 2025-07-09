@@ -23,6 +23,7 @@ import java.util.Map;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractUserInterfaceObject;
+import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.field.Field;
 import org.efaps.esjp.ui.rest.dto.PageDto;
 import org.efaps.util.EFapsException;
@@ -38,6 +39,7 @@ public interface ITableProvider
     default ITableProvider init(final AbstractUserInterfaceObject cmd,
                                 final List<Field> fields,
                                 final Map<String, String> properties,
+                                final TargetMode targetMode,
                                 final String oid)
         throws EFapsException
     {

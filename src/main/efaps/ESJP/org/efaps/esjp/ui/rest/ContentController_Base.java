@@ -1279,7 +1279,7 @@ public abstract class ContentController_Base
             final var fields = getFields(table, this.currentTargetMode);
             final var properties = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
 
-            ret = provider.init(cmd, fields, properties, instance.getOid()).getValues();
+            ret = provider.init(cmd, fields, properties, currentTargetMode, instance.getOid()).getValues();
         }
         return ret;
     }
