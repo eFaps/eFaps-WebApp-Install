@@ -168,9 +168,17 @@ public class StandardTableProvider
     {
         if (field.hasEvents(eventType)) {
             final var obj = map.get(field.getName());
+            Instance instance = null;
+            if (obj instanceof Instance inst) {
+                instance = inst;
+            } else if (map.containsKey(field.getName() + "_AOID")) {
+                instance = Instance.get((String) map.get(field.getName() + "_AOID"));
+            } else if (map.containsKey("OID")) {
+                instance = Instance.get((String) map.get("OID"));
+            }
             final var value = RestUIValue.builder()
                             .withObject(obj)
-                            .withInstance(obj instanceof final Instance i ? i : null)
+                            .withInstance(instance)
                             .withField(field)
                             .withDisplay(field.isEditableDisplay(getTargetMode()) ? Display.EDITABLE : Display.READONLY)
                             .build();
