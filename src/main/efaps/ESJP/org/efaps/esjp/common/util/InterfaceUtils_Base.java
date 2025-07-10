@@ -32,8 +32,6 @@ import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.db.QueryBuilder;
-import org.efaps.ui.wicket.behaviors.SetSelectedRowBehavior;
-import org.efaps.ui.wicket.util.EFapsKey;
 
 
 /**
@@ -58,7 +56,7 @@ public abstract class InterfaceUtils_Base
                                          final String _currentkey,
                                          final String... _keySequence)
     {
-        final String[] rowKeys = _parameter.getParameterValues(EFapsKey.TABLEROW_NAME.getKey());
+        final String[] rowKeys = _parameter.getParameterValues("eFapsTRID");
         final Map<String, String[]> result = new HashMap<>();
         int idx = 0;
         for (final String key : _keySequence) {
@@ -78,7 +76,7 @@ public abstract class InterfaceUtils_Base
     protected static void appendScript4FieldUpdate(final Map<String, Object> _map,
                                                    final CharSequence _script)
     {
-        InterfaceUtils_Base.add2Script(EFapsKey.FIELDUPDATE_JAVASCRIPT, _map, _script, true);
+        InterfaceUtils_Base.add2Script("eFapsFieldUpdateJS", _map, _script, true);
     }
 
     /**
@@ -90,7 +88,7 @@ public abstract class InterfaceUtils_Base
     protected static void prependScript4FieldUpdate(final Map<String, Object> _map,
                                                     final CharSequence _script)
     {
-        InterfaceUtils_Base.add2Script(EFapsKey.FIELDUPDATE_JAVASCRIPT, _map, _script, false);
+        InterfaceUtils_Base.add2Script("eFapsFieldUpdateJS", _map, _script, false);
     }
 
     /**
@@ -99,7 +97,7 @@ public abstract class InterfaceUtils_Base
      * @param _script   script to add
      * @param _append append or prepend
      */
-    protected static void add2Script(final EFapsKey _key,
+    protected static void add2Script(final String _key,
                                      final Map<String, Object> _map,
                                      final CharSequence _script,
                                      final boolean _append)
@@ -109,13 +107,13 @@ public abstract class InterfaceUtils_Base
             if (!_append) {
                 js.append(_script);
             }
-            if (_map.containsKey(_key.getKey())) {
-                js.append(_map.get(_key.getKey()));
+            if (_map.containsKey(_key)) {
+                js.append(_map.get(_key));
             }
             if (_append) {
                 js.append(_script);
             }
-            _map.put(_key.getKey(), js.toString());
+            _map.put(_key, js.toString());
         }
     }
 
@@ -147,7 +145,7 @@ public abstract class InterfaceUtils_Base
     protected static int getSelectedRow(final Parameter _parameter)
     {
         int ret = 0;
-        final String value = _parameter.getParameterValue(SetSelectedRowBehavior.INPUT_ROW);
+        final String value = _parameter.getParameterValue("eFapsRSR");
         if (value != null && value.length() > 0) {
             ret = Integer.parseInt(value);
         }
@@ -202,28 +200,11 @@ public abstract class InterfaceUtils_Base
         final List<DojoLibs> libs = Arrays.asList(_libraries);
 
         final ComparatorChain<DojoLibs> comparator = new ComparatorChain<>();
-        comparator.addComparator(new Comparator<DojoLibs>()
-        {
-
-            @Override
-            public int compare(final DojoLibs _arg0,
-                               final DojoLibs _arg1)
-            {
-                return _arg0.paraName == null && _arg1.paraName == null
-                                ||  _arg0.paraName != null && _arg1.paraName != null
-                                    ? 0 : (_arg0.paraName == null ? 1 : -1);
-            }
-        });
-        comparator.addComparator(new Comparator<DojoLibs>()
-        {
-
-            @Override
-            public int compare(final DojoLibs _arg0,
-                               final DojoLibs _arg1)
-            {
-                return _arg0.libName.compareTo(_arg1.libName);
-            }
-        });
+        comparator.addComparator((_arg0,
+         _arg1) -> _arg0.paraName == null && _arg1.paraName == null
+                        ||  _arg0.paraName != null && _arg1.paraName != null
+                            ? 0 : _arg0.paraName == null ? 1 : -1);
+        comparator.addComparator(Comparator.comparing(_arg0 -> _arg0.libName));
         Collections.sort(libs, comparator);
         for (final DojoLibs dojoLibs : libs) {
             if (first) {
