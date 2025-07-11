@@ -106,7 +106,6 @@ public class StandardTableProvider
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public Collection<Map<String, ?>> getValues()
         throws EFapsException
     {
@@ -169,7 +168,7 @@ public class StandardTableProvider
         if (field.hasEvents(eventType)) {
             final var obj = map.get(field.getName());
             Instance instance = null;
-            if (obj instanceof Instance inst) {
+            if (obj instanceof final Instance inst) {
                 instance = inst;
             } else if (map.containsKey(field.getName() + "_AOID")) {
                 instance = Instance.get((String) map.get(field.getName() + "_AOID"));
