@@ -1107,7 +1107,7 @@ public abstract class ContentController_Base
                 break;
             case "Status":
                 var statusType = attr.getLink();
-                if (statusType.isAbstract()) {
+                if (!statusType.getChildTypes().isEmpty()) {
                     statusType = instance.getType().getStatusAttribute().getLink();
                 }
                 valueBldr.withType(ValueType.DROPDOWN)
