@@ -63,10 +63,15 @@ public class DashboardWidgetDeserializer
         final var type = EnumUtils.getEnum(DashboardWidgetType.class, typeVal);
         switch (type) {
             case TABLE:
+                final var links = node.has("links") ? StreamSupport
+                                .stream(node.get("links").spliterator(), false)
+                                .map(JsonNode::asText)
+                                .collect(Collectors.toList()) : null;
                 ret = DashboardWidgetTableDto.builder()
                                 .withIdentifier(identifier)
                                 .withTitle(title)
                                 .withEql(eql)
+                                .withLinks(links)
                                 .build();
                 break;
             case CHART:

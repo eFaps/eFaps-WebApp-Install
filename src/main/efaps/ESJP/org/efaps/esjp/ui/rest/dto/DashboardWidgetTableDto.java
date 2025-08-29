@@ -16,6 +16,8 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
+import java.util.List;
+
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
@@ -28,9 +30,17 @@ public class DashboardWidgetTableDto
     extends DashboardWidgetDto
 {
 
+    private final List<String> links;
+
     private DashboardWidgetTableDto(final Builder builder)
     {
         super(builder);
+        this.links = builder.links;
+    }
+
+    public List<String> getLinks()
+    {
+        return links;
     }
 
     /**
@@ -50,9 +60,17 @@ public class DashboardWidgetTableDto
         extends DashboardWidgetDto.Builder<Builder>
     {
 
+        private List<String> links;
+
         private Builder()
         {
             withType(DashboardWidgetType.TABLE);
+        }
+
+        public Builder withLinks(List<String> links)
+        {
+            this.links = links;
+            return this;
         }
 
         public DashboardWidgetTableDto build()
