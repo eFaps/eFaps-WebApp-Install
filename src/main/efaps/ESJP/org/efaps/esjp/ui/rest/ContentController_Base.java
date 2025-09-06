@@ -937,8 +937,10 @@ public abstract class ContentController_Base
                     }
                 } else if (field.hasEvents(EventType.UI_FIELD_VALUE)) {
                     Instance callInstance;
-                    if (type instanceof Classification) {
-                        callInstance = eval.inst(type.getName());
+                    if (TargetMode.CREATE == currentTargetMode) {
+                        callInstance = Instance.get(type, null);
+                    } else if (type instanceof Classification) {
+                        callInstance = eval == null ? null : eval.inst(type.getName());
                     } else {
                         callInstance = inst;
                     }

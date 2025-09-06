@@ -55,7 +55,7 @@ public class FieldUpdateController
     public Response execute(@PathParam("fieldId") final String fieldId, final PayloadDto payloadDto)
         throws EFapsException
     {
-        LOG.info("field-update : {}", fieldId);
+        LOG.info("field-update : {} - {}", fieldId, payloadDto);
 
         final var parameters = convertToMap(payloadDto);
 
