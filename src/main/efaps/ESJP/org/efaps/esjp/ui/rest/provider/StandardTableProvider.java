@@ -38,6 +38,7 @@ import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.datamodel.Status.StatusGroup;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.datamodel.attributetype.CreatedType;
+import org.efaps.admin.datamodel.attributetype.DateTimeType;
 import org.efaps.admin.datamodel.attributetype.DateType;
 import org.efaps.admin.datamodel.attributetype.RateType;
 import org.efaps.admin.datamodel.attributetype.StatusType;
@@ -351,15 +352,14 @@ public class StandardTableProvider
                 connect = true;
             }
             for (final var filter : filters) {
-                if (connect) {
-                    wherePart.and();
-                } else {
-                    connect = true;
-                }
                 switch (filter.getKind()) {
                     case DATE:
+                        if (connect) {
+                            wherePart.and();
+                        }
                         wherePart.attribute(filter.getAttribute()).greaterOrEq(filter.getValue1().toString())
                                         .and().attribute(filter.getAttribute()).lessOrEq(filter.getValue2().toString());
+                        connect = true;
                         break;
                     case STATUS:
                         final var type = findCommonAncestor(types);
@@ -368,13 +368,17 @@ public class StandardTableProvider
                             final Attribute attr = oneType.getStatusAttribute();
                             stati.addAll(getStatus4Type(attr.getLink()));
                         }
-                        @SuppressWarnings("unchecked") final Collection<String> selected = (Collection<String>) filter
-                                        .getValue2();
+                        @SuppressWarnings("unchecked") final
+                        var selected = (Collection<String>) filter.getValue2();
                         final var selectedIds = stati.stream()
                                         .filter(status -> selected.contains(status.getKey()))
                                         .map(Status::getId).toArray(Long[]::new);
                         if (selectedIds.length > 0) {
+                            if (connect) {
+                                wherePart.and();
+                            }
                             wherePart.attribute(type.getStatusAttribute().getName()).in(selectedIds);
+                            connect = true;
                         }
                         break;
                 }
@@ -389,16 +393,18 @@ public class StandardTableProvider
         for (final var field : getFields()) {
             if (field.getFilter() != null && FilterBase.DATABASE.equals(field.getFilter().getBase())) {
                 if (FilterType.FREETEXT == field.getFilter().getType()) {
-                    if (field.getAttribute() != null) {
+                    final var attrName = evalAttrName4Field(field);
+                    if (attrName != null) {
                         Attribute attr = null;
                         for (final var type : types) {
-                            attr = type.getAttribute(field.getAttribute());
+                            attr = type.getAttribute(attrName);
                             if (attr != null) {
                                 break;
                             }
                         }
                         if (attr != null) {
                             if (attr.getAttributeType().getDbAttrType() instanceof DateType
+                                            || attr.getAttributeType().getDbAttrType() instanceof DateTimeType
                                             || attr.getAttributeType().getDbAttrType() instanceof CreatedType) {
                                 final var filterBuilder = FilterDto.builder()
                                                 .withKind(FilterKind.DATE)
@@ -436,7 +442,9 @@ public class StandardTableProvider
                     final var filterBuilder = FilterDto.builder()
                                     .withKind(FilterKind.STATUS)
                                     .withField(field.getName());
-                    final var defaultValues = field.getFilter().getDefaultValue().split(";");
+                    final var defaultValues = field.getFilter().getDefaultValue() == null
+                                    ? new String[0]
+                                    : field.getFilter().getDefaultValue().split(";");
 
                     final Set<Status> stati = new HashSet<>();
                     for (final var type : types) {
@@ -463,7 +471,7 @@ public class StandardTableProvider
                         }
                     }
                     filterBuilder.withValue1(options.values()).withValue2(selected);
-                    if (!selected.isEmpty()) {
+                    if (!options.isEmpty()) {
                         ret.add(filterBuilder.build());
                     }
                 }
@@ -471,6 +479,17 @@ public class StandardTableProvider
         }
         return ret;
     }
+
+    protected String evalAttrName4Field(Field field) {
+        String attrName = null;
+        if (field.getAttribute() != null) {
+            attrName = field.getAttribute();
+        } else if (field.getSelect() != null && field.getSelect().matches("attribute\\[.*\\]")) {
+            attrName = field.getSelect().substring(10, field.getSelect().length() - 1);
+        }
+        return attrName;
+    }
+
 
     protected Set<Status> getStatus4Type(final Type type)
         throws CacheReloadException
