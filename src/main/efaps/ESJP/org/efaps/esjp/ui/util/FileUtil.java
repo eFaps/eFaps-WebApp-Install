@@ -23,11 +23,15 @@ import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.util.cache.InfinispanCache;
 import org.infinispan.Cache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @EFapsUUID("08edc3d3-15e3-46fe-9b83-f83204a79fbd")
 @EFapsApplication("eFaps-WebApp")
 public class FileUtil
 {
+
+    private static final Logger LOG = LoggerFactory.getLogger(FileUtil.class);
 
     public static final String CACHENAME = FileUtil.class.getName() + ".Cache";
 
@@ -37,21 +41,22 @@ public class FileUtil
 
     public static String put(final File file)
     {
-        final var key = RandomStringUtils.randomAlphanumeric(8);
-        getCache().put(key, file, 1, TimeUnit.HOURS);
+        final var key = RandomStringUtils.secure().nextAlphanumeric(8);
+        getCache().put(key, file.getAbsolutePath(), 1, TimeUnit.HOURS);
+        LOG.info("Stored {} with Key: {}", file.getAbsolutePath(), key);
         return key;
     }
 
     public static File get(final String key)
     {
-        return getCache().get(key);
+        return new File(getCache().get(key));
     }
 
-    private static Cache<String, File> getCache()
+    private static Cache<String, String> getCache()
     {
         if (!InfinispanCache.get().exists(FileUtil.CACHENAME)) {
             InfinispanCache.get().initCache(FileUtil.CACHENAME);
         }
-        return InfinispanCache.get().<String, File>getCache(FileUtil.CACHENAME);
+        return InfinispanCache.get().<String, String>getCache(FileUtil.CACHENAME);
     }
 }
