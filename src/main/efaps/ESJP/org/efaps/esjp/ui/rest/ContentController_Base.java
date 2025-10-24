@@ -1130,6 +1130,11 @@ public abstract class ContentController_Base
                                                 .withValue(false)
                                                 .withLabel(getBooleanLabel(attr, field, false))
                                                 .build()));
+                if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null
+                                && attr.getDefaultValue() != null) {
+                    final var defaultValue = BooleanUtils.toBoolean(attr.getDefaultValue());
+                    fieldValue = defaultValue;
+                }
                 break;
             case "Date":
                 valueBldr.withType(ValueType.DATE);
@@ -1153,6 +1158,10 @@ public abstract class ContentController_Base
             default:
                 final var valueType = field.getRows() > 1 ? ValueType.TEXTAREA : ValueType.INPUT;
                 valueBldr.withType(valueType);
+                if (TargetMode.CREATE.equals(currentTargetMode) && fieldValue == null
+                                && attr.getDefaultValue() != null) {
+                    fieldValue = attr.getDefaultValue();
+                }
                 break;
         }
         return fieldValue;
