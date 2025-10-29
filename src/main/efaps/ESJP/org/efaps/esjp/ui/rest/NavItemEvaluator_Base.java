@@ -50,6 +50,13 @@ public abstract class NavItemEvaluator_Base
                                 .withModal(command.getTarget() == Target.MODAL);
                 if (command.getTargetForm() != null || command.getTargetModule() != null) {
                     actionBldr.withType(ActionType.FORM);
+                    if (command.containsProperty("SubmitSelectedRows")) {
+                        actionBldr.withVerify(VerifyDto.builder()
+                                        .withQuestion(DBProperties
+                                                        .getProperty(command.getName() + ".Selection"))
+                                        .withSelectedRows(command.getSubmitSelectedRows())
+                                        .build());
+                    }
                 } else if (command.getTargetSearch() != null) {
                     actionBldr.withType(ActionType.SEARCH);
                 } else if (command.getTargetTable() != null) {
