@@ -55,6 +55,7 @@ import jakarta.ws.rs.PUT;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
@@ -69,20 +70,33 @@ public class SystemConfigurationController
     @Path("/{sysConfOid}/attributes")
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response geteSystemConfigurationAttributes(@PathParam("sysConfOid") final String oid)
+    public Response geteSystemConfigurationAttributes(@PathParam("sysConfOid") final String oid,
+                                                      @QueryParam("attrOid") final String attrOid)
         throws EFapsException
     {
-        final var inst = Instance.get(oid);
-        List<SystemConfigurationAttributeDto> keys = new ArrayList<>();
-        if (InstanceUtils.isType(inst, CIAdminCommon.SystemConfiguration)) {
-            final var eval = EQL.builder().print(inst)
+        String sysconfUUID = null;
+        if (attrOid != null) {
+            final var eval = EQL.builder().print(attrOid)
+                            .linkto(CIAdminCommon.SystemConfigurationAttribute.AbstractLink)
                             .attribute(CIAdminCommon.SystemConfiguration.UUID)
                             .evaluate();
-            final var sysconfUUID = eval.<String>get(CIAdminCommon.SystemConfiguration.UUID);
+            sysconfUUID = eval.<String>get(CIAdminCommon.SystemConfiguration.UUID);
+        } else {
+            final var inst = Instance.get(oid);
+            if (InstanceUtils.isType(inst, CIAdminCommon.SystemConfiguration)) {
+                final var eval = EQL.builder().print(inst)
+                                .attribute(CIAdminCommon.SystemConfiguration.UUID)
+                                .evaluate();
+                sysconfUUID = eval.<String>get(CIAdminCommon.SystemConfiguration.UUID);
+            }
+        }
+        List<SystemConfigurationAttributeDto> keys = new ArrayList<>();
+        if (sysconfUUID != null) {
             keys = SysConfResourceConfig.getResourceConfig().getAttributes(sysconfUUID).stream()
                             .map(this::evalKey)
                             .sorted(Comparator.comparing(SystemConfigurationAttributeDto::getKey))
                             .collect(Collectors.toList());
+
         }
         return Response.ok(keys).build();
     }
