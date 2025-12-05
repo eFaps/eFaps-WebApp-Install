@@ -32,7 +32,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.Status;
 import org.efaps.admin.datamodel.Status.StatusGroup;
@@ -60,6 +60,7 @@ import org.efaps.eql.builder.Count;
 import org.efaps.eql.builder.Print;
 import org.efaps.eql.builder.Query;
 import org.efaps.eql.builder.Where;
+import org.efaps.eql2.bldr.IEQLBuilderWithWhere;
 import org.efaps.esjp.common.properties.PropertiesUtil;
 import org.efaps.esjp.ui.rest.ContentController_Base.RestUIValue;
 import org.efaps.esjp.ui.rest.TableController;
@@ -111,7 +112,7 @@ public class StandardTableProvider
         throws EFapsException
     {
         final var types = evalTypes();
-        final var query = evalQuery(types);
+        final var query = evalQuery();
 
         final var print = query.select();
 
@@ -192,34 +193,6 @@ public class StandardTableProvider
         }
     }
 
-    protected Query evalQuery(final List<Type> types)
-        throws EFapsException
-    {
-
-        final var typeNames = types.stream().map(Type::getName).toArray(String[]::new);
-        LOG.debug("typeNames: {}", Arrays.toString(typeNames));
-        final var query = EQL.builder()
-                        .print()
-                        .query(typeNames);
-
-        Where where = null;
-        final var properties = new Properties();
-        properties.putAll(getPropertiesMap());
-        final var linkFroms = PropertiesUtil.analyseProperty(properties, "LinkFrom", 0);
-        boolean first = true;
-        for (final var linkfrom : linkFroms.entrySet()) {
-            if (first) {
-                first = false;
-                where = query.where().attribute(linkfrom.getValue()).eq(Instance.get(getOid()));
-            } else {
-                where.or().attribute(linkfrom.getValue()).eq(Instance.get(getOid()));
-            }
-        }
-
-        addFilter(query, where, types);
-        return query;
-    }
-
     protected boolean isPaginated()
         throws EFapsException
     {
@@ -259,8 +232,7 @@ public class StandardTableProvider
     {
         PageDto ret = null;
         if (isPaginated()) {
-            final var types = evalTypes();
-            final var eval = evalCount(types).stmt().evaluate();
+            final var eval = evalCount().stmt().evaluate();
 
             ret = PageDto.builder()
                             .withPageSize(pageSize)
@@ -271,15 +243,34 @@ public class StandardTableProvider
         return ret;
     }
 
-    protected Count evalCount(final List<Type> types)
+    protected Query evalQuery()
         throws EFapsException
     {
+        return evalEQLBuilder(false);
+    }
 
+    protected Count evalCount()
+        throws EFapsException
+    {
+        return evalEQLBuilder(true);
+    }
+
+    @SuppressWarnings("unchecked")
+    protected <T extends IEQLBuilderWithWhere> T evalEQLBuilder(boolean isCount)
+        throws EFapsException
+    {
+        final var types = evalTypes();
         final var typeNames = types.stream().map(Type::getName).toArray(String[]::new);
-        LOG.debug("typeNames: {}", Arrays.toString(typeNames));
-        final var count = EQL.builder()
-                        .count(typeNames);
 
+        final IEQLBuilderWithWhere eqlBldr;
+        if (isCount) {
+            eqlBldr = EQL.builder()
+                            .count(typeNames);
+        } else {
+            eqlBldr = EQL.builder()
+                            .print()
+                            .query(typeNames);
+        }
         Where where = null;
         final var properties = new Properties();
         properties.putAll(getPropertiesMap());
@@ -288,14 +279,63 @@ public class StandardTableProvider
         for (final var linkfrom : linkFroms.entrySet()) {
             if (first) {
                 first = false;
-                where = count.where().attribute(linkfrom.getValue()).eq(Instance.get(getOid()));
+                where = ((Where) eqlBldr.where()).attribute(linkfrom.getValue()).eq(Instance.get(getOid()));
             } else {
                 where.or().attribute(linkfrom.getValue()).eq(Instance.get(getOid()));
             }
         }
 
-        // addFilter(query, where, types);
-        return count;
+        final var key = TableController.getFilterKey(getCmd());
+        var filters = TableController.getFilters(key);
+        if (filters.isEmpty() && getFields().stream().anyMatch(field -> (field.getFilter() != null
+                        && FilterBase.DATABASE.equals(field.getFilter().getBase())))) {
+            filters = evalDefaultFilter(types);
+        }
+        if (CollectionUtils.isNotEmpty(filters)) {
+            LOG.info("applying filter");
+            TableController.cacheFilters(key, filters);
+            Where wherePart;
+            boolean connect;
+            if (where == null) {
+                wherePart = (Where) eqlBldr.where();
+                connect = false;
+            } else {
+                wherePart = where;
+                connect = true;
+            }
+            for (final var filter : filters) {
+                switch (filter.getKind()) {
+                    case DATE:
+                        if (connect) {
+                            wherePart.and();
+                        }
+                        wherePart.attribute(filter.getAttribute()).greaterOrEq(filter.getValue1().toString())
+                                        .and().attribute(filter.getAttribute()).lessOrEq(filter.getValue2().toString());
+                        connect = true;
+                        break;
+                    case STATUS:
+                        final var type = findCommonAncestor(types);
+                        final Set<Status> stati = new HashSet<>();
+                        for (final var oneType : types) {
+                            final Attribute attr = oneType.getStatusAttribute();
+                            stati.addAll(getStatus4Type(attr.getLink()));
+                        }
+                        final var selected = (Collection<String>) filter.getValue2();
+                        final var selectedIds = stati.stream()
+                                        .filter(status -> selected.contains(status.getKey()))
+                                        .map(Status::getId).toArray(Long[]::new);
+                        if (selectedIds.length > 0) {
+                            if (connect) {
+                                wherePart.and();
+                            }
+                            wherePart.attribute(type.getStatusAttribute().getName()).in(selectedIds);
+                            connect = true;
+                        }
+                        break;
+                }
+            }
+        }
+        return (T) eqlBldr;
     }
 
     protected List<Type> evalTypes()
@@ -328,7 +368,7 @@ public class StandardTableProvider
         return typeList;
     }
 
-    public void addFilter(final Query query,
+    public void addFilter(final IEQLBuilderWithWhere eqlBldr,
                           final Where where,
                           final List<Type> types)
         throws EFapsException
@@ -345,7 +385,7 @@ public class StandardTableProvider
             Where wherePart;
             boolean connect;
             if (where == null) {
-                wherePart = query.where();
+                wherePart = (Where) eqlBldr.where();
                 connect = false;
             } else {
                 wherePart = where;
@@ -368,8 +408,7 @@ public class StandardTableProvider
                             final Attribute attr = oneType.getStatusAttribute();
                             stati.addAll(getStatus4Type(attr.getLink()));
                         }
-                        @SuppressWarnings("unchecked") final
-                        var selected = (Collection<String>) filter.getValue2();
+                        @SuppressWarnings("unchecked") final var selected = (Collection<String>) filter.getValue2();
                         final var selectedIds = stati.stream()
                                         .filter(status -> selected.contains(status.getKey()))
                                         .map(Status::getId).toArray(Long[]::new);
@@ -480,7 +519,8 @@ public class StandardTableProvider
         return ret;
     }
 
-    protected String evalAttrName4Field(Field field) {
+    protected String evalAttrName4Field(Field field)
+    {
         String attrName = null;
         if (field.getAttribute() != null) {
             attrName = field.getAttribute();
@@ -489,7 +529,6 @@ public class StandardTableProvider
         }
         return attrName;
     }
-
 
     protected Set<Status> getStatus4Type(final Type type)
         throws CacheReloadException
@@ -564,7 +603,7 @@ public class StandardTableProvider
     {
         String ret = "";
         if (_field.getSelectAlternateOID() != null) {
-            ret = StringUtils.removeEnd(_field.getSelectAlternateOID(), ".oid");
+            ret = Strings.CS.removeEnd(_field.getSelectAlternateOID(), ".oid");
         }
         return ret;
     }
