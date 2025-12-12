@@ -39,6 +39,8 @@ public class FilterDto
 
     private final Object value2;
 
+    private final boolean required;
+
     private FilterDto(Builder builder)
     {
         this.kind = builder.kind;
@@ -46,6 +48,7 @@ public class FilterDto
         this.field = builder.field;
         this.value1 = builder.value1;
         this.value2 = builder.value2;
+        this.required = builder.required;
     }
 
     public FilterKind getKind()
@@ -73,6 +76,11 @@ public class FilterDto
         return value2;
     }
 
+    public boolean isRequired()
+    {
+        return required;
+    }
+
     @Override
     public String toString()
     {
@@ -92,6 +100,7 @@ public class FilterDto
         private String field;
         private Object value1;
         private Object value2;
+        private boolean required;
 
         private Builder()
         {
@@ -124,6 +133,12 @@ public class FilterDto
         public Builder withValue2(Object value2)
         {
             this.value2 = value2;
+            return this;
+        }
+
+        public Builder withRequired(boolean required)
+        {
+            this.required = required;
             return this;
         }
 

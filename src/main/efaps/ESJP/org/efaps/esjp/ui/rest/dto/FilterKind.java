@@ -8,5 +8,6 @@ import org.efaps.admin.program.esjp.EFapsUUID;
 public enum FilterKind
 {
     DATE,
-    STATUS
+    STATUS,
+    TEXT
 }

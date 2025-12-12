@@ -32,6 +32,8 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.Strings;
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.Status;
@@ -42,6 +44,7 @@ import org.efaps.admin.datamodel.attributetype.DateTimeType;
 import org.efaps.admin.datamodel.attributetype.DateType;
 import org.efaps.admin.datamodel.attributetype.RateType;
 import org.efaps.admin.datamodel.attributetype.StatusType;
+import org.efaps.admin.datamodel.attributetype.StringType;
 import org.efaps.admin.event.EventType;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return.ReturnValues;
@@ -291,6 +294,7 @@ public class StandardTableProvider
                         && FilterBase.DATABASE.equals(field.getFilter().getBase())))) {
             filters = evalDefaultFilter(types);
         }
+
         if (CollectionUtils.isNotEmpty(filters)) {
             LOG.info("applying filter");
             TableController.cacheFilters(key, filters);
@@ -332,6 +336,22 @@ public class StandardTableProvider
                             connect = true;
                         }
                         break;
+                    case TEXT:
+                        if (connect) {
+                            wherePart.and();
+                        }
+                        if (filter.isRequired() && StringUtils.isEmpty((String) filter.getValue1())) {
+                            wherePart.attribute("ID").eq(0);
+                        } else {
+                            final var textFilter = "%" + filter.getValue1() + "%";
+                            if (BooleanUtils.isTrue((Boolean) filter.getValue2())) {
+                                wherePart.attribute(filter.getAttribute()).ilike(textFilter);
+                            } else {
+                                wherePart.attribute(filter.getAttribute()).like(textFilter);
+                            }
+                        }
+                        connect = true;
+                        break;
                 }
             }
         }
@@ -368,63 +388,6 @@ public class StandardTableProvider
         return typeList;
     }
 
-    public void addFilter(final IEQLBuilderWithWhere eqlBldr,
-                          final Where where,
-                          final List<Type> types)
-        throws EFapsException
-    {
-        final var key = TableController.getFilterKey(getCmd());
-        var filters = TableController.getFilters(key);
-        if (filters.isEmpty() && getFields().stream().anyMatch(field -> (field.getFilter() != null
-                        && FilterBase.DATABASE.equals(field.getFilter().getBase())))) {
-            filters = evalDefaultFilter(types);
-        }
-        if (CollectionUtils.isNotEmpty(filters)) {
-            LOG.info("applying filter");
-            TableController.cacheFilters(key, filters);
-            Where wherePart;
-            boolean connect;
-            if (where == null) {
-                wherePart = (Where) eqlBldr.where();
-                connect = false;
-            } else {
-                wherePart = where;
-                connect = true;
-            }
-            for (final var filter : filters) {
-                switch (filter.getKind()) {
-                    case DATE:
-                        if (connect) {
-                            wherePart.and();
-                        }
-                        wherePart.attribute(filter.getAttribute()).greaterOrEq(filter.getValue1().toString())
-                                        .and().attribute(filter.getAttribute()).lessOrEq(filter.getValue2().toString());
-                        connect = true;
-                        break;
-                    case STATUS:
-                        final var type = findCommonAncestor(types);
-                        final Set<Status> stati = new HashSet<>();
-                        for (final var oneType : types) {
-                            final Attribute attr = oneType.getStatusAttribute();
-                            stati.addAll(getStatus4Type(attr.getLink()));
-                        }
-                        @SuppressWarnings("unchecked") final var selected = (Collection<String>) filter.getValue2();
-                        final var selectedIds = stati.stream()
-                                        .filter(status -> selected.contains(status.getKey()))
-                                        .map(Status::getId).toArray(Long[]::new);
-                        if (selectedIds.length > 0) {
-                            if (connect) {
-                                wherePart.and();
-                            }
-                            wherePart.attribute(type.getStatusAttribute().getName()).in(selectedIds);
-                            connect = true;
-                        }
-                        break;
-                }
-            }
-        }
-    }
-
     protected List<FilterDto> evalDefaultFilter(final List<Type> types)
         throws CacheReloadException
     {
@@ -448,31 +411,42 @@ public class StandardTableProvider
                                 final var filterBuilder = FilterDto.builder()
                                                 .withKind(FilterKind.DATE)
                                                 .withField(field.getName())
-                                                .withAttribute(attr.getName());
+                                                .withAttribute(attr.getName())
+                                                .withRequired(field.getFilter().isRequired());
 
                                 final var parts = field.getFilter().getDefaultValue().split(":");
                                 final var range = parts[0];
                                 final var fromSub = parts.length > 1 ? Integer.parseInt(parts[1]) : 0;
                                 final var rangeCount = parts.length > 2 ? Integer.parseInt(parts[2]) : 1;
                                 switch (range) {
-                                    case "TODAY":
+                                    case "TODAY" -> {
                                         filterBuilder.withValue1(LocalDate.now());
                                         filterBuilder.withValue2(LocalDate.now().plusDays(rangeCount));
-                                        break;
-                                    case "WEEK":
+                                    }
+                                    case "WEEK" -> {
                                         filterBuilder.withValue1(LocalDate.now()
                                                         .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
                                                         .minusWeeks(fromSub));
                                         filterBuilder.withValue2(LocalDate.now().plusWeeks(rangeCount));
-                                        break;
-                                    case "MONTH":
+                                    }
+                                    case "MONTH" -> {
                                         filterBuilder.withValue1(LocalDate.now()
                                                         .minusMonths(fromSub));
                                         filterBuilder.withValue2(LocalDate.now().plusMonths(rangeCount));
-                                        break;
-                                    default:
-                                        LOG.warn("Missing default date filter: {}", range);
+                                    }
+                                    default -> LOG.warn("Missing default date filter: {}", range);
                                 }
+
+                                ret.add(filterBuilder.build());
+                            } else if (attr.getAttributeType().getDbAttrType() instanceof StringType) {
+                                final var filterBuilder = FilterDto.builder()
+                                                .withKind(FilterKind.TEXT)
+                                                .withField(field.getName())
+                                                .withAttribute(attr.getName())
+                                                .withRequired(field.getFilter().isRequired());
+
+                                filterBuilder.withValue1(field.getFilter().getDefaultValue())
+                                                .withValue2(false);
                                 ret.add(filterBuilder.build());
                             }
                         }
@@ -480,7 +454,8 @@ public class StandardTableProvider
                 } else if (FilterType.STATUS == field.getFilter().getType()) {
                     final var filterBuilder = FilterDto.builder()
                                     .withKind(FilterKind.STATUS)
-                                    .withField(field.getName());
+                                    .withField(field.getName())
+                                    .withRequired(field.getFilter().isRequired());
                     final var defaultValues = field.getFilter().getDefaultValue() == null
                                     ? new String[0]
                                     : field.getFilter().getDefaultValue().split(";");
