@@ -25,7 +25,6 @@ import java.util.stream.Collectors;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
-import org.efaps.admin.user.UserAttributesSet;
 import org.efaps.db.Context;
 import org.efaps.db.stmt.PrintStmt;
 import org.efaps.eql.EQL;
@@ -63,8 +62,17 @@ public abstract class DashboardController_Base
     {
         Response response;
         if (WebApp.DASHBOARD_ACTIVE.get()) {
-            final var userAttributesSet = new UserAttributesSet(Context.getThreadContext().getPersonId());
-            final var dashboardStr = userAttributesSet.getString(KEY);
+            String dashboardStr = null;
+            final var eval = EQL.builder().print()
+                            .query(CICommon.UserDashboard)
+                            .where()
+                            .attribute(CICommon.UserDashboard.Person).eq(Context.getThreadContext().getPersonId())
+                            .select()
+                            .attribute(CICommon.UserDashboard.Config)
+                            .evaluate();
+            if (eval.next()) {
+                dashboardStr = eval.get(CICommon.UserDashboard.Config);
+            }
             DashboardDto dto = null;
             if (dashboardStr == null) {
                 dto = DashboardDto.builder().build();
@@ -85,19 +93,32 @@ public abstract class DashboardController_Base
         return response;
     }
 
-    public Response updateDashboard(final DashboardDto _dashboardDto)
+    public Response updateDashboard(final DashboardDto dashboardDto)
         throws EFapsException
     {
-        _dashboardDto.getPages().stream()
+        dashboardDto.getPages().stream()
                         .flatMap(page -> page.getItems().stream())
                         .forEach(item -> persistWidget(item.getWidget()));
 
         final var mapper = ValueUtils.getObjectMapper();
         try {
-            final var dashboardStr = mapper.writeValueAsString(_dashboardDto);
-            final var userAttributesSet = new UserAttributesSet(Context.getThreadContext().getPersonId());
-            userAttributesSet.set(KEY, dashboardStr);
-            userAttributesSet.storeInDb();
+            final var dashboardStr = mapper.writeValueAsString(dashboardDto);
+
+            final var eval = EQL.builder().print().query(CICommon.UserDashboard).where()
+                            .attribute(CICommon.UserDashboard.Person).eq(Context.getThreadContext().getPersonId())
+                            .select()
+                            .oid()
+                            .evaluate();
+            if (eval.next()) {
+                EQL.builder().update(eval.inst())
+                                .set(CICommon.UserDashboard.Config, dashboardStr)
+                                .execute();
+            } else {
+                EQL.builder().insert(CICommon.UserDashboard)
+                                .set(CICommon.UserDashboard.Person, Context.getThreadContext().getPersonId())
+                                .set(CICommon.UserDashboard.Config, dashboardStr)
+                                .execute();
+            }
         } catch (final JsonProcessingException e) {
             LOG.error("Catched: ", e);
         }
