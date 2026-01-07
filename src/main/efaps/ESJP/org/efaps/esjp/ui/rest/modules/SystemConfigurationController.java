@@ -318,7 +318,7 @@ public class SystemConfigurationController
 
     protected String evalValue(final SystemConfigurationAttributeValueDto dto)
     {
-        return switch (dto.getType()) {
+        return dto.getType() == null ? dto.getValue() : switch (dto.getType()) {
             case LIST: {
                 String strValue = null;
                 try {

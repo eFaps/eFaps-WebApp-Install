@@ -35,6 +35,7 @@ import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.Command;
 import org.efaps.db.Context;
 import org.efaps.db.Instance;
+import org.efaps.esjp.db.InstanceUtils;
 import org.efaps.esjp.ui.rest.dto.ExecResponseDto;
 import org.efaps.esjp.ui.rest.dto.PayloadDto;
 import org.efaps.esjp.ui.util.FileUtil;
@@ -157,10 +158,18 @@ public abstract class ExecController_Base
                 downloadKey = FileUtil.put((File) retVal);
             }
         }
+        String targetOid = null;
+        if (TargetMode.CREATE.equals(cmd.getTargetMode()) && result.get(0).get(ReturnValues.INSTANCE) != null) {
+            final var inst =  (Instance) result.get(0).get(ReturnValues.INSTANCE);
+            if (InstanceUtils.isValid(inst)) {
+                targetOid = inst.getOid();
+            }
+        }
 
         final var response = ExecResponseDto.builder()
                         .withReload(!cmd.isNoUpdateAfterCmd())
                         .withDownloadKey(downloadKey)
+                        .withTargetOid(targetOid)
                         .build();
 
         final Response ret = Response.ok()

@@ -15,10 +15,14 @@
  */
 package org.efaps.esjp.ui.rest.dto;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+
+import jakarta.annotation.Generated;
 
 @JsonDeserialize(builder = ExecResponseDto.Builder.class)
 @EFapsUUID("9ae6757b-e420-4e32-bcf0-679cfec80982")
@@ -28,11 +32,14 @@ public class ExecResponseDto
 
     private final boolean reload;
     private final String downloadKey;
+    private final String targetOid;
 
+    @Generated("SparkTools")
     private ExecResponseDto(Builder builder)
     {
         this.reload = builder.reload;
         this.downloadKey = builder.downloadKey;
+        this.targetOid = builder.targetOid;
     }
 
     public boolean isReload()
@@ -45,16 +52,30 @@ public class ExecResponseDto
         return downloadKey;
     }
 
+    public String getTargetOid()
+    {
+        return targetOid;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
+    }
+
+    @Generated("SparkTools")
     public static Builder builder()
     {
         return new Builder();
     }
 
+    @Generated("SparkTools")
     public static final class Builder
     {
 
         private boolean reload;
         private String downloadKey;
+        private String targetOid;
 
         private Builder()
         {
@@ -69,6 +90,12 @@ public class ExecResponseDto
         public Builder withDownloadKey(String downloadKey)
         {
             this.downloadKey = downloadKey;
+            return this;
+        }
+
+        public Builder withTargetOid(String targetOid)
+        {
+            this.targetOid = targetOid;
             return this;
         }
 
