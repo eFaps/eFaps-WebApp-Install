@@ -21,6 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.efaps.admin.AbstractAdminObject;
 import org.efaps.admin.event.EventType;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return.ReturnValues;
@@ -39,44 +40,56 @@ import jakarta.ws.rs.core.Response;
 public abstract class AutocompleteController_Base
 {
 
-    public Response search(final String fieldId, final PayloadDto dto)
+    public Response search(final String fieldId,
+                           final PayloadDto dto)
         throws EFapsException
     {
         final var field = Field.get(Long.valueOf(fieldId));
-
-        final var parameters = new HashMap<String, String[]>();
-
-        final var term = dto.getValues().get(fieldId + "_query");
-
-        final var paraValues = new ArrayList<>();
-        paraValues.add(ParameterValues.OTHERS);
-        paraValues.add(term == null ? "" :term );
-        paraValues.add(ParameterValues.PARAMETERS);
-        paraValues.add(parameters);
-
-        final List<OptionDto> options = new ArrayList<>();
-        for (final var returns : field.executeEvents(EventType.UI_FIELD_AUTOCOMPLETE, paraValues.toArray())) {
-            final List<?> values = (List<?>) returns.get(ReturnValues.VALUES);
-            if (values != null) {
-                values.stream().forEach(val -> {
-                    @SuppressWarnings("unchecked") final var map = (Map<String, String>) val;
-                    final var label = map.containsKey("eFapsAutoCompleteCHOICE")
-                                    ? map.get("eFapsAutoCompleteCHOICE")
-                                    : map.get("eFapsAutoCompleteVALUE");
-                    options.add(OptionDto.builder()
-                                    .withLabel(label)
-                                    .withValue(map.get("eFapsAutoCompleteKEY"))
-                                    .withDisplay(map.get("eFapsAutoCompleteVALUE"))
-                                    .build());
-                });
-            }
-        }
-
-        final var ret = AutocompleteResponseDto.builder()
-                        .withOptions(options)
-                        .build();
+        final String term = (String) dto.getValues().get(fieldId + "_query");
+        final var ret = evalResponse(field, term);
         return Response.ok()
                         .entity(ret)
                         .build();
     }
+
+    public AutocompleteResponseDto evalResponse(final AbstractAdminObject adminObject,
+                                                final String term)
+        throws EFapsException
+    {
+        final var parameters = new HashMap<String, String[]>();
+        final var paraValues = new ArrayList<>();
+        paraValues.add(ParameterValues.OTHERS);
+        paraValues.add(term == null ? "" : term);
+        paraValues.add(ParameterValues.PARAMETERS);
+        paraValues.add(parameters);
+
+        final List<OptionDto> options = new ArrayList<>();
+        for (final var returns : adminObject.executeEvents(EventType.UI_FIELD_AUTOCOMPLETE, paraValues.toArray())) {
+            final List<?> values = (List<?>) returns.get(ReturnValues.VALUES);
+            options.addAll(evalOptions(values));
+        }
+        return AutocompleteResponseDto.builder()
+                        .withOptions(options)
+                        .build();
+    }
+
+    public List<OptionDto> evalOptions(final List<?> values)
+    {
+        final List<OptionDto> options = new ArrayList<>();
+        if (values != null) {
+            values.stream().forEach(val -> {
+                @SuppressWarnings("unchecked") final var map = (Map<String, String>) val;
+                final var label = map.containsKey("eFapsAutoCompleteCHOICE")
+                                ? map.get("eFapsAutoCompleteCHOICE")
+                                : map.get("eFapsAutoCompleteVALUE");
+                options.add(OptionDto.builder()
+                                .withLabel(label)
+                                .withValue(map.get("eFapsAutoCompleteKEY"))
+                                .withDisplay(map.get("eFapsAutoCompleteVALUE"))
+                                .build());
+            });
+        }
+        return options;
+    }
+
 }
