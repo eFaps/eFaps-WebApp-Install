@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.EnumUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 import org.efaps.admin.datamodel.Attribute;
 import org.efaps.admin.datamodel.Type;
 import org.efaps.admin.datamodel.attributetype.StatusType;
@@ -228,18 +228,20 @@ public abstract class AbstractController_Base
     {
         String ret = "";
         if (_field.getSelectAlternateOID() != null) {
-            ret = StringUtils.removeEnd(_field.getSelectAlternateOID(), ".oid");
+            ret = Strings.CS.removeEnd(_field.getSelectAlternateOID(), ".oid");
         }
         return ret;
     }
 
-    protected List<ColumnDto> getColumns(final org.efaps.admin.ui.Table _table,
+    protected List<ColumnDto> getColumns(final org.efaps.admin.ui.Table table,
                                          final TargetMode targetMode,
                                          final Collection<Type> types)
         throws EFapsException
     {
         final var ret = new ArrayList<ColumnDto>();
-        for (final var field : _table.getFields()) {
+        LOG.debug("evaluating Colums for {}", table.getName());
+        for (final var field : table.getFields()) {
+            LOG.debug("  field {}", field.getName());
             if (!field.isNoneDisplay(targetMode) && field.hasAccess(targetMode, null, null, null)) {
                 final var columBldr = ColumnDto.builder()
                                 .withField(field.getName())
@@ -256,12 +258,10 @@ public abstract class AbstractController_Base
                                 columBldr.withType(ValueType.INPUT);
                             } else {
                                 switch (uiType) {
-                                    case DROPDOWN:
-                                        columBldr.withType(ValueType.DROPDOWN);
-                                        break;
-                                    default:
-                                        columBldr.withType(ValueType.INPUT);
+                                    case DROPDOWN -> columBldr.withType(ValueType.DROPDOWN);
+                                    default -> columBldr.withType(ValueType.INPUT);
                                 }
+
                             }
                         }
                     } else if (field.hasEvents(EventType.UI_FIELD_AUTOCOMPLETE)) {
@@ -274,7 +274,9 @@ public abstract class AbstractController_Base
                         columBldr.withUpdateRef(String.valueOf(field.getId()));
                     }
                 }
-                ret.add(columBldr.build());
+                final var column = columBldr.build();
+                LOG.debug("  column: {}", column);
+                ret.add(column);
             }
         }
         return ret;
