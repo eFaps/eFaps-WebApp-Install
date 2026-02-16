@@ -18,7 +18,9 @@ package org.efaps.esjp.ui.rest.modules;
 import java.io.File;
 import java.util.Map;
 
+import org.apache.commons.lang3.BooleanUtils;
 import org.efaps.admin.event.Parameter;
+import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
@@ -31,6 +33,7 @@ import org.efaps.esjp.ui.util.FileUtil;
 import org.efaps.util.EFapsException;
 
 import jakarta.ws.rs.Consumes;
+import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
@@ -54,7 +57,8 @@ public class JasperReportController
     {
         final var parameter = ParameterUtil.instance();
         ParameterUtil.setParameterValues(parameter, "mime", values.get("mime"));
-        final var result = new StandartReport()
+        parameter.put(ParameterValues.INSTANCE, Instance.get(reportOid));
+        final var standartReport = new StandartReport()
         {
 
             @Override
@@ -73,8 +77,22 @@ public class JasperReportController
                 }
                 return compiledInst;
             }
+        };
 
-        }.execute(parameter);
+        final var jrParameters = standartReport.loadJRParameters(parameter);
+        for (final var jrParameter : jrParameters) {
+            final String value = values.get(jrParameter.getName());
+            Object obj = null;
+            obj = switch (jrParameter.getValueClassName()) {
+                case "java.lang.Integer" -> Integer.valueOf(value);
+                case "java.lang.Long" -> Long.valueOf(value);
+                case "java.lang.Boolean" -> BooleanUtils.toBoolean(value);
+                default -> value;
+            };
+            standartReport.getJrParameters().put(jrParameter.getName(), obj);
+        }
+
+        final var result = standartReport.execute(parameter);
         final var retVal = result.get(ReturnValues.VALUES);
         String downloadKey = null;
         if (retVal instanceof File) {
@@ -84,4 +102,19 @@ public class JasperReportController
                         .entity("{ \"downloadKey\": \"" + downloadKey + "\"}")
                         .build();
     }
+
+    @GET
+    @Path("/{oid}/parameters")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    public Response getParameters(@PathParam("oid") final String reportOid)
+        throws EFapsException
+    {
+        final var parameter = ParameterUtil.instance();
+        final var reportInst = Instance.get(reportOid);
+        parameter.put(ParameterValues.INSTANCE, reportInst);
+        final var jrParameters = new StandartReport().loadJRParameters(parameter);
+        return Response.ok(jrParameters).build();
+    }
+
 }
