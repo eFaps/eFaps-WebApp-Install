@@ -68,7 +68,7 @@ public abstract class ExecController_Base
             }
             int i = 0;
             for (final var key : keys) {
-                final var file = UploadController.FILEMAP.get(key);
+                final var file = FileUtil.get(key);
                 if (file != null) {
                     final var parameterName = keys.size() > 1 ? uploadFieldName + "_" + i : uploadFieldName;
                     Context.getThreadContext().getFileParameters().put(parameterName, new Context.FileParameter()
@@ -160,7 +160,7 @@ public abstract class ExecController_Base
         }
         String targetOid = null;
         if (TargetMode.CREATE.equals(cmd.getTargetMode()) && result.get(0).get(ReturnValues.INSTANCE) != null) {
-            final var inst =  (Instance) result.get(0).get(ReturnValues.INSTANCE);
+            final var inst = (Instance) result.get(0).get(ReturnValues.INSTANCE);
             if (InstanceUtils.isValid(inst)) {
                 targetOid = inst.getOid();
             }
@@ -183,8 +183,8 @@ public abstract class ExecController_Base
     {
         if (dto.getValues().containsKey("eFapsClassifications")) {
             paraValues.add(ParameterValues.CLASSIFICATIONS);
-            @SuppressWarnings("unchecked")
-            final List<String> uuids = (List<String>) dto.getValues().get("eFapsClassifications");
+            @SuppressWarnings("unchecked") final List<String> uuids = (List<String>) dto.getValues()
+                            .get("eFapsClassifications");
             paraValues.add(uuids.stream().map(uuid -> {
                 try {
                     return Classification.get(UUID.fromString(uuid));

@@ -41,15 +41,20 @@ public class FileUtil
 
     public static String put(final File file)
     {
-        final var key = RandomStringUtils.secure().nextAlphanumeric(8);
+        final var key = RandomStringUtils.secure().nextAlphanumeric(12);
         getCache().put(key, file.getAbsolutePath(), 1, TimeUnit.HOURS);
         LOG.info("Stored {} with Key: {}", file.getAbsolutePath(), key);
         return key;
     }
 
+    public static boolean has(final String key)
+    {
+        return getCache().containsKey(key);
+    }
+
     public static File get(final String key)
     {
-        return new File(getCache().get(key));
+        return has(key) ? new File(getCache().get(key)) : null;
     }
 
     private static Cache<String, String> getCache()
