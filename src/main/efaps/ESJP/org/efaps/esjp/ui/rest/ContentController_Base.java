@@ -893,12 +893,15 @@ public abstract class ContentController_Base
                     skippEvaluation = true;
                     yield prepareImage(imageOid);
                 }
-                case INPUT -> {
+                case INPUT, TEXTAREA -> {
+                    valueBldr.withType(valueType);
                     yield fieldValue;
                 }
                 default -> throw new IllegalArgumentException("Unexpected value: " + valueType);
             };
         }
+
+        LOG.info("valueBldr1: {}", valueBldr);
 
         if (!skippEvaluation) {
             final UIType uiType = getUIType(field);
@@ -913,9 +916,6 @@ public abstract class ContentController_Base
                 valueBldr.withType(ValueType.BUTTON).withRef(String.valueOf(field.getId()));
             } else if (field.hasEvents(EventType.UI_FIELD_FORMAT)) {
                 fieldValue = evalFieldFormatEvent(inst, field, valueBldr, fieldValue, currentTargetMode);
-                if (valueType != null) {
-                    valueBldr.withType(valueType);
-                }
             } else if ((TargetMode.CREATE.equals(currentTargetMode) || TargetMode.EDIT.equals(currentTargetMode))
                             && field.isEditableDisplay(currentTargetMode)) {
                 if (field instanceof final FieldClassification fieldClass) {
@@ -957,7 +957,8 @@ public abstract class ContentController_Base
                             fieldValue = OffsetDateTime.now(Context.getThreadContext().getZoneId()).withNano(0)
                                             .toString();
                         }
-                    } else if (uiType != null){
+                    } else if (uiType != null && valueBldr.getType() == null) {
+                        LOG.info("valueBldr1-b: {}", valueBldr);
                         valueBldr.withType(switch (uiType) {
                             case CHECKBOX: {
                                 yield ValueType.CHECKBOX;
@@ -973,6 +974,7 @@ public abstract class ContentController_Base
                                 yield null;
                         });
                     }
+                    LOG.info("valueBldr2: {}", valueBldr);
                 } else {
                     final var attr = type == null ? null : type.getAttribute(field.getAttribute());
                     if (attr != null) {
@@ -1011,6 +1013,7 @@ public abstract class ContentController_Base
                 fieldValue = evalFieldValueEvent(callInstance, field, valueBldr, fieldValue, currentTargetMode);
             }
         }
+        LOG.info("valueBldr3: {}", valueBldr);
         if (fieldValue != null && valueBldr.getType() == null) {
             fieldValue = evalReadOnlyValue(fieldValue, valueBldr);
         }
@@ -1172,7 +1175,9 @@ public abstract class ContentController_Base
         throws CacheReloadException
     {
         String ret = null;
-        if (field.getLabel() != null) {
+        if (field.isHideLabel()) {
+            return ret;
+        } else if (field.getLabel() != null) {
             ret = DBProperties.getProperty(field.getLabel());
         } else if (field.getAttribute() != null) {
             final var labelOpt = LabelUtils.evalForTypeAndAttribute(type, field.getAttribute());
