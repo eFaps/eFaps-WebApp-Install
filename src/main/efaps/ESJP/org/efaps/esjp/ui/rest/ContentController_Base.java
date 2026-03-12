@@ -901,7 +901,7 @@ public abstract class ContentController_Base
             };
         }
 
-        LOG.info("valueBldr1: {}", valueBldr);
+        LOG.trace("valueBldr1: {}", valueBldr);
 
         if (!skippEvaluation) {
             final UIType uiType = getUIType(field);
@@ -958,7 +958,7 @@ public abstract class ContentController_Base
                                             .toString();
                         }
                     } else if (uiType != null && valueBldr.getType() == null) {
-                        LOG.info("valueBldr1-b: {}", valueBldr);
+                        LOG.trace("valueBldr1-b: {}", valueBldr);
                         valueBldr.withType(switch (uiType) {
                             case CHECKBOX: {
                                 yield ValueType.CHECKBOX;
@@ -974,7 +974,7 @@ public abstract class ContentController_Base
                                 yield null;
                         });
                     }
-                    LOG.info("valueBldr2: {}", valueBldr);
+                    LOG.trace("valueBldr2: {}", valueBldr);
                 } else {
                     final var attr = type == null ? null : type.getAttribute(field.getAttribute());
                     if (attr != null) {
@@ -1013,7 +1013,7 @@ public abstract class ContentController_Base
                 fieldValue = evalFieldValueEvent(callInstance, field, valueBldr, fieldValue, currentTargetMode);
             }
         }
-        LOG.info("valueBldr3: {}", valueBldr);
+        LOG.trace("valueBldr3: {}", valueBldr);
         if (fieldValue != null && valueBldr.getType() == null) {
             fieldValue = evalReadOnlyValue(fieldValue, valueBldr);
         }
@@ -1033,7 +1033,7 @@ public abstract class ContentController_Base
                         }
                     }
                 } else {
-                    LOG.warn("Cannot evluate alternate oid for {}", field.getName());
+                    LOG.warn("Cannot evaluate alternate oid for {}", field.getName());
                 }
             } else if (eval.inst().getOid() != null) {
                 valueBldr.withNavRef(eval.inst().getOid());
