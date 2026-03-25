@@ -78,7 +78,7 @@ public class ClassificationController
         final var form = classification.getTypeForm();
         final var content = new ContentController();
         content.currentTargetMode = TargetMode.CREATE;
-        final var sections = content.evalSections4Form(form, classification, null, null);
+        final var sections = content.evalSections4Form(null, form, classification, null, null);
         return Response.ok()
                         .entity(sections)
                         .build();

@@ -233,7 +233,8 @@ public abstract class AbstractController_Base
         return ret;
     }
 
-    protected List<ColumnDto> getColumns(final org.efaps.admin.ui.Table table,
+    protected List<ColumnDto> getColumns(final AbstractCommand callCmd,
+                                         final org.efaps.admin.ui.Table table,
                                          final TargetMode targetMode,
                                          final Collection<Type> types)
         throws EFapsException
@@ -242,7 +243,7 @@ public abstract class AbstractController_Base
         LOG.debug("evaluating Colums for {}", table.getName());
         for (final var field : table.getFields()) {
             LOG.debug("  field {}", field.getName());
-            if (!field.isNoneDisplay(targetMode) && field.hasAccess(targetMode, null, null, null)) {
+            if (!field.isNoneDisplay(targetMode) && field.hasAccess(targetMode, null, callCmd, null)) {
                 final var columBldr = ColumnDto.builder()
                                 .withField(field.getName())
                                 .withHeader(field.getLabel() == null ? "" : DBProperties.getProperty(field.getLabel()))

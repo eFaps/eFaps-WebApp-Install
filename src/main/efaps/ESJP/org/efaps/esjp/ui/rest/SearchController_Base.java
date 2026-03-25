@@ -208,7 +208,7 @@ public abstract class SearchController_Base
 
         final var dto = TableDto.builder()
                         .withHeader(getHeader(cmd, null))
-                        .withColumns(getColumns(table, TargetMode.SEARCH, null))
+                        .withColumns(getColumns(cmd, table, TargetMode.SEARCH, null))
                         .withValues(getValues(cmd, table, queryParameters, limit))
                         .withSelectionMode(selectionMode)
                         .withPage(PageDto.builder()

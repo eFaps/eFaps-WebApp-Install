@@ -88,7 +88,7 @@ public abstract class TableController_Base
         final var dto = TableDto.builder()
                         .withMenu(menus)
                         .withHeader(getHeader(cmd, oid))
-                        .withColumns(getColumns(cmd.getTargetTable(), TargetMode.VIEW, null))
+                        .withColumns(getColumns(cmd, cmd.getTargetTable(), TargetMode.VIEW, null))
                         .withValues(values)
                         .withPage(provider.getPage())
                         .withSelectionMode(selectionMode)

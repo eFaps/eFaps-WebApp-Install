@@ -121,7 +121,7 @@ public abstract class ContentController_Base
     private static final Logger LOG = LoggerFactory.getLogger(ContentController.class);
 
     protected Instance mainInstance;
-    protected AbstractCommand callCmd;
+    protected AbstractCommand callCmdss;
     protected TargetMode currentTargetMode;
     protected List<Classification> classifications;
 
@@ -281,16 +281,16 @@ public abstract class ContentController_Base
             final var executable = evalSelects4Form(cmd, form, print, sectionInstance, null);
 
             final var eval = executable ? print.evaluate() : null;
-            ret = evalSections4Form(form, sectionInstance.getType(), sectionInstance, eval);
+            ret = evalSections4Form(cmd, form, sectionInstance.getType(), sectionInstance, eval);
             // check for classifications
             final var fieldClassifications = form.getFields().stream()
                             .filter(field -> (field instanceof FieldClassification)).collect(Collectors.toList());
             for (final var fieldClassification : fieldClassifications) {
-                ret.addAll(evalSections4Class((FieldClassification) fieldClassification, sectionInstance, eval));
+                ret.addAll(evalSections4Class(cmd, (FieldClassification) fieldClassification, sectionInstance, eval));
             }
         }
         if (table != null) {
-            final var columns = getColumns(table, currentTargetMode, null);
+            final var columns = getColumns(cmd, table, currentTargetMode, null);
             ret.add(TableSectionDto.builder()
                             .withColumns(columns)
                             .withValues(getValues(cmd, table, instance))
@@ -323,7 +323,8 @@ public abstract class ContentController_Base
         return this.classifications;
     }
 
-    protected List<ISection> evalSections4Class(final FieldClassification field,
+    protected List<ISection> evalSections4Class(final AbstractCommand callCmd,
+                                                final FieldClassification field,
                                                 final Instance instance,
                                                 final Evaluator eval)
         throws EFapsException
@@ -331,7 +332,7 @@ public abstract class ContentController_Base
         final var ret = new ArrayList<ISection>();
         for (final var classification : getClassifications()) {
             final var form = classification.getTypeForm();
-            ret.addAll(evalSections4Form(form, classification, instance, eval));
+            ret.addAll(evalSections4Form(callCmd, form, classification, instance, eval));
         }
         // sort by the classifcation tree
         /**
@@ -346,7 +347,8 @@ public abstract class ContentController_Base
         return ret;
     }
 
-    public List<ISection> evalSections4Form(final Form form,
+    public List<ISection> evalSections4Form(final AbstractCommand callCmd,
+                                            final Form form,
                                             final Type type,
                                             final Instance instance,
                                             final Evaluator eval)
@@ -378,7 +380,7 @@ public abstract class ContentController_Base
                     }
                     currentFormSectionBldr = null;
                     final var fieldTable = ((FieldTable) field).getTargetTable();
-                    final var columns = getColumns(fieldTable, currentTargetMode, evalTypes(field));
+                    final var columns = getColumns(callCmd, fieldTable, currentTargetMode, evalTypes(field));
                     final var tableSection = TableSectionDto.builder()
                                     .withId(fieldTable.getUUID().toString())
                                     .withEditable(field.isEditableDisplay(currentTargetMode))

@@ -83,7 +83,7 @@ public class StructurBrowserController
         final var dto = StructurBrowserDto.builder()
                         .withMenu(menus)
                         .withHeader(getHeader(cmd, oid))
-                        .withColumns(getColumns(table, TargetMode.VIEW, null))
+                        .withColumns(getColumns(cmd, table, TargetMode.VIEW, null))
                         .withValues(values)
                         .withSelectionMode(selectionMode)
                         .withToggleColumn(cmd.getTargetStructurBrowserField())
