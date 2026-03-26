@@ -17,7 +17,6 @@
 package org.efaps.esjp.ui.rest;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -28,6 +27,7 @@ import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.field.Field;
+import org.efaps.db.Instance;
 import org.efaps.esjp.ui.rest.dto.AutocompleteResponseDto;
 import org.efaps.esjp.ui.rest.dto.OptionDto;
 import org.efaps.esjp.ui.rest.dto.PayloadDto;
@@ -38,6 +38,7 @@ import jakarta.ws.rs.core.Response;
 @EFapsUUID("0f3c95a0-abb6-4c70-9869-5cf9142a3dac")
 @EFapsApplication("eFaps-WebApp")
 public abstract class AutocompleteController_Base
+    extends AbstractController
 {
 
     public Response search(final String fieldId,
@@ -45,23 +46,36 @@ public abstract class AutocompleteController_Base
         throws EFapsException
     {
         final var field = Field.get(Long.valueOf(fieldId));
-        final String term = (String) dto.getValues().get(fieldId + "_query");
-        final var ret = evalResponse(field, term);
+        final var ret = evalResponse(field, dto);
         return Response.ok()
                         .entity(ret)
                         .build();
     }
 
     public AutocompleteResponseDto evalResponse(final AbstractAdminObject adminObject,
-                                                final String term)
+                                                final PayloadDto dto)
         throws EFapsException
     {
-        final var parameters = new HashMap<String, String[]>();
+        final String term = (String) dto.getValues().get(adminObject.getId() + "_query");
+
+        final var parameters = convertToMap(dto);
         final var paraValues = new ArrayList<>();
         paraValues.add(ParameterValues.OTHERS);
         paraValues.add(term == null ? "" : term);
         paraValues.add(ParameterValues.PARAMETERS);
         paraValues.add(parameters);
+
+        paraValues.add(ParameterValues.PAYLOAD);
+        paraValues.add(dto.getValues());
+
+        if (parameters.containsKey("eFapsOID")) {
+            paraValues.add(ParameterValues.INSTANCE);
+            paraValues.add(Instance.get(parameters.get("eFapsOID")[0]));
+        }
+        if (parameters.containsKey("eFapsParentOID")) {
+            paraValues.add(ParameterValues.INSTANCE);
+            paraValues.add(Instance.get(parameters.get("eFapsParentOID")[0]));
+        }
 
         final List<OptionDto> options = new ArrayList<>();
         for (final var returns : adminObject.executeEvents(EventType.UI_FIELD_AUTOCOMPLETE, paraValues.toArray())) {
