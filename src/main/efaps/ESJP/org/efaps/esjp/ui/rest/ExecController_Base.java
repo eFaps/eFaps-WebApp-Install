@@ -124,6 +124,8 @@ public abstract class ExecController_Base
     {
         LOG.info("exec : {}, payload: {}", cmdId, dto);
         final var parameters = convertToMap(dto);
+        Context.getThreadContext().getParameters().putAll(parameters);
+
         evalUpload(dto);
         final AbstractCommand cmd = Command.get(UUID.fromString(cmdId));
 

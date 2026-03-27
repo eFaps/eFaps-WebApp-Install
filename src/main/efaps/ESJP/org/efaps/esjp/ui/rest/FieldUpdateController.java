@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.collections4.CollectionUtils;
 import org.efaps.admin.event.EventType;
 import org.efaps.admin.event.Parameter.ParameterValues;
 import org.efaps.admin.event.Return.ReturnValues;
@@ -71,7 +72,7 @@ public class FieldUpdateController
         for (final var returns : field.executeEvents(EventType.UI_FIELD_UPDATE, paraValues.toArray())) {
             @SuppressWarnings("unchecked")
             final var values =  (List<Map<String, ?>>) returns.get(ReturnValues.VALUES);
-            if (!values.isEmpty()) {
+            if (CollectionUtils.isNotEmpty(values)) {
                 responseDto = FieldUpdateResponseDto.builder()
                                 .withValues(values)
                                 .build();
