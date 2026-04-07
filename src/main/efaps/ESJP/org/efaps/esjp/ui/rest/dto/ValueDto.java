@@ -18,6 +18,7 @@ package org.efaps.esjp.ui.rest.dto;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
@@ -42,6 +43,7 @@ public class ValueDto
     private final boolean required;
     private final String updateRef;
     private final String navRef;
+    private final Map<String, Object> config;
 
     private ValueDto(final Builder builder)
     {
@@ -54,6 +56,7 @@ public class ValueDto
         this.required = builder.required;
         this.updateRef = builder.updateRef;
         this.navRef = builder.navRef;
+        this.config = builder.config;
     }
 
     public String getLabel()
@@ -102,6 +105,11 @@ public class ValueDto
         return navRef;
     }
 
+    public Map<String, Object> getConfig()
+    {
+        return config;
+    }
+
     @Override
     public String toString()
     {
@@ -126,6 +134,7 @@ public class ValueDto
         private boolean required;
         private String updateRef;
         private String navRef;
+        private Map<String, Object> config;
 
         private Builder()
         {
@@ -184,6 +193,12 @@ public class ValueDto
         public Builder withNavRef(String navRef)
         {
             this.navRef = navRef;
+            return this;
+        }
+
+        public Builder withConfig(Map<String, Object> config)
+        {
+            this.config = config;
             return this;
         }
 
