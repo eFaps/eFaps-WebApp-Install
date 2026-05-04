@@ -391,6 +391,7 @@ public class StandardTableProvider
     protected List<FilterDto> evalDefaultFilter(final List<Type> types)
         throws CacheReloadException
     {
+        LOG.debug("Evaluatin default filters for: {}", types);
         final List<FilterDto> ret = new ArrayList<>();
         for (final var field : getFields()) {
             if (field.getFilter() != null && FilterBase.DATABASE.equals(field.getFilter().getBase())) {
@@ -463,6 +464,9 @@ public class StandardTableProvider
                     final Set<Status> stati = new HashSet<>();
                     for (final var type : types) {
                         final Attribute attr = type.getStatusAttribute();
+                        if (attr == null) {
+                            LOG.warn("Type has not status attribute: {}", type);
+                        }
                         stati.addAll(getStatus4Type(attr.getLink()));
                     }
                     final Map<String, OptionDto> options = new HashMap<>();
