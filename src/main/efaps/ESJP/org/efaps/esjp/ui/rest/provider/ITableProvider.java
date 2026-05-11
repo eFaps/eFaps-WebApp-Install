@@ -40,7 +40,8 @@ public interface ITableProvider
                                 final List<Field> fields,
                                 final Map<String, String> properties,
                                 final TargetMode targetMode,
-                                final String oid)
+                                final String oid,
+                                final List<String> selectedOids)
         throws EFapsException
     {
         return this;

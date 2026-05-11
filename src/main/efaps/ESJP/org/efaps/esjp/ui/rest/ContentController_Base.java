@@ -124,6 +124,7 @@ public abstract class ContentController_Base
     protected AbstractCommand callCmdss;
     protected TargetMode currentTargetMode;
     protected List<Classification> classifications;
+    protected List<String> selectedOids;
 
     public Response getContent(final String oid)
         throws EFapsException
@@ -192,10 +193,12 @@ public abstract class ContentController_Base
     }
 
     public Response getContent(final String oid,
-                               final String cmdId)
+                               final String cmdId,
+                               final List<String> selectedOids)
         throws EFapsException
     {
-        LOG.info("Get content for oid: {} and cmdId: {}", oid, cmdId);
+        LOG.info("Get content for oid: {} and cmdId: {: selectedOids: {}", oid, cmdId, selectedOids);
+        this.selectedOids = selectedOids;
 
         final var instance = Instance.get(oid);
         AbstractCommand cmd = Command.get(UUID.fromString(cmdId));
@@ -1297,7 +1300,7 @@ public abstract class ContentController_Base
             final var fields = getFields(table, this.currentTargetMode);
             final var properties = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
 
-            ret = provider.init(cmd, fields, properties, currentTargetMode, instance.getOid()).getValues();
+            ret = provider.init(cmd, fields, properties, currentTargetMode, instance.getOid(), selectedOids).getValues();
         }
         return ret;
     }

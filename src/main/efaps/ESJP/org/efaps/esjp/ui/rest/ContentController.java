@@ -16,16 +16,19 @@
  */
 package org.efaps.esjp.ui.rest;
 
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
-import jakarta.ws.rs.Produces;
-import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.Response;
+import java.util.List;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.util.EFapsException;
+
+import jakarta.ws.rs.GET;
+import jakarta.ws.rs.Path;
+import jakarta.ws.rs.PathParam;
+import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.QueryParam;
+import jakarta.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.Response;
 
 @EFapsUUID("0602bfeb-285b-4a03-aa70-e5f5028239ee")
 @EFapsApplication("eFaps-WebApp")
@@ -47,9 +50,11 @@ public class ContentController
     @Path("/{oid}/{cmdid}")
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response getContent(@PathParam("oid") final String _oid, @PathParam("cmdid") final String _cmdId)
+    public Response getContent(@PathParam("oid") final String oid,
+                               @PathParam("cmdid") final String cmdId,
+                               @QueryParam("selOids") final List<String> selectedOids)
         throws EFapsException
     {
-        return super.getContent(_oid, _cmdId);
+        return super.getContent(oid, cmdId, selectedOids);
     }
 }

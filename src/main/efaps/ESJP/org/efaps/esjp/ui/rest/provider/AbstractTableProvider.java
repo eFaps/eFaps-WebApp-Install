@@ -42,6 +42,8 @@ public abstract class AbstractTableProvider
 
     private String oid;
 
+    private List<String> selectedOids;
+
     protected AbstractUserInterfaceObject getCmd()
     {
         return cmd;
@@ -67,12 +69,18 @@ public abstract class AbstractTableProvider
         return targetMode;
     }
 
+    protected List<String> getSelectedOids()
+    {
+        return selectedOids;
+    }
+
     @Override
     public ITableProvider init(final AbstractUserInterfaceObject cmd,
                                final List<Field> fields,
                                final Map<String, String> propertiesMap,
                                final TargetMode targetMode,
-                               final String oid)
+                               final String oid,
+                               final List<String> selectedOids)
         throws EFapsException
     {
         this.cmd = cmd;

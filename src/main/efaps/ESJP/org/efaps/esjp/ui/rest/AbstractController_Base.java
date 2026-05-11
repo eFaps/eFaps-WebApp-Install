@@ -248,9 +248,9 @@ public abstract class AbstractController_Base
                                 .withField(field.getName())
                                 .withHeader(field.getLabel() == null ? "" : DBProperties.getProperty(field.getLabel()))
                                 .withRef(field.getReference() != null ? "true" : null);
-                if ((TargetMode.CREATE.equals(targetMode) || TargetMode.EDIT.equals(targetMode) && !types.isEmpty())
+                if ((TargetMode.CREATE.equals(targetMode) || TargetMode.EDIT.equals(targetMode))
                                 && field.isEditableDisplay(targetMode)) {
-                    if (field.getAttribute() != null) {
+                    if (field.getAttribute() != null && !types.isEmpty()) {
                         final var typeOpt = types.stream()
                                         .filter(type -> (type.getAttribute(field.getAttribute()) != null)).findFirst();
                         if (typeOpt.isPresent()) {
@@ -270,6 +270,8 @@ public abstract class AbstractController_Base
                         columBldr.withRef(String.valueOf(field.getId()));
                     } else if (field.hasEvents(EventType.UI_FIELD_VALUE)) {
                         evalFieldValueEvent(null, field, columBldr, null, targetMode);
+                    } else if (field.getProperty("ValueType") != null) {
+                        columBldr.withType(getValueType(field));
                     }
                     if (field.hasEvents(EventType.UI_FIELD_UPDATE)) {
                         columBldr.withUpdateRef(String.valueOf(field.getId()));
