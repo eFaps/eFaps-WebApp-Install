@@ -88,6 +88,7 @@ public abstract class AbstractTableProvider
         this.propertiesMap = propertiesMap;
         this.oid = oid;
         this.targetMode = targetMode;
+        this.selectedOids = selectedOids;
         return this;
     }
 }

@@ -1275,7 +1275,7 @@ public abstract class ContentController_Base
         throws EFapsException
     {
         Collection<Map<String, ?>> ret;
-        if (TargetMode.CREATE.equals(this.currentTargetMode)) {
+        if (TargetMode.CREATE.equals(this.currentTargetMode) && !(cmd instanceof FieldTable)) {
             ret = new ArrayList<>();
         } else {
             final var event = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0);
