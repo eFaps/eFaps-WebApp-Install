@@ -147,10 +147,20 @@ public class ValueDto
             return this;
         }
 
+        public ValueType getType()
+        {
+            return type;
+        }
+
         public Builder withName(String name)
         {
             this.name = name;
             return this;
+        }
+
+        public String getName()
+        {
+            return name;
         }
 
         public Builder withLabel(String label)
@@ -159,16 +169,31 @@ public class ValueDto
             return this;
         }
 
+        public String getLabel()
+        {
+            return label;
+        }
+
         public Builder withValue(Object value)
         {
             this.value = value;
             return this;
         }
 
+        public Object getValue()
+        {
+            return value;
+        }
+
         public Builder withRef(String ref)
         {
             this.ref = ref;
             return this;
+        }
+
+        public String getRef()
+        {
+            return ref;
         }
 
         @Override
@@ -178,10 +203,20 @@ public class ValueDto
             return this;
         }
 
+        public List<OptionDto> getOptions()
+        {
+            return options;
+        }
+
         public Builder withRequired(boolean required)
         {
             this.required = required;
             return this;
+        }
+
+        public boolean isRequired()
+        {
+            return required;
         }
 
         public Builder withUpdateRef(String updateRef)
@@ -190,10 +225,20 @@ public class ValueDto
             return this;
         }
 
+        public String getUpdateRef()
+        {
+            return updateRef;
+        }
+
         public Builder withNavRef(String navRef)
         {
             this.navRef = navRef;
             return this;
+        }
+
+        public String getNavRef()
+        {
+            return navRef;
         }
 
         public Builder withConfig(Map<String, Object> config)
@@ -202,9 +247,9 @@ public class ValueDto
             return this;
         }
 
-        public ValueType getType()
+        public Map<String, Object> getConfig()
         {
-            return type;
+            return config;
         }
 
         @Override
