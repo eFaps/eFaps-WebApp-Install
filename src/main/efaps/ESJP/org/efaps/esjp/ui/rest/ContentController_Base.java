@@ -197,7 +197,7 @@ public abstract class ContentController_Base
                                final List<String> selectedOids)
         throws EFapsException
     {
-        LOG.info("Get content for oid: {} and cmdId: {: selectedOids: {}", oid, cmdId, selectedOids);
+        LOG.info("Get content for oid: {} and cmdId: {}: selectedOids: {}", oid, cmdId, selectedOids);
         this.selectedOids = selectedOids;
 
         final var instance = Instance.get(oid);
@@ -261,7 +261,7 @@ public abstract class ContentController_Base
                                        final AbstractCommand cmd)
         throws EFapsException
     {
-        LOG.info("Evaluation sections for  instance: {} and cmd : {}", instance, cmd);
+        LOG.info("Evaluation sections for instance: {} and cmd : {}", instance, cmd);
 
         List<ISection> ret = new ArrayList<>();
         final var targetMode = TargetMode.UNKNOWN.equals(cmd.getTargetMode()) ? TargetMode.VIEW : cmd.getTargetMode();
