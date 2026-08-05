@@ -70,8 +70,8 @@ public class SystemConfigurationController
     @Path("/{sysConfOid}/attributes")
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response geteSystemConfigurationAttributes(@PathParam("sysConfOid") final String oid,
-                                                      @QueryParam("attrOid") final String attrOid)
+    public Response getSystemConfigurationAttributes(@PathParam("sysConfOid") final String oid,
+                                                     @QueryParam("attrOid") final String attrOid)
         throws EFapsException
     {
         String sysconfUUID = null;
@@ -180,16 +180,29 @@ public class SystemConfigurationController
     @Path("/{sysConfOid}/links")
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
-    public Response getSystemConfigurationLinks(@PathParam("sysConfOid") final String oid)
+    public Response getSystemConfigurationLinks(@PathParam("sysConfOid") final String oid,
+                                                @QueryParam("linkOid") final String linkOid)
         throws EFapsException
     {
-        final var inst = Instance.get(oid);
-        List<SystemConfigurationLinkDto> keys = new ArrayList<>();
-        if (InstanceUtils.isType(inst, CIAdminCommon.SystemConfiguration)) {
-            final var eval = EQL.builder().print(inst)
+        String sysconfUUID = null;
+        if (linkOid != null) {
+            final var eval = EQL.builder().print(linkOid)
+                            .linkto(CIAdminCommon.SystemConfigurationLink.AbstractLink)
                             .attribute(CIAdminCommon.SystemConfiguration.UUID)
                             .evaluate();
-            final var sysconfUUID = eval.<String>get(CIAdminCommon.SystemConfiguration.UUID);
+            sysconfUUID = eval.<String>get(CIAdminCommon.SystemConfiguration.UUID);
+        } else {
+            final var inst = Instance.get(oid);
+            if (InstanceUtils.isType(inst, CIAdminCommon.SystemConfiguration)) {
+                final var eval = EQL.builder().print(inst)
+                                .attribute(CIAdminCommon.SystemConfiguration.UUID)
+                                .evaluate();
+                sysconfUUID = eval.<String>get(CIAdminCommon.SystemConfiguration.UUID);
+            }
+        }
+
+        List<SystemConfigurationLinkDto> keys = new ArrayList<>();
+        if (sysconfUUID != null) {
             keys = SysConfResourceConfig.getResourceConfig().getLinks(sysconfUUID).stream()
                             .map(link -> SystemConfigurationLinkDto.builder()
                                             .withKey(link.getKey())
