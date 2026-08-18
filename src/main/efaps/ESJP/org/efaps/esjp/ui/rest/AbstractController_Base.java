@@ -269,7 +269,8 @@ public abstract class AbstractController_Base
                         columBldr.withType(ValueType.AUTOCOMPLETE);
                         columBldr.withRef(String.valueOf(field.getId()));
                     } else if (field.hasEvents(EventType.UI_FIELD_VALUE)) {
-                        evalFieldValueEvent(null, field, columBldr, null, targetMode);
+                       final var defaultValue = evalFieldValueEvent(null, field, columBldr, null, targetMode);
+                       columBldr.withDefaultValue(defaultValue);
                     } else if (field.getProperty("ValueType") != null) {
                         columBldr.withType(getValueType(field));
                     }

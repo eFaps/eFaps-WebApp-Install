@@ -47,11 +47,11 @@ public class ContentController
     }
 
     @Override
-    @Path("/{oid}/{cmdid}")
+    @Path("/{oid}/{cmdId}")
     @GET
     @Produces({ MediaType.APPLICATION_JSON })
     public Response getContent(@PathParam("oid") final String oid,
-                               @PathParam("cmdid") final String cmdId,
+                               @PathParam("cmdId") final String cmdId,
                                @QueryParam("selOids") final List<String> selectedOids)
         throws EFapsException
     {

@@ -239,7 +239,12 @@ public abstract class ContentController_Base
             action = ActionDto.builder()
                             .withLabel(DBProperties.getProperty("default.Button.Edit"))
                             .build();
+        } else if (cmd.getTargetCommand() != null) {
+            action = ActionDto.builder()
+                            .withLabel(DBProperties.getProperty("default.Button.Next"))
+                            .build();
         }
+
         final var dto = OutlineDto.builder()
                         .withOid(oid)
                         .withMenu(menus)

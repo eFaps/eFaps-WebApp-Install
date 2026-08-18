@@ -23,6 +23,8 @@ import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
 @JsonDeserialize(builder = ColumnDto.Builder.class)
@@ -37,6 +39,8 @@ public class ColumnDto
     private final ValueType type;
     private final List<OptionDto> options;
     private final String updateRef;
+    private final Object defaultValue;
+
     private ColumnDto(final Builder builder)
     {
         header = builder.header;
@@ -45,6 +49,7 @@ public class ColumnDto
         type = builder.type;
         options = builder.options;
         updateRef = builder.updateRef;
+        defaultValue = builder.defaultValue;
     }
 
     public String getField()
@@ -77,6 +82,12 @@ public class ColumnDto
         return updateRef;
     }
 
+    @JsonInclude(value = Include.NON_NULL)
+    public Object getDefaultValue()
+    {
+        return defaultValue;
+    }
+
     @Override
     public String toString()
     {
@@ -106,6 +117,7 @@ public class ColumnDto
         private ValueType type;
         private List<OptionDto> options = Collections.emptyList();
         private String updateRef;
+        private Object defaultValue;
 
         private Builder()
         {
@@ -151,6 +163,12 @@ public class ColumnDto
         public Builder withUpdateRef(final String updateRef)
         {
             this.updateRef = updateRef;
+            return this;
+        }
+
+        public Builder withDefaultValue(final Object defaultValue)
+        {
+            this.defaultValue = defaultValue;
             return this;
         }
     }
