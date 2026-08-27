@@ -147,8 +147,8 @@ public abstract class SearchController_Base
         if (_field.getLabel() != null) {
             ret = DBProperties.getProperty(_field.getLabel());
         } else if (_field.getAttribute() != null) {
-            if (_cmd.hasEvents(EventType.UI_TABLE_EVALUATE)) {
-                final var typeOpt = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).stream()
+            if (_cmd.hasEvents(EventType.UI_CONTENT_EVALUATE)) {
+                final var typeOpt = _cmd.getEvents(EventType.UI_CONTENT_EVALUATE).stream()
                                 .map(eventDef -> eventDef.getProperty("Type")).filter(Objects::nonNull).findFirst();
                 if (typeOpt.isPresent()) {
                     final var labelOpt = LabelUtils.evalForTypeAndAttribute(Type.get(typeOpt.get()), _field.getAttribute());
@@ -268,7 +268,7 @@ public abstract class SearchController_Base
     protected Set<Type> evalTypes(final AbstractUserInterfaceObject _cmd)
         throws EFapsException
     {
-        final var propertiesMap = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
+        final var propertiesMap = _cmd.getEvents(EventType.UI_CONTENT_EVALUATE).get(0).getPropertyMap();
         final var typeList = new HashSet<Type>();
         final var excluded = new HashSet<Type>();
         final var properties = new Properties();

@@ -134,7 +134,7 @@ public abstract class TableController_Base
         throws EFapsException
     {
         ITableProvider provider = null;
-        final var event = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0);
+        final var event = cmd.getEvents(EventType.UI_CONTENT_EVALUATE).get(0);
         String className;
         if ("org.efaps.esjp.common.uitable.MultiPrint".equals(event.getResourceName())) {
             className = "org.efaps.esjp.ui.rest.provider.StandardTableProvider";
@@ -153,7 +153,7 @@ public abstract class TableController_Base
         if (provider == null) {
             throw new EFapsException(this.getClass(), "No TableProvider");
         }
-        final var properties = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
+        final var properties = cmd.getEvents(EventType.UI_CONTENT_EVALUATE).get(0).getPropertyMap();
         return provider.init(cmd, fields, properties, TargetMode.VIEW, oid, null);
     }
 

@@ -795,7 +795,7 @@ public abstract class ContentController_Base
     protected List<Type> evalTypes(final AbstractUserInterfaceObject _cmd)
         throws EFapsException
     {
-        final var propertiesMap = _cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
+        final var propertiesMap = _cmd.getEvents(EventType.UI_CONTENT_EVALUATE).get(0).getPropertyMap();
         final var typeList = new ArrayList<Type>();
         final var properties = new Properties();
         properties.putAll(propertiesMap);
@@ -1283,7 +1283,7 @@ public abstract class ContentController_Base
         if (TargetMode.CREATE.equals(this.currentTargetMode) && !(cmd instanceof FieldTable)) {
             ret = new ArrayList<>();
         } else {
-            final var event = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0);
+            final var event = cmd.getEvents(EventType.UI_CONTENT_EVALUATE).get(0);
             String className;
             if ("org.efaps.esjp.common.uitable.MultiPrint".equals(event.getResourceName())) {
                 className = "org.efaps.esjp.ui.rest.provider.StandardTableProvider";
@@ -1303,7 +1303,7 @@ public abstract class ContentController_Base
                 throw new EFapsException(this.getClass(), "No TableProvider");
             }
             final var fields = getFields(table, this.currentTargetMode);
-            final var properties = cmd.getEvents(EventType.UI_TABLE_EVALUATE).get(0).getPropertyMap();
+            final var properties = cmd.getEvents(EventType.UI_CONTENT_EVALUATE).get(0).getPropertyMap();
 
             ret = provider.init(cmd, fields, properties, currentTargetMode, instance.getOid(), selectedOids).getValues();
         }
