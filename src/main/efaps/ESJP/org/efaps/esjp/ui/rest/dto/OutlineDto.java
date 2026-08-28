@@ -18,7 +18,10 @@ package org.efaps.esjp.ui.rest.dto;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 
@@ -39,6 +42,7 @@ public class OutlineDto
     private final List<ISection> sections;
     private final ActionDto action;
     private final List<ClassificationDto> classifications;
+    private final Map<String, ?> values;
 
     private OutlineDto(final Builder builder)
     {
@@ -48,6 +52,7 @@ public class OutlineDto
         sections = builder.sections;
         action = builder.action;
         classifications = builder.classifications;
+        values = builder.values;
     }
 
     public String getOid()
@@ -80,6 +85,18 @@ public class OutlineDto
         return classifications;
     }
 
+    @JsonInclude(value = Include.NON_EMPTY)
+    public Map<String, ?> getValues()
+    {
+        return values;
+    }
+
+    @Override
+    public String toString()
+    {
+        return ToStringBuilder.reflectionToString(this, ToStringStyle.JSON_STYLE);
+    }
+
     /**
      * Creates builder to build {@link OutlineDto}.
      *
@@ -102,6 +119,7 @@ public class OutlineDto
         private List<ISection> sections = Collections.emptyList();
         private ActionDto action;
         private List<ClassificationDto> classifications = Collections.emptyList();
+        private Map<String, ?> values;
 
         private Builder()
         {
@@ -140,6 +158,12 @@ public class OutlineDto
         public Builder withClassifications(final List<ClassificationDto> classifications)
         {
             this.classifications = classifications;
+            return this;
+        }
+
+        public Builder withValues(final Map<String, ?> values)
+        {
+            this.values = values;
             return this;
         }
 

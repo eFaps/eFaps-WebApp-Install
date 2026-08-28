@@ -32,6 +32,7 @@ public class ActionDto
     private final String label;
     private final VerifyDto verify;
     private final boolean modal;
+    private final String cmdId;
 
     private ActionDto(final Builder builder)
     {
@@ -39,6 +40,7 @@ public class ActionDto
         label = builder.label;
         verify = builder.verify;
         this.modal = builder.modal;
+        this.cmdId = builder.cmdId;
     }
 
     public ActionType getType()
@@ -61,6 +63,11 @@ public class ActionDto
         return modal;
     }
 
+    public String getCmdId()
+    {
+        return cmdId;
+    }
+
     @Override
     public String toString()
     {
@@ -69,6 +76,7 @@ public class ActionDto
 
     /**
      * Creates builder to build {@link ActionDto}.
+     *
      * @return created builder
      */
     public static Builder builder()
@@ -85,7 +93,8 @@ public class ActionDto
         private ActionType type;
         private String label;
         private VerifyDto verify;
-        boolean modal;
+        private boolean modal;
+        private String cmdId;
 
         private Builder()
         {
@@ -112,6 +121,12 @@ public class ActionDto
         public Builder withModal(final boolean modal)
         {
             this.modal = modal;
+            return this;
+        }
+
+        public Builder withCmdId(final String cmdId)
+        {
+            this.cmdId = cmdId;
             return this;
         }
 

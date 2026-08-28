@@ -20,9 +20,12 @@ import java.util.List;
 
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.esjp.ui.rest.dto.PayloadDto;
 import org.efaps.util.EFapsException;
 
+import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
+import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
@@ -56,5 +59,17 @@ public class ContentController
         throws EFapsException
     {
         return super.getContent(oid, cmdId, selectedOids);
+    }
+
+    @Override
+    @POST
+    @Path("/{cmdId}")
+    @Produces({ MediaType.APPLICATION_JSON })
+    @Consumes({ MediaType.APPLICATION_JSON })
+    public Response getContent(@PathParam("cmdId") final String cmdId,
+                               final PayloadDto dto)
+        throws EFapsException
+    {
+        return super.getContent(cmdId, dto);
     }
 }

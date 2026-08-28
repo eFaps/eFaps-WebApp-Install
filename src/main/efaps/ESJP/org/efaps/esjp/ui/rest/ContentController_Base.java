@@ -24,6 +24,7 @@ import java.time.OffsetDateTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -97,10 +98,13 @@ import org.efaps.esjp.ui.rest.dto.ModuleDto;
 import org.efaps.esjp.ui.rest.dto.NavItemDto;
 import org.efaps.esjp.ui.rest.dto.OptionDto;
 import org.efaps.esjp.ui.rest.dto.OutlineDto;
+import org.efaps.esjp.ui.rest.dto.PayloadDto;
 import org.efaps.esjp.ui.rest.dto.TableSectionDto;
 import org.efaps.esjp.ui.rest.dto.ValueDto;
 import org.efaps.esjp.ui.rest.dto.ValueType;
+import org.efaps.esjp.ui.rest.provider.IFormProvider;
 import org.efaps.esjp.ui.rest.provider.ITableProvider;
+import org.efaps.esjp.ui.rest.provider.StandardFormProvider;
 import org.efaps.esjp.ui.util.LabelUtils;
 import org.efaps.util.EFapsException;
 import org.efaps.util.UUIDUtil;
@@ -110,6 +114,7 @@ import org.slf4j.LoggerFactory;
 
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 
+import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.core.Response;
 
 @EFapsUUID("da1c680f-8219-4a93-ab64-d6dbd261dc56")
@@ -121,10 +126,10 @@ public abstract class ContentController_Base
     private static final Logger LOG = LoggerFactory.getLogger(ContentController.class);
 
     protected Instance mainInstance;
-    protected AbstractCommand callCmdss;
     protected TargetMode currentTargetMode;
     protected List<Classification> classifications;
     protected List<String> selectedOids;
+    protected IFormProvider formProvider;
 
     public Response getContent(final String oid)
         throws EFapsException
@@ -136,7 +141,9 @@ public abstract class ContentController_Base
         if (instance.isValid()) {
 
             final var typeMenu = instance.getType().getTypeMenu();
-            final var defaultSelected = typeMenu.getCommands().stream().filter(AbstractCommand::isDefaultSelected)
+            evalFormProvider(typeMenu, null);
+            final var defaultSelected = typeMenu.getCommands().stream()
+                            .filter(AbstractCommand::isDefaultSelected)
                             .findFirst();
 
             final var targetMenu = typeMenu.getTargetMenu();
@@ -205,6 +212,7 @@ public abstract class ContentController_Base
         if (cmd == null) {
             cmd = Menu.get(UUID.fromString(cmdId));
         }
+
         final var targetMenu = cmd.getTargetMenu();
         final var header = getLabel(instance, cmd.getTargetTitle());
 
@@ -229,6 +237,8 @@ public abstract class ContentController_Base
                             .build();
         }
 
+        evalFormProvider(cmd, null);
+
         final List<NavItemDto> menus = targetMenu == null ? null : new NavItemEvaluator().getMenu(targetMenu, oid);
         ActionDto action = null;
         if (cmd.getTargetMode().equals(TargetMode.CREATE) && cmd.hasEvents(EventType.UI_COMMAND_EXECUTE)) {
@@ -241,7 +251,9 @@ public abstract class ContentController_Base
                             .build();
         } else if (cmd.getTargetCommand() != null) {
             action = ActionDto.builder()
+                            .withType(ActionType.FORM)
                             .withLabel(DBProperties.getProperty("default.Button.Next"))
+                            .withCmdId(cmd.getTargetCommand().getUUID().toString())
                             .build();
         }
 
@@ -255,11 +267,21 @@ public abstract class ContentController_Base
                                                         .map(ClassificationController::toDto)
                                                         .collect(Collectors.toList()))
                         .withAction(action)
+                        .withValues(formProvider.getValues())
                         .build();
 
         return Response.ok()
                         .entity(dto)
                         .build();
+    }
+
+    public Response getContent(@PathParam("cmdId") final String cmdId,
+                               final PayloadDto dto)
+        throws EFapsException
+    {
+        final var cmd = Command.get(UUID.fromString(cmdId));
+        evalFormProvider(cmd, dto.getValues());
+        return getContent(null, cmdId, Collections.emptyList());
     }
 
     public List<ISection> evalSections(final Instance instance,
@@ -271,20 +293,16 @@ public abstract class ContentController_Base
         List<ISection> ret = new ArrayList<>();
         final var targetMode = TargetMode.UNKNOWN.equals(cmd.getTargetMode()) ? TargetMode.VIEW : cmd.getTargetMode();
         currentTargetMode = targetMode;
-        mainInstance = instance;
-        final Instance sectionInstance;
-        if (TargetMode.CREATE.equals(targetMode) && cmd.getTargetCreateType() != null) {
-            sectionInstance = Instance.get(cmd.getTargetCreateType(), null);
-            if (!mainInstance.isValid()) {
-                mainInstance = sectionInstance;
-            }
-        } else {
-            sectionInstance = instance;
+
+        final var sectionInstance = formProvider.evalSectionInstance(instance);
+        if (!InstanceUtils.isValid(mainInstance)) {
+            mainInstance = sectionInstance;
         }
 
         final var form = cmd.getTargetForm();
         final var table = cmd.getTargetTable();
         if (form != null) {
+            LOG.info("using: {}", formProvider);
             final var print = EQL.builder().print(sectionInstance);
             final var executable = evalSelects4Form(cmd, form, print, sectionInstance, null);
 
@@ -1305,7 +1323,8 @@ public abstract class ContentController_Base
             final var fields = getFields(table, this.currentTargetMode);
             final var properties = cmd.getEvents(EventType.UI_CONTENT_EVALUATE).get(0).getPropertyMap();
 
-            ret = provider.init(cmd, fields, properties, currentTargetMode, instance.getOid(), selectedOids).getValues();
+            ret = provider.init(cmd, fields, properties, currentTargetMode, instance.getOid(), selectedOids)
+                            .getValues();
         }
         return ret;
     }
@@ -1333,6 +1352,36 @@ public abstract class ContentController_Base
             }
         }
         return ret;
+    }
+
+    protected IFormProvider evalFormProvider(final AbstractCommand cmd,
+                                             final Map<String, ?> payloadValues)
+        throws EFapsException
+    {
+        if (formProvider != null) {
+            return formProvider;
+        }
+        IFormProvider provider = null;
+        final Map<String, String> properties;
+        if (cmd.hasEvents(EventType.UI_CONTENT_EVALUATE)) {
+            final var event = cmd.getEvents(EventType.UI_CONTENT_EVALUATE).get(0);
+            properties = event.getPropertyMap();
+            final var className = event.getResourceName();
+
+            try {
+                final Class<?> cls = Class.forName(className, true, EFapsClassLoader.getInstance());
+                LOG.info("FormProvider className {} ", className);
+                provider = (IFormProvider) cls.getConstructor().newInstance();
+            } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | IllegalArgumentException
+                            | InvocationTargetException | NoSuchMethodException | SecurityException e) {
+                LOG.error("Could not instantiate IFormProvider", e);
+            }
+        } else {
+            provider = new StandardFormProvider();
+            properties = new HashMap<>();
+        }
+        this.formProvider = provider;
+        return provider.init(cmd, properties, payloadValues);
     }
 
     public static String getBooleanLabel(final Attribute attr,
