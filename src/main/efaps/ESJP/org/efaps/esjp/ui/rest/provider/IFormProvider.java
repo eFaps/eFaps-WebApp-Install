@@ -18,6 +18,7 @@ public interface IFormProvider
     default IFormProvider init(final AbstractUserInterfaceObject cmd,
                                final Map<String, String> properties,
                                final Map<String, ?> payloadValues)
+        throws EFapsException
     {
         return this;
     }
@@ -29,12 +30,14 @@ public interface IFormProvider
     }
 
     default Map<String, ?> getValues()
+        throws EFapsException
     {
         return null;
     }
 
     default Map<String, String> evalEventProperties(final AbstractUserInterfaceObject cmd,
                                                     final EventType eventType)
+        throws EFapsException
     {
         if (cmd.hasEvents(eventType)) {
             return cmd.getEvents(eventType).get(0).getPropertyMap();
