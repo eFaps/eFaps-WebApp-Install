@@ -1,7 +1,9 @@
 package org.efaps.esjp.ui.rest.provider;
 
+import java.util.HashMap;
 import java.util.Map;
 
+import org.efaps.admin.event.EventType;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
 import org.efaps.admin.ui.AbstractUserInterfaceObject;
@@ -29,5 +31,15 @@ public interface IFormProvider
     default Map<String, ?> getValues()
     {
         return null;
+    }
+
+    default Map<String, String> evalEventProperties(final AbstractUserInterfaceObject cmd,
+                                                    final EventType eventType)
+    {
+        if (cmd.hasEvents(eventType)) {
+            return cmd.getEvents(eventType).get(0).getPropertyMap();
+        } else {
+            return new HashMap<>();
+        }
     }
 }
