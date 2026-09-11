@@ -302,7 +302,7 @@ public abstract class ContentController_Base
         final var form = cmd.getTargetForm();
         final var table = cmd.getTargetTable();
         if (form != null) {
-            LOG.info("using: {}", formProvider);
+            LOG.info("using: {} with: {}", formProvider, mainInstance);
             final var print = EQL.builder().print(sectionInstance);
             final var executable = evalSelects4Form(cmd, form, print, sectionInstance, null);
 
@@ -1332,6 +1332,7 @@ public abstract class ContentController_Base
                                                                final Instance instance)
         throws EFapsException
     {
+        LOG.info("evaluating classificattion for: {} and: {}", instance, classification);
         final List<Classification> ret = new ArrayList<>();
         if (classification.isRoot()) {
             final var eval = EQL.builder().print(instance).clazz(classification.getName()).instance().evaluate();
