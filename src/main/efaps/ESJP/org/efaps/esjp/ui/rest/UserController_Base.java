@@ -265,27 +265,29 @@ public abstract class UserController_Base
             if (person != null) {
                 boolean update = false;
                 final var givenName = jwtClaimsSet.getStringClaim(GIVEN_NAME);
+                LOG.debug("{}: is set with {}", GIVEN_NAME, givenName);
                 if (StringUtils.isNotEmpty(givenName) && !person.getFirstName().equals(givenName)) {
                     person.updateAttrValue(AttrName.FIRSTNAME, givenName);
                     update = true;
                 }
 
                 final var familyName = jwtClaimsSet.getStringClaim(FAMILY_NAME);
+                LOG.debug("{}: is set with {}", FAMILY_NAME, familyName);
                 if (StringUtils.isNotEmpty(familyName) && !person.getLastName().equals(familyName)) {
                     person.updateAttrValue(AttrName.LASTNAME, familyName);
                     update = true;
                 }
 
                 final var localeTag = jwtClaimsSet.getStringClaim(LOCALEKEY);
-                LOG.debug("{}: is is set with {}", LOCALEKEY, localeTag);
+                LOG.debug("{}: is set with {}", LOCALEKEY, localeTag);
                 if (StringUtils.isNotEmpty(localeTag) && !person.getLocale().toLanguageTag().equals(localeTag)
                                 && Locale.forLanguageTag(localeTag) != null) {
                     person.updateAttrValue(AttrName.LOCALE, localeTag);
                     update = true;
                 }
                 final var tzStr = jwtClaimsSet.getStringClaim(TZKEY);
+                LOG.debug("{}: is set with {}", TZKEY, tzStr);
                 if (StringUtils.isNotEmpty(tzStr)) {
-                    LOG.debug("{}: is is set with {}", TZKEY, tzStr);
                     final TimeZone tz = TimeZone.getTimeZone(tzStr);
                     if (!person.getTimeZone().getID().equals(tzStr) && tz != null) {
                         person.updateAttrValue(AttrName.TIMZONE, tzStr);
@@ -293,8 +295,8 @@ public abstract class UserController_Base
                     }
                 }
                 final String lang = jwtClaimsSet.getStringClaim(LANGKEY);
+                LOG.debug("{}: is set with {}", LANGKEY, lang);
                 if (StringUtils.isNotEmpty(lang) && !person.getLanguage().equals(lang)) {
-                    LOG.debug("{}: is is set with {}", LANGKEY, lang);
                     final QueryBuilder queryBldr = new QueryBuilder(CIAdmin.Language);
                     queryBldr.addWhereAttrEqValue(CIAdmin.Language.Language, lang);
                     final InstanceQuery query = queryBldr.getQuery();
