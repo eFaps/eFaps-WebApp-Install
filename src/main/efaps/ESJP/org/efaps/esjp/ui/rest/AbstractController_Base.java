@@ -41,6 +41,7 @@ import org.efaps.admin.event.Return;
 import org.efaps.admin.event.Return.ReturnValues;
 import org.efaps.admin.program.esjp.EFapsApplication;
 import org.efaps.admin.program.esjp.EFapsUUID;
+import org.efaps.admin.ui.AbstractCollection;
 import org.efaps.admin.ui.AbstractCommand;
 import org.efaps.admin.ui.AbstractUserInterfaceObject.TargetMode;
 import org.efaps.admin.ui.field.Field;
@@ -286,11 +287,12 @@ public abstract class AbstractController_Base
         return ret;
     }
 
-    protected List<Field> getFields(final org.efaps.admin.ui.Table table, TargetMode targetMode)
+    protected List<Field> getFields(final AbstractCollection collection,
+                                    final TargetMode targetMode)
     {
-        return table.getFields().stream().filter(field -> {
+        return collection.getFields().stream().filter(field -> {
             try {
-                return field.hasAccess( targetMode, null) && !field.isNoneDisplay(targetMode);
+                return field.hasAccess(targetMode, null) && !field.isNoneDisplay(targetMode);
             } catch (final EFapsException e) {
                 LOG.error("Catched error while evaluation access for Field: {}", field);
             }

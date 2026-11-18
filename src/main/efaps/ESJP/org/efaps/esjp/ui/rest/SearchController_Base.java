@@ -177,15 +177,17 @@ public abstract class SearchController_Base
         return ret;
     }
 
-    public Response search(final String _cmdId,
-                           final UriInfo _uriInfo)
+    public Response search(final String cmdId,
+                           final UriInfo uriInfo)
         throws EFapsException
     {
-        final var cmd = Command.get(UUID.fromString(_cmdId));
+        final var cmd = Command.get(UUID.fromString(cmdId));
         final var table = cmd.getTargetTable();
+        final var form = cmd.getTargetForm();
 
-        final MultivaluedMap<String, String> queryParameters = _uriInfo.getQueryParameters();
-        LOG.debug("", queryParameters);
+
+        final MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
+        LOG.debug("{}", queryParameters);
 
         final String selectionMode = cmd.isTargetShowCheckBoxes()
                         ? cmd.getSubmitSelectedRows() == 1 ? "single" : "multiple"
@@ -209,7 +211,7 @@ public abstract class SearchController_Base
         final var dto = TableDto.builder()
                         .withHeader(getHeader(cmd, null))
                         .withColumns(getColumns(cmd, table, TargetMode.SEARCH, null))
-                        .withValues(getValues(cmd, table, queryParameters, limit))
+                        .withValues(getValues(cmd, form, queryParameters, limit))
                         .withSelectionMode(selectionMode)
                         .withPage(PageDto.builder()
                                         .withPageSize(limit).build())
@@ -222,12 +224,12 @@ public abstract class SearchController_Base
     }
 
     public Collection<Map<String, ?>> getValues(final AbstractUserInterfaceObject uiObj,
-                                                final org.efaps.admin.ui.Table _table,
+                                                final org.efaps.admin.ui.Form form,
                                                 final MultivaluedMap<String, String> queryParameters,
                                                 final int limit)
         throws EFapsException
     {
-        final var fields = getFields(_table, TargetMode.SEARCH);
+        final var fields = getFields(form, TargetMode.SEARCH);
         final var typeList = evalTypes(uiObj);
         final var types = typeList.stream().map(Type::getName).toArray(String[]::new);
         final var query = EQL.builder()
@@ -242,8 +244,6 @@ public abstract class SearchController_Base
                 }
             }
         }
-
-
 
         final var print = query.select();
         print.limit(limit);
