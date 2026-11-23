@@ -211,7 +211,7 @@ public abstract class SearchController_Base
         final var dto = TableDto.builder()
                         .withHeader(getHeader(cmd, null))
                         .withColumns(getColumns(cmd, table, TargetMode.SEARCH, null))
-                        .withValues(getValues(cmd, form, queryParameters, limit))
+                        .withValues(getValues(cmd, form, table, queryParameters, limit))
                         .withSelectionMode(selectionMode)
                         .withPage(PageDto.builder()
                                         .withPageSize(limit).build())
@@ -225,11 +225,14 @@ public abstract class SearchController_Base
 
     public Collection<Map<String, ?>> getValues(final AbstractUserInterfaceObject uiObj,
                                                 final org.efaps.admin.ui.Form form,
+                                                final  org.efaps.admin.ui.Table table,
                                                 final MultivaluedMap<String, String> queryParameters,
                                                 final int limit)
         throws EFapsException
     {
-        final var fields = getFields(form, TargetMode.SEARCH);
+        final var searchFields = getFields(form, TargetMode.SEARCH);
+        final var resultFields = getFields(table, TargetMode.SEARCH);
+
         final var typeList = evalTypes(uiObj);
         final var types = typeList.stream().map(Type::getName).toArray(String[]::new);
         final var query = EQL.builder()
@@ -237,7 +240,7 @@ public abstract class SearchController_Base
                         .query(types);
 
         for (final var entry : queryParameters.entrySet()) {
-            final var field = fields.stream().filter(f -> f.getName().equals(entry.getKey())).findFirst();
+            final var field = searchFields.stream().filter(f -> f.getName().equals(entry.getKey())).findFirst();
             if (field.isPresent()) {
                 if (field.get().getAttribute() != null) {
                     query.where().attribute(field.get().getAttribute()).ilike("%" + entry.getValue().get(0) + "%");
@@ -247,10 +250,10 @@ public abstract class SearchController_Base
 
         final var print = query.select();
         print.limit(limit);
-        if (fields.stream().anyMatch(field -> field.getReference() != null)) {
+        if (resultFields.stream().anyMatch(field -> field.getReference() != null)) {
             print.oid().as("OID");
         }
-        for (final var field : fields) {
+        for (final var field : resultFields) {
             if (field.getAttribute() != null) {
                 add2Select4Attribute(print, field, typeList);
             } else if (field.getSelect() != null) {
